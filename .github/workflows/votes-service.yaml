@@ -2,6 +2,8 @@ name: Votes Service
 
 on:
   push:
+      paths:
+      - 'go/votes-service/**'
   workflow_dispatch:
 
 jobs:
