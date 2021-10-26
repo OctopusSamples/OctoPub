@@ -19,3 +19,9 @@ runs:
     - run: go build ${{ inputs.main }}
       shell: bash
       working-directory: "${{ inputs.directory }}"
+      env:
+        GOOS: linux
+        GOARCH: arm64
+    - run: zip function.zip main
+      shell: bash
+      working-directory: "${{ inputs.directory }}"
