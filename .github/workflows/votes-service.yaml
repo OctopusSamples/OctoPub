@@ -1,0 +1,19 @@
+name: Votes Service
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Build
+      uses: ./go/votes-service/.github/actions/build
+      with:
+          directory: go/votes-service
+          main: cmd/main/main.go

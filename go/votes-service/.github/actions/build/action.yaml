@@ -1,0 +1,17 @@
+name: 'Build'
+description: 'Build Go App'
+inputs:
+  directory:
+    description: 'The base directory of the go application'
+    required: true
+  main:
+    description: 'The main file'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-go@v2
+      with:
+        go-version: 1.7
+    - run: cd "${{ inputs.directory }}"; go build ${{ inputs.main }}
+      shell: bash
