@@ -15,7 +15,7 @@ runs:
         go-version: 1.7
     - run: go get ./...
       shell: bash
-      working-directory: ${{ inputs.directory }}
+      working-directory: "${{ inputs.directory }}"
     - run: go build ${{ inputs.main }}
       shell: bash
-      working-directory: ${{ inputs.directory }}
+      working-directory: "${{ inputs.directory }}"
