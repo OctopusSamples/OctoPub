@@ -22,6 +22,15 @@ runs:
       env:
         GOOS: linux
         GOARCH: arm64
-    - run: zip function.zip main
+    - run: zip function-arm64.zip main
+      shell: bash
+      working-directory: "${{ inputs.directory }}"
+    - run: go build ${{ inputs.main }}
+      shell: bash
+      working-directory: "${{ inputs.directory }}"
+      env:
+        GOOS: linux
+        GOARCH: amd64
+    - run: zip function-amd64.zip main
       shell: bash
       working-directory: "${{ inputs.directory }}"
