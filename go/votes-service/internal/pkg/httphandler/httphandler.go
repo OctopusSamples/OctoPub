@@ -38,7 +38,6 @@ func showVote(w http.ResponseWriter, r *http.Request) {
 		IPAddress: "",
 		Product:   nil,
 	}
-	w.WriteHeader(http.StatusOK)
 
 	setJsonApiContentType(w)
 
