@@ -64,3 +64,13 @@ runs:
         -Dversion=0.0.1.${{ github.run_number }}
       shell: bash
       working-directory: "${{ inputs.directory }}"
+    - run: >
+        mvn deploy:deploy-file
+        -DrepositoryId=github
+        -Dfile=function-arm64.zip
+        -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
+        -DgroupId=com.octopus.octopub
+        -DartifactId=votes-service-arm
+        -Dversion=0.0.1.${{ github.run_number }}
+      shell: bash
+      working-directory: "${{ inputs.directory }}"
