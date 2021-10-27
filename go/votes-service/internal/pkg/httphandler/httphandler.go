@@ -7,7 +7,6 @@ import (
 	"github.com/mcasperson/OctoPub/go/votes-service/internal/pkg/models"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -24,17 +23,11 @@ func StartServer() {
 }
 
 func showVote(w http.ResponseWriter, r *http.Request) {
-	intID, err := getID(r)
-	if err != nil {
-		writeError(w, err)
-		return
-	}
-
 	jsonapiRuntime := buildRuntime("votes.show")
 
 	// but, for now
 	vote := &models.Vote{
-		ID:         intID,
+		ID:         "urn:votes:" + getID(r),
 		CreatedAt:  time.Time{},
 		IPAddress:  "",
 		VoteObject: &models.Urn{ID: "urn:products:1"},
@@ -48,18 +41,15 @@ func showVote(w http.ResponseWriter, r *http.Request) {
 func listVotes(w http.ResponseWriter, r *http.Request) {
 	jsonapiRuntime := buildRuntime("blogs.list")
 
-	votes := []*models.Vote{{ID: 1, CreatedAt: time.Time{}, IPAddress: "", VoteObject: &models.Urn{ID: "urn:products:1"}}}
+	votes := []*models.Vote{{ID: "urn:votes:1", CreatedAt: time.Time{}, IPAddress: "", VoteObject: &models.Urn{ID: "urn:products:1"}}}
 
 	setJSONAPIContentType(w)
 
 	writeModel(w, votes, jsonapiRuntime)
 }
 
-func getID(r *http.Request) (int, error) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	return strconv.Atoi(id)
+func getID(r *http.Request) string {
+	return mux.Vars(r)["id"]
 }
 
 func buildRuntime(key string) *jsonapi.Runtime {
