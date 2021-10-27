@@ -2,7 +2,7 @@ package httphandler
 
 import (
 	"github.com/google/jsonapi"
-	"github.com/mcasperson/OctoPub/go/votes-service/pkg/models"
+	models2 "github.com/mcasperson/OctoPub/go/votes-service/internal/pkg/models"
 	"net/http"
 	"strconv"
 	"time"
@@ -49,7 +49,7 @@ func (h *HttpHandler) showVote(w http.ResponseWriter, r *http.Request) {
 	jsonapiRuntime := jsonapi.NewRuntime().Instrument("votes.show")
 
 	// but, for now
-	vote := models.Vote{
+	vote := models2.Vote{
 		ID:        intID,
 		CreatedAt: time.Time{},
 		IPAddress: "",
@@ -66,10 +66,10 @@ func (h *HttpHandler) showVote(w http.ResponseWriter, r *http.Request) {
 func (h *HttpHandler) listVotes(w http.ResponseWriter, r *http.Request) {
 	jsonapiRuntime := jsonapi.NewRuntime().Instrument("blogs.list")
 
-	product := models.Product{
+	product := models2.Product{
 		ID: 1,
 	}
-	votes := []*models.Vote{{ID: 1, CreatedAt: time.Time{}, IPAddress: "", Product: &product}}
+	votes := []*models2.Vote{{ID: 1, CreatedAt: time.Time{}, IPAddress: "", Product: &product}}
 
 	w.Header().Set("Content-Type", jsonapi.MediaType)
 	w.WriteHeader(http.StatusOK)

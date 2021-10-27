@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mcasperson/OctoPub/go/votes-service/pkg/httphandler"
+	"github.com/mcasperson/OctoPub/go/votes-service/internal/pkg/httphandler"
 	"log"
 	"net/http"
 )
