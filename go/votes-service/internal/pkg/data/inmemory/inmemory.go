@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-type InMemoryDb struct {
+type Db struct {
 	database *memdb.MemDB
 }
 
-func New() *InMemoryDb {
+func New() *Db {
 	schema := &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
 			"vote": &memdb.TableSchema{
@@ -35,13 +35,13 @@ func New() *InMemoryDb {
 	if err != nil {
 		panic(err)
 	} else {
-		inMemoryDb := InMemoryDb{database: database}
+		inMemoryDb := Db{database: database}
 		inMemoryDb.initData()
 		return &inMemoryDb
 	}
 }
 
-func (db InMemoryDb) FindOne(id string) (models.Entity, error) {
+func (db Db) FindOne(id string) (models.Entity, error) {
 	txn := db.database.Txn(false)
 	defer txn.Abort()
 	vote, err := txn.First("vote", "id", id)
@@ -54,7 +54,7 @@ func (db InMemoryDb) FindOne(id string) (models.Entity, error) {
 	return vote.(models.Entity), nil
 }
 
-func (db InMemoryDb) FindAll() ([]models.Entity, error) {
+func (db Db) FindAll() ([]models.Entity, error) {
 	txn := db.database.Txn(false)
 	defer txn.Abort()
 	iterator, err := txn.Get("vote", "id")
@@ -71,7 +71,7 @@ func (db InMemoryDb) FindAll() ([]models.Entity, error) {
 	return votesArray, nil
 }
 
-func (db InMemoryDb) initData() {
+func (db Db) initData() {
 	txn := db.database.Txn(true)
 	for _, v := range db.getData() {
 		txn.Insert("vote", v)
@@ -79,7 +79,7 @@ func (db InMemoryDb) initData() {
 	txn.Commit()
 }
 
-func (db InMemoryDb) getData() []*models.Vote {
+func (db Db) getData() []*models.Vote {
 	return []*models.Vote{
 		{ID: "urn:votes:1", CreatedAt: time.Now(), VoteObject: &models.Urn{ID: "urn:products:1"}},
 	}
