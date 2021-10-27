@@ -7,6 +7,9 @@ inputs:
   main:
     description: 'The main file'
     required: true
+  token:
+    description: 'The github token'
+    required: true
 runs:
   using: "composite"
   steps:
@@ -50,7 +53,7 @@ runs:
               }
             }
           ]
-        servers: '[{ "id": "github", "username": "mcasperson", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
+        servers: '[{ "id": "github", "username": "mcasperson", "password": "${{ inputs.token }}" }]'
     - run: >
         mvn deploy:deploy-file
         -DrepositoryId=github

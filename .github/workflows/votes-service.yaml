@@ -19,3 +19,4 @@ jobs:
       with:
         directory: ./go/votes-service
         main: ./cmd/main/main.go
+        token: ${{ secrets.GITHUB_TOKEN }}
