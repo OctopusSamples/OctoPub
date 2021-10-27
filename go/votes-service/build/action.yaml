@@ -25,7 +25,7 @@ runs:
       env:
         GOOS: linux
         GOARCH: arm64
-    - run: zip function-arm64.zip lambda
+    - run: zip function-arm64.zip main
       shell: bash
       working-directory: "${{ inputs.directory }}"
     - run: go build ${{ inputs.main }}
@@ -34,7 +34,7 @@ runs:
       env:
         GOOS: linux
         GOARCH: amd64
-    - run: zip function-amd64.zip lambda
+    - run: zip function-amd64.zip main
       shell: bash
       working-directory: "${{ inputs.directory }}"
     - uses: whelk-io/maven-settings-xml-action@v20
