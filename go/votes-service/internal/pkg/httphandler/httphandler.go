@@ -18,7 +18,14 @@ func StartServer() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/votes", listVotes)
 	r.HandleFunc("/api/votes/{id}", showVote)
+
+	r.HandleFunc("/health/votes", healthOk)
+	r.HandleFunc("/health/votes/{id}", healthOk)
 	log.Fatal(http.ListenAndServe("localhost:8080", r))
+}
+
+func healthOk(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 func showVote(w http.ResponseWriter, r *http.Request) {
