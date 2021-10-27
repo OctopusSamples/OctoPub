@@ -48,6 +48,9 @@ func (db InMemoryDb) FindOne(id string) (models.Entity, error) {
 	if err != nil {
 		return nil, err
 	}
+	if vote == nil {
+		return nil, nil
+	}
 	return vote.(models.Entity), nil
 }
 

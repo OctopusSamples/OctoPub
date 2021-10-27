@@ -30,6 +30,11 @@ func showVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if vote == nil {
+		http.NotFound(w, r)
+		return
+	}
+
 	setJSONAPIContentType(w)
 	writeModel(w, vote, jsonapiRuntime)
 }
