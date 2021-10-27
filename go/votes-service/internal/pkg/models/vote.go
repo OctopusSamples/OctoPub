@@ -1,3 +1,4 @@
+// Package models contains the API model representations
 package models
 
 import (

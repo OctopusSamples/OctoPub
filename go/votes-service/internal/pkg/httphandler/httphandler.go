@@ -1,3 +1,4 @@
+// Package httphandler contains the logic required to respond to API requests
 package httphandler
 
 import (

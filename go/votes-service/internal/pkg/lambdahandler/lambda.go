@@ -1,4 +1,5 @@
-package lambdahanlder
+// Package lambdahandler contains the AWS lambda entry point
+package lambdahandler
 
 import (
 	"context"
