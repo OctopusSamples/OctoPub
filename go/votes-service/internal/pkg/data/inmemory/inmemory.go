@@ -44,7 +44,7 @@ func New() *InMemoryDb {
 func (db InMemoryDb) FindOne(id string) (models.Entity, error) {
 	txn := db.database.Txn(false)
 	defer txn.Abort()
-	vote, err := txn.First("votes", "id", id)
+	vote, err := txn.First("vote", "id", id)
 	if err != nil {
 		return nil, err
 	}
