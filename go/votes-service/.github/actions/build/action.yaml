@@ -58,6 +58,7 @@ runs:
         mvn deploy:deploy-file
         -DrepositoryId=github
         -Dfile=function-amd64.zip
+        -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
         -DgroupId=com.octopus.octopub
         -DartifactId=votes-service
         -Dversion=0.0.1.${{ github.run_number }}
