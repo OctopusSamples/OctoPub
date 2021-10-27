@@ -34,10 +34,10 @@ func showVote(w http.ResponseWriter, r *http.Request) {
 
 	// but, for now
 	vote := &models.Vote{
-		ID:        intID,
-		CreatedAt: time.Time{},
-		IPAddress: "",
-		Product:   nil,
+		ID:         intID,
+		CreatedAt:  time.Time{},
+		IPAddress:  "",
+		VoteObject: &models.Urn{ID: "urn:products:1"},
 	}
 
 	setJSONAPIContentType(w)
@@ -48,10 +48,7 @@ func showVote(w http.ResponseWriter, r *http.Request) {
 func listVotes(w http.ResponseWriter, r *http.Request) {
 	jsonapiRuntime := buildRuntime("blogs.list")
 
-	product := models.Product{
-		ID: 1,
-	}
-	votes := []*models.Vote{{ID: 1, CreatedAt: time.Time{}, IPAddress: "", Product: &product}}
+	votes := []*models.Vote{{ID: 1, CreatedAt: time.Time{}, IPAddress: "", VoteObject: &models.Urn{ID: "urn:products:1"}}}
 
 	setJSONAPIContentType(w)
 

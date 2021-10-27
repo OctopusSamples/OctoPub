@@ -6,8 +6,8 @@ import (
 )
 
 type Vote struct {
-	ID        int       `jsonapi:"primary,blogs"`
-	CreatedAt time.Time `jsonapi:"attr,created_at"`
-	IPAddress string    `jsonapi:"attr,ip_address"`
-	Product   *Product  `jsonapi:"relation,product,omitempty"`
+	ID         int       `jsonapi:"primary,vote"`
+	CreatedAt  time.Time `jsonapi:"attr,created_at"`
+	IPAddress  string    `jsonapi:"attr,ip_address"`
+	VoteObject *Urn      `jsonapi:"relation,vote_object,omitempty"`
 }
