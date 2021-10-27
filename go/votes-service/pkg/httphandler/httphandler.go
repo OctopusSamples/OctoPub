@@ -18,6 +18,7 @@ type HttpHandler struct{}
 func (h *HttpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get(headerAccept) != jsonapi.MediaType {
 		http.Error(w, "Unsupported Media Type", http.StatusUnsupportedMediaType)
+		return
 	}
 
 	var methodHandler http.HandlerFunc
@@ -65,7 +66,10 @@ func (h *HttpHandler) showVote(w http.ResponseWriter, r *http.Request) {
 func (h *HttpHandler) listVotes(w http.ResponseWriter, r *http.Request) {
 	jsonapiRuntime := jsonapi.NewRuntime().Instrument("blogs.list")
 
-	votes := []models.Vote{{ID: 1, CreatedAt: time.Time{}}}
+	product := models.Product{
+		ID: 1,
+	}
+	votes := []*models.Vote{{ID: 1, CreatedAt: time.Time{}, IPAddress: "", Product: &product}}
 
 	w.Header().Set("Content-Type", jsonapi.MediaType)
 	w.WriteHeader(http.StatusOK)
