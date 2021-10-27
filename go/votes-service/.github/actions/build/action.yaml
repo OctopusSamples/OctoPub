@@ -34,7 +34,7 @@ runs:
     - run: zip function-amd64.zip main
       shell: bash
       working-directory: "${{ inputs.directory }}"
-    - run: |
+    - run: >
         mvn deploy:deploy-file
         -DrepositoryId=github
         -Dfile=function-amd64.zip
