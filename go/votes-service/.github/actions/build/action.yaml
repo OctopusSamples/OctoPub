@@ -37,6 +37,7 @@ runs:
     - run: >
         mvn deploy:deploy-file
         -DrepositoryId=github
+        -Dtoken=$GH_TOKEN
         -Dfile=function-amd64.zip
         -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
         -DgroupId=com.octopus.octopub
