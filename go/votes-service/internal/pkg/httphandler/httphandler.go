@@ -24,7 +24,7 @@ func StartServer() {
 }
 
 func showVote(w http.ResponseWriter, r *http.Request) {
-	intID, err := getId(r)
+	intID, err := getID(r)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -40,7 +40,7 @@ func showVote(w http.ResponseWriter, r *http.Request) {
 		Product:   nil,
 	}
 
-	setJsonApiContentType(w)
+	setJSONAPIContentType(w)
 
 	writeModel(w, vote, jsonapiRuntime)
 }
@@ -53,12 +53,12 @@ func listVotes(w http.ResponseWriter, r *http.Request) {
 	}
 	votes := []*models.Vote{{ID: 1, CreatedAt: time.Time{}, IPAddress: "", Product: &product}}
 
-	setJsonApiContentType(w)
+	setJSONAPIContentType(w)
 
 	writeModel(w, votes, jsonapiRuntime)
 }
 
-func getId(r *http.Request) (int, error) {
+func getID(r *http.Request) (int, error) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -69,7 +69,7 @@ func buildRuntime(key string) *jsonapi.Runtime {
 	return jsonapi.NewRuntime().Instrument(key)
 }
 
-func setJsonApiContentType(w http.ResponseWriter) {
+func setJSONAPIContentType(w http.ResponseWriter) {
 	w.Header().Set(headerContentType, jsonapi.MediaType)
 }
 
