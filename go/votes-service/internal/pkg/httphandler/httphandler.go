@@ -2,7 +2,9 @@ package httphandler
 
 import (
 	"github.com/google/jsonapi"
-	models2 "github.com/mcasperson/OctoPub/go/votes-service/internal/pkg/models"
+	"github.com/gorilla/mux"
+	"github.com/mcasperson/OctoPub/go/votes-service/internal/pkg/models"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -13,43 +15,24 @@ const (
 	headerContentType = "Content-Type"
 )
 
-type HttpHandler struct{}
-
-func (h *HttpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get(headerAccept) != jsonapi.MediaType {
-		http.Error(w, "Unsupported Media Type", http.StatusUnsupportedMediaType)
-		return
-	}
-
-	var methodHandler http.HandlerFunc
-	switch r.Method {
-	case http.MethodGet:
-		if r.FormValue("id") != "" {
-			methodHandler = h.showVote
-		} else {
-			methodHandler = h.listVotes
-		}
-	default:
-		http.Error(w, "Not Found", http.StatusNotFound)
-		return
-	}
-
-	methodHandler(w, r)
+func StartServer() {
+	r := mux.NewRouter()
+	r.HandleFunc("/votes", listVotes)
+	r.HandleFunc("/votes/{id}", showVote)
+	log.Fatal(http.ListenAndServe("localhost:8080", r))
 }
 
-func (h *HttpHandler) showVote(w http.ResponseWriter, r *http.Request) {
-	id := r.FormValue("id")
-
-	intID, err := strconv.Atoi(id)
+func showVote(w http.ResponseWriter, r *http.Request) {
+	intID, err := getId(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeError(w, err)
 		return
 	}
 
-	jsonapiRuntime := jsonapi.NewRuntime().Instrument("votes.show")
+	jsonapiRuntime := buildRuntime("votes.show")
 
 	// but, for now
-	vote := models2.Vote{
+	vote := &models.Vote{
 		ID:        intID,
 		CreatedAt: time.Time{},
 		IPAddress: "",
@@ -57,24 +40,47 @@ func (h *HttpHandler) showVote(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 
+	setJsonApiContentType(w)
+
+	writeModel(w, vote, jsonapiRuntime)
+}
+
+func listVotes(w http.ResponseWriter, r *http.Request) {
+	jsonapiRuntime := buildRuntime("blogs.list")
+
+	product := models.Product{
+		ID: 1,
+	}
+	votes := []*models.Vote{{ID: 1, CreatedAt: time.Time{}, IPAddress: "", Product: &product}}
+
+	setJsonApiContentType(w)
+
+	writeModel(w, votes, jsonapiRuntime)
+}
+
+func getId(r *http.Request) (int, error) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	return strconv.Atoi(id)
+}
+
+func buildRuntime(key string) *jsonapi.Runtime {
+	return jsonapi.NewRuntime().Instrument(key)
+}
+
+func setJsonApiContentType(w http.ResponseWriter) {
 	w.Header().Set(headerContentType, jsonapi.MediaType)
-	if err := jsonapiRuntime.MarshalPayload(w, vote); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+}
+
+func writeModel(w http.ResponseWriter, model interface{}, jsonapiRuntime *jsonapi.Runtime) {
+	if err := jsonapiRuntime.MarshalPayload(w, model); err != nil {
+		writeError(w, err)
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
-func (h *HttpHandler) listVotes(w http.ResponseWriter, r *http.Request) {
-	jsonapiRuntime := jsonapi.NewRuntime().Instrument("blogs.list")
-
-	product := models2.Product{
-		ID: 1,
-	}
-	votes := []*models2.Vote{{ID: 1, CreatedAt: time.Time{}, IPAddress: "", Product: &product}}
-
-	w.Header().Set("Content-Type", jsonapi.MediaType)
-	w.WriteHeader(http.StatusOK)
-
-	if err := jsonapiRuntime.MarshalPayload(w, votes); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+func writeError(w http.ResponseWriter, err error) {
+	http.Error(w, err.Error(), http.StatusInternalServerError)
 }
