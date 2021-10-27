@@ -16,17 +16,22 @@ const (
 
 func StartServer() {
 	r := mux.NewRouter()
-	r.HandleFunc("/votes", listVotes)
-	r.HandleFunc("/votes/{id}", showVote)
+	r.HandleFunc("/api/votes", listVotes)
+	r.HandleFunc("/api/votes/{id}", showVote)
 	log.Fatal(http.ListenAndServe("localhost:8080", r))
 }
 
 func showVote(w http.ResponseWriter, r *http.Request) {
+	if !processAcceptHeader(r) {
+		writeAcceptError(w)
+		return
+	}
+
 	jsonapiRuntime := buildRuntime("votes.show")
 
 	vote, err := data.GetRepository().FindOne(getID(r))
 	if err != nil {
-		writeError(w, err)
+		writeServerError(w, err)
 		return
 	}
 
@@ -40,16 +45,31 @@ func showVote(w http.ResponseWriter, r *http.Request) {
 }
 
 func listVotes(w http.ResponseWriter, r *http.Request) {
+	if !processAcceptHeader(r) {
+		writeAcceptError(w)
+		return
+	}
+
 	jsonapiRuntime := buildRuntime("votes.list")
 
 	votes, err := data.GetRepository().FindAll()
 	if err != nil {
-		writeError(w, err)
+		writeServerError(w, err)
 		return
 	}
 
 	setJSONAPIContentType(w)
 	writeModel(w, votes, jsonapiRuntime)
+}
+
+func processAcceptHeader(r *http.Request) bool {
+	for _, h := range r.Header.Values(headerAccept) {
+		if h == jsonapi.MediaType {
+			return true
+		}
+	}
+
+	return false
 }
 
 func getID(r *http.Request) string {
@@ -66,12 +86,16 @@ func setJSONAPIContentType(w http.ResponseWriter) {
 
 func writeModel(w http.ResponseWriter, model interface{}, jsonapiRuntime *jsonapi.Runtime) {
 	if err := jsonapiRuntime.MarshalPayload(w, model); err != nil {
-		writeError(w, err)
+		writeServerError(w, err)
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
 }
 
-func writeError(w http.ResponseWriter, err error) {
+func writeServerError(w http.ResponseWriter, err error) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
+}
+
+func writeAcceptError(w http.ResponseWriter) {
+	http.Error(w, "415 Unsupported Media Type", http.StatusUnsupportedMediaType)
 }

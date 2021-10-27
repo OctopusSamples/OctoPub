@@ -12,6 +12,6 @@ type Vote struct {
 	VoteObject *Urn      `jsonapi:"relation,vote_object,omitempty"`
 }
 
-func (v *Vote) getID() string {
+func (v Vote) getID() string {
 	return v.ID
 }

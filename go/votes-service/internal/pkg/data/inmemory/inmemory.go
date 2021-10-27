@@ -81,6 +81,9 @@ func (db Db) initData() {
 
 func (db Db) getData() []*models.Vote {
 	return []*models.Vote{
-		{ID: "urn:votes:1", CreatedAt: time.Now(), VoteObject: &models.Urn{ID: "urn:products:1"}},
+		{
+			ID:         "urn:votes:local_development:1",
+			CreatedAt:  time.Now(),
+			VoteObject: &models.Urn{ID: "urn:products:local_development:1"}},
 	}
 }
