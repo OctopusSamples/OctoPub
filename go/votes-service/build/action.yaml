@@ -16,6 +16,10 @@ runs:
     - uses: actions/setup-go@v2
       with:
         go-version: 1.17
+    - run: go install honnef.co/go/tools/cmd/staticcheck@latest
+      shell: bash
+    - run: staticcheck ./...
+      shell: bash
     - run: go get ./...
       shell: bash
       working-directory: "${{ inputs.directory }}"
