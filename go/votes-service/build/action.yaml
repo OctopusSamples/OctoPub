@@ -28,12 +28,15 @@ runs:
     - run: go get ./...
       shell: bash
       working-directory: "${{ inputs.directory }}"
-    - run: cyclonedx-gomod app -main ${{ inputs.maindir }}/${{ inputs.mainfile }} -output cyclonedx.bom.xml
+    - run: cyclonedx-gomod app -main ${{ inputs.maindir }} -output cyclonedx.bom.xml
       shell: bash
       working-directory: "${{ inputs.directory }}"
       env:
         GOOS: linux
         GOARCH: arm64
+    - run: zip function-sbom.zip cyclonedx.bom.xml
+      shell: bash
+      working-directory: "${{ inputs.directory }}"
     - run: go build ${{ inputs.maindir }}/${{ inputs.mainfile }}
       shell: bash
       working-directory: "${{ inputs.directory }}"
@@ -86,6 +89,16 @@ runs:
         -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
         -DgroupId=com.octopus.octopub
         -DartifactId=votes-service-arm
+        -Dversion=0.0.1.${{ github.run_number }}
+      shell: bash
+      working-directory: "${{ inputs.directory }}"
+    - run: >
+        mvn deploy:deploy-file
+        -DrepositoryId=github
+        -Dfile=function-sbom.zip
+        -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
+        -DgroupId=com.octopus.octopub
+        -DartifactId=votes-service-sbom
         -Dversion=0.0.1.${{ github.run_number }}
       shell: bash
       working-directory: "${{ inputs.directory }}"
