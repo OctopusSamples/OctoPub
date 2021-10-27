@@ -18,5 +18,6 @@ jobs:
       uses: ./go/votes-service/build
       with:
         directory: ./go/votes-service
-        main: ./cmd/web/main.go
+        mainfile: main.go
+        maindir: ./cmd/web
         token: ${{ secrets.GITHUB_TOKEN }}
