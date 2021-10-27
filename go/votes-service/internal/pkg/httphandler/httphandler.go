@@ -4,10 +4,9 @@ package httphandler
 import (
 	"github.com/google/jsonapi"
 	"github.com/gorilla/mux"
-	"github.com/mcasperson/OctoPub/go/votes-service/internal/pkg/models"
+	"github.com/mcasperson/OctoPub/go/votes-service/internal/pkg/data"
 	"log"
 	"net/http"
-	"time"
 )
 
 const (
@@ -25,26 +24,26 @@ func StartServer() {
 func showVote(w http.ResponseWriter, r *http.Request) {
 	jsonapiRuntime := buildRuntime("votes.show")
 
-	// but, for now
-	vote := &models.Vote{
-		ID:         "urn:votes:" + getID(r),
-		CreatedAt:  time.Time{},
-		IPAddress:  "",
-		VoteObject: &models.Urn{ID: "urn:products:1"},
+	vote, err := data.GetRepository().FindOne(getID(r))
+	if err != nil {
+		writeError(w, err)
+		return
 	}
 
 	setJSONAPIContentType(w)
-
 	writeModel(w, vote, jsonapiRuntime)
 }
 
 func listVotes(w http.ResponseWriter, r *http.Request) {
-	jsonapiRuntime := buildRuntime("blogs.list")
+	jsonapiRuntime := buildRuntime("votes.list")
 
-	votes := []*models.Vote{{ID: "urn:votes:1", CreatedAt: time.Time{}, IPAddress: "", VoteObject: &models.Urn{ID: "urn:products:1"}}}
+	votes, err := data.GetRepository().FindAll()
+	if err != nil {
+		writeError(w, err)
+		return
+	}
 
 	setJSONAPIContentType(w)
-
 	writeModel(w, votes, jsonapiRuntime)
 }
 

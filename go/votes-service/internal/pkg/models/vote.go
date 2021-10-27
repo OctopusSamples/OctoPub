@@ -11,3 +11,7 @@ type Vote struct {
 	IPAddress  string    `jsonapi:"attr,ip_address"`
 	VoteObject *Urn      `jsonapi:"relation,vote_object,omitempty"`
 }
+
+func (v *Vote) getID() string {
+	return v.ID
+}
