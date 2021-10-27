@@ -34,12 +34,27 @@ runs:
     - run: zip function-amd64.zip main
       shell: bash
       working-directory: "${{ inputs.directory }}"
+    - uses: whelk-io/maven-settings-xml-action@v20
+      with:
+        repositories: |
+          [
+            {
+              "id": "github",
+              "name": "GitHub Packages",
+              "url": "https://maven.pkg.github.com/mcasperson/OctoPub",
+              "releases": {
+                "enabled": "true"
+              },
+              "snapshots": {
+                "enabled": "false"
+              }
+            }
+          ]
+        servers: '[{ "id": "github", "username": "mcasperson", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
     - run: >
         mvn deploy:deploy-file
         -DrepositoryId=github
-        -Dtoken=$GH_TOKEN
         -Dfile=function-amd64.zip
-        -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
         -DgroupId=com.octopus.octopub
         -DartifactId=votes-service
         -Dversion=0.0.1.${{ github.run_number }}
