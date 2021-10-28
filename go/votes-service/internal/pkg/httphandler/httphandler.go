@@ -36,7 +36,7 @@ func showVote(w http.ResponseWriter, r *http.Request) {
 
 	jsonapiRuntime := buildRuntime("votes.show")
 
-	vote, err := data.GetRepository().FindOne(getID(r))
+	vote, err := data.GetRepository().FindOne(getID(r), GetTenant(r))
 	if err != nil {
 		writeServerError(w, err)
 		return
