@@ -11,9 +11,10 @@ func GetTenant(r *http.Request) string {
 		split := strings.Split(h, ";")
 		if len(split) > 1 {
 			for _, s := range split {
+				trimmed := strings.TrimSpace(s)
 				// we see if this application is working on a feature branch, or if a general tenant has been defined
-				if strings.HasPrefix(s, config.AppName+"_tenant=") || strings.HasPrefix(s, "tenant=") {
-					tenant := strings.Split(s, "=")
+				if strings.HasPrefix(trimmed, "tenant=") {
+					tenant := strings.Split(trimmed, "=")
 					if len(tenant) == 2 {
 						return tenant[1]
 					}

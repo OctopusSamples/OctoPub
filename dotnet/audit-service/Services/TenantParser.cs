@@ -23,8 +23,8 @@ namespace audit_service.Services
                 .SelectMany(v => v.Split(";"))
                 // trim the results and make them lowercase
                 .Select(v => v.Trim().ToLower())
-                // find any header value segments that indicate the feature branch or global tenant
-                .Where(v => v.StartsWith("tenant=") || v.StartsWith("audit_tenant="))
+                // find any header value segments that indicate the tenant
+                .Where(v => v.StartsWith("tenant="))
                 // split those values on the equals
                 .Select(v => v.Split("="))
                 // validate that the results have 2 elements
