@@ -12,7 +12,6 @@ import (
 const (
 	headerAccept      = "Accept"
 	headerContentType = "Content-Type"
-	mainTenant        = "main"
 )
 
 func StartServer() {
