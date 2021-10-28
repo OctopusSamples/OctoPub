@@ -9,15 +9,20 @@ namespace audit_service.Services.InMemory
     public class AuditGetByIdService : IGetByIdService<Audit, string>
     {
         private readonly Db context;
+        private readonly ITenantParser tenantParser;
 
-        public AuditGetByIdService(Db context)
+        public AuditGetByIdService(Db context, ITenantParser tenantParser)
         {
             this.context = context;
+            this.tenantParser = tenantParser;
         }
 
         public Task<Audit> GetAsync(string id, CancellationToken cancellationToken)
         {
-            return Task.FromResult(context.Audits.Find(id));
+            var audit = context.Audits.Find(id);
+            return audit.Tenant == "main" || audit.Tenant == tenantParser.GetTenant()
+                ? Task.FromResult(audit)
+                : Task.FromResult<Audit>(null);
         }
     }
 }
