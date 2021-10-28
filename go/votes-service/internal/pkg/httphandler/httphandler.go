@@ -12,6 +12,7 @@ import (
 const (
 	headerAccept      = "Accept"
 	headerContentType = "Content-Type"
+	mainTenant        = "main"
 )
 
 func StartServer() {
@@ -59,7 +60,7 @@ func listVotes(w http.ResponseWriter, r *http.Request) {
 
 	jsonapiRuntime := buildRuntime("votes.list")
 
-	votes, err := data.GetRepository().FindAll()
+	votes, err := data.GetRepository().FindAll(GetTenant(r))
 	if err != nil {
 		writeServerError(w, err)
 		return
