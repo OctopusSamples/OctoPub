@@ -14,20 +14,20 @@ type Db struct {
 func New() *Db {
 	schema := &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
-			"vote": &memdb.TableSchema{
+			"vote": {
 				Name: "vote",
 				Indexes: map[string]*memdb.IndexSchema{
-					"id": &memdb.IndexSchema{
+					"id": {
 						Name:    "id",
 						Unique:  false,
 						Indexer: &memdb.StringFieldIndex{Field: "ID"},
 					},
-					"tenant": &memdb.IndexSchema{
+					"tenant": {
 						Name:    "tenant",
 						Unique:  false,
 						Indexer: &memdb.StringFieldIndex{Field: "Tenant"},
 					},
-					"vote_object": &memdb.IndexSchema{
+					"vote_object": {
 						Name:    "vote_object",
 						Unique:  false,
 						Indexer: &memdb.StringFieldIndex{Field: "VoteObject"},
@@ -47,7 +47,7 @@ func New() *Db {
 	}
 }
 
-func (db Db) FindOne(id string) (models.Entity, error) {
+func (db Db) FindOne(id string, tenant string) (models.Entity, error) {
 	txn := db.database.Txn(false)
 	defer txn.Abort()
 	vote, err := txn.First("vote", "id", id)
@@ -57,7 +57,14 @@ func (db Db) FindOne(id string) (models.Entity, error) {
 	if vote == nil {
 		return nil, nil
 	}
-	return vote.(models.Entity), nil
+
+	// we can only find records for the main or current tenant
+	entity := vote.(models.Entity)
+	if entity.GetTenant() != config.MainTenant && entity.GetTenant() != tenant {
+		return nil, nil
+	}
+
+	return entity, nil
 }
 
 func (db Db) FindAll(tenant string) ([]models.Entity, error) {
