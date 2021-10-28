@@ -2,7 +2,7 @@
 using JsonApiDotNetCore.Configuration;
 using JsonApiDotNetCore.Controllers;
 using JsonApiDotNetCore.Services;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 
 namespace audit_service.Controllers

@@ -36,7 +36,10 @@ namespace audit_service
             services.AddScoped<IGetAllService<Audit, string>, AuditGetAllService>();
             services.AddScoped<IGetByIdService<Audit, string>, AuditGetByIdService>();
 
-            services.AddJsonApi<Db>();
+            services.AddJsonApi<Db>(opts =>
+            {
+                opts.Namespace = "api";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,7 +60,10 @@ namespace audit_service
 
             app.UseJsonApi();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
