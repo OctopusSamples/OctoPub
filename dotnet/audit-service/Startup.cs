@@ -1,6 +1,7 @@
 using audit_service.Models;
 using audit_service.Repositories.InMemory;
 using audit_service.Services;
+using audit_service.Services.InMemory;
 using JsonApiDotNetCore.Configuration;
 using JsonApiDotNetCore.Services;
 using Microsoft.AspNetCore.Builder;

@@ -4,7 +4,7 @@ using audit_service.Models;
 using audit_service.Repositories.InMemory;
 using JsonApiDotNetCore.Services;
 
-namespace audit_service.Services
+namespace audit_service.Services.InMemory
 {
     public class AuditGetByIdService : IGetByIdService<Audit, string>
     {
