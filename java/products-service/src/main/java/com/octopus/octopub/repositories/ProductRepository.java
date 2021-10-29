@@ -22,6 +22,13 @@ public class ProductRepository {
         .getResultList();
   }
 
+  public Product save(final Product product) {
+    em.getTransaction().begin();
+    em.persist(product);
+    em.getTransaction().commit();
+    return product;
+  }
+
   private int urnToInt(final String id) {
     return Integer.parseInt(id.replace(Product.PRODUCT_URN_PREFIX + ":", ""));
   }
