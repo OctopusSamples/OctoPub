@@ -29,27 +29,13 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>io.crnk</groupId>
-        <artifactId>crnk-bom</artifactId>
-        <version>3.4.20210509072026</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>io.crnk</groupId>
-      <artifactId>crnk-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.crnk</groupId>
-      <artifactId>crnk-setup-rs</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.crnk</groupId>
-      <artifactId>crnk-data-jpa</artifactId>
+      <groupId>nl.michelbijnen.jsonapi</groupId>
+      <artifactId>json-api</artifactId>
+      <version>1.4.1</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
