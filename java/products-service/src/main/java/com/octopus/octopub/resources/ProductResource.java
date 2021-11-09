@@ -1,6 +1,7 @@
 package com.octopus.octopub.resources;
 
 import com.github.jasminb.jsonapi.JSONAPIDocument;
+import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.MissingData;
@@ -8,8 +9,6 @@ import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.repositories.AuditRepository;
 import com.octopus.octopub.repositories.ProductRepository;
-import com.octopus.octopub.services.JsonApiConverter;
-import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +41,7 @@ public class ProductResource {
   AuditRepository auditRepository;
 
   @Inject
-  JsonApiConverter jsonApiConverter;
+  ResourceConverter resourceConverter;
 
   @Inject
   JsonWebToken jwt;
@@ -54,8 +53,7 @@ public class ProductResource {
       throws DocumentSerializationException {
     final List<Product> products = productRepository.findAll(getTenant(acceptHeader));
     final JSONAPIDocument<List<Product>> document = new JSONAPIDocument<List<Product>>(products);
-    final byte[] content = jsonApiConverter.buildResourceConverter()
-        .writeDocumentCollection(document);
+    final byte[] content = resourceConverter.writeDocumentCollection(document);
     return Response.ok(new String(content)).build();
   }
 
@@ -104,7 +102,7 @@ public class ProductResource {
   }
 
   private Product getProductFromDocument(@NonNull final String document) {
-    final JSONAPIDocument<Product> productDocument = jsonApiConverter.buildResourceConverter()
+    final JSONAPIDocument<Product> productDocument = resourceConverter
         .readDocument(document.getBytes(StandardCharsets.UTF_8), Product.class);
     return productDocument.get();
   }
@@ -112,7 +110,7 @@ public class ProductResource {
   private Response respondWithProduct(@NonNull final Product product)
       throws DocumentSerializationException {
     final JSONAPIDocument<Product> document = new JSONAPIDocument<Product>(product);
-    return Response.ok(jsonApiConverter.buildResourceConverter().writeDocument(document)).build();
+    return Response.ok(resourceConverter.writeDocument(document)).build();
   }
 
   /**

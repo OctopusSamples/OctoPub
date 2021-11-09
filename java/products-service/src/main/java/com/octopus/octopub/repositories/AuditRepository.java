@@ -4,7 +4,7 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.services.AuditService;
-import com.octopus.octopub.services.JsonApiConverter;
+import com.octopus.octopub.producers.JsonApiConverter;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import lombok.NonNull;

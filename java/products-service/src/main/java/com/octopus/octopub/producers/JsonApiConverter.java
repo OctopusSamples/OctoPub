@@ -1,13 +1,14 @@
-package com.octopus.octopub.services;
+package com.octopus.octopub.producers;
 
 import com.github.jasminb.jsonapi.DeserializationFeature;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.models.Product;
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 
-@ApplicationScoped
+
 public class JsonApiConverter {
+  @Produces
   public ResourceConverter buildResourceConverter() {
     final ResourceConverter resourceConverter = new ResourceConverter(Product.class, Audit.class);
     resourceConverter.disableDeserializationOption(DeserializationFeature.REQUIRE_RESOURCE_ID);
