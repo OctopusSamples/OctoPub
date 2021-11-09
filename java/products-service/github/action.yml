@@ -112,11 +112,12 @@ runs:
 
     - run: >
         mvn deploy:deploy-file -X
-        -DrepositoryId=github
         -Dfile=products-service.0.0.1.${{ inputs.run_number }}.zip
         -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
         -DgroupId=com.octopus.octopub
         -DartifactId=products-service
         -Dversion=0.0.1.${{ github.run_number }}
+        -Dpackaging=zip
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
       shell: bash
       working-directory: java/products-service
