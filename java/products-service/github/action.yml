@@ -67,7 +67,7 @@ runs:
       working-directory: java/products-service
 
     - run: >
-        ./mvnw deploy:deploy-file -X
+        ./mvnw deploy:deploy-file
         -Dfile=products-service.0.0.1.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=products-service
