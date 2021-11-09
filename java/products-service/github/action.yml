@@ -13,6 +13,24 @@ runs:
 
     - uses: nelonoel/branch-name@v1.0.1
 
+    - uses: whelk-io/maven-settings-xml-action@v20
+      with:
+        repositories: |
+          [
+            {
+              "id": "github",
+              "name": "GitHub Packages",
+              "url": "https://maven.pkg.github.com/mcasperson/OctoPub",
+              "releases": {
+                "enabled": "true"
+              },
+              "snapshots": {
+                "enabled": "false"
+              }
+            }
+          ]
+        servers: '[{ "id": "github", "username": "${{ inputs.github_user }}", "password": "${{ inputs.github_token }}" }]'
+
     - name: Install Octopus CLI
       uses: OctopusDeploy/install-octopus-cli-action@v1.1.1
       with:
@@ -80,24 +98,6 @@ runs:
         --include **/bom.xml
       shell: bash
       working-directory: java/products-service
-
-    - uses: whelk-io/maven-settings-xml-action@v20
-      with:
-        repositories: |
-          [
-            {
-              "id": "github",
-              "name": "GitHub Packages",
-              "url": "https://maven.pkg.github.com/mcasperson/OctoPub",
-              "releases": {
-                "enabled": "true"
-              },
-              "snapshots": {
-                "enabled": "false"
-              }
-            }
-          ]
-        servers: '[{ "id": "github", "username": "${{ inputs.github_user }}", "password": "${{ inputs.github_token }}" }]'
 
     - run: >
         mvn deploy:deploy-file
