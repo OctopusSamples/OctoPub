@@ -170,10 +170,6 @@ public class ProductResource {
      that as the tenant. This ensures feature branch deployments always save
      records under a tenant.
      */
-    if (version.isPresent()) {
-      return version.get();
-    }
-
-    return Constants.DEFAULT_TENANT;
+    return version.orElse(Constants.DEFAULT_TENANT);
   }
 }
