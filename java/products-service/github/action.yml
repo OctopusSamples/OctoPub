@@ -110,10 +110,8 @@ runs:
       shell: bash
       working-directory: java/products-service
 
-
-
     - run: >
-        mvn deploy:deploy-file
+        mvn deploy:deploy-file -X
         -DrepositoryId=github
         -Dfile=products-service.0.0.1.${{ inputs.run_number }}.zip
         -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
