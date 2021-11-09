@@ -9,15 +9,16 @@ import lombok.Data;
 public class Audit {
 
   @Id
-  public String id;
-  public String tenant;
-  public String subject;
-  public String action;
-  public String object;
+  private String id;
+  private String tenant;
+  private String subject;
+  private String action;
+  private String object;
 
-  public Audit(final String subject, final String action, final String object) {
+  public Audit(final String subject, final String action, final String object, final String tenant) {
     this.subject = subject;
     this.action = action;
     this.object = object;
+    this.tenant = tenant;
   }
 }

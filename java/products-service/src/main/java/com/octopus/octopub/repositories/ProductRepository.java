@@ -17,9 +17,11 @@ public class ProductRepository {
     return em.find(Product.class, id);
   }
 
-  public List<Product> findAll() {
+  public List<Product> findAll(@NonNull final String tenant) {
     return em
-        .createQuery("Select product from Product product", Product.class)
+        .createQuery("Select product from Product product where product.tenant = 'main' or product.tenant = :tenant",
+            Product.class)
+        .setParameter("tenant", tenant)
         .getResultList();
   }
 

@@ -9,12 +9,17 @@ import com.octopus.octopub.models.Product;
 import com.octopus.octopub.repositories.AuditRepository;
 import com.octopus.octopub.repositories.ProductRepository;
 import com.octopus.octopub.services.JsonApiConverter;
+import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -23,6 +28,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 @Path("/api/products")
@@ -42,8 +48,10 @@ public class ProductResource {
   JsonWebToken jwt;
 
   @GET
-  public Response getAll(@Context SecurityContext ctx) throws DocumentSerializationException {
-    final List<Product> products = productRepository.findAll();
+  public Response getAll(
+      @Context final SecurityContext ctx,
+      @HeaderParam("Accept") final String acceptHeader) throws DocumentSerializationException {
+    final List<Product> products = productRepository.findAll(getTenant(acceptHeader));
     final JSONAPIDocument<List<Product>> document = new JSONAPIDocument<List<Product>>(products);
     final byte[] content = jsonApiConverter.buildResourceConverter()
         .writeDocumentCollection(document);
@@ -52,7 +60,10 @@ public class ProductResource {
 
   @POST
   @Transactional
-  public Response create(@Context SecurityContext ctx, @NonNull final String document)
+  public Response create(
+      @Context final SecurityContext ctx,
+      @NonNull final String document,
+      @HeaderParam("Accept") final String acceptHeader)
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
 
@@ -64,14 +75,15 @@ public class ProductResource {
     auditRepository.save(new Audit(
         Constants.MICROSERVICE_NAME,
         Constants.CREATED_ACTION,
-        product.getId().toString()));
+        product.getId().toString(),
+        getTenant(acceptHeader)));
 
     return respondWithProduct(product);
   }
 
   @GET
   @Path("{id}")
-  public Response getOne(@Context SecurityContext ctx, @PathParam("id") final String id)
+  public Response getOne(@Context final SecurityContext ctx, @PathParam("id") final String id)
       throws DocumentSerializationException {
     try {
       final Product product = productRepository.findOne(Integer.parseInt(id));
@@ -94,5 +106,55 @@ public class ProductResource {
       throws DocumentSerializationException {
     final JSONAPIDocument<Product> document = new JSONAPIDocument<Product>(product);
     return Response.ok(jsonApiConverter.buildResourceConverter().writeDocument(document)).build();
+  }
+
+  private String getTenant(final String header) {
+    if (StringUtils.isAllBlank(header)) {
+      return Constants.DEFAULT_TENANT;
+    }
+
+    final List<String[]> acceptElements =
+        // split on semi colons
+        Arrays.stream(header.split(";"))
+            // remove any blank strings
+            .filter(s -> !StringUtils.isAllBlank(s))
+            // trim all strings
+            .map(String::trim)
+            // remove the json api content type
+            .filter(s -> !s.equals(Constants.JSONAPI_CONTENT_TYPE))
+            // split everything else on an equals
+            .map(s -> s.split("="))
+            // the split is expected to produce 2 strings
+            .filter(a -> a.length == 2)
+            .collect(Collectors.toList());
+
+    final Optional<String> tenant = acceptElements.stream()
+        .filter(a -> a[0].trim().equals(Constants.ACCEPT_TENANT_INFO))
+        .map(a -> a[1])
+        .findFirst();
+
+    // The tenant option takes priority.
+    if (tenant.isPresent()) {
+      return tenant.get();
+    }
+
+    final Optional<String> version = acceptElements.stream()
+        .filter(a -> a[0].trim().equals(Constants.ACCEPT_VERSION_INFO))
+        .map(a -> a[1])
+        .filter(s -> s.contains("-"))
+        .map(s -> s.substring(s.indexOf("-") + 1))
+        .filter(s -> !StringUtils.isAllBlank(s))
+        .findFirst();
+
+    /*
+     If the version contains a prerelease (i.e. anything after a dash), treat
+     that as the tenant. This ensures feature branch deployments always save
+     records under a tenant.
+     */
+    if (version.isPresent()) {
+      return version.get();
+    }
+
+    return Constants.DEFAULT_TENANT;
   }
 }
