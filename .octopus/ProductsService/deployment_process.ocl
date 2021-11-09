@@ -196,6 +196,13 @@ step "Deploy Lambda" {
                     		"MapPublicIpOnLaunch": true
                 		}
                 	},
+                	"SubnetGroup": {
+                	  "Type" : "AWS::RDS::DBSubnetGroup",
+                	  "Properties" : {
+                		  "DBSubnetGroupName" : "Products Subnet Group",
+                		  "SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                		}
+                	},
                 	"RouteTable": {
                     	"Type": "AWS::EC2::RouteTable",
                     	"Properties": {
@@ -246,6 +253,7 @@ step "Deploy Lambda" {
                     "RDSCluster": {
                       "Type": "AWS::RDS::DBCluster",
                       "Properties": {
+                      	"DBSubnetGroupName": {"Ref": "SubnetGroup"},
                         "MasterUsername": {"Ref": "DBUsername"},
                         "MasterUserPassword": {"Ref": "DBPassword"},
                         "DatabaseName": "products",
