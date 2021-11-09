@@ -477,7 +477,7 @@ step "Get Stage URL" {
     }
 }
 
-step "Run a Script" {
+step "Check for vulnerabilities" {
 
     action {
         action_type = "Octopus.Script"
