@@ -1,0 +1,117 @@
+step "Create API Gateway" {
+
+    action {
+        action_type = "Octopus.AwsRunCloudFormation"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ApiGateway}"
+            Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
+                {
+                	"Resources": {
+                		"RestApi": {
+                			"Type": "AWS::ApiGateway::RestApi",
+                			"Properties": {
+                				"Description": "My API Gateway",
+                				"Name": "Octopub Pipeline API",
+                                "BinaryMediaTypes": ["*/*"],
+                				"EndpointConfiguration": {
+                					"Types": [
+                						"REGIONAL"
+                					]
+                				}
+                			}
+                		},
+                		"Catchall": {
+                			"Type": "AWS::ApiGateway::Resource",
+                			"Properties": {
+                				"RestApiId": {
+                					"Ref": "RestApi"
+                				},
+                				"ParentId": {
+                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
+                				},
+                				"PathPart": "{proxy+}"
+                			}
+                		},
+                		"Api": {
+                			"Type": "AWS::ApiGateway::Resource",
+                			"Properties": {
+                				"RestApiId": {
+                					"Ref": "RestApi"
+                				},
+                				"ParentId": {
+                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
+                				},
+                				"PathPart": "api"
+                			}
+                		},
+                		"Web": {
+                			"Type": "AWS::ApiGateway::Resource",
+                			"Properties": {
+                				"RestApiId": {
+                					"Ref": "RestApi"
+                				},
+                				"ParentId": {
+                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
+                				},
+                				"PathPart": "web"
+                			}
+                		},
+                        "Health": {
+                			"Type": "AWS::ApiGateway::Resource",
+                			"Properties": {
+                				"RestApiId": {
+                					"Ref": "RestApi"
+                				},
+                				"ParentId": {
+                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
+                				},
+                				"PathPart": "health"
+                			}
+                		}
+                	},
+                	"Outputs": {
+                		"RestApi": {
+                			"Description": "The REST API",
+                			"Value": {
+                				"Ref": "RestApi"
+                			}
+                		},
+                		"RootResourceId": {
+                			"Description": "ID of the root resource",
+                			"Value": {
+                				"Fn::GetAtt": ["RestApi", "RootResourceId"]
+                			}
+                		},
+                		"Web": {
+                			"Description": "ID of the resource the frontend",
+                			"Value": {
+                				"Ref": "Web"
+                			}
+                		},
+                		"Health": {
+                			"Description": "ID of the resource exposing health checks",
+                			"Value": {
+                				"Ref": "Health"
+                			}
+                		},
+                		"Api": {
+                			"Description": "ID of the resource exposing health checks",
+                			"Value": {
+                				"Ref": "Api"
+                			}
+                		}
+                	}
+                }
+            EOT
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[]"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.Aws.TemplateSource = "Inline"
+            Octopus.Action.Aws.WaitForCompletion = "True"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+        }
+        worker_pool_variable = ""
+    }
+}
