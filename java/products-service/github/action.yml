@@ -110,13 +110,13 @@ runs:
       shell: bash
       working-directory: java/products-service
 
-      - run: >
-          mvn deploy:deploy-file
-          -DrepositoryId=github
-          -Dfile=products-service-sbom.0.0.1.${{ inputs.run_number }}.zip
-          -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
-          -DgroupId=com.octopus.octopub
-          -DartifactId=products-service-sbom
-          -Dversion=0.0.1.${{ github.run_number }}
-        shell: bash
-        working-directory: java/products-service
+    - run: >
+        mvn deploy:deploy-file
+        -DrepositoryId=github
+        -Dfile=products-service-sbom.0.0.1.${{ inputs.run_number }}.zip
+        -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
+        -DgroupId=com.octopus.octopub
+        -DartifactId=products-service-sbom
+        -Dversion=0.0.1.${{ github.run_number }}
+      shell: bash
+      working-directory: java/products-service
