@@ -5,6 +5,7 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
+import com.octopus.octopub.exceptions.MissingData;
 import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.repositories.AuditRepository;
@@ -45,14 +46,13 @@ public class ProductResource {
 
   @POST
   @Transactional
-  public Response create(@NonNull final String product)
-      throws Exception {
+  public Response create(@NonNull final String product) throws DocumentSerializationException {
     final JSONAPIDocument<Product> productDocument = jsonApiConverter.buildResourceConverter()
         .readDocument(product.getBytes(StandardCharsets.UTF_8), Product.class);
     final Product productEntity = productDocument.get();
 
     if (productEntity == null) {
-      throw new Exception("Document did not contain an entity");
+      throw new MissingData();
     }
 
     productRepository.save(productEntity);
