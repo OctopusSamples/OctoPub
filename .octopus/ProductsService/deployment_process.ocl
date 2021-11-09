@@ -205,13 +205,7 @@ step "Deploy Lambda" {
                       "Properties": {
                         "Code": {
                           "S3Bucket": {"Ref": "LambdaS3Bucket"},
-                          "S3Key": {"Ref": "LambdaS3Key"}
-                        },
-                        "Environment": {
-                          "Variables": {
-                          	"GITHUB_CLIENT_ID": {"Ref": "GithubClientId"},
-                            "GITHUB_CLIENT_SECRET": {"Ref": "GithubClientSecret"}
-                          }
+                          "S3Key": {"Ref": "LambdaS3Key"}       
                         },
                         "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
                         "Handler": "not.used.in.provided.runtime",
