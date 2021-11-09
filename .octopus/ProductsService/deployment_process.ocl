@@ -250,7 +250,10 @@ step "Deploy Lambda" {
                         },
                         "Runtime": "provided",
                         "Timeout": 30
-                      }
+                      },
+                      "DependsOn": [
+                        "RDSCluster"
+                      ]
                     },
                     "LambdaVersion#{DeploymentId}": {
                      	"Type": "AWS::Lambda::Version",
