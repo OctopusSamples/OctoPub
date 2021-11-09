@@ -150,7 +150,7 @@ public class ProductResource {
 
     final Optional<String> tenant = acceptElements.stream()
         .filter(a -> a[0].trim().equals(Constants.ACCEPT_TENANT_INFO))
-        .map(a -> a[1])
+        .map(a -> a[1].trim())
         .findFirst();
 
     // The tenant option takes priority.
@@ -160,7 +160,7 @@ public class ProductResource {
 
     final Optional<String> version = acceptElements.stream()
         .filter(a -> a[0].trim().equals(Constants.ACCEPT_VERSION_INFO))
-        .map(a -> a[1])
+        .map(a -> a[1].trim())
         .filter(s -> s.contains("-"))
         .map(s -> s.substring(s.indexOf("-") + 1))
         .filter(s -> !StringUtils.isAllBlank(s))
