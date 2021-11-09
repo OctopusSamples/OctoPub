@@ -436,6 +436,11 @@ step "Get Stage URL" {
             OctopusUseBundledTooling = "False"
         }
         worker_pool_variable = "WorkerPool"
+
+        container {
+            feed = "Dockerhub"
+            image = "octopusdeploy/worker-tools:3.2.0-ubuntu.18.04"
+        }
     }
 }
 
