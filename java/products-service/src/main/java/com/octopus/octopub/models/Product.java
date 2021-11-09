@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import lombok.Data;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Data
@@ -17,7 +18,9 @@ public class Product {
   @GeneratedValue(strategy= GenerationType.IDENTITY)
   public Integer id;
 
+  @Audited
   public String tenant;
 
+  @Audited
   public String name;
 }
