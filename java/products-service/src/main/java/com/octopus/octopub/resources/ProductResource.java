@@ -1,9 +1,14 @@
 package com.octopus.octopub.resources;
 
+import com.github.jasminb.jsonapi.JSONAPIDocument;
+import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
+import com.octopus.octopub.Constants;
 import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.repositories.AuditRepository;
 import com.octopus.octopub.repositories.ProductRepository;
+import com.octopus.octopub.services.JsonApiConverter;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -12,7 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import nl.michelbijnen.jsonapi.parser.JsonApiConverter;
+import lombok.NonNull;
 
 @Path("/api/products")
 public class ProductResource {
@@ -23,24 +28,51 @@ public class ProductResource {
   @Inject
   AuditRepository auditRepository;
 
+  @Inject
+  JsonApiConverter jsonApiConverter;
+
   @GET
-  public Response getAll() {
-    final List<Product> product = productRepository.findAll();
-    return Response.ok(JsonApiConverter.convert(product)).build();
+  public Response getAll() throws DocumentSerializationException {
+    final List<Product> products = productRepository.findAll();
+    final JSONAPIDocument<List<Product>> document = new JSONAPIDocument<List<Product>>(products);
+    final byte[] content = jsonApiConverter.buildResourceConverter().writeDocumentCollection(document);
+    return Response.ok(new String(content)).build();
   }
 
   @POST
-  public Response create(final Product product) {
-    productRepository.save(product);
-    auditRepository.save(new Audit(Product.PRODUCT_URN_PREFIX, "CREATED", product.getJsonApiId()));
-    return Response.ok(JsonApiConverter.convert(product)).build();
+  public Response create(@NonNull final String product)
+      throws Exception {
+    final JSONAPIDocument<Product> productDocument = jsonApiConverter.buildResourceConverter()
+        .readDocument(product.getBytes(
+            StandardCharsets.UTF_8), Product.class);
+    final Product productEntity = productDocument.get();
+
+    if (productEntity == null) {
+      throw new Exception("Document did not contain an entity");
+    }
+
+    productRepository.save(productEntity);
+    auditRepository.save(new Audit(
+        Constants.MICROSERVICE_NAME,
+        Constants.CREATED_ACTION,
+        productEntity.getId().toString()));
+    final JSONAPIDocument<Product> document = new JSONAPIDocument<Product>(productEntity);
+    return Response.ok(jsonApiConverter.buildResourceConverter().writeDocument(document)).build();
   }
 
   @GET
   @Path("{id}")
   public Response getOne(@PathParam("id") final String id) {
-    final Product product = productRepository.findOne(id);
-    if (product != null) return Response.ok(JsonApiConverter.convert(product)).build();
+    try {
+      final Product product = productRepository.findOne(Integer.parseInt(id));
+      if (product != null) {
+        final JSONAPIDocument<Product> document = new JSONAPIDocument<Product>(product);
+        return Response.ok(jsonApiConverter.buildResourceConverter().writeDocument(document))
+            .build();
+      }
+    } catch (final Exception ex) {
+      // ignored, as the id was likely not an int
+    }
     return Response.status(Status.NOT_FOUND).build();
   }
 }

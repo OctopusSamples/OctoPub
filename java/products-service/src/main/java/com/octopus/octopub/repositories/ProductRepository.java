@@ -5,6 +5,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import lombok.NonNull;
 
 @ApplicationScoped
 public class ProductRepository {
@@ -12,8 +13,8 @@ public class ProductRepository {
   @Inject
   EntityManager em;
 
-  public Product findOne(final String id) {
-    return em.find(Product.class, urnToInt(id));
+  public Product findOne(final int id) {
+    return em.find(Product.class, id);
   }
 
   public List<Product> findAll() {
@@ -22,14 +23,10 @@ public class ProductRepository {
         .getResultList();
   }
 
-  public Product save(final Product product) {
+  public Product save(@NonNull final Product product) {
     em.getTransaction().begin();
     em.persist(product);
     em.getTransaction().commit();
     return product;
-  }
-
-  private int urnToInt(final String id) {
-    return Integer.parseInt(id.replace(Product.PRODUCT_URN_PREFIX + ":", ""));
   }
 }

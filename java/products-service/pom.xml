@@ -33,9 +33,9 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>nl.michelbijnen.jsonapi</groupId>
-      <artifactId>json-api</artifactId>
-      <version>1.4.1</version>
+      <groupId>com.github.jasminb</groupId>
+      <artifactId>jsonapi-converter</artifactId>
+      <version>0.11</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -60,6 +60,12 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-rest-client-reactive-jackson</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.22</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
