@@ -93,6 +93,13 @@ step "Get Stack Outputs" {
                 TIMESTAMP=$(date '+%Y%m%d%H%M%S')
                 
                 set_octopusvariable "DeploymentId" ${TIMESTAMP}
+                
+                PRERELEASE="#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionPreRelease}"
+                if [[ -z ${PRERELEASE} ]]; then
+                	set_octopusvariable "PreReleaseSuffix" "-${PRERELEASE}"
+                else
+                	set_octopusvariable "PreReleaseSuffix" ""
+                fi
             EOT
             Octopus.Action.Script.ScriptSource = "Inline"
             Octopus.Action.Script.Syntax = "Bash"
