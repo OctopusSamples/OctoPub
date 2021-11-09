@@ -4,6 +4,8 @@ inputs:
     required: true
   github_token:
     required: true
+  github_user:
+    required: true
 runs:
   using: "composite"
   steps:
@@ -95,7 +97,7 @@ runs:
               }
             }
           ]
-        servers: '[{ "id": "github", "username": "mcasperson", "password": "${{ inputs.github_token }}" }]'
+        servers: '[{ "id": "github", "username": "${{ inputs.github_user }}", "password": "${{ inputs.github_token }}" }]'
 
     - run: >
         mvn deploy:deploy-file

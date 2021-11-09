@@ -18,4 +18,5 @@ jobs:
       uses: ./java/products-service/github
       with:
         run_number: ${{ github.run_number }}
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${env.GITHUB_TOKEN}
+        github_user: ${env.GITHUB_ACTOR}
