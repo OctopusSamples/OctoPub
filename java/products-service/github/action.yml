@@ -2,7 +2,7 @@ name: 'GitHub Actions Backend'
 inputs:
   run_number:
     required: true
-  token:
+  github_token:
     required: true
 runs:
   using: "composite"
@@ -64,6 +64,21 @@ runs:
       shell: bash
       working-directory: java/products-service
 
+    - name: Generate SBOM
+      run: mvn cyclonedx:makeAggregateBom -DskipTests
+      shell: bash
+      working-directory: java/products-service
+
+    - name: Build SBOM package
+      run: >
+        octo pack
+        --id products-service-sbom
+        --version 0.0.1.${{ inputs.run_number }}
+        --format zip
+        --include **/bom.xml
+      shell: bash
+      working-directory: java/products-service
+
     - uses: whelk-io/maven-settings-xml-action@v20
       with:
         repositories: |
@@ -80,7 +95,7 @@ runs:
               }
             }
           ]
-        servers: '[{ "id": "github", "username": "mcasperson", "password": "${{ inputs.token }}" }]'
+        servers: '[{ "id": "github", "username": "mcasperson", "password": "${{ inputs.github_token }}" }]'
 
     - run: >
         mvn deploy:deploy-file
@@ -92,3 +107,14 @@ runs:
         -Dversion=0.0.1.${{ github.run_number }}
       shell: bash
       working-directory: java/products-service
+
+      - run: >
+          mvn deploy:deploy-file
+          -DrepositoryId=github
+          -Dfile=products-service-sbom.0.0.1.${{ inputs.run_number }}.zip
+          -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
+          -DgroupId=com.octopus.octopub
+          -DartifactId=products-service-sbom
+          -Dversion=0.0.1.${{ github.run_number }}
+        shell: bash
+        working-directory: java/products-service
