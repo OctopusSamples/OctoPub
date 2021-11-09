@@ -13,54 +13,10 @@ runs:
 
     - uses: nelonoel/branch-name@v1.0.1
 
-    - uses: whelk-io/maven-settings-xml-action@v20
-      with:
-        repositories: |
-          [
-            {
-              "id": "github",
-              "name": "GitHub Packages",
-              "url": "https://maven.pkg.github.com/mcasperson/OctoPub",
-              "releases": {
-                "enabled": "true"
-              },
-              "snapshots": {
-                "enabled": "false"
-              }
-            }
-          ]
-        servers: '[{ "id": "github", "username": "${{ inputs.github_user }}", "password": "${{ inputs.github_token }}" }]'
-
     - name: Install Octopus CLI
       uses: OctopusDeploy/install-octopus-cli-action@v1.1.1
       with:
         version: latest
-
-    - name: Generate SBOM
-      run: mvn cyclonedx:makeAggregateBom -DskipTests
-      shell: bash
-      working-directory: java/products-service
-
-    - name: Build SBOM package
-      run: >
-        octo pack
-        --id products-service-sbom
-        --version 0.0.1.${{ inputs.run_number }}
-        --format zip
-        --include **/bom.xml
-      shell: bash
-      working-directory: java/products-service
-
-    - run: >
-        ./mvnw deploy:deploy-file
-        -DrepositoryId=github
-        -Dfile=products-service-sbom.0.0.1.${{ inputs.run_number }}.zip
-        -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
-        -DgroupId=com.octopus.octopub
-        -DartifactId=products-service-sbom
-        -Dversion=0.0.1.${{ github.run_number }}
-      shell: bash
-      working-directory: java/products-service
 
     - name: Set up JDK 1.17
       uses: actions/setup-java@v2
@@ -118,5 +74,31 @@ runs:
         -Dversion=0.0.1.${{ github.run_number }}
         -Dpackaging=zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
+      shell: bash
+      working-directory: java/products-service
+
+    - name: Generate SBOM
+      run: mvn cyclonedx:makeAggregateBom -DskipTests
+      shell: bash
+      working-directory: java/products-service
+
+    - name: Build SBOM package
+      run: >
+        octo pack
+        --id products-service-sbom
+        --version 0.0.1.${{ inputs.run_number }}
+        --format zip
+        --include **/bom.xml
+      shell: bash
+      working-directory: java/products-service
+
+    - run: >
+        ./mvnw deploy:deploy-file
+        -Dfile=products-service-sbom.0.0.1.${{ inputs.run_number }}.zip
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
+        -DgroupId=com.octopus.octopub
+        -DartifactId=products-service-sbom
+        -Dversion=0.0.1.${{ github.run_number }}
+        -Dpackaging=zip
       shell: bash
       working-directory: java/products-service
