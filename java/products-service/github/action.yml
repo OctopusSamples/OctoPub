@@ -2,6 +2,8 @@ name: 'GitHub Actions Backend'
 inputs:
   run_number:
     required: true
+  token:
+    required: true
 runs:
   using: "composite"
   steps:
@@ -58,6 +60,35 @@ runs:
     - name: Rename zip
       run: >
         mv target/function.zip
-        products-service.0.1.0.${{ inputs.run_number }}.zip
+        products-service.0.0.1.${{ inputs.run_number }}.zip
+      shell: bash
+      working-directory: java/products-service
+
+    - uses: whelk-io/maven-settings-xml-action@v20
+      with:
+        repositories: |
+          [
+            {
+              "id": "github",
+              "name": "GitHub Packages",
+              "url": "https://maven.pkg.github.com/mcasperson/OctoPub",
+              "releases": {
+                "enabled": "true"
+              },
+              "snapshots": {
+                "enabled": "false"
+              }
+            }
+          ]
+        servers: '[{ "id": "github", "username": "mcasperson", "password": "${{ inputs.token }}" }]'
+
+    - run: >
+        mvn deploy:deploy-file
+        -DrepositoryId=github
+        -Dfile=products-service.0.0.1.${{ inputs.run_number }}.zip
+        -Durl=https://maven.pkg.github.com/mcasperson/OctoPub
+        -DgroupId=com.octopus.octopub
+        -DartifactId=products-service
+        -Dversion=0.0.1.${{ github.run_number }}
       shell: bash
       working-directory: java/products-service
