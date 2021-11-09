@@ -1,0 +1,20 @@
+name: Products Service
+
+on:
+  push:
+      paths:
+      - 'java/products-service/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Build
+      uses: ./java/products-service/github
+      with:
+        run_number: ${{ github.run_number }}
