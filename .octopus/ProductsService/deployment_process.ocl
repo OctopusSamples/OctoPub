@@ -346,7 +346,11 @@ step "Deploy Lambda" {
                           ]
                         },
                         "Runtime": "provided",
-                        "Timeout": 30
+                        "Timeout": 30,
+                        "VpcConfig": {
+                        	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
+                			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                        }
                       },
                       "DependsOn": [
                         "RDSCluster"
