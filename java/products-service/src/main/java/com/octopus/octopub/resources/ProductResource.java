@@ -47,10 +47,8 @@ public class ProductResource {
   @Transactional
   public Response create(@NonNull final String product)
       throws Exception {
-    final ResourceConverter resourceConverter = jsonApiConverter.buildResourceConverter();
-    resourceConverter.disableDeserializationOption(DeserializationFeature.REQUIRE_RESOURCE_ID);
-    final JSONAPIDocument<Product> productDocument = resourceConverter.readDocument(
-        product.getBytes(StandardCharsets.UTF_8), Product.class);
+    final JSONAPIDocument<Product> productDocument = jsonApiConverter.buildResourceConverter()
+        .readDocument(product.getBytes(StandardCharsets.UTF_8), Product.class);
     final Product productEntity = productDocument.get();
 
     if (productEntity == null) {

@@ -3,12 +3,10 @@ package com.octopus.octopub.repositories;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.models.Audit;
-import com.octopus.octopub.models.Product;
 import com.octopus.octopub.services.AuditService;
 import com.octopus.octopub.services.JsonApiConverter;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import lombok.NonNull;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -21,7 +19,7 @@ public class AuditRepository {
   @Inject
   JsonApiConverter jsonApiConverter;
 
-  public void save(final Audit audit) {
+  public void save(@NonNull final Audit audit) {
     try {
       final JSONAPIDocument<Audit> document = new JSONAPIDocument<Audit>(audit);
 
