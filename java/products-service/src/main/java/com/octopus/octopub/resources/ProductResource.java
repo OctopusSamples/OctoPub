@@ -46,37 +46,45 @@ public class ProductResource {
 
   @POST
   @Transactional
-  public Response create(@NonNull final String product) throws DocumentSerializationException {
-    final JSONAPIDocument<Product> productDocument = jsonApiConverter.buildResourceConverter()
-        .readDocument(product.getBytes(StandardCharsets.UTF_8), Product.class);
-    final Product productEntity = productDocument.get();
+  public Response create(@NonNull final String document) throws DocumentSerializationException {
+    final Product product = getProductFromDocument(document);
 
-    if (productEntity == null) {
+    if (product == null) {
       throw new MissingData();
     }
 
-    productRepository.save(productEntity);
+    productRepository.save(product);
     auditRepository.save(new Audit(
         Constants.MICROSERVICE_NAME,
         Constants.CREATED_ACTION,
-        productEntity.getId().toString()));
-    final JSONAPIDocument<Product> document = new JSONAPIDocument<Product>(productEntity);
-    return Response.ok(jsonApiConverter.buildResourceConverter().writeDocument(document)).build();
+        product.getId().toString()));
+
+    return respondWithProduct(product);
   }
 
   @GET
   @Path("{id}")
-  public Response getOne(@PathParam("id") final String id) {
+  public Response getOne(@PathParam("id") final String id) throws DocumentSerializationException {
     try {
       final Product product = productRepository.findOne(Integer.parseInt(id));
       if (product != null) {
-        final JSONAPIDocument<Product> document = new JSONAPIDocument<Product>(product);
-        return Response.ok(jsonApiConverter.buildResourceConverter().writeDocument(document))
-            .build();
+        return respondWithProduct(product);
       }
-    } catch (final Exception ex) {
-      // ignored, as the id was likely not an int
+    } catch (final NumberFormatException ex) {
+      // ignored, as the supplied id was not an int, and would never find any entities
     }
     return Response.status(Status.NOT_FOUND).build();
+  }
+
+  private Product getProductFromDocument(@NonNull final String document) {
+    final JSONAPIDocument<Product> productDocument = jsonApiConverter.buildResourceConverter()
+        .readDocument(document.getBytes(StandardCharsets.UTF_8), Product.class);
+    return productDocument.get();
+  }
+
+  private Response respondWithProduct(@NonNull final Product product)
+      throws DocumentSerializationException {
+    final JSONAPIDocument<Product> document = new JSONAPIDocument<Product>(product);
+    return Response.ok(jsonApiConverter.buildResourceConverter().writeDocument(document)).build();
   }
 }
