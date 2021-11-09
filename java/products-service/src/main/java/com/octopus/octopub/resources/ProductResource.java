@@ -72,12 +72,13 @@ public class ProductResource {
       throw new MissingData();
     }
 
+    product.tenant = getTenant(acceptHeader);
     productRepository.save(product);
     auditRepository.save(new Audit(
         Constants.MICROSERVICE_NAME,
         Constants.CREATED_ACTION,
         product.getId().toString(),
-        getTenant(acceptHeader)));
+        product.tenant));
 
     return respondWithProduct(product);
   }
