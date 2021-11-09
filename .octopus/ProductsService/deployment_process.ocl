@@ -166,6 +166,7 @@ step "Deploy Lambda" {
                         "DatabaseName": "products",
                         "Engine": "aurora",
                         "EngineMode": "serverless",
+                        "PubliclyAccessible": "true",
                         "ScalingConfiguration": {
                           "AutoPause": true,
                           "MaxCapacity": 16,
