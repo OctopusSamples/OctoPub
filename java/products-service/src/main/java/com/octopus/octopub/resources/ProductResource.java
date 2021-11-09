@@ -1,6 +1,8 @@
 package com.octopus.octopub.resources;
 
+import com.github.jasminb.jsonapi.DeserializationFeature;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
+import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.models.Audit;
@@ -11,6 +13,7 @@ import com.octopus.octopub.services.JsonApiConverter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -35,16 +38,19 @@ public class ProductResource {
   public Response getAll() throws DocumentSerializationException {
     final List<Product> products = productRepository.findAll();
     final JSONAPIDocument<List<Product>> document = new JSONAPIDocument<List<Product>>(products);
-    final byte[] content = jsonApiConverter.buildResourceConverter().writeDocumentCollection(document);
+    final byte[] content = jsonApiConverter.buildResourceConverter()
+        .writeDocumentCollection(document);
     return Response.ok(new String(content)).build();
   }
 
   @POST
+  @Transactional
   public Response create(@NonNull final String product)
       throws Exception {
-    final JSONAPIDocument<Product> productDocument = jsonApiConverter.buildResourceConverter()
-        .readDocument(product.getBytes(
-            StandardCharsets.UTF_8), Product.class);
+    final ResourceConverter resourceConverter = jsonApiConverter.buildResourceConverter();
+    resourceConverter.disableDeserializationOption(DeserializationFeature.REQUIRE_RESOURCE_ID);
+    final JSONAPIDocument<Product> productDocument = resourceConverter.readDocument(
+        product.getBytes(StandardCharsets.UTF_8), Product.class);
     final Product productEntity = productDocument.get();
 
     if (productEntity == null) {

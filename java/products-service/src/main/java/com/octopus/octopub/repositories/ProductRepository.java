@@ -24,9 +24,7 @@ public class ProductRepository {
   }
 
   public Product save(@NonNull final Product product) {
-    em.getTransaction().begin();
     em.persist(product);
-    em.getTransaction().commit();
     return product;
   }
 }
