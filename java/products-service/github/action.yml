@@ -52,10 +52,10 @@ runs:
       shell: bash
       working-directory: java/products-service
 
-    - name: Test Backend
-      run: mvn --batch-mode test
-      shell: bash
-      working-directory: java/products-service
+#    - name: Test Backend
+#      run: mvn --batch-mode test
+#      shell: bash
+#      working-directory: java/products-service
 
     - name: Rename zip
       run: >
