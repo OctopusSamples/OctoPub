@@ -1,8 +1,6 @@
 package com.octopus.octopub.resources;
 
-import com.github.jasminb.jsonapi.DeserializationFeature;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
-import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.MissingData;
@@ -13,17 +11,22 @@ import com.octopus.octopub.repositories.ProductRepository;
 import com.octopus.octopub.services.JsonApiConverter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.SecurityContext;
 import lombok.NonNull;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 @Path("/api/products")
+@RequestScoped
 public class ProductResource {
 
   @Inject
@@ -35,8 +38,11 @@ public class ProductResource {
   @Inject
   JsonApiConverter jsonApiConverter;
 
+  @Inject
+  JsonWebToken jwt;
+
   @GET
-  public Response getAll() throws DocumentSerializationException {
+  public Response getAll(@Context SecurityContext ctx) throws DocumentSerializationException {
     final List<Product> products = productRepository.findAll();
     final JSONAPIDocument<List<Product>> document = new JSONAPIDocument<List<Product>>(products);
     final byte[] content = jsonApiConverter.buildResourceConverter()
@@ -46,7 +52,8 @@ public class ProductResource {
 
   @POST
   @Transactional
-  public Response create(@NonNull final String document) throws DocumentSerializationException {
+  public Response create(@Context SecurityContext ctx, @NonNull final String document)
+      throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
 
     if (product == null) {
@@ -64,7 +71,8 @@ public class ProductResource {
 
   @GET
   @Path("{id}")
-  public Response getOne(@PathParam("id") final String id) throws DocumentSerializationException {
+  public Response getOne(@Context SecurityContext ctx, @PathParam("id") final String id)
+      throws DocumentSerializationException {
     try {
       final Product product = productRepository.findOne(Integer.parseInt(id));
       if (product != null) {
