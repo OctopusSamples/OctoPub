@@ -95,6 +95,7 @@ step "Get Stack Outputs" {
                 set_octopusvariable "DeploymentId" ${TIMESTAMP}
                 
                 PRERELEASE="#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionPreRelease}"
+                echo "PRERELEASE: ${PRERELEASE}"
                 if [[ -z ${PRERELEASE} ]]; then
                 	set_octopusvariable "PreReleaseSuffix" "-${PRERELEASE}"
                 else
