@@ -111,7 +111,8 @@ step "Create API Gateway" {
             Octopus.Action.Aws.WaitForCompletion = "True"
             Octopus.Action.AwsAccount.UseInstanceRole = "False"
             Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.RunOnServer = "true"
         }
-        worker_pool_variable = ""
+        worker_pool_variable = "WorkerPool"
     }
 }
