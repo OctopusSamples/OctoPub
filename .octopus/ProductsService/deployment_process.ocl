@@ -76,7 +76,7 @@ step "Get Stack Outputs" {
             Octopus.Action.Script.ScriptBody = <<-EOT
                 PIPELINE_RESOURCE_ID=$(aws cloudformation \
                 	describe-stacks \
-                    --stack-name #{CloudFormationName.ApiGateway} \
+                    --stack-name #{CloudFormation.ApiGateway} \
                     --query "Stacks[0].Outputs[?OutputKey=='Api'].OutputValue" \
                     --output text)
                     
@@ -84,7 +84,7 @@ step "Get Stack Outputs" {
                 
                 REST_API=$(aws cloudformation \
                 	describe-stacks \
-                    --stack-name #{CloudFormationName.ApiGateway} \
+                    --stack-name #{CloudFormation.ApiGateway} \
                     --query "Stacks[0].Outputs[?OutputKey=='RestApi'].OutputValue" \
                     --output text)
                     
