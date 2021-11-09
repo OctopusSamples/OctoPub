@@ -50,7 +50,8 @@ public class ProductResource {
   @GET
   public Response getAll(
       @Context final SecurityContext ctx,
-      @HeaderParam("Accept") final String acceptHeader) throws DocumentSerializationException {
+      @HeaderParam(Constants.ACCEPT_HEADER) final String acceptHeader)
+      throws DocumentSerializationException {
     final List<Product> products = productRepository.findAll(getTenant(acceptHeader));
     final JSONAPIDocument<List<Product>> document = new JSONAPIDocument<List<Product>>(products);
     final byte[] content = jsonApiConverter.buildResourceConverter()
@@ -63,7 +64,7 @@ public class ProductResource {
   public Response create(
       @Context final SecurityContext ctx,
       @NonNull final String document,
-      @HeaderParam("Accept") final String acceptHeader)
+      @HeaderParam(Constants.ACCEPT_HEADER) final String acceptHeader)
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
 
@@ -83,11 +84,16 @@ public class ProductResource {
 
   @GET
   @Path("{id}")
-  public Response getOne(@Context final SecurityContext ctx, @PathParam("id") final String id)
+  public Response getOne(
+      @Context final SecurityContext ctx,
+      @PathParam("id") final String id,
+      @HeaderParam(Constants.ACCEPT_HEADER) final String acceptHeader)
       throws DocumentSerializationException {
     try {
       final Product product = productRepository.findOne(Integer.parseInt(id));
-      if (product != null) {
+      if (product != null &&
+          (Constants.DEFAULT_TENANT.equals(product.getTenant()) ||
+              getTenant(acceptHeader).equals(product.getTenant()))) {
         return respondWithProduct(product);
       }
     } catch (final NumberFormatException ex) {
