@@ -470,7 +470,7 @@ step "Deploy Lambda" {
                 				"Ref": "RestApi"
                 			},
                 			"ParentId": {"Ref": "ProductsResource"},
-                			"PathPart": {"Ref": "{proxy+}"}
+                			"PathPart": "{proxy+}"
                 		}
                 	},
                     "LambdaOneMethodOne": {
