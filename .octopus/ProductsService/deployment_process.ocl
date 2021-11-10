@@ -311,7 +311,18 @@ step "Deploy Lambda" {
                                       "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${EnvironmentName}-${LambdaName}*:*"
                                     }
                                   ]
-                                }
+                                },
+                				{
+                				  "Effect": "Allow",
+                				  "Action": [
+                					"ec2:DescribeNetworkInterfaces",
+                					"ec2:CreateNetworkInterface",
+                					"ec2:DeleteNetworkInterface",
+                					"ec2:DescribeInstances",
+                					"ec2:AttachNetworkInterface"
+                				  ],
+                				  "Resource": "*"
+                				}
                               ]
                             }
                           }
