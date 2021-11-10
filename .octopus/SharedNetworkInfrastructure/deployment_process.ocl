@@ -35,6 +35,12 @@ step "Create API Gateway" {
                     },
                     "DBPassword": {
                      	"Type": "String" 
+                    },
+                    "Path": {
+                     	"Type": "String" 
+                    },
+                    "Method": {
+                     	"Type": "String" 
                     }
                   },
                   "Resources": {
@@ -339,14 +345,14 @@ step "Create API Gateway" {
                 			"ParentId": {
                 				"Fn::GetAtt": ["RestApi", "ResourceId"]
                 			},
-                			"PathPart": "products"
+                			"PathPart": {"Ref": "Path"}
                 		}
                 	},
                     "LambdaOneMethodOne": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
                         "AuthorizationType": "NONE",  
-                        "HttpMethod": "GET",
+                        "HttpMethod": {"Ref": "Method"},
                         "Integration": {          
                           "IntegrationHttpMethod": "POST",          
                           "TimeoutInMillis": 20000,
@@ -431,8 +437,8 @@ step "Create API Gateway" {
                   }
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":null},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":null},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":null},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":null},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":null},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":null},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":null},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":null}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"Method\",\"ParameterValue\":\"GET\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"Method\",\"ParameterValue\":\"GET\"}]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
             Octopus.Action.Aws.WaitForCompletion = "True"
