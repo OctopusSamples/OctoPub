@@ -340,7 +340,7 @@ step "Deploy Lambda" {
                             "DATABASE_PASSWORD": {"Ref": "DBPassword"},
                             "DATABASE_HOSTNAME": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
                             "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
-                            "LAMBDA_NAME": "InitDatabase",
+                            "LAMBDA_NAME": "InitDatabase"
                           }
                         },
                         "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-InitDB" },
