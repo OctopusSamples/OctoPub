@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import lombok.Data;
 import org.hibernate.envers.Audited;
 
-@Entity(name = "product")
+@Entity
 @Data
 @Type("products")
 public class Product {
