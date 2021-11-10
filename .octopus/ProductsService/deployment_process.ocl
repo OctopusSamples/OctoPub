@@ -327,6 +327,43 @@ step "Deploy Lambda" {
                         "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-role" }
                       }
                     },
+                    "DBMigrationLambda": {
+                      "Type": "AWS::Lambda::Function",
+                      "Properties": {
+                        "Code": {
+                          "S3Bucket": {"Ref": "LambdaS3Bucket"},
+                          "S3Key": {"Ref": "LambdaS3Key"}       
+                        },
+                        "Environment": {
+                          "Variables": {
+                          	"DATABASE_USERNAME": {"Ref": "DBUsername"},
+                            "DATABASE_PASSWORD": {"Ref": "DBPassword"},
+                            "DATABASE_HOSTNAME": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
+                            "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
+                            "LAMBDA_NAME": "InitDatabase",
+                          }
+                        },
+                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-InitDB" },
+                        "Handler": "not.used.in.provided.runtime",
+                        "MemorySize": 128,
+                        "PackageType": "Zip",
+                        "Role": {
+                          "Fn::GetAtt": [
+                            "IamRoleLambdaOneExecution",
+                            "Arn"
+                          ]
+                        },
+                        "Runtime": "provided",
+                        "Timeout": 30,
+                        "VpcConfig": {
+                        	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
+                			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                        }
+                      },
+                      "DependsOn": [
+                        "RDSCluster"
+                      ]
+                    },
                     "LambdaOne": {
                       "Type": "AWS::Lambda::Function",
                       "Properties": {
