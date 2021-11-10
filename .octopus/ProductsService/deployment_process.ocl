@@ -239,18 +239,23 @@ step "Deploy Lambda" {
                 			"GroupName": "Octopus Target Group",
                 			"GroupDescription": "RDS traffic",
                 			"VpcId": {"Ref": "VPC"},
-                			"SecurityGroupIngress": [{
-                				"IpProtocol": "tcp",
-                				"FromPort": "3066",
-                				"ToPort": "3066",
-                				"CidrIp": "0.0.0.0/0"
-                			}],
                 			"SecurityGroupEgress": [{
                 				"IpProtocol": "-1",
                 				"CidrIp": "0.0.0.0/0"
                 			}]
                 		}
                 	},
+                	"InstanceSecurityGroupIngress": {
+                      "Type": "AWS::EC2::SecurityGroupIngress",
+                      "DependsOn": "InstanceSecurityGroup",
+                      "Properties": {
+                        "GroupId": { "Ref": "InstanceSecurityGroup" },
+                        "IpProtocol": "tcp",
+                        "FromPort": "0",
+                        "ToPort": "65535",
+                        "SourceSecurityGroupId": { "Ref": "InstanceSecurityGroup" }
+                      }
+                    },
                     "RDSCluster": {
                       "Type": "AWS::RDS::DBCluster",
                       "Properties": {
@@ -260,6 +265,7 @@ step "Deploy Lambda" {
                         "DatabaseName": "products",
                         "Engine": "aurora",
                         "EngineMode": "serverless",
+                        "VpcSecurityGroupIds" : [{ "Ref": "InstanceSecurityGroup" }],
                         "ScalingConfiguration": {
                           "AutoPause": true,
                           "MaxCapacity": 16,
