@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
+import lombok.NonNull;
 
 @Named("GetAll")
 public class GetAllProduct implements RequestHandler<Map<String, Object>, ProxyResponse> {
@@ -41,7 +42,7 @@ public class GetAllProduct implements RequestHandler<Map<String, Object>, ProxyR
         .orElse(new ProxyResponse("404", "Path not found"));
   }
 
-  private Optional<ProxyResponse> getAll(final Map<String, Object> stringObjectMap) {
+  private Optional<ProxyResponse> getAll(@NonNull final Map<String, Object> stringObjectMap) {
     try {
       final String path = stringObjectMap.get("path").toString();
 
@@ -59,7 +60,7 @@ public class GetAllProduct implements RequestHandler<Map<String, Object>, ProxyR
     return Optional.empty();
   }
 
-  private Optional<ProxyResponse> getOne(final Map<String, Object> stringObjectMap) {
+  private Optional<ProxyResponse> getOne(@NonNull final Map<String, Object> stringObjectMap) {
     try {
       final String path = stringObjectMap.get("path").toString();
 
