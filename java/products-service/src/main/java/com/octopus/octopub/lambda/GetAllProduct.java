@@ -18,8 +18,8 @@ import lombok.NonNull;
 @Named("GetAll")
 public class GetAllProduct implements RequestHandler<Map<String, Object>, ProxyResponse> {
 
-  private static final Pattern ROOT_RE = Pattern.compile("^/?$");
-  private static final Pattern INDIVIDUAL_RE = Pattern.compile("^/(?<id>\\d+)$");
+  private static final Pattern ROOT_RE = Pattern.compile("^/api/products/?$");
+  private static final Pattern INDIVIDUAL_RE = Pattern.compile("^/api/products/(?<id>\\d+)$");
 
   @Inject ProductsController productsController;
 
