@@ -7,105 +7,432 @@ step "Create API Gateway" {
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ApiGateway}"
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
-                	"Resources": {
-                		"RestApi": {
-                			"Type": "AWS::ApiGateway::RestApi",
-                			"Properties": {
-                				"Description": "My API Gateway",
-                				"Name": "Octopub Pipeline API",
-                                "BinaryMediaTypes": ["*/*"],
-                				"EndpointConfiguration": {
-                					"Types": [
-                						"REGIONAL"
-                					]
-                				}
-                			}
-                		},
-                		"Catchall": {
-                			"Type": "AWS::ApiGateway::Resource",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				},
-                				"ParentId": {
-                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
-                				},
-                				"PathPart": "{proxy+}"
-                			}
-                		},
-                		"Api": {
-                			"Type": "AWS::ApiGateway::Resource",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				},
-                				"ParentId": {
-                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
-                				},
-                				"PathPart": "api"
-                			}
-                		},
-                		"Web": {
-                			"Type": "AWS::ApiGateway::Resource",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				},
-                				"ParentId": {
-                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
-                				},
-                				"PathPart": "web"
-                			}
-                		},
-                        "Health": {
-                			"Type": "AWS::ApiGateway::Resource",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				},
-                				"ParentId": {
-                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
-                				},
-                				"PathPart": "health"
-                			}
+                  "Parameters" : {
+                    "EnvironmentName" : {
+                      "Type" : "String",
+                      "Default" : "#{Octopus.Environment.Name}"
+                    },
+                    "RestApi" : {
+                      "Type" : "String"
+                    },
+                    "ResourceId" : {
+                      "Type" : "String"
+                    },
+                    "LambdaS3Key" : {
+                      "Type" : "String"
+                    },
+                    "LambdaS3Bucket": {
+                      "Type": "String"
+                    },
+                    "LambdaName": {
+                      "Type": "String"
+                    },
+                    "LambdaDescription": {
+                     	"Type": "String" 
+                    },
+                    "DBUsername": {
+                     	"Type": "String" 
+                    },
+                    "DBPassword": {
+                     	"Type": "String" 
+                    }
+                  },
+                  "Resources": {
+                    "VPC": {
+                    	"Type": "AWS::EC2::VPC",
+                    	"Properties": {
+                    		"CidrBlock": "10.0.0.0/16",
+                    		"EnableDnsSupport": true,
+                    		"EnableDnsHostnames": true,
+                    		"InstanceTenancy": "default",
+                    		"Tags": [{
+                    			"Key": "Name",
+                    			"Value": "Products Microservice VPC"
+                			}]
                 		}
                 	},
-                	"Outputs": {
-                		"RestApi": {
-                			"Description": "The REST API",
-                			"Value": {
-                				"Ref": "RestApi"
-                			}
-                		},
-                		"RootResourceId": {
-                			"Description": "ID of the root resource",
-                			"Value": {
-                				"Fn::GetAtt": ["RestApi", "RootResourceId"]
-                			}
-                		},
-                		"Web": {
-                			"Description": "ID of the resource the frontend",
-                			"Value": {
-                				"Ref": "Web"
-                			}
-                		},
-                		"Health": {
-                			"Description": "ID of the resource exposing health checks",
-                			"Value": {
-                				"Ref": "Health"
-                			}
-                		},
-                		"Api": {
-                			"Description": "ID of the resource exposing health checks",
-                			"Value": {
-                				"Ref": "Api"
-                			}
+                	"InternetGateway": {
+                    	"Type": "AWS::EC2::InternetGateway"
+                	},
+                	"VPCGatewayAttachment": {
+                    	"Type": "AWS::EC2::VPCGatewayAttachment",
+                    	"Properties": {
+                    		"VpcId": {"Ref": "VPC"},
+                    		"InternetGatewayId": {"Ref": "InternetGateway"}
                 		}
-                	}
+                	},
+                	"SubnetA": {
+                    	"Type": "AWS::EC2::Subnet",
+                    	"Properties": {
+                    		"AvailabilityZone": "us-west-1a",
+                    		"VpcId": {"Ref": "VPC"},
+                    		"CidrBlock": "10.0.0.0/24",
+                    		"MapPublicIpOnLaunch": true
+                		}
+                	},
+                	"SubnetB": {
+                    	"Type": "AWS::EC2::Subnet",
+                    	"Properties": {
+                    		"AvailabilityZone": "us-west-1b",
+                    		"VpcId": {"Ref": "VPC"},
+                    		"CidrBlock": "10.0.1.0/24",
+                    		"MapPublicIpOnLaunch": true
+                		}
+                	},
+                	"SubnetGroup": {
+                	  "Type" : "AWS::RDS::DBSubnetGroup",
+                	  "Properties" : {
+                		  "DBSubnetGroupName" : "productsdbsg",
+                		  "DBSubnetGroupDescription": "Products Subnet Group",
+                		  "SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                		}
+                	},
+                	"RouteTable": {
+                    	"Type": "AWS::EC2::RouteTable",
+                    	"Properties": {
+                    		"VpcId": {"Ref": "VPC"}
+                    	}
+                    },
+                    "InternetRoute": {
+                    	"Type": "AWS::EC2::Route",
+                    	"DependsOn": "InternetGateway",
+                    	"Properties": {
+                    		"DestinationCidrBlock": "0.0.0.0/0",
+                    		"GatewayId": {"Ref": "InternetGateway"},
+                    		"RouteTableId": {"Ref": "RouteTable"}
+                		}
+                	},
+                	"SubnetARouteTableAssociation": {
+                    	"Type": "AWS::EC2::SubnetRouteTableAssociation",
+                    	"Properties": {
+                    		"RouteTableId": {"Ref": "RouteTable"},
+                    		"SubnetId": {"Ref": "SubnetA"}
+                      }
+                    },
+                	"SubnetBRouteTableAssociation": {
+                    	"Type": "AWS::EC2::SubnetRouteTableAssociation",
+                    	"Properties": {
+                    		"RouteTableId": {"Ref": "RouteTable"},
+                    		"SubnetId": {"Ref": "SubnetB"}
+                      }
+                    },
+                	"InstanceSecurityGroup": {
+                		"Type": "AWS::EC2::SecurityGroup",
+                		"Properties": {
+                			"GroupName": "Octopus Target Group",
+                			"GroupDescription": "RDS traffic",
+                			"VpcId": {"Ref": "VPC"},
+                			"SecurityGroupEgress": [{
+                				"IpProtocol": "-1",
+                				"CidrIp": "0.0.0.0/0"
+                			}]
+                		}
+                	},
+                	"InstanceSecurityGroupIngress": {
+                      "Type": "AWS::EC2::SecurityGroupIngress",
+                      "DependsOn": "InstanceSecurityGroup",
+                      "Properties": {
+                        "GroupId": { "Ref": "InstanceSecurityGroup" },
+                        "IpProtocol": "tcp",
+                        "FromPort": "0",
+                        "ToPort": "65535",
+                        "SourceSecurityGroupId": { "Ref": "InstanceSecurityGroup" }
+                      }
+                    },
+                    "RDSCluster": {
+                      "Type": "AWS::RDS::DBCluster",
+                      "Properties": {
+                      	"DBSubnetGroupName": {"Ref": "SubnetGroup"},
+                        "MasterUsername": {"Ref": "DBUsername"},
+                        "MasterUserPassword": {"Ref": "DBPassword"},
+                        "DatabaseName": "products",
+                        "Engine": "aurora",
+                        "EngineMode": "serverless",
+                        "VpcSecurityGroupIds" : [{ "Ref": "InstanceSecurityGroup" }],
+                        "ScalingConfiguration": {
+                          "AutoPause": true,
+                          "MaxCapacity": 16,
+                          "MinCapacity": 2,
+                          "SecondsUntilAutoPause": 300
+                        }
+                      }
+                    },
+                    "AppLogGroupOne": {
+                      "Type": "AWS::Logs::LogGroup",
+                      "Properties": {
+                        "LogGroupName": { "Fn::Sub": "/aws/lambda/${EnvironmentName}-${LambdaName}" }
+                      }
+                    },
+                    "IamRoleLambdaOneExecution": {
+                      "Type": "AWS::IAM::Role",
+                      "Properties": {
+                        "AssumeRolePolicyDocument": {
+                          "Version": "2012-10-17",
+                          "Statement": [
+                            {
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": [
+                                  "lambda.amazonaws.com"
+                                ]
+                              },
+                              "Action": [
+                                "sts:AssumeRole"
+                              ]
+                            }
+                          ]
+                        },
+                        "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"],
+                        "Policies": [
+                          {
+                            "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-policy" },
+                            "PolicyDocument": {
+                              "Version": "2012-10-17",
+                              "Statement": [
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "logs:CreateLogStream",
+                                    "logs:CreateLogGroup",
+                                    "logs:PutLogEvents"
+                                  ],
+                                  "Resource": [
+                                    {
+                                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${EnvironmentName}-${LambdaName}*:*"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "Path": "/",
+                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-role" }
+                      }
+                    },
+                    "DBMigrationLambda": {
+                      "Type": "AWS::Lambda::Function",
+                      "Properties": {
+                        "Code": {
+                          "S3Bucket": {"Ref": "LambdaS3Bucket"},
+                          "S3Key": {"Ref": "LambdaS3Key"}       
+                        },
+                        "Environment": {
+                          "Variables": {
+                          	"DATABASE_USERNAME": {"Ref": "DBUsername"},
+                            "DATABASE_PASSWORD": {"Ref": "DBPassword"},
+                            "DATABASE_HOSTNAME": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
+                            "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
+                            "LAMBDA_NAME": "DatabaseInit"
+                          }
+                        },
+                        "Description" : {"Ref": "LambdaDescription"},
+                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-InitDB" },
+                        "Handler": "not.used.in.provided.runtime",
+                        "MemorySize": 128,
+                        "PackageType": "Zip",
+                        "Role": {
+                          "Fn::GetAtt": [
+                            "IamRoleLambdaOneExecution",
+                            "Arn"
+                          ]
+                        },
+                        "Runtime": "provided",
+                        "Timeout": 30,
+                        "VpcConfig": {
+                        	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
+                			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                        }
+                      },
+                      "DependsOn": [
+                        "RDSCluster"
+                      ]
+                    },
+                    "LambdaOne": {
+                      "Type": "AWS::Lambda::Function",
+                      "Properties": {
+                        "Code": {
+                          "S3Bucket": {"Ref": "LambdaS3Bucket"},
+                          "S3Key": {"Ref": "LambdaS3Key"}       
+                        },
+                        "Environment": {
+                          "Variables": {
+                          	"DATABASE_USERNAME": {"Ref": "DBUsername"},
+                            "DATABASE_PASSWORD": {"Ref": "DBPassword"},
+                            "DATABASE_HOSTNAME": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
+                            "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]}
+                          }
+                        },
+                        "Description" : {"Ref": "LambdaDescription"},
+                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
+                        "Handler": "not.used.in.provided.runtime",
+                        "MemorySize": 128,
+                        "PackageType": "Zip",
+                        "Role": {
+                          "Fn::GetAtt": [
+                            "IamRoleLambdaOneExecution",
+                            "Arn"
+                          ]
+                        },
+                        "Runtime": "provided",
+                        "Timeout": 30,
+                        "VpcConfig": {
+                        	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
+                			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                        }
+                      },
+                      "DependsOn": [
+                        "RDSCluster"
+                      ]
+                    },
+                    "LambdaVersion#{DeploymentId}": {
+                     	"Type": "AWS::Lambda::Version",
+                      	"Properties": {
+                         	 "FunctionName": {"Ref": "LambdaOne"},
+                          	"Description": {"Ref": "LambdaDescription"},
+                          "ProvisionedConcurrencyConfig": {
+                            "ProvisionedConcurrentExecutions": 1
+                          }
+                        }
+                    },
+                    "LambdaOnePermissions": {
+                      "Type": "AWS::Lambda::Permission",
+                      "Properties": {
+                        "FunctionName": {
+                          "Fn::GetAtt": [
+                            "LambdaOne",
+                            "Arn"
+                          ]
+                        },
+                        "Action": "lambda:InvokeFunction",
+                        "Principal": "apigateway.amazonaws.com",
+                        "SourceArn": {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              ":execute-api:",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              ":",
+                              {
+                                "Ref": "AWS::AccountId"
+                              },
+                              ":",
+                              {"Ref": "RestApi"},
+                              "/*/*"
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                	"ProductsResource": {
+                		"Type": "AWS::ApiGateway::Resource",
+                		"Properties": {
+                			"RestApiId": {
+                				"Ref": "RestApi"
+                			},
+                			"ParentId": {
+                				"Fn::GetAtt": ["RestApi", "ResourceId"]
+                			},
+                			"PathPart": "products"
+                		}
+                	},
+                    "LambdaOneMethodOne": {
+                      "Type": "AWS::ApiGateway::Method",
+                      "Properties": {      
+                        "AuthorizationType": "NONE",  
+                        "HttpMethod": "GET",
+                        "Integration": {          
+                          "IntegrationHttpMethod": "POST",          
+                          "TimeoutInMillis": 20000,
+                          "Type": "AWS_PROXY",
+                          "Uri": {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":apigateway:",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ":lambda:path/2015-03-31/functions/",
+                                "arn:aws:lambda:",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ":",
+                                {
+                                  "Ref": "AWS::AccountId"
+                                },
+                                ":function:",
+                                { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
+                                "/invocations"
+                              ]
+                            ]
+                          }
+                        },        
+                        "ResourceId": {
+                          "Ref": "ProductsResource"
+                        },
+                        "RestApiId": {"Ref": "RestApi"}
+                      }
+                    },
+                    "Deployment#{DeploymentId}": {
+                      "Type": "AWS::ApiGateway::Deployment",
+                      "Properties": {
+                        "RestApiId": {"Ref": "RestApi"}
+                      },
+                      "DependsOn": [
+                        "LambdaOneMethodOne"
+                      ]
+                    }
+                  },
+                  "Outputs" : {
+                    "DeploymentId" : {
+                      "Description" : "The deployment id",
+                      "Value" : {"Ref": "Deployment#{DeploymentId}"}
+                    },
+                    "VpcId" : {
+                      "Description" : "The VPC id",
+                      "Value" : {"Ref": "VPC"}
+                    },
+                    "SubnetAId" : {
+                      "Description" : "The Subnet A id",
+                      "Value" : {"Ref": "SubnetA"}
+                    },
+                    "SubnetBId" : {
+                      "Description" : "The Subnet B id",
+                      "Value" : {"Ref": "SubnetA"}
+                    },
+                    "SecurityGroupId" : {
+                      "Description" : "The security group id",
+                      "Value" : {"Ref": "InstanceSecurityGroup"}
+                    },
+                    "SubnetGroupName" : {
+                      "Description" : "The subnet group name",
+                      "Value" : {"Ref": "SubnetGroup"}
+                    },
+                    "DatbaseAddress" : {
+                      "Description" : "The database hostname",
+                      "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]}
+                    },
+                    "DatbasePort" : {
+                      "Description" : "The database hostname",
+                      "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]}
+                    }      
+                  }
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":null},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":null},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":null},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":null},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":null},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":null},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":null},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":null}]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
             Octopus.Action.Aws.WaitForCompletion = "True"
