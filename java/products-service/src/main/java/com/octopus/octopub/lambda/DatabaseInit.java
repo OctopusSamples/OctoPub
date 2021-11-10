@@ -2,8 +2,6 @@ package com.octopus.octopub.lambda;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -15,11 +13,9 @@ import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 
 @Named("DatabaseInit")
 public class DatabaseInit implements RequestHandler<Map<String, Object>, ProxyResponse> {
