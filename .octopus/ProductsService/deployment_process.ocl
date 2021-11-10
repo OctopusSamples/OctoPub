@@ -459,9 +459,7 @@ step "Deploy Lambda" {
                 			"RestApiId": {
                 				"Ref": "RestApi"
                 			},
-                			"ParentId": {
-                				"Fn::GetAtt": ["RestApi", "ResourceId"]
-                			},
+                			"ParentId": {"Ref": "ResourceId"},
                 			"PathPart": {"Ref": "Path"}
                 		}
                 	},
