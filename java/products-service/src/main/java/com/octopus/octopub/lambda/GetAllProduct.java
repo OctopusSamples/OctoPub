@@ -3,6 +3,7 @@ package com.octopus.octopub.lambda;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
+import com.octopus.octopub.Constants;
 import com.octopus.octopub.services.LambdaUtils;
 import com.octopus.octopub.services.ProductsController;
 import java.util.Map;
@@ -48,7 +49,8 @@ public class GetAllProduct implements RequestHandler<Map<String, Object>, ProxyR
         return Optional.of(
             new ProxyResponse(
                 "200",
-                productsController.getAll(lambdaUtils.getHeader(stringObjectMap, "Accept"))));
+                productsController.getAll(
+                    lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER))));
       }
     } catch (final DocumentSerializationException e) {
       return Optional.of(new ProxyResponse("500", e.toString()));
@@ -67,7 +69,8 @@ public class GetAllProduct implements RequestHandler<Map<String, Object>, ProxyR
             new ProxyResponse(
                 "200",
                 productsController.getOne(
-                    matcher.group("id"), lambdaUtils.getHeader(stringObjectMap, "Accept"))));
+                    matcher.group("id"),
+                    lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER))));
       }
     } catch (final DocumentSerializationException e) {
       return Optional.of(new ProxyResponse("500", e.toString()));
