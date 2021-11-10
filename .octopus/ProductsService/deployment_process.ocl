@@ -529,6 +529,7 @@ step "Database Migration" {
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.AwsAccount.UseInstanceRole = "False"
             Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.RunOnServer = "true"
             Octopus.Action.Script.ScriptBody = <<-EOT
                 aws lambda invoke \
                 	--function-name #{Octopus.Environment.Name}-#{Lambda.ProductService}-InitDB \
@@ -539,7 +540,7 @@ step "Database Migration" {
             Octopus.Action.Script.Syntax = "Bash"
             OctopusUseBundledTooling = "False"
         }
-        worker_pool_variable = ""
+        worker_pool_variable = "WorkerPool"
 
         container {
             feed = "Dockerhub"
