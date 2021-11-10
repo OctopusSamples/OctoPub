@@ -1,11 +1,17 @@
 package com.octopus.octopub.lambda;
 
+import static javax.transaction.Transactional.TxType.NEVER;
+import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
+import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
@@ -21,17 +27,14 @@ import org.hibernate.Session;
 public class DatabaseInit implements RequestHandler<Map<String, Object>, ProxyResponse> {
 
   @Inject
-  EntityManager em;
+  DataSource defaultDataSource;
 
   @Override
-  @Transactional
   public ProxyResponse handleRequest(final Map<String, Object> stringObjectMap,
       final Context context) {
 
-    final Exception[] exception = {null};
-    final Session session = em.unwrap(Session.class);
-    session.doWork(connection -> {
       try {
+        final Connection connection = defaultDataSource.getConnection();
         final Database database = DatabaseFactory.getInstance()
             .findCorrectDatabaseImplementation(new JdbcConnection(connection));
         final Liquibase liquibase = new Liquibase(
@@ -39,14 +42,10 @@ public class DatabaseInit implements RequestHandler<Map<String, Object>, ProxyRe
             new ClassLoaderResourceAccessor(),
             database);
         liquibase.update(new Contexts(), new LabelExpression());
-      } catch (final LiquibaseException ex) {
-        exception[0] = ex;
+        return new ProxyResponse("200", "ok");
+      } catch (final LiquibaseException | SQLException ex) {
+        return new ProxyResponse("500", ex.toString());
       }
-    });
-
-    return exception[0] == null
-        ? new ProxyResponse("200", "ok")
-        : new ProxyResponse("500", exception[0].toString());
 
   }
 }
