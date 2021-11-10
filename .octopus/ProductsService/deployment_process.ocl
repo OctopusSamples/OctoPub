@@ -504,7 +504,35 @@ step "Deploy Lambda" {
                     "DeploymentId" : {
                       "Description" : "The deployment id",
                       "Value" : {"Ref": "Deployment#{DeploymentId}"}
-                    }
+                    },
+                    "VpcId" : {
+                      "Description" : "The VPC id",
+                      "Value" : {"Ref": "VPC"}
+                    },
+                    "SubnetAId" : {
+                      "Description" : "The Subnet A id",
+                      "Value" : {"Ref": "SubnetA"}
+                    },
+                    "SubnetBId" : {
+                      "Description" : "The Subnet B id",
+                      "Value" : {"Ref": "SubnetA"}
+                    },
+                    "SecurityGroupId" : {
+                      "Description" : "The security group id",
+                      "Value" : {"Ref": "InstanceSecurityGroup"}
+                    },
+                    "SubnetGroupName" : {
+                      "Description" : "The subnet group name",
+                      "Value" : {"Ref": "SubnetGroup"}
+                    },
+                    "DatbaseAddress" : {
+                      "Description" : "The database hostname",
+                      "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]}
+                    },
+                    "DatbasePort" : {
+                      "Description" : "The database hostname",
+                      "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]}
+                    }      
                   }
                 }
             EOT
