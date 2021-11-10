@@ -10,8 +10,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
 
-@Named("getAll")
-public class Lambda implements RequestHandler<Map<String, Object>, ProxyResponse> {
+@Named("GetAll")
+public class GetAllProduct implements RequestHandler<Map<String, Object>, ProxyResponse> {
 
   @Inject
   ProductsController productsController;
