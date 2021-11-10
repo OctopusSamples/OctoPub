@@ -343,6 +343,7 @@ step "Deploy Lambda" {
                             "LAMBDA_NAME": "DatabaseInit"
                           }
                         },
+                        "Description" : {"Ref": "LambdaDescription"},
                         "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-InitDB" },
                         "Handler": "not.used.in.provided.runtime",
                         "MemorySize": 128,
@@ -379,6 +380,7 @@ step "Deploy Lambda" {
                             "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]}
                           }
                         },
+                        "Description" : {"Ref": "LambdaDescription"},
                         "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
                         "Handler": "not.used.in.provided.runtime",
                         "MemorySize": 128,
