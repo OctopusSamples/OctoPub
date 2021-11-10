@@ -293,6 +293,7 @@ step "Deploy Lambda" {
                             }
                           ]
                         },
+                        "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"],
                         "Policies": [
                           {
                             "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-policy" },
@@ -311,18 +312,7 @@ step "Deploy Lambda" {
                                       "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${EnvironmentName}-${LambdaName}*:*"
                                     }
                                   ]
-                                },
-                				{
-                				  "Effect": "Allow",
-                				  "Action": [
-                					"ec2:DescribeNetworkInterfaces",
-                					"ec2:CreateNetworkInterface",
-                					"ec2:DeleteNetworkInterface",
-                					"ec2:DescribeInstances",
-                					"ec2:AttachNetworkInterface"
-                				  ],
-                				  "Resource": "*"
-                				}
+                                }
                               ]
                             }
                           }
