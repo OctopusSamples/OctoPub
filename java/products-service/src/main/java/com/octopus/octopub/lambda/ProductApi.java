@@ -44,7 +44,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     return getAll(stringObjectMap)
         .or(() -> getOne(stringObjectMap))
         .or(() -> checkHealth(stringObjectMap))
-        .orElse(new ProxyResponse("404", "Path not found"));
+        .orElse(new ProxyResponse("404", "\"message\": \"Path not found\""));
   }
 
   /**
@@ -62,7 +62,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     final String path = stringObjectMap.get("path").toString();
 
     if (Arrays.stream(HEALTH_RE).anyMatch(m -> m.matcher(path).matches())) {
-      return Optional.of(new ProxyResponse("200", "OK"));
+      return Optional.of(new ProxyResponse("200", "{\"message\": \"OK\""));
     }
 
     return Optional.empty();
