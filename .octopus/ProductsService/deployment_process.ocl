@@ -216,7 +216,7 @@ step "Deploy Lambda" {
                 	"SubnetGroup": {
                 	  "Type" : "AWS::RDS::DBSubnetGroup",
                 	  "Properties" : {
-                		  "DBSubnetGroupName" : "productsdbsg",
+                		  "DBSubnetGroupName" : "productdbsg",
                 		  "DBSubnetGroupDescription": "Products Subnet Group",
                 		  "SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
                 		}
