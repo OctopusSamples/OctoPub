@@ -33,9 +33,9 @@ namespace audit_service
             });
 
             services.AddDbContext<Db>(opt => opt.UseInMemoryDatabase("audit"));
-            services.AddScoped<ICreateService<Audit, string>, AuditCreateService>();
-            services.AddScoped<IGetAllService<Audit, string>, AuditGetAllService>();
-            services.AddScoped<IGetByIdService<Audit, string>, AuditGetByIdService>();
+            services.AddScoped<ICreateService<Audit, int>, AuditCreateService>();
+            services.AddScoped<IGetAllService<Audit, int>, AuditGetAllService>();
+            services.AddScoped<IGetByIdService<Audit, int>, AuditGetByIdService>();
             services.AddScoped<ITenantParser, TenantParser>();
 
             services.AddJsonApi<Db>(opts =>

@@ -3,7 +3,7 @@ using JsonApiDotNetCore.Resources.Annotations;
 
 namespace audit_service.Models
 {
-    public class Audit : Identifiable<string>
+    public class Audit : Identifiable<int>
     {
         [Attr] public string Tenant { get; set; }
 

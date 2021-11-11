@@ -8,7 +8,7 @@ using JsonApiDotNetCore.Services;
 
 namespace audit_service.Services.InMemory
 {
-    public class AuditGetAllService : IGetAllService<Audit, string>
+    public class AuditGetAllService : IGetAllService<Audit, int>
     {
         private readonly Db context;
         private readonly ITenantParser tenantParser;

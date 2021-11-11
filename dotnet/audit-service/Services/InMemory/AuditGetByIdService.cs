@@ -6,7 +6,7 @@ using JsonApiDotNetCore.Services;
 
 namespace audit_service.Services.InMemory
 {
-    public class AuditGetByIdService : IGetByIdService<Audit, string>
+    public class AuditGetByIdService : IGetByIdService<Audit, int>
     {
         private readonly Db context;
         private readonly ITenantParser tenantParser;
@@ -17,7 +17,7 @@ namespace audit_service.Services.InMemory
             this.tenantParser = tenantParser;
         }
 
-        public Task<Audit> GetAsync(string id, CancellationToken cancellationToken)
+        public Task<Audit> GetAsync(int id, CancellationToken cancellationToken)
         {
             var audit = context.Audits.Find(id);
             return audit.Tenant == "main" || audit.Tenant == tenantParser.GetTenant()
