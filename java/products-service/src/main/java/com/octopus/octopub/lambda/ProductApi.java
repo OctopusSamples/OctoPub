@@ -39,7 +39,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
   @Override
   @Transactional
   public ProxyResponse handleRequest(
-      final Map<String, Object> stringObjectMap, final Context context) {
+      @NonNull final Map<String, Object> stringObjectMap, @NonNull final Context context) {
 
     return getAll(stringObjectMap)
         .or(() -> getOne(stringObjectMap))
@@ -57,7 +57,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
    * @param stringObjectMap The request details
    * @return The optional proxy response
    */
-  private Optional<ProxyResponse> checkHealth(final Map<String, Object> stringObjectMap) {
+  private Optional<ProxyResponse> checkHealth(@NonNull final Map<String, Object> stringObjectMap) {
 
     final String path = stringObjectMap.get("path").toString();
 
