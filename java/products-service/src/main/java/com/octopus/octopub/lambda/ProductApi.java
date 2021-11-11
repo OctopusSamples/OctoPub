@@ -15,8 +15,8 @@ import javax.inject.Named;
 import javax.transaction.Transactional;
 import lombok.NonNull;
 
-@Named("GetAll")
-public class GetAllProduct implements RequestHandler<Map<String, Object>, ProxyResponse> {
+@Named("Products")
+public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResponse> {
 
   private static final Pattern ROOT_RE = Pattern.compile("^/api/products/?$");
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("^/api/products/(?<id>\\d+)$");
