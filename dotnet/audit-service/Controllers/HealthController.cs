@@ -15,7 +15,7 @@ namespace audit_service.Controllers
         [HttpPut]
         public IActionResult GetHealth()
         {
-            return Ok("OK");
+            return Ok("{\"message\": \"OK\"}");
         }
     }
 }
