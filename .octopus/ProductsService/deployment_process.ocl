@@ -620,12 +620,12 @@ step "Deploy Lambda" {
                           }
                         },        
                         "ResourceId": {
-                          "Ref": "ProductsHealthProxyResource"
+                          "Ref": "ProductsHealthResource"
                         },
                         "RestApiId": {"Ref": "RestApi"}
                       }
                     },
-                    "LambdaResourceMethodTwo": {
+                    "LambdaHealthResourceMethodTwo": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
                         "AuthorizationType": "NONE",  
@@ -674,7 +674,10 @@ step "Deploy Lambda" {
                         "RestApiId": {"Ref": "RestApi"}
                       },
                       "DependsOn": [
-                        "LambdaOneMethodOne"
+                        "LambdaResourceMethodOne",
+                        "LambdaResourceMethodTwo",
+                        "LambdaHealthResourceMethodOne",
+                        "LambdaHealthResourceMethodTwo"
                       ]
                     }
                   },
