@@ -20,6 +20,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
 
   private static final Pattern ROOT_RE = Pattern.compile("^/api/products/?$");
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("^/api/products/(?<id>\\d+)$");
+  private static final Pattern HEALTH_RE = Pattern.compile("^/health/products.*$");
 
   @Inject ProductsController productsController;
 
@@ -39,7 +40,19 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
 
     return getAll(stringObjectMap)
         .or(() -> getOne(stringObjectMap))
+        .or(() -> checkHealth(stringObjectMap))
         .orElse(new ProxyResponse("404", "Path not found"));
+  }
+
+  private Optional<ProxyResponse> checkHealth(final Map<String, Object> stringObjectMap) {
+
+    final String path = stringObjectMap.get("path").toString();
+
+    if (HEALTH_RE.matcher(path).matches()) {
+      return Optional.of(new ProxyResponse("200", "OK"));
+    }
+
+    return Optional.empty();
   }
 
   private Optional<ProxyResponse> getAll(@NonNull final Map<String, Object> stringObjectMap) {
