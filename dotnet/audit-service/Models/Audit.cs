@@ -9,8 +9,8 @@ namespace audit_service.Models
 
         [Attr] public string Action { get; set; }
 
-        [HasOne] public Urn Subject { get; set; }
+        [HasOne] public string Subject { get; set; }
 
-        [HasOne] public Urn Object { get; set; }
+        [HasOne] public string Object { get; set; }
     }
 }

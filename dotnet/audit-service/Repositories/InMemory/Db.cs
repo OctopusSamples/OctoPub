@@ -11,6 +11,5 @@ namespace audit_service.Repositories.InMemory
         }
 
         public DbSet<Audit> Audits { get; set; }
-        public DbSet<Urn> Urns { get; set; }
     }
 }
