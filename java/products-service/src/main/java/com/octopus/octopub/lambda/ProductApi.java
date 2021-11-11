@@ -49,7 +49,14 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     final String path = stringObjectMap.get("path").toString();
 
     if (HEALTH_RE.matcher(path).matches()) {
-      return Optional.of(new ProxyResponse("200", "OK"));
+      /*
+       Use the 202 Accepted response code to indicate that the API is responding, but is
+       otherwise non-committal about actioning any request. This allows us to respond to
+       POST, PATCH, and DELETE requests against the health endpoint to indicate the service
+       is up, while returning a code that semantically did not indicate any modification
+       had taken place.
+       */
+      return Optional.of(new ProxyResponse("202", "OK"));
     }
 
     return Optional.empty();
