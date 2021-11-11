@@ -582,11 +582,11 @@ step "Deploy Lambda" {
                         "RestApiId": {"Ref": "RestApi"}
                       }
                     },
-                    "LambdaResourceMethodOne": {
+                    "LambdaHealthResourceMethodOne": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
                         "AuthorizationType": "NONE",  
-                        "HttpMethod": {"Ref": "Method"},
+                        "HttpMethod": "GET",
                         "Integration": {          
                           "IntegrationHttpMethod": "POST",          
                           "TimeoutInMillis": 20000,
@@ -629,7 +629,7 @@ step "Deploy Lambda" {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
                         "AuthorizationType": "NONE",  
-                        "HttpMethod": {"Ref": "Method"},
+                        "HttpMethod": "GET",
                         "Integration": {          
                           "IntegrationHttpMethod": "POST",          
                           "TimeoutInMillis": 20000,
