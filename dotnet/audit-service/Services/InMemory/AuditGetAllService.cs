@@ -23,7 +23,7 @@ namespace audit_service.Services.InMemory
         {
             var tenant = tenantParser.GetTenant();
             IReadOnlyCollection<Audit> list = context.Audits
-                .Where(a => a.Tenant == "main" || a.Tenant == tenant)
+                .Where(a => a.Tenant == Constants.DefaultTenant || a.Tenant == tenant)
                 .ToList();
             return Task.FromResult(list);
         }

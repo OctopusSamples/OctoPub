@@ -20,7 +20,7 @@ namespace audit_service.Services.InMemory
         public Task<Audit> GetAsync(int id, CancellationToken cancellationToken)
         {
             var audit = context.Audits.Find(id);
-            return audit.Tenant == "main" || audit.Tenant == tenantParser.GetTenant()
+            return audit.Tenant == Constants.DefaultTenant || audit.Tenant == tenantParser.GetTenant()
                 ? Task.FromResult(audit)
                 : Task.FromResult<Audit>(null);
         }

@@ -1,0 +1,143 @@
+name: 'GitHub Actions Backend'
+inputs:
+  run_number:
+    required: true
+  github_token:
+    required: true
+  github_user:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v1
+
+    - uses: nelonoel/branch-name@v1.0.1
+
+    - name: Install Octopus CLI
+      uses: OctopusDeploy/install-octopus-cli-action@v1.1.1
+      with:
+        version: latest
+
+    - name: Set up DotNET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100
+        
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.7
+      with:
+        versionSpec: 5.x
+        
+    - id: determine_version
+      name: Determine Version
+      uses: gittools/actions/gitversion/execute@v0.9.7     
+
+    - name: Install Dependencies
+      run: dotnet restore
+      shell: bash
+      working-directory: dotnet/audit-service
+      
+    - name: List Dependencies
+      run: dotnet list package > dependencies.txt
+      shell: bash
+      working-directory: dotnet/audit-service
+      
+    - name: Collect Dependencies
+      uses: actions/upload-artifact@v2
+      with:
+        name: Dependencies
+        path: dependencies.txt
+      working-directory: dotnet/audit-service
+        
+    - name: List Dependency Updates
+      run: dotnet list package --outdated > dependencyUpdates.txt
+      shell: bash
+      working-directory: dotnet/audit-service
+
+    - name: Collect Dependency Updates
+      uses: actions/upload-artifact@v2
+      with:
+        name: Dependencies Updates
+        path: dependencyUpdates.txt
+      working-directory: dotnet/audit-service
+
+    - name: List dependencies
+      run: mvn --batch-mode dependency:tree --no-transfer-progress
+      shell: bash
+      working-directory: dotnet/audit-service
+
+    - name: Test
+      run: dotnet test -l:trx || true
+      shell: bash
+      working-directory: dotnet/audit-service
+      
+    - if: always()
+      name: Report
+      uses: dorny/test-reporter@v1
+      with:
+        name: DotNET Tests
+        path: '**/*.trx'
+        reporter: dotnet-trx
+        fail-on-error: 'false'
+      working-directory: dotnet/audit-service
+        
+    - name: Publish
+      run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }} --runtime linux-x64
+      working-directory: dotnet/audit-service
+
+    - id: package
+      name: Package
+      run: |-
+        # Find the publish directories
+        shopt -s globstar
+        paths=()
+        for i in **/publish/*.dll; do
+          dir=${i%/*}
+          echo ${dir}
+          paths=(${paths[@]} ${dir})
+        done
+        eval uniquepaths=($(printf "%s\n" "${paths[@]}" | sort -u))
+        for i in "${uniquepaths[@]}"; do
+          echo $i
+        done
+        # For each publish dir, create a package
+        packages=()
+        for path in "${uniquepaths[@]}"; do
+          # Get the directory name four deep, which is typically the project folder
+          dir=${path}/../../../..
+          parentdir=$(builtin cd $dir; pwd)
+          projectname=${parentdir##*/}
+          # Package the published files
+          octo pack \
+          --basePath ${path} \
+          --id ${projectname} \
+          --version ${{ steps.determine_version.outputs.semVer }} \
+          --format zip \
+          --overwrite
+          packages=(${packages[@]} "${projectname}.${{ steps.determine_version.outputs.semVer }}.zip")
+        done
+        # Join the array with commas
+        printf -v joined "%s," "${packages[@]}"
+        # Save the list of packages as an output variable
+        echo "::set-output name=artifacts::${joined%,}"
+        # Do the same again, but use new lines as the separator
+        printf -v joinednewline "%s\n" "${packages[@]}"
+        # https://trstringer.com/github-actions-multiline-strings/
+        # Multiline strings require some care in a workflow
+        joinednewline="${joinednewline//'%'/'%25'}"
+        joinednewline="${joinednewline//$'\n'/'%0A'}"
+        joinednewline="${joinednewline//$'\r'/'%0D'}"
+        # Save the list of packages newline separated as an output variable
+        echo "::set-output name=artifacts_new_line::${joinednewline%\n}"
+      working-directory: dotnet/audit-service
+
+    - run: >
+        ./mvnw deploy:deploy-file
+        -Dfile=${{ steps.package.outputs.artifacts }}.zip
+        -DgroupId=com.octopus.octopub
+        -DartifactId=audits-service
+        -Dversion=${{ steps.determine_version.outputs.semVer }}
+        -Dpackaging=zip
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
+      shell: bash
+      working-directory: dotnet/audit-service

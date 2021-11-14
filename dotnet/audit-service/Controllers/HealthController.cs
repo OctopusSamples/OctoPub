@@ -9,10 +9,6 @@ namespace audit_service.Controllers
     public class HealthController : ControllerBase
     {
         [HttpGet]
-        [HttpDelete]
-        [HttpPatch]
-        [HttpPost]
-        [HttpPut]
         public IActionResult GetHealth()
         {
             return Ok("{\"message\": \"OK\"}");

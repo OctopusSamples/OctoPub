@@ -32,7 +32,7 @@ namespace audit_service.Services
                 // get the second element
                 .Select(v => v[1].Trim())
                 // if nothing was found, we assume we are the main tenant
-                .FirstOrDefault() ?? "main";
+                .FirstOrDefault() ?? Constants.DefaultTenant;
         }
     }
 }
