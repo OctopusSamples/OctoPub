@@ -87,6 +87,7 @@ runs:
 
     - name: Publish
       run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }} --runtime linux-x64
+      shell: bash
       working-directory: dotnet/audit-service
 
     - id: package
@@ -133,6 +134,7 @@ runs:
         joinednewline="${joinednewline//$'\r'/'%0D'}"
         # Save the list of packages newline separated as an output variable
         echo "::set-output name=artifacts_new_line::${joinednewline%\n}"
+      shell: bash
       working-directory: dotnet/audit-service
 
     - run: >
