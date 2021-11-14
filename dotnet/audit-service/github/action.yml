@@ -50,8 +50,7 @@ runs:
       uses: actions/upload-artifact@v2
       with:
         name: Dependencies
-        path: dependencies.txt
-      working-directory: dotnet/audit-service
+        path: dotnet/audit-service/dependencies.txt
 
     - name: List Dependency Updates
       run: dotnet list package --outdated > dependencyUpdates.txt
@@ -62,8 +61,7 @@ runs:
       uses: actions/upload-artifact@v2
       with:
         name: Dependencies Updates
-        path: dependencyUpdates.txt
-      working-directory: dotnet/audit-service
+        path: dotnet/audit-service/dependencyUpdates.txt
 
     - name: List dependencies
       run: mvn --batch-mode dependency:tree --no-transfer-progress
