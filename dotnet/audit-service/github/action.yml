@@ -78,7 +78,7 @@ runs:
 #        fail-on-error: 'false'
 
     - name: Publish
-      run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }} --runtime linux-x64 --self-contained
+      run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.fullSemVer }} --runtime linux-x64 --self-contained
       shell: bash
       working-directory: dotnet/audit-service
 
@@ -111,7 +111,7 @@ runs:
           --version ${{ steps.determine_version.outputs.semVer }} \
           --format zip \
           --overwrite
-          packages=(${packages[@]} "${projectname}.${{ steps.determine_version.outputs.semVer }}.zip")
+          packages=(${packages[@]} "${projectname}.${{ steps.determine_version.outputs.fullSemVer }}.zip")
         done
         # Join the array with commas
         printf -v joined "%s," "${packages[@]}"
@@ -131,10 +131,10 @@ runs:
 
     - run: >
         mvn deploy:deploy-file
-        -Dfile=${{ steps.package.outputs.artifacts }}.zip
+        -Dfile=${{ steps.package.outputs.artifacts }}
         -DgroupId=com.octopus.octopub
         -DartifactId=audits-service
-        -Dversion=${{ steps.determine_version.outputs.semVer }}
+        -Dversion=${{ steps.determine_version.outputs.fullSemVer }}
         -Dpackaging=zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
       shell: bash
