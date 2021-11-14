@@ -1,0 +1,22 @@
+name: Audit Service
+
+on:
+  push:
+      paths:
+      - 'dotnet/audit-service/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Build
+      uses: ./dotnet/audit-service/github
+      with:
+        run_number: ${{ github.run_number }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_user: ${{ github.actor }}
