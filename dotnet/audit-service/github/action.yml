@@ -27,6 +27,10 @@ runs:
       with:
         dotnet-version: 6.0.100
 
+    - name: Install AWS Tooling
+      run: dotnet tool install -g Amazon.Lambda.Tools
+      shell: bash
+
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0.9.7
       with:
