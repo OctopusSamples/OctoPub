@@ -1,11 +1,15 @@
 name: 'GitHub Actions Backend'
 inputs:
   run_number:
+    description: The github run number
     required: true
   github_token:
+    description: The github token
     required: true
   github_user:
+    description: The github username
     required: true
+description: Build the audit microservice
 runs:
   using: "composite"
   steps:
@@ -22,33 +26,33 @@ runs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.100
-        
+
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0.9.7
       with:
         versionSpec: 5.x
-        
+
     - id: determine_version
       name: Determine Version
-      uses: gittools/actions/gitversion/execute@v0.9.7     
+      uses: gittools/actions/gitversion/execute@v0.9.7
 
     - name: Install Dependencies
       run: dotnet restore
       shell: bash
       working-directory: dotnet/audit-service
-      
+
     - name: List Dependencies
       run: dotnet list package > dependencies.txt
       shell: bash
       working-directory: dotnet/audit-service
-      
+
     - name: Collect Dependencies
       uses: actions/upload-artifact@v2
       with:
         name: Dependencies
         path: dependencies.txt
       working-directory: dotnet/audit-service
-        
+
     - name: List Dependency Updates
       run: dotnet list package --outdated > dependencyUpdates.txt
       shell: bash
@@ -70,7 +74,7 @@ runs:
       run: dotnet test -l:trx || true
       shell: bash
       working-directory: dotnet/audit-service
-      
+
     - if: always()
       name: Report
       uses: dorny/test-reporter@v1
@@ -80,7 +84,7 @@ runs:
         reporter: dotnet-trx
         fail-on-error: 'false'
       working-directory: dotnet/audit-service
-        
+
     - name: Publish
       run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }} --runtime linux-x64
       working-directory: dotnet/audit-service
