@@ -639,19 +639,7 @@ step "Deploy Lambda" {
                     "SecurityGroupId" : {
                       "Description" : "The security group id",
                       "Value" : {"Ref": "InstanceSecurityGroup"}
-                    },
-                    "SubnetGroupName" : {
-                      "Description" : "The subnet group name",
-                      "Value" : {"Ref": "SubnetGroup"}
-                    },
-                    "DatbaseAddress" : {
-                      "Description" : "The database hostname",
-                      "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]}
-                    },
-                    "DatbasePort" : {
-                      "Description" : "The database hostname",
-                      "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]}
-                    }      
+                    }    
                   }
                 }
             EOT
