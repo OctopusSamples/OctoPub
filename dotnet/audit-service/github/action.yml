@@ -78,7 +78,7 @@ runs:
 #        fail-on-error: 'false'
 
     - name: Publish
-      run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }} --runtime linux-x64
+      run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }} --runtime linux-x64 --self-contained
       shell: bash
       working-directory: dotnet/audit-service
 
@@ -100,8 +100,8 @@ runs:
         # For each publish dir, create a package
         packages=()
         for path in "${uniquepaths[@]}"; do
-          # Get the directory name four deep, which is typically the project folder
-          dir=${path}/../../../..
+          # Get the directory name five deep, which is typically the project folder
+          dir=${path}/../../../../..
           parentdir=$(builtin cd $dir; pwd)
           projectname=${parentdir##*/}
           # Package the published files
@@ -130,7 +130,7 @@ runs:
       working-directory: dotnet/audit-service
 
     - run: >
-        ./mvnw deploy:deploy-file
+        mvn deploy:deploy-file
         -Dfile=${{ steps.package.outputs.artifacts }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=audits-service
