@@ -332,7 +332,7 @@ step "Deploy Lambda" {
                         },
                         "Description" : {"Ref": "LambdaDescription"},
                         "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
-                        "Handler": "audit-service::audit_service.Lambda.Audits::Audits",
+                        "Handler": "audit-service::audit_service.Lambda.Audits::AuditsApi",
                         "MemorySize": 128,
                         "PackageType": "Zip",
                         "Role": {
