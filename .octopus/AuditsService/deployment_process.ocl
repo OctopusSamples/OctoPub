@@ -4,7 +4,7 @@ step "Create Bucket" {
         action_type = "Octopus.AwsRunCloudFormation"
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ProductsBucket}"
+            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.AuditsBucket}"
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
                   "Resources": {
@@ -47,7 +47,7 @@ step "Upload Lambda" {
             Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.Package.DownloadOnTentacle = "False"
             Octopus.Action.Package.FeedId = "Octopub"
-            Octopus.Action.Package.PackageId = "com.octopus.octopub:products-service"
+            Octopus.Action.Package.PackageId = "com.octopus.octopub:audits-service"
             Octopus.Action.RunOnServer = "true"
         }
         worker_pool_variable = "WorkerPool"
@@ -55,7 +55,7 @@ step "Upload Lambda" {
         packages {
             acquisition_location = "Server"
             feed = "Octopub"
-            package_id = "com.octopus.octopub:products-service"
+            package_id = "com.octopus.octopub:audits-service"
             properties = {
                 SelectionMode = "immediate"
             }
@@ -129,7 +129,7 @@ step "Deploy Lambda" {
         action_type = "Octopus.AwsRunCloudFormation"
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ProductService}"
+            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.AuditsService}"
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
                   "Parameters" : {
@@ -736,35 +736,6 @@ step "Deploy Lambda" {
             Octopus.Action.RunOnServer = "true"
         }
         worker_pool_variable = "WorkerPool"
-    }
-}
-
-step "Database Migration" {
-
-    action {
-        action_type = "Octopus.AwsRunScript"
-        properties = {
-            Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.Region = "#{AWS.Region}"
-            Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS.Account"
-            Octopus.Action.RunOnServer = "true"
-            Octopus.Action.Script.ScriptBody = <<-EOT
-                aws lambda invoke \
-                	--function-name #{Octopus.Environment.Name}-#{Lambda.ProductService}-InitDB \
-                    --payload '{}' \
-                    response.json
-            EOT
-            Octopus.Action.Script.ScriptSource = "Inline"
-            Octopus.Action.Script.Syntax = "Bash"
-            OctopusUseBundledTooling = "False"
-        }
-        worker_pool_variable = "WorkerPool"
-
-        container {
-            feed = "Dockerhub"
-            image = "octopusdeploy/worker-tools:3.2.0-ubuntu.18.04"
-        }
     }
 }
 
