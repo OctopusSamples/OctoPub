@@ -1,25 +1,13 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace audit_service.Services
 {
     public class TenantParser : ITenantParser
     {
-        private readonly IHttpContextAccessor httpContextAccessor;
-
-        public TenantParser(IHttpContextAccessor httpContextAccessor)
+        public string GetTenant(IEnumerable<string> acceptHeader)
         {
-            this.httpContextAccessor = httpContextAccessor;
-        }
-
-        public string GetTenant()
-        {
-            return httpContextAccessor.HttpContext.Request.Headers
-                // Get the accept headers
-                .Where(h => h.Key.ToLower() == "accept")
-                // Get the accept header values
-                .SelectMany(h => h.Value)
-                // Split the values on a semicolon
+            return acceptHeader
                 .SelectMany(v => v.Split(";"))
                 // trim the results and make them lowercase
                 .Select(v => v.Trim().ToLower())
@@ -31,7 +19,7 @@ namespace audit_service.Services
                 .Where(v => v.Length == 2)
                 // get the second element
                 .Select(v => v[1].Trim())
-                // if nothing was found, we assume we are the main tenant
+                // if nothing was found, we assume we are the default tenant
                 .FirstOrDefault() ?? Constants.DefaultTenant;
         }
     }

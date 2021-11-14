@@ -2,6 +2,7 @@ using audit_service.Models;
 using audit_service.Repositories.InMemory;
 using audit_service.Services;
 using audit_service.Services.InMemory;
+using audit_service.Services.Web;
 using JsonApiDotNetCore.Configuration;
 using JsonApiDotNetCore.Services;
 using Microsoft.AspNetCore.Builder;
@@ -36,7 +37,7 @@ namespace audit_service
             services.AddScoped<ICreateService<Audit, int>, AuditCreateService>();
             services.AddScoped<IGetAllService<Audit, int>, AuditGetAllService>();
             services.AddScoped<IGetByIdService<Audit, int>, AuditGetByIdService>();
-            services.AddScoped<ITenantParser, TenantParser>();
+            services.AddScoped<IWebTenantParser, WebWebTenantParser>();
 
             services.AddJsonApi<Db>(opts =>
             {
