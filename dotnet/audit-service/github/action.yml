@@ -78,10 +78,9 @@ runs:
       uses: dorny/test-reporter@v1
       with:
         name: DotNET Tests
-        path: '**/*.trx'
+        path: 'dotnet/audit-service/**/*.trx'
         reporter: dotnet-trx
         fail-on-error: 'false'
-      working-directory: dotnet/audit-service
 
     - name: Publish
       run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }} --runtime linux-x64
