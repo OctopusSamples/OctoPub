@@ -213,14 +213,6 @@ step "Deploy Lambda" {
                     		"MapPublicIpOnLaunch": true
                 		}
                 	},
-                	"SubnetGroup": {
-                	  "Type" : "AWS::RDS::DBSubnetGroup",
-                	  "Properties" : {
-                		  "DBSubnetGroupName" : "productdbsg",
-                		  "DBSubnetGroupDescription": "Products Subnet Group",
-                		  "SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
-                		}
-                	},
                 	"RouteTable": {
                     	"Type": "AWS::EC2::RouteTable",
                     	"Properties": {
@@ -271,24 +263,6 @@ step "Deploy Lambda" {
                         "FromPort": "0",
                         "ToPort": "65535",
                         "SourceSecurityGroupId": { "Ref": "InstanceSecurityGroup" }
-                      }
-                    },
-                    "RDSCluster": {
-                      "Type": "AWS::RDS::DBCluster",
-                      "Properties": {
-                      	"DBSubnetGroupName": {"Ref": "SubnetGroup"},
-                        "MasterUsername": {"Ref": "DBUsername"},
-                        "MasterUserPassword": {"Ref": "DBPassword"},
-                        "DatabaseName": "products",
-                        "Engine": "aurora",
-                        "EngineMode": "serverless",
-                        "VpcSecurityGroupIds" : [{ "Ref": "InstanceSecurityGroup" }],
-                        "ScalingConfiguration": {
-                          "AutoPause": true,
-                          "MaxCapacity": 16,
-                          "MinCapacity": 2,
-                          "SecondsUntilAutoPause": 300
-                        }
                       }
                     },
                     "AppLogGroupOne": {
@@ -344,44 +318,6 @@ step "Deploy Lambda" {
                         "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-role" }
                       }
                     },
-                    "DBMigrationLambda": {
-                      "Type": "AWS::Lambda::Function",
-                      "Properties": {
-                        "Code": {
-                          "S3Bucket": {"Ref": "LambdaS3Bucket"},
-                          "S3Key": {"Ref": "LambdaS3Key"}       
-                        },
-                        "Environment": {
-                          "Variables": {
-                          	"DATABASE_USERNAME": {"Ref": "DBUsername"},
-                            "DATABASE_PASSWORD": {"Ref": "DBPassword"},
-                            "DATABASE_HOSTNAME": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
-                            "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
-                            "LAMBDA_NAME": "DatabaseInit"
-                          }
-                        },
-                        "Description" : {"Ref": "LambdaDescription"},
-                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-InitDB" },
-                        "Handler": "not.used.in.provided.runtime",
-                        "MemorySize": 128,
-                        "PackageType": "Zip",
-                        "Role": {
-                          "Fn::GetAtt": [
-                            "IamRoleLambdaOneExecution",
-                            "Arn"
-                          ]
-                        },
-                        "Runtime": "provided",
-                        "Timeout": 30,
-                        "VpcConfig": {
-                        	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
-                			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
-                        }
-                      },
-                      "DependsOn": [
-                        "RDSCluster"
-                      ]
-                    },
                     "LambdaOne": {
                       "Type": "AWS::Lambda::Function",
                       "Properties": {
@@ -391,15 +327,12 @@ step "Deploy Lambda" {
                         },
                         "Environment": {
                           "Variables": {
-                          	"DATABASE_USERNAME": {"Ref": "DBUsername"},
-                            "DATABASE_PASSWORD": {"Ref": "DBPassword"},
-                            "DATABASE_HOSTNAME": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
-                            "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]}
+                
                           }
                         },
                         "Description" : {"Ref": "LambdaDescription"},
                         "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
-                        "Handler": "not.used.in.provided.runtime",
+                        "Handler": "audit_service::audit_service.Lambda::Audits",
                         "MemorySize": 128,
                         "PackageType": "Zip",
                         "Role": {
@@ -408,16 +341,13 @@ step "Deploy Lambda" {
                             "Arn"
                           ]
                         },
-                        "Runtime": "provided",
+                        "Runtime": "dotnetcore3.1",
                         "Timeout": 30,
                         "VpcConfig": {
                         	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
                 			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
                         }
-                      },
-                      "DependsOn": [
-                        "RDSCluster"
-                      ]
+                      }
                     },
                     "LambdaVersion#{DeploymentId}": {
                      	"Type": "AWS::Lambda::Version",
