@@ -7,13 +7,25 @@ step "Create API Gateway" {
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ApiGateway}"
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
+                  	"Parameters" : {
+                    	"EnvironmentName" : {
+                    		"Type" : "String",
+                    		"Default" : "#{Octopus.Environment.Name}"
+                    	}
+                    },
                 	"Resources": {
                 		"ApiKey": {
                 		  "Type" : "AWS::ApiGateway::ApiKey",
                 		  "Properties" : {
                 			  "Description" : "Write access key",
                 			  "Enabled" : true,
-                			  "Name" : "Write Access"
+                			  "Name" : "Write Access",
+                			  "StageKey": [
+                			  {
+                				  "RestApiId" : {"Ref": "RestApi"},
+                				  "StageName" : {"Ref": "EnvironmentName"}
+                				}
+                			  ]
                 			}
                 		},
                 		"RestApi": {
@@ -113,8 +125,8 @@ step "Create API Gateway" {
                 	}
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"}]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
             Octopus.Action.Aws.WaitForCompletion = "True"
