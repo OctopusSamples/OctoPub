@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace audit_service
+namespace Audit.Service
 {
     public class Program
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace audit_service.Services
+namespace Audit.Service.Services
 {
     /// <summary>
     /// The common implementation that extracts the tenant information from a collection of accept headers.

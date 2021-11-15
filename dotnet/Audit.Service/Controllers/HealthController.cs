@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace audit_service.Controllers
+namespace Audit.Service.Controllers
 {
     /// <summary>
     /// If this controller is running, return OK for any request to the /health endpoint

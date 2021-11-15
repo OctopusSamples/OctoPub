@@ -2,14 +2,12 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using audit_service.Models;
-using audit_service.Repositories.InMemory;
-using audit_service.Services.Web;
+using Audit.Service.Repositories.InMemory;
 using JsonApiDotNetCore.Services;
 
-namespace audit_service.Services.InMemory
+namespace Audit.Service.Services.InMemory
 {
-    public class AuditGetAllService : IGetAllService<Audit, int>
+    public class AuditGetAllService : IGetAllService<Models.Audit, int>
     {
         private readonly Db _context;
         private readonly ITenantParser _tenantParser;
@@ -20,10 +18,10 @@ namespace audit_service.Services.InMemory
             _tenantParser = tenantParser;
         }
 
-        public Task<IReadOnlyCollection<Audit>> GetAsync(CancellationToken cancellationToken)
+        public Task<IReadOnlyCollection<Models.Audit>> GetAsync(CancellationToken cancellationToken)
         {
             var tenant = _tenantParser.GetTenant();
-            IReadOnlyCollection<Audit> list = _context.Audits
+            IReadOnlyCollection<Models.Audit> list = _context.Audits
                 .Where(a => a.Tenant == Constants.DefaultTenant || a.Tenant == tenant)
                 .ToList();
             return Task.FromResult(list);

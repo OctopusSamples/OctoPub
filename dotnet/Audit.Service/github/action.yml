@@ -43,48 +43,48 @@ runs:
     - name: Install Dependencies
       run: dotnet restore
       shell: bash
-      working-directory: dotnet/audit-service
+      working-directory: dotnet/Models.Audit
 
     - name: List Dependencies
       run: dotnet list package > dependencies.txt
       shell: bash
-      working-directory: dotnet/audit-service
+      working-directory: dotnet/Models.Audit
 
     - name: Collect Dependencies
       uses: actions/upload-artifact@v2
       with:
         name: Dependencies
-        path: dotnet/audit-service/dependencies.txt
+        path: dotnet/Models.Audit/dependencies.txt
 
     - name: List Dependency Updates
       run: dotnet list package --outdated > dependencyUpdates.txt
       shell: bash
-      working-directory: dotnet/audit-service
+      working-directory: dotnet/Models.Audit
 
     - name: Collect Dependency Updates
       uses: actions/upload-artifact@v2
       with:
         name: Dependencies Updates
-        path: dotnet/audit-service/dependencyUpdates.txt
+        path: dotnet/Models.Audit/dependencyUpdates.txt
 
     - name: Test
       run: dotnet test -l:trx || true
       shell: bash
-      working-directory: dotnet/audit-service
+      working-directory: dotnet/Models.Audit
 
 #    - if: always()
 #      name: Report
 #      uses: dorny/test-reporter@v1
 #      with:
 #        name: DotNET Tests
-#        path: 'dotnet/audit-service/**/*.trx'
+#        path: 'dotnet/Models.Audit/**/*.trx'
 #        reporter: dotnet-trx
 #        fail-on-error: 'false'
 
     - name: Publish
       run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }}.${{ github.run_number }} /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained
       shell: bash
-      working-directory: dotnet/audit-service
+      working-directory: dotnet/Models.Audit
 
     - id: package
       name: Package
@@ -131,7 +131,7 @@ runs:
         # Save the list of packages newline separated as an output variable
         echo "::set-output name=artifacts_new_line::${joinednewline%\n}"
       shell: bash
-      working-directory: dotnet/audit-service
+      working-directory: dotnet/Models.Audit
 
     - run: >
         mvn deploy:deploy-file
@@ -142,4 +142,4 @@ runs:
         -Dpackaging=zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
       shell: bash
-      working-directory: dotnet/audit-service
+      working-directory: dotnet/Models.Audit

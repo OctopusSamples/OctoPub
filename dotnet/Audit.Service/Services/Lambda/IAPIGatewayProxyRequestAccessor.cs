@@ -1,6 +1,6 @@
 ﻿using Amazon.Lambda.APIGatewayEvents;
 
-namespace audit_service.Services.Lambda
+namespace Audit.Service.Services.Lambda
 {
     public interface IApiGatewayProxyRequestAccessor
     {

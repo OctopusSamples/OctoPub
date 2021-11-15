@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Amazon.Lambda.APIGatewayEvents;
 
-namespace audit_service.Services.Lambda
+namespace Audit.Service.Services.Lambda
 {
     public class LambdaTenantParser : ITenantParser
     {

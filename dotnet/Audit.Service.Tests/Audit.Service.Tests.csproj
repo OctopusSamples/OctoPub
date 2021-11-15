@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\audit-service\audit-service.csproj" />
+      <ProjectReference Include="..\Audit.Service\Audit.Service.csproj" />
     </ItemGroup>
 
 </Project>

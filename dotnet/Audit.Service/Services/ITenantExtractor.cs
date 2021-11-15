@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace audit_service.Services
+namespace Audit.Service.Services
 {
     public interface ITenantExtractor
     {

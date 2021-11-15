@@ -1,4 +1,4 @@
-﻿namespace audit_service
+﻿namespace Audit.Service
 {
     public static class Constants
     {

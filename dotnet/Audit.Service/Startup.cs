@@ -1,8 +1,7 @@
-using audit_service.Models;
-using audit_service.Repositories.InMemory;
-using audit_service.Services;
-using audit_service.Services.InMemory;
-using audit_service.Services.Web;
+using Audit.Service.Repositories.InMemory;
+using Audit.Service.Services;
+using Audit.Service.Services.InMemory;
+using Audit.Service.Services.Web;
 using JsonApiDotNetCore.Configuration;
 using JsonApiDotNetCore.Services;
 using Microsoft.AspNetCore.Builder;
@@ -13,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
-namespace audit_service
+namespace Audit.Service
 {
     public class Startup
     {
@@ -34,9 +33,9 @@ namespace audit_service
             });
 
             services.AddDbContext<Db>(opt => opt.UseInMemoryDatabase("audit"));
-            services.AddScoped<ICreateService<Audit, int>, AuditCreateService>();
-            services.AddScoped<IGetAllService<Audit, int>, AuditGetAllService>();
-            services.AddScoped<IGetByIdService<Audit, int>, AuditGetByIdService>();
+            services.AddScoped<ICreateService<Models.Audit, int>, AuditCreateService>();
+            services.AddScoped<IGetAllService<Models.Audit, int>, AuditGetAllService>();
+            services.AddScoped<IGetByIdService<Models.Audit, int>, AuditGetByIdService>();
             services.AddScoped<ITenantParser, WebWebTenantParser>();
 
             services.AddJsonApi<Db>(opts =>

@@ -2,7 +2,7 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
-using audit_service.Lambda;
+using Audit.Service.Lambda;
 using NUnit.Framework;
 
 namespace Audit.Service.Tests

@@ -1,15 +1,12 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using audit_service.Models;
-using audit_service.Repositories.InMemory;
-using audit_service.Services.Web;
+using Audit.Service.Repositories.InMemory;
 using JsonApiDotNetCore.Services;
-using Microsoft.AspNetCore.Http;
 
-namespace audit_service.Services.InMemory
+namespace Audit.Service.Services.InMemory
 {
-    public class AuditCreateService : ICreateService<Audit, int>
+    public class AuditCreateService : ICreateService<Models.Audit, int>
     {
         private readonly Db _context;
         private readonly ITenantParser _tenantParser;
@@ -20,7 +17,7 @@ namespace audit_service.Services.InMemory
             _tenantParser = tenantParser;
         }
 
-        public Task<Audit> CreateAsync(Audit resource, CancellationToken cancellationToken)
+        public Task<Models.Audit> CreateAsync(Models.Audit resource, CancellationToken cancellationToken)
         {
             resource.Id = FindUniqueId();
             resource.Tenant = _tenantParser.GetTenant();

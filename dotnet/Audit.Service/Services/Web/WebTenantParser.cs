@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Http;
 
-namespace audit_service.Services.Web
+namespace Audit.Service.Services.Web
 {
     public class WebWebTenantParser : ITenantParser
     {

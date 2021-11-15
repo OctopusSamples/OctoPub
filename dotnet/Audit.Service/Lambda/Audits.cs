@@ -4,15 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using audit_service.Models;
-using audit_service.Repositories.InMemory;
-using audit_service.Services;
-using audit_service.Services.InMemory;
-using audit_service.Services.Lambda;
+using Audit.Service.Repositories.InMemory;
+using Audit.Service.Services;
+using Audit.Service.Services.InMemory;
+using Audit.Service.Services.Lambda;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace audit_service.Lambda
+namespace Audit.Service.Lambda
 {
     public class Audits
     {
@@ -57,7 +56,7 @@ namespace audit_service.Lambda
                  * The in memory database for Lambda will always be wiped and recreated with each request.
                  * To be able to test queries, we add a sample record so requests are not always empty.
                  */
-                context.Audits.Add(new Audit
+                context.Audits.Add(new Models.Audit
                 {
                     Id = 0, Action = "Created a sample audit record for the ephemeral inmemory database",
                     Object = "Test", Subject = "Test", Tenant = Constants.DefaultTenant

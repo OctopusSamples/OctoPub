@@ -1,7 +1,7 @@
 ﻿using JsonApiDotNetCore.Resources;
 using JsonApiDotNetCore.Resources.Annotations;
 
-namespace audit_service.Models
+namespace Audit.Service.Models
 {
     public class Audit : Identifiable<int>
     {

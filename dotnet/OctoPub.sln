@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "audit-service", "audit-serv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Audit.Service.Tests", "Audit.Service.Tests\Audit.Service.Tests.csproj", "{77A92970-F508-4BD7-8D54-DA97DB21FB54}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Audit.Service", "Audit.Service\Audit.Service.csproj", "{99E3065B-04D1-493A-8978-2293ABEAFD1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{77A92970-F508-4BD7-8D54-DA97DB21FB54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77A92970-F508-4BD7-8D54-DA97DB21FB54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77A92970-F508-4BD7-8D54-DA97DB21FB54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99E3065B-04D1-493A-8978-2293ABEAFD1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99E3065B-04D1-493A-8978-2293ABEAFD1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99E3065B-04D1-493A-8978-2293ABEAFD1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99E3065B-04D1-493A-8978-2293ABEAFD1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
