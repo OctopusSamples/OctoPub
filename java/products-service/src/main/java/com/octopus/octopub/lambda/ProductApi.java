@@ -122,7 +122,10 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
                     lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER))));
       }
     } catch (final DocumentSerializationException e) {
-      return Optional.of(new ProxyResponse("500", e.toString()));
+      return Optional.of(
+          new ProxyResponse(
+              "500",
+              "{\"message\": \"" + e + "\", \"body\": \"" + getBody(stringObjectMap) + "\"}"));
     }
 
     return Optional.empty();
