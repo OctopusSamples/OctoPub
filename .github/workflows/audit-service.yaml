@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Build
-      uses: ./dotnet/audit-service/github
+      uses: ./dotnet/Audit.Service/github
       with:
         run_number: ${{ github.run_number }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
