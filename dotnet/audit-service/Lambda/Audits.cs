@@ -53,6 +53,10 @@ namespace audit_service.Lambda
                 optionsBuilder.UseInMemoryDatabase("audit");
                 var context = new Db(optionsBuilder.Options);
 
+                /*
+                 * The in memory database for Lambda will always be wiped and recreated with each request.
+                 * To be able to test queries, we add a sample record so requests are not always empty.
+                 */
                 context.Audits.Add(new Audit
                 {
                     Id = 0, Action = "Created a sample audit record for the ephemeral inmemory database",
