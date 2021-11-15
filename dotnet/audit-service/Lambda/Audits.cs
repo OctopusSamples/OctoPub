@@ -15,16 +15,14 @@ namespace audit_service.Lambda
 {
     public class Audits
     {
-        private ServiceProvider ServiceProvider { get; set; }
-
         [LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
         public async Task<APIGatewayProxyResponse> AuditsApi(APIGatewayProxyRequest request, ILambdaContext context)
         {
             try
             {
-                ConfigureServices(request);
+                var serviceProvider = ConfigureServices(request);
 
-                var auditGetAllService = ServiceProvider.GetService<AuditGetAllService>();
+                var auditGetAllService = serviceProvider.GetService<AuditGetAllService>();
                 var token = new CancellationTokenSource().Token;
 
                 return new APIGatewayProxyResponse
@@ -44,7 +42,7 @@ namespace audit_service.Lambda
             }
         }
 
-        private void ConfigureServices(APIGatewayProxyRequest request)
+        private ServiceProvider ConfigureServices(APIGatewayProxyRequest request)
         {
             var services = new ServiceCollection();
 
@@ -63,7 +61,7 @@ namespace audit_service.Lambda
             services.AddTransient<AuditGetAllService>();
             services.AddTransient<AuditGetByIdService>();
 
-            ServiceProvider = services.BuildServiceProvider();
+            return services.BuildServiceProvider();
         }
     }
 }
