@@ -342,7 +342,7 @@ step "Deploy Lambda" {
                           ]
                         },
                         "Runtime": "dotnetcore3.1",
-                        "Timeout": 30,
+                        "Timeout": 60,
                         "VpcConfig": {
                         	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
                 			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
