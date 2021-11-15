@@ -86,12 +86,6 @@ runs:
       shell: bash
       working-directory: dotnet/Audit.Service
 
-    # https://github.com/aws/aws-lambda-dotnet/issues/243
-    - name: Fix permissions
-      run: chmod -r bin/Release/netcoreapp3.1/linux-x64/publish 755
-      shell: bash
-      working-directory: dotnet/Audit.Service
-
     - id: package
       name: Package
       run: |-
@@ -114,6 +108,8 @@ runs:
           dir=${path}/../../../../..
           parentdir=$(builtin cd $dir; pwd)
           projectname=${parentdir##*/}
+          # fix permissions - https://github.com/aws/aws-lambda-dotnet/issues/243
+          chmod -r 755 ${path}
           # Package the published files
           octo pack \
           --basePath ${path} \
