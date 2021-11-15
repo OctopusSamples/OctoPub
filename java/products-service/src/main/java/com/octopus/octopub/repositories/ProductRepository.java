@@ -26,7 +26,9 @@ public class ProductRepository {
   }
 
   public Product save(@NonNull final Product product) {
+    product.id = null;
     em.persist(product);
+    em.flush();
     return product;
   }
 }
