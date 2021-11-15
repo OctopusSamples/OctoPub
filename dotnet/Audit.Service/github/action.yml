@@ -70,7 +70,7 @@ runs:
     - name: Test
       run: dotnet test -l:trx || true
       shell: bash
-      working-directory: dotnet/Audit.Service
+      working-directory: dotnet
 
     - if: always()
       name: Report
