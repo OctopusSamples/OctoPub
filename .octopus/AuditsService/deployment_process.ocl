@@ -333,7 +333,7 @@ step "Deploy Lambda" {
                         "Description" : {"Ref": "LambdaDescription"},
                         "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
                         "Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsApi",
-                        "MemorySize": 128,
+                        "MemorySize": 256,
                         "PackageType": "Zip",
                         "Role": {
                           "Fn::GetAtt": [
@@ -342,12 +342,22 @@ step "Deploy Lambda" {
                           ]
                         },
                         "Runtime": "dotnetcore3.1",
-                        "Timeout": 60,
+                        "Timeout": 120,
                         "VpcConfig": {
                         	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
                 			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
                         }
                       }
+                    },
+                    "LambdaVersion#{DeploymentId}": {
+                     	"Type": "AWS::Lambda::Version",
+                      	"Properties": {
+                        	"FunctionName": {"Ref": "LambdaOne"},
+                          	"Description": {"Ref": "LambdaDescription"},
+                          	"ProvisionedConcurrencyConfig": {
+                            	"ProvisionedConcurrentExecutions": 1
+                          	}
+                        }
                     },
                     "LambdaOnePermissions": {
                       "Type": "AWS::Lambda::Permission",
