@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,8 +8,11 @@ using Audit.Service.Repositories.InMemory;
 using Audit.Service.Services;
 using Audit.Service.Services.InMemory;
 using Audit.Service.Services.Lambda;
+using JsonApiSerializer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using JsonSerializer = Amazon.Lambda.Serialization.Json.JsonSerializer;
 
 namespace Audit.Service.Lambda
 {
@@ -24,7 +26,7 @@ namespace Audit.Service.Lambda
         /// <param name="request">The request details in proxy format</param>
         /// <param name="context">The lambda context</param>
         /// <returns>The API content</returns>
-        [LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
+        [LambdaSerializer(typeof(JsonSerializer))]
         public async Task<APIGatewayProxyResponse> AuditsApi(APIGatewayProxyRequest request, ILambdaContext context)
         {
             try
@@ -34,6 +36,7 @@ namespace Audit.Service.Lambda
 
                 return await handler.GetAll()
                        ?? await handler.GetOne()
+                       ?? await handler.CreateOne()
                        ?? handler.GetHealth()
                        ?? new APIGatewayProxyResponse
                        {
@@ -45,7 +48,7 @@ namespace Audit.Service.Lambda
             {
                 return new APIGatewayProxyResponse
                 {
-                    Body = JsonSerializer.Serialize(ex.ToString()),
+                    Body = System.Text.Json.JsonSerializer.Serialize(ex.ToString()),
                     StatusCode = 500
                 };
             }
@@ -105,8 +108,8 @@ namespace Audit.Service.Lambda
     public class AuditHandler
     {
         private static readonly Regex HealthRegex = new Regex(@"^/health/.*$");
-        private static readonly Regex GetAllRegex = new Regex(@"^/api/audits/?$");
-        private static readonly Regex GetOneRegex = new Regex(@"^/api/audits/(?<id>\d+)$");
+        private static readonly Regex CollectionEndpointRegex = new Regex(@"^/api/audits/?$");
+        private static readonly Regex IndividualResourceEndpointRegex = new Regex(@"^/api/audits/(?<id>\d+)$");
 
         private readonly AuditCreateService _auditCreateService;
         private readonly AuditGetAllService _auditGetAllService;
@@ -147,7 +150,8 @@ namespace Audit.Service.Lambda
         /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
         public async Task<APIGatewayProxyResponse> GetAll()
         {
-            if (!GetAllRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty)||
+            if (!CollectionEndpointRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ??
+                                                 string.Empty) ||
                 _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() != "get")
             {
                 return null;
@@ -156,7 +160,8 @@ namespace Audit.Service.Lambda
             var token = new CancellationTokenSource().Token;
             return new APIGatewayProxyResponse
             {
-                Body = JsonSerializer.Serialize(await _auditGetAllService.GetAsync(token)),
+                Body = JsonConvert.SerializeObject(await _auditGetAllService.GetAsync(token),
+                    new JsonApiSerializerSettings()),
                 StatusCode = 200
             };
         }
@@ -167,7 +172,8 @@ namespace Audit.Service.Lambda
         /// <returns>The audit record if the path and method are a match, or null otherwise</returns>
         public async Task<APIGatewayProxyResponse> GetOne()
         {
-            var match = GetOneRegex.Match(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty);
+            var match = IndividualResourceEndpointRegex.Match(
+                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty);
 
             if (!match.Success ||
                 _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() != "get")
@@ -182,7 +188,7 @@ namespace Audit.Service.Lambda
             {
                 return new APIGatewayProxyResponse
                 {
-                    Body = JsonSerializer.Serialize(result),
+                    Body = JsonConvert.SerializeObject(result, new JsonApiSerializerSettings()),
                     StatusCode = 200
                 };
             }
@@ -191,6 +197,30 @@ namespace Audit.Service.Lambda
             {
                 Body = "{\"message\": \"Entity not found\"}",
                 StatusCode = 404
+            };
+        }
+
+        /// <summary>
+        /// Returns all the audit records
+        /// </summary>
+        /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
+        public async Task<APIGatewayProxyResponse> CreateOne()
+        {
+            if (!CollectionEndpointRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ??
+                                                 string.Empty) ||
+                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() != "post")
+            {
+                return null;
+            }
+
+            var token = new CancellationTokenSource().Token;
+            var entity = JsonConvert.DeserializeObject<Models.Audit>(
+                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body, new JsonApiSerializerSettings());
+            var newEntity = await _auditCreateService.CreateAsync(entity, token);
+            return new APIGatewayProxyResponse
+            {
+                Body = JsonConvert.SerializeObject(newEntity, new JsonApiSerializerSettings()),
+                StatusCode = 200
             };
         }
     }

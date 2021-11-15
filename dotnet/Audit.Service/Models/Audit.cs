@@ -1,16 +1,15 @@
-﻿using JsonApiDotNetCore.Resources;
-using JsonApiDotNetCore.Resources.Annotations;
-
-namespace Audit.Service.Models
+﻿namespace Audit.Service.Models
 {
-    public class Audit : Identifiable<int>
+    public class Audit
     {
-        [Attr] public string Tenant { get; set; }
+        public int Id { get; set; }
 
-        [Attr] public string Action { get; set; }
+        public string Tenant { get; set; }
 
-        [HasOne] public string Subject { get; set; }
+        public string Action { get; set; }
 
-        [HasOne] public string Object { get; set; }
+        public string Subject { get; set; }
+
+        public string Object { get; set; }
     }
 }

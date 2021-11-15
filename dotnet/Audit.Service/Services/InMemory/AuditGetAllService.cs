@@ -3,11 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Audit.Service.Repositories.InMemory;
-using JsonApiDotNetCore.Services;
 
 namespace Audit.Service.Services.InMemory
 {
-    public class AuditGetAllService : IGetAllService<Models.Audit, int>
+    public class AuditGetAllService
     {
         private readonly Db _context;
         private readonly ITenantParser _tenantParser;

@@ -2,8 +2,6 @@ using Audit.Service.Repositories.InMemory;
 using Audit.Service.Services;
 using Audit.Service.Services.InMemory;
 using Audit.Service.Services.Web;
-using JsonApiDotNetCore.Configuration;
-using JsonApiDotNetCore.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -33,15 +31,10 @@ namespace Audit.Service
             });
 
             services.AddDbContext<Db>(opt => opt.UseInMemoryDatabase("audit"));
-            services.AddScoped<ICreateService<Models.Audit, int>, AuditCreateService>();
-            services.AddScoped<IGetAllService<Models.Audit, int>, AuditGetAllService>();
-            services.AddScoped<IGetByIdService<Models.Audit, int>, AuditGetByIdService>();
+            services.AddScoped<AuditCreateService>();
+            services.AddScoped<AuditCreateService>();
+            services.AddScoped<AuditCreateService>();
             services.AddScoped<ITenantParser, WebWebTenantParser>();
-
-            services.AddJsonApi<Db>(opts =>
-            {
-                opts.Namespace = "api";
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,8 +52,6 @@ namespace Audit.Service
             app.UseRouting();
 
             app.UseAuthorization();
-
-            app.UseJsonApi();
 
             app.UseEndpoints(endpoints =>
             {

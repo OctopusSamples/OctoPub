@@ -2,11 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Audit.Service.Repositories.InMemory;
-using JsonApiDotNetCore.Services;
 
 namespace Audit.Service.Services.InMemory
 {
-    public class AuditCreateService : ICreateService<Models.Audit, int>
+    public class AuditCreateService
     {
         private readonly Db _context;
         private readonly ITenantParser _tenantParser;
