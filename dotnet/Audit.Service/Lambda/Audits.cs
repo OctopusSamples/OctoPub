@@ -89,7 +89,7 @@ namespace Audit.Service.Lambda
         }
     }
 
-    internal class AuditHandler
+    public class AuditHandler
     {
         private static readonly Regex HealthRegex = new Regex(@"^/health/.*$");
         private static readonly Regex GetAllRegex = new Regex(@"^/api/audits/?$");
@@ -100,7 +100,7 @@ namespace Audit.Service.Lambda
         private readonly AuditGetByIdService _auditGetByIdService;
         private readonly IApiGatewayProxyRequestAccessor _apiGatewayProxyRequestAccessor;
 
-        internal AuditHandler(AuditCreateService auditCreateService, AuditGetAllService auditGetAllService,
+        public AuditHandler(AuditCreateService auditCreateService, AuditGetAllService auditGetAllService,
             AuditGetByIdService auditGetByIdService, IApiGatewayProxyRequestAccessor apiGatewayProxyRequestAccessor)
         {
             _auditCreateService = auditCreateService;
@@ -109,10 +109,10 @@ namespace Audit.Service.Lambda
             _apiGatewayProxyRequestAccessor = apiGatewayProxyRequestAccessor;
         }
 
-        internal APIGatewayProxyResponse GetHealth()
+        public APIGatewayProxyResponse GetHealth()
         {
-            if (!HealthRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path) ||
-                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod.ToLower() != "get")
+            if (!HealthRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty) ||
+                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() != "get")
             {
                 return null;
             }
@@ -124,10 +124,10 @@ namespace Audit.Service.Lambda
             };
         }
 
-        internal async Task<APIGatewayProxyResponse> GetAll()
+        public async Task<APIGatewayProxyResponse> GetAll()
         {
-            if (!GetAllRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path)||
-                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod.ToLower() != "get")
+            if (!GetAllRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty)||
+                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() != "get")
             {
                 return null;
             }
@@ -140,12 +140,12 @@ namespace Audit.Service.Lambda
             };
         }
 
-        internal async Task<APIGatewayProxyResponse> GetOne()
+        public async Task<APIGatewayProxyResponse> GetOne()
         {
-            var match = GetOneRegex.Match(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path);
+            var match = GetOneRegex.Match(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty);
 
             if (!match.Success ||
-                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod.ToLower() != "get")
+                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() != "get")
             {
                 return null;
             }
