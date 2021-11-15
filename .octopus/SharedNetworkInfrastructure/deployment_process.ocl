@@ -20,7 +20,7 @@ step "Create API Gateway" {
                 			  "Description" : "Write access key",
                 			  "Enabled" : true,
                 			  "Name" : "Write Access",
-                			  "StageKey": [
+                			  "StageKeys": [
                 			  {
                 				  "RestApiId" : {"Ref": "RestApi"},
                 				  "StageName" : {"Ref": "EnvironmentName"}
