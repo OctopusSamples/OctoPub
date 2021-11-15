@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace Audit.Service.Services.Lambda
 {
+    /// <summary>
+    /// Extract tenant information from a AWS Lambda HTTP proxy request.
+    /// </summary>
     public class LambdaTenantParser : ITenantParser
     {
         private readonly ITenantExtractor _tenantExtractor;

@@ -2,6 +2,9 @@
 
 namespace Audit.Service.Services.Lambda
 {
+    /// <summary>
+    /// A simple wrapper around a APIGatewayProxyRequest instance.
+    /// </summary>
     public class ApiGatewayProxyRequestAccessor : IApiGatewayProxyRequestAccessor
     {
         private APIGatewayProxyRequest _apiGatewayProxyRequest;

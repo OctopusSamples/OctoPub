@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace Audit.Service.Services.Web
 {
+    /// <summary>
+    /// Extract tenant information from a HTTP request.
+    /// </summary>
     public class WebWebTenantParser : ITenantParser
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
