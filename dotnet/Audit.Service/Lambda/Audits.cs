@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -216,8 +217,7 @@ namespace Audit.Service.Lambda
             try
             {
                 var token = new CancellationTokenSource().Token;
-                var entity = JsonConvert.DeserializeObject<Models.Audit>(
-                    _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body, new JsonApiSerializerSettings());
+                var entity = JsonConvert.DeserializeObject<Models.Audit>(GetBody(), new JsonApiSerializerSettings());
                 var newEntity = await _auditCreateService.CreateAsync(entity, token);
                 return new APIGatewayProxyResponse
                 {
@@ -229,10 +229,20 @@ namespace Audit.Service.Lambda
             {
                 return new APIGatewayProxyResponse
                 {
-                    Body = $"{{\"message\": \"{ex.ToString()}\", \"input\": \"{_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body}\"}}",
+                    Body = $"{{\"message\": \"{ex}\", \"input\": \"{_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body}\"}}",
                     StatusCode = 500
                 };
             }
+        }
+
+        public string GetBody()
+        {
+            if (_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.IsBase64Encoded)
+            {
+                return Encoding.UTF8.GetString(Convert.FromBase64String(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body));
+            }
+
+            return _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body;
         }
     }
 }
