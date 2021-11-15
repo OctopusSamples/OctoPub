@@ -108,7 +108,7 @@ namespace Audit.Service.Lambda
     /// </summary>
     public class AuditHandler
     {
-        private static readonly Regex HealthRegex = new Regex(@"^/health/.*$");
+        private static readonly Regex HealthRegex = new Regex(@"^/health/audits/(:GET|POST|\d+/GET).*$");
         private static readonly Regex CollectionEndpointRegex = new Regex(@"^/api/audits/?$");
         private static readonly Regex IndividualResourceEndpointRegex = new Regex(@"^/api/audits/(?<id>\d+)$");
 
@@ -224,7 +224,8 @@ namespace Audit.Service.Lambda
             {
                 return new APIGatewayProxyResponse
                 {
-                    Body = $"{{\"message\": \"{ex}\", \"input\": \"{_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body}\"}}",
+                    Body =
+                        $"{{\"message\": \"{ex}\", \"input\": \"{_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body}\"}}",
                     StatusCode = 500
                 };
             }
@@ -233,17 +234,15 @@ namespace Audit.Service.Lambda
         bool MatchRequest(Regex path, string method)
         {
             return path.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty) &&
-                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() == method;
+                   _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() == method;
         }
 
         string GetBody()
         {
-            if (_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.IsBase64Encoded)
-            {
-                return Encoding.UTF8.GetString(Convert.FromBase64String(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body));
-            }
-
-            return _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body;
+            return _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.IsBase64Encoded
+                ? Encoding.UTF8.GetString(
+                    Convert.FromBase64String(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body))
+                : _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body;
         }
     }
 }
