@@ -230,7 +230,7 @@ namespace Audit.Service.Lambda
                 return new APIGatewayProxyResponse
                 {
                     Body = $"{{\"message\": \"{ex.ToString()}\", \"input\": \"{_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body}\"}}",
-                    StatusCode = 200
+                    StatusCode = 500
                 };
             }
         }
