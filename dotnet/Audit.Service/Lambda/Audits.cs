@@ -111,7 +111,8 @@ namespace Audit.Service.Lambda
 
         internal APIGatewayProxyResponse GetHealth()
         {
-            if (!HealthRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path))
+            if (!HealthRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path) ||
+                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod.ToLower() != "get")
             {
                 return null;
             }
@@ -125,7 +126,8 @@ namespace Audit.Service.Lambda
 
         internal async Task<APIGatewayProxyResponse> GetAll()
         {
-            if (!GetAllRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path))
+            if (!GetAllRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path)||
+                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod.ToLower() != "get")
             {
                 return null;
             }
@@ -142,7 +144,8 @@ namespace Audit.Service.Lambda
         {
             var match = GetOneRegex.Match(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path);
 
-            if (!match.Success)
+            if (!match.Success ||
+                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod.ToLower() != "get")
             {
                 return null;
             }
