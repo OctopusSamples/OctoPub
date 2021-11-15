@@ -22,7 +22,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
   private static final Pattern ROOT_RE = Pattern.compile("^/api/products/?$");
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("^/api/products/(?<id>\\d+)$");
   private static final Pattern[] HEALTH_RE = {
-    Pattern.compile("^/health/products/GET$"), Pattern.compile("^/health/products/(?<id>\\d+)/GET$")
+    Pattern.compile("^/health/products/(GET|POST|\\d+/GET)$")
   };
 
   @Inject ProductsController productsController;
@@ -71,8 +71,9 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
   private Optional<ProxyResponse> getAll(@NonNull final Map<String, Object> stringObjectMap) {
     try {
       final String path = stringObjectMap.get("path").toString();
+      final String method = stringObjectMap.get("httpMethod").toString().toLowerCase();
 
-      if (ROOT_RE.matcher(path).matches()) {
+      if (ROOT_RE.matcher(path).matches() && Constants.GET_METHOD.equals(method)) {
         return Optional.of(
             new ProxyResponse(
                 "200",
@@ -89,9 +90,10 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
   private Optional<ProxyResponse> getOne(@NonNull final Map<String, Object> stringObjectMap) {
     try {
       final String path = stringObjectMap.get("path").toString();
+      final String method = stringObjectMap.get("httpMethod").toString().toLowerCase();
 
       final Matcher matcher = INDIVIDUAL_RE.matcher(path);
-      if (matcher.matches()) {
+      if (matcher.matches() && Constants.GET_METHOD.equals(method)) {
         return Optional.of(
             new ProxyResponse(
                 "200",

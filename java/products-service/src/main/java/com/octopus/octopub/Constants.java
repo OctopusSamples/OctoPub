@@ -8,4 +8,6 @@ public final class Constants {
   public static final String MICROSERVICE_NAME = "Products";
   public static final String ACCEPT_VERSION_INFO = "products-version";
   public static final String ACCEPT_TENANT_INFO = "tenant";
+  public static final String GET_METHOD = "get";
+  public static final String POST_METHOD = "post";
 }
