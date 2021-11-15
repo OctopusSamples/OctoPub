@@ -89,10 +89,14 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
 
   private Optional<ProxyResponse> getOne(@NonNull final Map<String, Object> stringObjectMap) {
     try {
-      final String path = ObjectUtils.defaultIfNull(stringObjectMap.get("path"), "").toString();
 
       if (requestIsMatch(stringObjectMap, INDIVIDUAL_RE, Constants.GET_METHOD)) {
-        final Matcher matcher = INDIVIDUAL_RE.matcher(path);
+        final Matcher matcher =
+            Optional.ofNullable(stringObjectMap.get("path"))
+                .or(() -> Optional.of(""))
+                .map(Object::toString)
+                .map(INDIVIDUAL_RE::matcher)
+                .get();
         return Optional.of(
             new ProxyResponse(
                 "200",
