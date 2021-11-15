@@ -28,6 +28,21 @@ step "Create API Gateway" {
                 			  ]
                 			}
                 		},
+                		"UsagePlan": {
+                		  "Type" : "AWS::ApiGateway::UsagePlan",
+                		  "Properties" : {
+                			  "ApiStages" : [ ApiStage, ... ],			  
+                			  "UsagePlanName" : "Write Access"
+                			}
+                		},
+                		"UsagePlanKey": {
+                		  "Type" : "AWS::ApiGateway::UsagePlanKey",
+                		  "Properties" : {
+                			  "KeyId" : {"Ref": "ApiKey"},
+                			  "KeyType" : "API_KEY",
+                			  "UsagePlanId" : {"Ref": "UsagePlan"}
+                			}
+                		},
                 		"RestApi": {
                 			"Type": "AWS::ApiGateway::RestApi",
                 			"Properties": {
