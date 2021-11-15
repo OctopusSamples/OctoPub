@@ -24,11 +24,7 @@ namespace audit_service.Lambda
                 var serviceProvider = ConfigureServices(request);
 
                 var auditGetAllService = serviceProvider.GetService<AuditGetAllService>();
-                var auditCreateService = serviceProvider.GetService<AuditCreateService>();
                 var token = new CancellationTokenSource().Token;
-
-                await auditCreateService.CreateAsync(new Audit { Action = "Tested", Object = "Test", Subject = "Test" },
-                    token);
 
                 return new APIGatewayProxyResponse
                 {
@@ -55,7 +51,16 @@ namespace audit_service.Lambda
             {
                 var optionsBuilder = new DbContextOptionsBuilder<Db>();
                 optionsBuilder.UseInMemoryDatabase("audit");
-                return new Db(optionsBuilder.Options);
+                var context = new Db(optionsBuilder.Options);
+
+                context.Audits.Add(new Audit
+                {
+                    Id = 0, Action = "Created a sample audit record for the ephemeral inmemory database",
+                    Object = "Test", Subject = "Test", Tenant = Constants.DefaultTenant
+                });
+                context.SaveChanges();
+
+                return context;
             });
 
             services.AddSingleton<IApiGatewayProxyRequestAccessor>(provider =>
