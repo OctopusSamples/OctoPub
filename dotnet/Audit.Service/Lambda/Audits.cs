@@ -19,6 +19,12 @@ namespace Audit.Service.Lambda
     {
         private static bool _initializedDatabase = false;
 
+        /// <summary>
+        /// This is the entry point to the Lambda.
+        /// </summary>
+        /// <param name="request">The request details in proxy format</param>
+        /// <param name="context">The lambda context</param>
+        /// <returns>The API content</returns>
         [LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
         public async Task<APIGatewayProxyResponse> AuditsApi(APIGatewayProxyRequest request, ILambdaContext context)
         {
@@ -46,6 +52,11 @@ namespace Audit.Service.Lambda
             }
         }
 
+        /// <summary>
+        /// Builds a dependency injection context.
+        /// </summary>
+        /// <param name="request">The details of the Lambda request</param>
+        /// <returns>The DI service provider</returns>
         private ServiceProvider ConfigureServices(APIGatewayProxyRequest request)
         {
             var services = new ServiceCollection();
@@ -89,6 +100,9 @@ namespace Audit.Service.Lambda
         }
     }
 
+    /// <summary>
+    /// This class is created by the DI provider, and does the work of mapping requests to responses.
+    /// </summary>
     public class AuditHandler
     {
         private static readonly Regex HealthRegex = new Regex(@"^/health/.*$");
@@ -109,6 +123,10 @@ namespace Audit.Service.Lambda
             _apiGatewayProxyRequestAccessor = apiGatewayProxyRequestAccessor;
         }
 
+        /// <summary>
+        /// Returns the health check details
+        /// </summary>
+        /// <returns>The health check details if the path and method are a match, or null otherwise</returns>
         public APIGatewayProxyResponse GetHealth()
         {
             if (!HealthRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty) ||
@@ -124,6 +142,10 @@ namespace Audit.Service.Lambda
             };
         }
 
+        /// <summary>
+        /// Returns all the audit records
+        /// </summary>
+        /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
         public async Task<APIGatewayProxyResponse> GetAll()
         {
             if (!GetAllRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty)||
@@ -140,6 +162,10 @@ namespace Audit.Service.Lambda
             };
         }
 
+        /// <summary>
+        /// Returns one audit record
+        /// </summary>
+        /// <returns>The audit record if the path and method are a match, or null otherwise</returns>
         public async Task<APIGatewayProxyResponse> GetOne()
         {
             var match = GetOneRegex.Match(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty);
@@ -151,11 +177,21 @@ namespace Audit.Service.Lambda
             }
 
             var token = new CancellationTokenSource().Token;
+            var result = await _auditGetByIdService.GetAsync(Int32.Parse(match.Groups["id"].Value), token);
+
+            if (result != null)
+            {
+                return new APIGatewayProxyResponse
+                {
+                    Body = JsonSerializer.Serialize(result),
+                    StatusCode = 200
+                };
+            }
+
             return new APIGatewayProxyResponse
             {
-                Body = JsonSerializer.Serialize(
-                    await _auditGetByIdService.GetAsync(Int32.Parse(match.Groups["id"].Value), token)),
-                StatusCode = 200
+                Body = "{\"message\": \"Entity not found\"}",
+                StatusCode = 404
             };
         }
     }
