@@ -349,16 +349,16 @@ step "Deploy Lambda" {
                         }
                       }
                     },
-                    "LambdaVersion#{DeploymentId}": {
-                     	"Type": "AWS::Lambda::Version",
-                      	"Properties": {
-                         	 "FunctionName": {"Ref": "LambdaOne"},
-                          	"Description": {"Ref": "LambdaDescription"},
-                          "ProvisionedConcurrencyConfig": {
-                            "ProvisionedConcurrentExecutions": 1
-                          }
-                        }
-                    },
+                #    "LambdaVersion#{DeploymentId}": {
+                #     	"Type": "AWS::Lambda::Version",
+                #      	"Properties": {
+                #         	 "FunctionName": {"Ref": "LambdaOne"},
+                #          	"Description": {"Ref": "LambdaDescription"},
+                #          "ProvisionedConcurrencyConfig": {
+                #            "ProvisionedConcurrentExecutions": 1
+                #          }
+                #        }
+                #    },
                     "LambdaOnePermissions": {
                       "Type": "AWS::Lambda::Permission",
                       "Properties": {
