@@ -15,6 +15,8 @@ namespace Audit.Service.Lambda
 {
     public class Audits
     {
+        private static bool initializedDatabase = false;
+
         [LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
         public async Task<APIGatewayProxyResponse> AuditsApi(APIGatewayProxyRequest request, ILambdaContext context)
         {
@@ -56,12 +58,16 @@ namespace Audit.Service.Lambda
                  * The in memory database for Lambda will always be wiped and recreated with each request.
                  * To be able to test queries, we add a sample record so requests are not always empty.
                  */
-                context.Audits.Add(new Models.Audit
+                if (!initializedDatabase)
                 {
-                    Id = 0, Action = "Created a sample audit record for the ephemeral inmemory database",
-                    Object = "Test", Subject = "Test", Tenant = Constants.DefaultTenant
-                });
-                context.SaveChanges();
+                    context.Audits.Add(new Models.Audit
+                    {
+                        Id = 0, Action = "Created a sample audit record for the ephemeral inmemory database",
+                        Object = "Test", Subject = "Test", Tenant = Constants.DefaultTenant
+                    });
+                    context.SaveChanges();
+                    initializedDatabase = true;
+                }
 
                 return context;
             });
