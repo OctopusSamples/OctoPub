@@ -766,11 +766,10 @@ step "Check for vulnerabilities" {
 
     action {
         action_type = "Octopus.Script"
-        is_disabled = true
         properties = {
             Octopus.Action.RunOnServer = "true"
             Octopus.Action.Script.ScriptBody = <<-EOT
-                cd products-service-sbom
+                cd audits-service-sbom
                 SUCCESS=0
                 for x in **/bom.xml; do 
                 	docker run --rm -v "$PWD:/app" appthreat/dep-scan scan --bom "/app/$x" --type bom 2>&1
@@ -788,10 +787,10 @@ step "Check for vulnerabilities" {
         }
         worker_pool_variable = "WorkerPool"
 
-        packages "products-service-sbom" {
+        packages "audits-service-sbom" {
             acquisition_location = "Server"
             feed = "Octopub"
-            package_id = "com.octopus.octopub:products-service-sbom"
+            package_id = "com.octopus.octopub:audits-service-sbom"
             properties = {
                 Extract = "True"
                 Purpose = ""
@@ -808,7 +807,6 @@ step "Send Notification" {
     }
 
     action {
-        is_disabled = true
         properties = {
             Octopus.Action.RunOnServer = "true"
             Octopus.Action.Template.Id = "ActionTemplates-441"
