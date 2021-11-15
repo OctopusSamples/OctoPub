@@ -72,14 +72,14 @@ runs:
       shell: bash
       working-directory: dotnet/Audit.Service
 
-#    - if: always()
-#      name: Report
-#      uses: dorny/test-reporter@v1
-#      with:
-#        name: DotNET Tests
-#        path: 'dotnet/Audit.Service/**/*.trx'
-#        reporter: dotnet-trx
-#        fail-on-error: 'false'
+    - if: always()
+      name: Report
+      uses: dorny/test-reporter@v1
+      with:
+        name: DotNET Tests
+        path: 'dotnet/Audit.Service.Tests/**/*.trx'
+        reporter: dotnet-trx
+        fail-on-error: 'false'
 
     - name: Publish
       run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }}.${{ github.run_number }} /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained
