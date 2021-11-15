@@ -7,6 +7,7 @@ import com.octopus.octopub.Constants;
 import com.octopus.octopub.services.LambdaUtils;
 import com.octopus.octopub.services.ProductsController;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -43,6 +44,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
 
     return getAll(stringObjectMap)
         .or(() -> getOne(stringObjectMap))
+        .or(() -> createOne(stringObjectMap))
         .or(() -> checkHealth(stringObjectMap))
         .orElse(new ProxyResponse("404", "\"message\": \"Path not found\""));
   }
@@ -106,5 +108,36 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     }
 
     return Optional.empty();
+  }
+
+  private Optional<ProxyResponse> createOne(@NonNull final Map<String, Object> stringObjectMap) {
+    try {
+      final String path = stringObjectMap.get("path").toString();
+
+      final String method = stringObjectMap.get("httpMethod").toString().toLowerCase();
+
+      if (ROOT_RE.matcher(path).matches() && Constants.POST_METHOD.equals(method)) {
+        return Optional.of(
+            new ProxyResponse(
+                "200",
+                productsController.create(getBody(stringObjectMap),
+                    lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER))));
+      }
+    } catch (final DocumentSerializationException e) {
+      return Optional.of(new ProxyResponse("500", e.toString()));
+    }
+
+    return Optional.empty();
+  }
+
+  private String getBody(@NonNull final Map<String, Object> stringObjectMap) {
+    final String body = stringObjectMap.get("body").toString();
+    final String isBase64Encoded = stringObjectMap.get("isBase64Encoded").toString().toLowerCase();
+
+    if ("true".equals(isBase64Encoded)) {
+      return new String(Base64.getDecoder().decode(body));
+    }
+
+    return body;
   }
 }
