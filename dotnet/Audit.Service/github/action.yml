@@ -31,6 +31,10 @@ runs:
       run: dotnet tool install -g Amazon.Lambda.Tools
       shell: bash
 
+    - name: Install Cyclone DX
+      run: dotnet tool install --global CycloneDX
+      shell: bash
+
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0.9.7
       with:
@@ -102,3 +106,29 @@ runs:
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
       shell: bash
       working-directory: dotnet/Audit.Service
+
+    - name: Generate SBOM
+      run: dotnet CycloneDX OctoPub.sln -o .
+      shell: bash
+      working-directory: dotnet
+
+    - name: Build SBOM package
+      run: >
+        octo pack
+        --id audits-service-sbom
+        --version 0.0.1.${{ inputs.run_number }}
+        --format zip
+        --include **/bom.xml
+      shell: bash
+      working-directory: dotnet
+
+    - run: >
+        mvn deploy:deploy-file
+        -Dfile=audits-service-sbom.0.0.1.${{ inputs.run_number }}.zip
+        -DgroupId=com.octopus.octopub
+        -DartifactId=audits-service-sbom
+        -Dversion=${{ steps.determine_version.outputs.semVer }}.${{ github.run_number }}
+        -Dpackaging=zip
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
+      shell: bash
+      working-directory: dotnet
