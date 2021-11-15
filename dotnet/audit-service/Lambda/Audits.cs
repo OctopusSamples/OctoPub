@@ -1,4 +1,8 @@
-﻿using Amazon.Lambda.APIGatewayEvents;
+﻿using System;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using audit_service.Repositories.InMemory;
 using audit_service.Services;
@@ -11,27 +15,39 @@ namespace audit_service.Lambda
 {
     public class Audits
     {
-        private static ServiceProvider ServiceProvider { get; set; }
-
-        public Audits()
-        {
-            var services = new ServiceCollection();
-            ConfigureServices(services);
-            ServiceProvider = services.BuildServiceProvider();
-        }
+        private ServiceProvider ServiceProvider { get; set; }
 
         [LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
-        public APIGatewayProxyResponse AuditsApi(APIGatewayProxyRequest request, ILambdaContext context)
+        public async Task<APIGatewayProxyResponse> AuditsApi(APIGatewayProxyRequest request, ILambdaContext context)
         {
-            return new APIGatewayProxyResponse
+            try
             {
-                Body = "OK",
-                StatusCode = 200
-            };
+                ConfigureServices(request);
+
+                var auditGetAllService = ServiceProvider.GetService<AuditGetAllService>();
+                var token = new CancellationTokenSource().Token;
+
+                return new APIGatewayProxyResponse
+                {
+                    Body = JsonSerializer.Serialize(await auditGetAllService.GetAsync(token)),
+                    StatusCode = 200
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new APIGatewayProxyResponse
+                {
+                    Body = JsonSerializer.Serialize(ex.ToString()),
+                    StatusCode = 500
+                };
+            }
         }
 
-        private static void ConfigureServices(IServiceCollection services)
+        private void ConfigureServices(APIGatewayProxyRequest request)
         {
+            var services = new ServiceCollection();
+
             // create an in memory database
             services.AddTransient(provider =>
             {
@@ -40,11 +56,14 @@ namespace audit_service.Lambda
                 return new Db(optionsBuilder.Options);
             });
 
-            services.AddTransient<ITenantParser, TenantParser>();
-            services.AddTransient<ILambdaTenantParser, LambdaTenantParser>();
+            services.AddTransient<IApiGatewayProxyRequestAccessor>(provider => new ApiGatewayProxyRequestAccessor(request));
+            services.AddTransient<ITenantExtractor, TenantExtractor>();
+            services.AddTransient<ITenantParser, LambdaTenantParser>();
             services.AddTransient<AuditCreateService>();
             services.AddTransient<AuditGetAllService>();
             services.AddTransient<AuditGetByIdService>();
+
+            ServiceProvider = services.BuildServiceProvider();
         }
     }
 }

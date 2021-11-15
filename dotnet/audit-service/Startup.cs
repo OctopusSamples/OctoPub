@@ -37,7 +37,7 @@ namespace audit_service
             services.AddScoped<ICreateService<Audit, int>, AuditCreateService>();
             services.AddScoped<IGetAllService<Audit, int>, AuditGetAllService>();
             services.AddScoped<IGetByIdService<Audit, int>, AuditGetByIdService>();
-            services.AddScoped<IWebTenantParser, WebWebTenantParser>();
+            services.AddScoped<ITenantParser, WebWebTenantParser>();
 
             services.AddJsonApi<Db>(opts =>
             {

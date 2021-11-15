@@ -12,18 +12,18 @@ namespace audit_service.Services.InMemory
     public class AuditCreateService : ICreateService<Audit, int>
     {
         private readonly Db context;
-        private readonly IWebTenantParser _webTenantParser;
+        private readonly ITenantParser _tenantParser;
 
-        public AuditCreateService(Db context, IWebTenantParser webTenantParser)
+        public AuditCreateService(Db context, ITenantParser tenantParser)
         {
             this.context = context;
-            this._webTenantParser = webTenantParser;
+            this._tenantParser = tenantParser;
         }
 
         public Task<Audit> CreateAsync(Audit resource, CancellationToken cancellationToken)
         {
             resource.Id = FindUniqueId();
-            resource.Tenant = _webTenantParser.GetTenant();
+            resource.Tenant = _tenantParser.GetTenant();
             context.Audits.Add(resource);
             return Task.FromResult(resource);
         }

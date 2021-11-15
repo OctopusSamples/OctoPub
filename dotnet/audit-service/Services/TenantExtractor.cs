@@ -3,11 +3,14 @@ using System.Linq;
 
 namespace audit_service.Services
 {
-    public class TenantParser : ITenantParser
+    /// <summary>
+    /// The common implementation that extracts the tenant information from a collection of accept headers.
+    /// </summary>
+    public class TenantExtractor : ITenantExtractor
     {
         public string GetTenant(IEnumerable<string> acceptHeader)
         {
-            return acceptHeader
+            return (acceptHeader ?? Enumerable.Empty<string>())
                 .SelectMany(v => v.Split(";"))
                 // trim the results and make them lowercase
                 .Select(v => v.Trim().ToLower())

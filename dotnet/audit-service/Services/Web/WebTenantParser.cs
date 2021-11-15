@@ -3,20 +3,20 @@ using Microsoft.AspNetCore.Http;
 
 namespace audit_service.Services.Web
 {
-    public class WebWebTenantParser : IWebTenantParser
+    public class WebWebTenantParser : ITenantParser
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ITenantParser _tenantParser;
+        private readonly ITenantExtractor _tenantExtractor;
 
-        public WebWebTenantParser(IHttpContextAccessor httpContextAccessor, ITenantParser tenantParser)
+        public WebWebTenantParser(IHttpContextAccessor httpContextAccessor, ITenantExtractor tenantExtractor)
         {
             _httpContextAccessor = httpContextAccessor;
-            _tenantParser = tenantParser;
+            _tenantExtractor = tenantExtractor;
         }
 
         public string GetTenant()
         {
-            return _tenantParser.GetTenant(
+            return _tenantExtractor.GetTenant(
                 _httpContextAccessor.HttpContext.Request.Headers
                     // Get the accept headers
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)

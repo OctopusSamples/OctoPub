@@ -11,19 +11,19 @@ namespace audit_service.Services.InMemory
 {
     public class AuditGetAllService : IGetAllService<Audit, int>
     {
-        private readonly Db context;
-        private readonly IWebTenantParser _webTenantParser;
+        private readonly Db _context;
+        private readonly ITenantParser _tenantParser;
 
-        public AuditGetAllService(Db context, IWebTenantParser webTenantParser)
+        public AuditGetAllService(Db context, ITenantParser tenantParser)
         {
-            this.context = context;
-            this._webTenantParser = webTenantParser;
+            _context = context;
+            _tenantParser = tenantParser;
         }
 
         public Task<IReadOnlyCollection<Audit>> GetAsync(CancellationToken cancellationToken)
         {
-            var tenant = _webTenantParser.GetTenant();
-            IReadOnlyCollection<Audit> list = context.Audits
+            var tenant = _tenantParser.GetTenant();
+            IReadOnlyCollection<Audit> list = _context.Audits
                 .Where(a => a.Tenant == Constants.DefaultTenant || a.Tenant == tenant)
                 .ToList();
             return Task.FromResult(list);
