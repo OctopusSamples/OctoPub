@@ -3,7 +3,7 @@ name: Audit Service
 on:
   push:
       paths:
-      - 'dotnet/audit-service/**'
+      - 'dotnet/Audit.Service/**'
   workflow_dispatch:
 
 jobs:
