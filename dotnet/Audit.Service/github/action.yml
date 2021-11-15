@@ -109,7 +109,7 @@ runs:
           parentdir=$(builtin cd $dir; pwd)
           projectname=${parentdir##*/}
           # fix permissions - https://github.com/aws/aws-lambda-dotnet/issues/243
-          chmod -r 755 ${path}
+          chmod -R 755 ${path}
           # Package the published files
           octo pack \
           --basePath ${path} \
