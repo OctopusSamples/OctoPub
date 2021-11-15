@@ -151,9 +151,7 @@ namespace Audit.Service.Lambda
         /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
         public async Task<APIGatewayProxyResponse> GetAll()
         {
-            if (!CollectionEndpointRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ??
-                                                 string.Empty) ||
-                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() != "get")
+            if (!MatchRequest(CollectionEndpointRegex, "get"))
             {
                 return null;
             }
@@ -176,8 +174,7 @@ namespace Audit.Service.Lambda
             var match = IndividualResourceEndpointRegex.Match(
                 _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty);
 
-            if (!match.Success ||
-                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() != "get")
+            if (!MatchRequest(IndividualResourceEndpointRegex, "get"))
             {
                 return null;
             }
@@ -207,9 +204,7 @@ namespace Audit.Service.Lambda
         /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
         public async Task<APIGatewayProxyResponse> CreateOne()
         {
-            if (!CollectionEndpointRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ??
-                                                 string.Empty) ||
-                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() != "post")
+            if (!MatchRequest(CollectionEndpointRegex, "post"))
             {
                 return null;
             }
@@ -235,7 +230,13 @@ namespace Audit.Service.Lambda
             }
         }
 
-        public string GetBody()
+        bool MatchRequest(Regex path, string method)
+        {
+            return path.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path ?? string.Empty) &&
+                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.HttpMethod?.ToLower() == method;
+        }
+
+        string GetBody()
         {
             if (_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.IsBase64Encoded)
             {
