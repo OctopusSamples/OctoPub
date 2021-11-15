@@ -8,6 +8,14 @@ step "Create API Gateway" {
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
                 	"Resources": {
+                		"ApiKey": {
+                		  "Type" : "AWS::ApiGateway::ApiKey",
+                		  "Properties" : {
+                			  "Description" : "Write access key",
+                			  "Enabled" : true,
+                			  "Name" : "Write Access"
+                			}
+                		},
                 		"RestApi": {
                 			"Type": "AWS::ApiGateway::RestApi",
                 			"Properties": {
@@ -18,7 +26,8 @@ step "Create API Gateway" {
                 					"Types": [
                 						"REGIONAL"
                 					]
-                				}
+                				},
+                				"ApiKeySourceType": "HEADER"
                 			}
                 		},
                 		"Catchall": {
