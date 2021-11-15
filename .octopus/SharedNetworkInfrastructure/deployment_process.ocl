@@ -30,8 +30,7 @@ step "Create API Gateway" {
                 		},
                 		"UsagePlan": {
                 		  "Type" : "AWS::ApiGateway::UsagePlan",
-                		  "Properties" : {
-                			  "ApiStages" : [ ApiStage, ... ],			  
+                		  "Properties" : {		  
                 			  "UsagePlanName" : "Write Access"
                 			}
                 		},
