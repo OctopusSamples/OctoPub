@@ -85,13 +85,7 @@ runs:
         reporter: dotnet-trx
         fail-on-error: 'false'
 
-    - name: Publish
-      run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }}.${{ github.run_number }} /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64
-      shell: bash
-      working-directory: dotnet/Audit.Service
-
-    - id: package
-      name: Package
+    - name: Package
       run: dotnet lambda package
       shell: bash
       working-directory: dotnet/Audit.Service
