@@ -86,6 +86,12 @@ runs:
       shell: bash
       working-directory: dotnet/Audit.Service
 
+    # https://github.com/aws/aws-lambda-dotnet/issues/243
+    - name: Fix permissions
+      run: chmod -r 755 bin/Release/netcoreapp3.1/linux-x64/publish
+      shell: bash
+      working-directory: dotnet/Audit.Service
+
     - id: package
       name: Package
       run: |-
