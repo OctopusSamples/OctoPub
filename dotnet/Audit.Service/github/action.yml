@@ -82,7 +82,7 @@ runs:
         fail-on-error: 'false'
 
     - name: Publish
-      run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }}.${{ github.run_number }} /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained
+      run: dotnet publish --configuration Release /p:AssemblyVersion=${{ steps.determine_version.outputs.semVer }}.${{ github.run_number }} /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64
       shell: bash
       working-directory: dotnet/Audit.Service
 

@@ -11,7 +11,6 @@ using Audit.Service.Services.InMemory;
 using Audit.Service.Services.Lambda;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace Audit.Service.Lambda
 {
