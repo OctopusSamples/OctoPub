@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
@@ -10,6 +11,7 @@ using Audit.Service.Services.InMemory;
 using Audit.Service.Services.Lambda;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace Audit.Service.Lambda
 {
@@ -23,15 +25,16 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = ConfigureServices(request);
+                var handler = serviceProvider.GetService<AuditHandler>();
 
-                var auditGetAllService = serviceProvider.GetService<AuditGetAllService>();
-                var token = new CancellationTokenSource().Token;
-
-                return new APIGatewayProxyResponse
-                {
-                    Body = JsonSerializer.Serialize(await auditGetAllService.GetAsync(token)),
-                    StatusCode = 200
-                };
+                return await handler.GetAll()
+                       ?? await handler.GetOne()
+                       ?? handler.GetHealth()
+                       ?? new APIGatewayProxyResponse
+                       {
+                           Body = "{\"message\": \"path not found\"}",
+                           StatusCode = 404
+                       };
             }
             catch (Exception ex)
             {
@@ -55,7 +58,8 @@ namespace Audit.Service.Lambda
                 var context = new Db(optionsBuilder.Options);
 
                 /*
-                 * The in memory database for Lambda will always be wiped and recreated with each request.
+                 * The in memory database lives as long as the Lambda is hot. But it will eventually be reset
+                 * back to a blank state.
                  * To be able to test queries, we add a sample record so requests are not always empty.
                  */
                 if (!_initializedDatabase)
@@ -79,8 +83,77 @@ namespace Audit.Service.Lambda
             services.AddSingleton<AuditCreateService>();
             services.AddSingleton<AuditGetAllService>();
             services.AddSingleton<AuditGetByIdService>();
+            services.AddSingleton<AuditHandler>();
 
             return services.BuildServiceProvider();
+        }
+    }
+
+    internal class AuditHandler
+    {
+        private static readonly Regex HealthRegex = new Regex(@"^/health/.*$");
+        private static readonly Regex GetAllRegex = new Regex(@"^/api/audits/?$");
+        private static readonly Regex GetOneRegex = new Regex(@"^/api/audits/(?<id>\d+)$");
+
+        private readonly AuditCreateService _auditCreateService;
+        private readonly AuditGetAllService _auditGetAllService;
+        private readonly AuditGetByIdService _auditGetByIdService;
+        private readonly IApiGatewayProxyRequestAccessor _apiGatewayProxyRequestAccessor;
+
+        internal AuditHandler(AuditCreateService auditCreateService, AuditGetAllService auditGetAllService,
+            AuditGetByIdService auditGetByIdService, IApiGatewayProxyRequestAccessor apiGatewayProxyRequestAccessor)
+        {
+            _auditCreateService = auditCreateService;
+            _auditGetAllService = auditGetAllService;
+            _auditGetByIdService = auditGetByIdService;
+            _apiGatewayProxyRequestAccessor = apiGatewayProxyRequestAccessor;
+        }
+
+        internal APIGatewayProxyResponse GetHealth()
+        {
+            if (!HealthRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path))
+            {
+                return null;
+            }
+
+            return new APIGatewayProxyResponse
+            {
+                Body = "{\"message\": \"OK\"}",
+                StatusCode = 200
+            };
+        }
+
+        internal async Task<APIGatewayProxyResponse> GetAll()
+        {
+            if (!GetAllRegex.IsMatch(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path))
+            {
+                return null;
+            }
+
+            var token = new CancellationTokenSource().Token;
+            return new APIGatewayProxyResponse
+            {
+                Body = JsonSerializer.Serialize(await _auditGetAllService.GetAsync(token)),
+                StatusCode = 200
+            };
+        }
+
+        internal async Task<APIGatewayProxyResponse> GetOne()
+        {
+            var match = GetOneRegex.Match(_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Path);
+
+            if (!match.Success)
+            {
+                return null;
+            }
+
+            var token = new CancellationTokenSource().Token;
+            return new APIGatewayProxyResponse
+            {
+                Body = JsonSerializer.Serialize(
+                    await _auditGetByIdService.GetAsync(Int32.Parse(match.Groups["id"].Value), token)),
+                StatusCode = 200
+            };
         }
     }
 }
