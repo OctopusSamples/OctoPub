@@ -10,7 +10,7 @@ namespace Audit.Service.Services
     {
         public string GetTenant(IEnumerable<string> acceptHeader)
         {
-            return (acceptHeader ?? Enumerable.Empty<string>())
+            var versions = (acceptHeader ?? Enumerable.Empty<string>())
                 .SelectMany(v => v.Split(";"))
                 // trim the results and make them lowercase
                 .Select(v => v.Trim().ToLower())
@@ -20,10 +20,25 @@ namespace Audit.Service.Services
                 .Select(v => v.Split("="))
                 // validate that the results have 2 elements
                 .Where(v => v.Length == 2)
+                .ToList();
+
+             var appVersion =  versions
+                 // find any header value segments that indicate the tenant
+                 .Where(v => v[0].Trim().StartsWith(Constants.AcceptVersionInfo + "="))
                 // get the second element
                 .Select(v => v[1].Trim())
                 // if nothing was found, we assume we are the default tenant
-                .FirstOrDefault() ?? Constants.DefaultTenant;
+                .FirstOrDefault();
+
+             var tenantVersion = versions
+                 // find any header value segments that indicate the tenant
+                 .Where(v => v[0].Trim().StartsWith(Constants.AcceptTenantInfo + "="))
+                 // get the second element
+                 .Select(v => v[1].Trim())
+                 // if nothing was found, we assume we are the default tenant
+                 .FirstOrDefault();
+
+             return tenantVersion ?? appVersion ?? Constants.DefaultTenant;
         }
     }
 }
