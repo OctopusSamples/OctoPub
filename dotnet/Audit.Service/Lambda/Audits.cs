@@ -213,15 +213,26 @@ namespace Audit.Service.Lambda
                 return null;
             }
 
-            var token = new CancellationTokenSource().Token;
-            var entity = JsonConvert.DeserializeObject<Models.Audit>(
-                _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body, new JsonApiSerializerSettings());
-            var newEntity = await _auditCreateService.CreateAsync(entity, token);
-            return new APIGatewayProxyResponse
+            try
             {
-                Body = JsonConvert.SerializeObject(newEntity, new JsonApiSerializerSettings()),
-                StatusCode = 200
-            };
+                var token = new CancellationTokenSource().Token;
+                var entity = JsonConvert.DeserializeObject<Models.Audit>(
+                    _apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body, new JsonApiSerializerSettings());
+                var newEntity = await _auditCreateService.CreateAsync(entity, token);
+                return new APIGatewayProxyResponse
+                {
+                    Body = JsonConvert.SerializeObject(newEntity, new JsonApiSerializerSettings()),
+                    StatusCode = 200
+                };
+            }
+            catch (Exception ex)
+            {
+                return new APIGatewayProxyResponse
+                {
+                    Body = $"{{\"message\": \"{ex.ToString()}\", \"input\": \"{_apiGatewayProxyRequestAccessor.ApiGatewayProxyRequest.Body}\"}}",
+                    StatusCode = 200
+                };
+            }
         }
     }
 }
