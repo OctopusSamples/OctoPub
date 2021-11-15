@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
 import lombok.NonNull;
+import org.apache.commons.lang3.ObjectUtils;
 
 @Named("Products")
 public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResponse> {
@@ -72,10 +73,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
 
   private Optional<ProxyResponse> getAll(@NonNull final Map<String, Object> stringObjectMap) {
     try {
-      final String path = stringObjectMap.get("path").toString();
-      final String method = stringObjectMap.get("httpMethod").toString().toLowerCase();
-
-      if (ROOT_RE.matcher(path).matches() && Constants.GET_METHOD.equals(method)) {
+      if (requestIsMatch(stringObjectMap, ROOT_RE, Constants.GET_METHOD)) {
         return Optional.of(
             new ProxyResponse(
                 "200",
@@ -91,11 +89,10 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
 
   private Optional<ProxyResponse> getOne(@NonNull final Map<String, Object> stringObjectMap) {
     try {
-      final String path = stringObjectMap.get("path").toString();
-      final String method = stringObjectMap.get("httpMethod").toString().toLowerCase();
+      final String path = ObjectUtils.defaultIfNull(stringObjectMap.get("path"), "").toString();
 
-      final Matcher matcher = INDIVIDUAL_RE.matcher(path);
-      if (matcher.matches() && Constants.GET_METHOD.equals(method)) {
+      if (requestIsMatch(stringObjectMap, INDIVIDUAL_RE, Constants.GET_METHOD)) {
+        final Matcher matcher = INDIVIDUAL_RE.matcher(path);
         return Optional.of(
             new ProxyResponse(
                 "200",
@@ -112,15 +109,12 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
 
   private Optional<ProxyResponse> createOne(@NonNull final Map<String, Object> stringObjectMap) {
     try {
-      final String path = stringObjectMap.get("path").toString();
-
-      final String method = stringObjectMap.get("httpMethod").toString().toLowerCase();
-
-      if (ROOT_RE.matcher(path).matches() && Constants.POST_METHOD.equals(method)) {
+      if (requestIsMatch(stringObjectMap, ROOT_RE, Constants.POST_METHOD)) {
         return Optional.of(
             new ProxyResponse(
                 "200",
-                productsController.create(getBody(stringObjectMap),
+                productsController.create(
+                    getBody(stringObjectMap),
                     lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER))));
       }
     } catch (final DocumentSerializationException e) {
@@ -130,9 +124,22 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     return Optional.empty();
   }
 
+  private boolean requestIsMatch(
+      @NonNull final Map<String, Object> stringObjectMap,
+      @NonNull final Pattern regex,
+      @NonNull final String method) {
+    final String path = ObjectUtils.defaultIfNull(stringObjectMap.get("path"), "").toString();
+    final String requestMethod =
+        ObjectUtils.defaultIfNull(stringObjectMap.get("httpMethod"), "").toString().toLowerCase();
+    return regex.matcher(path).matches() && method.toLowerCase().equals(requestMethod);
+  }
+
   private String getBody(@NonNull final Map<String, Object> stringObjectMap) {
-    final String body = stringObjectMap.get("body").toString();
-    final String isBase64Encoded = stringObjectMap.get("isBase64Encoded").toString().toLowerCase();
+    final String body = ObjectUtils.defaultIfNull(stringObjectMap.get("body"), "").toString();
+    final String isBase64Encoded =
+        ObjectUtils.defaultIfNull(stringObjectMap.get("isBase64Encoded"), "")
+            .toString()
+            .toLowerCase();
 
     if ("true".equals(isBase64Encoded)) {
       return new String(Base64.getDecoder().decode(body));
