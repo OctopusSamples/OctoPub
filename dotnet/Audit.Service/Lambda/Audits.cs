@@ -69,6 +69,7 @@ namespace Audit.Service.Lambda
                     catch (Exception ex)
                     {
                         // need to do something here to allow sagas to roll themselves back
+                        Console.Out.WriteLine(ex);
                     }
                 }))
                 .Select(t =>
