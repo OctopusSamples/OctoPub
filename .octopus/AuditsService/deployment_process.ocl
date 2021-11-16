@@ -667,6 +667,19 @@ step "Deploy Lambda" {
                 		"Properties": {
                 			"QueueName": {"Fn::Join": ["", ["audits", {"Ref": "Suffix"}]]}
                 		}
+                	},
+                	"LambdaFunctionEventSourceMapping": {
+                		"Type": "AWS::Lambda::EventSourceMapping",
+                		"Properties": {
+                			"Enabled": true,
+                			"BatchSize": 1,
+                			"EventSourceArn": {
+                				"Fn::GetAtt": ["AuditsQueue", "Arn"]
+                			},
+                			"FunctionName": {
+                				"Fn::GetAtt": ["LambdaOne", "Arn"]
+                			}
+                		}
                 	}
                   },
                   "Outputs" : {
