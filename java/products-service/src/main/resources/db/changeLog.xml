@@ -40,7 +40,7 @@
         <constraints primaryKey="true"/>
       </column>
       <column name="REVTYPE" type="tinyint"/>
-      <column name="id" type="int" autoIncrement="true">
+      <column name="id" type="int">
         <constraints primaryKey="true"/>
       </column>
       <column name="tenant" type="varchar(255)">
