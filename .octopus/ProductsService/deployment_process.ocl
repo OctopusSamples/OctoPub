@@ -387,14 +387,32 @@ step "Deploy Lambda" {
                       "Properties": {
                         "Code": {
                           "S3Bucket": {"Ref": "LambdaS3Bucket"},
-                          "S3Key": {"Ref": "LambdaS3Key"}       
+                          "S3Key": {"Ref": "LambdaS3Key"}   
                         },
                         "Environment": {
                           "Variables": {
                           	"DATABASE_USERNAME": {"Ref": "DBUsername"},
                             "DATABASE_PASSWORD": {"Ref": "DBPassword"},
                             "DATABASE_HOSTNAME": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
-                            "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]}
+                            "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
+                            "AUDIT_SERVICE": {
+                				"Fn::Join": [
+                				  "",
+                				  [
+                					"https://",
+                					{"Ref": "ApiGatewayId"},
+                					".execute-api.",
+                					{
+                					  "Ref": "AWS::Region"
+                					},
+                					".amazonaws.com/",
+                					{
+                					  "Ref": "Stage"
+                					},
+                					"/message/audits"
+                				  ]
+                				]
+                			  }
                           }
                         },
                         "Description" : {"Ref": "LambdaDescription"},
