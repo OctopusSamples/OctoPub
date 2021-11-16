@@ -29,7 +29,6 @@ public class AuditRepository {
        */
       auditResource.createAudit(
           new String(jsonApiConverter.buildResourceConverter().writeDocument(document)),
-          Constants.JSON_CONTENT_TYPE,
           Constants.EVENT_INVOKATION);
     } catch (final Exception ex) {
       System.out.println(ex);
