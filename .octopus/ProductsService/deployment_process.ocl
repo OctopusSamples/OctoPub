@@ -213,15 +213,35 @@ step "Deploy Lambda" {
                     		"MapPublicIpOnLaunch": true
                 		}
                 	},
-                	"SubnetGroup": {
-                	  "Type" : "AWS::RDS::DBSubnetGroup",
-                	  "Properties" : {
-                		  "DBSubnetGroupName" : "productdbsg",
-                		  "DBSubnetGroupDescription": "Products Subnet Group",
-                		  "SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                	"SubnetC": {
+                    	"Type": "AWS::EC2::Subnet",
+                    	"Properties": {
+                    		"AvailabilityZone": "us-west-1c",
+                    		"VpcId": {"Ref": "VPC"},
+                    		"CidrBlock": "10.0.2.0/24",
+                    		"MapPublicIpOnLaunch": true
                 		}
                 	},
-                	"RouteTable": {
+                	"EIP" : {
+                	   "Type" : "AWS::EC2::EIP",
+                	   "Properties" : {
+                		  "Domain" : "vpc"
+                	   }
+                	},
+                	"NAT" : {
+                	   "Type" : "AWS::EC2::NatGateway",
+                	   "Properties" : {
+                		  "AllocationId" : { "Fn::GetAtt" : ["EIP", "AllocationId"]},
+                		  "SubnetId" : { "Ref" : "SubnetA"}
+                		 }
+                	},
+                	"RouteTableInternetGateway": {
+                    	"Type": "AWS::EC2::RouteTable",
+                    	"Properties": {
+                    		"VpcId": {"Ref": "VPC"}
+                    	}
+                    },
+                	"RouteTableNat": {
                     	"Type": "AWS::EC2::RouteTable",
                     	"Properties": {
                     		"VpcId": {"Ref": "VPC"}
@@ -233,21 +253,37 @@ step "Deploy Lambda" {
                     	"Properties": {
                     		"DestinationCidrBlock": "0.0.0.0/0",
                     		"GatewayId": {"Ref": "InternetGateway"},
-                    		"RouteTableId": {"Ref": "RouteTable"}
+                    		"RouteTableId": {"Ref": "RouteTableInternetGateway"}
+                		}
+                	},
+                	"NatRoute": {
+                    	"Type": "AWS::EC2::Route",
+                    	"DependsOn": "InternetGateway",
+                    	"Properties": {
+                    		"DestinationCidrBlock": "0.0.0.0/0",
+                    		"GatewayId": {"Ref": "NAT"},
+                    		"RouteTableId": {"Ref": "RouteTableNat"}
                 		}
                 	},
                 	"SubnetARouteTableAssociation": {
                     	"Type": "AWS::EC2::SubnetRouteTableAssociation",
                     	"Properties": {
-                    		"RouteTableId": {"Ref": "RouteTable"},
+                    		"RouteTableId": {"Ref": "RouteTableInternetGateway"},
                     		"SubnetId": {"Ref": "SubnetA"}
                       }
                     },
                 	"SubnetBRouteTableAssociation": {
                     	"Type": "AWS::EC2::SubnetRouteTableAssociation",
                     	"Properties": {
-                    		"RouteTableId": {"Ref": "RouteTable"},
+                    		"RouteTableId": {"Ref": "RouteTableNat"},
                     		"SubnetId": {"Ref": "SubnetB"}
+                      }
+                    },
+                	"SubnetCRouteTableAssociation": {
+                    	"Type": "AWS::EC2::SubnetRouteTableAssociation",
+                    	"Properties": {
+                    		"RouteTableId": {"Ref": "RouteTableNat"},
+                    		"SubnetId": {"Ref": "SubnetC"}
                       }
                     },
                 	"InstanceSecurityGroup": {
@@ -375,7 +411,7 @@ step "Deploy Lambda" {
                         "Timeout": 30,
                         "VpcConfig": {
                         	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
-                			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                			"SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
                         }
                       },
                       "DependsOn": [
@@ -429,7 +465,7 @@ step "Deploy Lambda" {
                         "Timeout": 30,
                         "VpcConfig": {
                         	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
-                			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                			"SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
                         }
                       },
                       "DependsOn": [
@@ -811,7 +847,11 @@ step "Deploy Lambda" {
                     },
                     "SubnetBId" : {
                       "Description" : "The Subnet B id",
-                      "Value" : {"Ref": "SubnetA"}
+                      "Value" : {"Ref": "SubnetB"}
+                    },
+                	"SubnetCId" : {
+                      "Description" : "The Subnet C id",
+                      "Value" : {"Ref": "SubnetC"}
                     },
                     "SecurityGroupId" : {
                       "Description" : "The security group id",
