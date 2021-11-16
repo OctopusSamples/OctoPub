@@ -166,6 +166,9 @@ step "Deploy Lambda" {
                     },
                     "Path": {
                      	"Type": "String" 
+                    },
+                    "Suffix": {
+                     	"Type": "String" 
                     }
                   },
                   "Resources": {
@@ -268,7 +271,7 @@ step "Deploy Lambda" {
                         "LogGroupName": { "Fn::Sub": "/aws/lambda/${EnvironmentName}-${LambdaName}" }
                       }
                     },
-                    "IamRoleLambdaOneExecution": {
+                    "IamRoleLambdaHttpExecution": {
                       "Type": "AWS::IAM::Role",
                       "Properties": {
                         "AssumeRolePolicyDocument": {
@@ -290,7 +293,7 @@ step "Deploy Lambda" {
                         "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"],
                         "Policies": [
                           {
-                            "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-policy" },
+                            "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Web-policy" },
                             "PolicyDocument": {
                               "Version": "2012-10-17",
                               "Statement": [
@@ -312,10 +315,58 @@ step "Deploy Lambda" {
                           }
                         ],
                         "Path": "/",
-                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-role" }
+                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Web-role" }
                       }
                     },
-                    "LambdaOne": {
+                    "IamRoleLambdaSqsExecution": {
+                      "Type": "AWS::IAM::Role",
+                      "Properties": {
+                        "AssumeRolePolicyDocument": {
+                          "Version": "2012-10-17",
+                          "Statement": [
+                            {
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": [
+                                  "lambda.amazonaws.com"
+                                ]
+                              },
+                              "Action": [
+                                "sts:AssumeRole"
+                              ]
+                            }
+                          ]
+                        },
+                        "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"],
+                        "Policies": [
+                          {
+                            "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-SQS-policy" },
+                            "PolicyDocument": {
+                              "Version": "2012-10-17",
+                              "Statement": [
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "sqs:ReceiveMessage",
+                                    "sqs:DeleteMessage",
+                                    "sqs:GetQueueAttributes",
+                                    "sqs:ChangeMessageVisibility"
+                                  ],
+                                  "Resource": [
+                                    {
+                                      "Fn::GetAtt": ["AuditsQueue", "Arn"]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "Path": "/",
+                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-SQS-role" }
+                      }
+                    },
+                    "LambdaHttp": {
                       "Type": "AWS::Lambda::Function",
                       "Properties": {
                         "Code": {
@@ -328,13 +379,44 @@ step "Deploy Lambda" {
                           }
                         },
                         "Description" : {"Ref": "LambdaDescription"},
-                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
+                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-Web-${LambdaName}" },
                         "Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsApi",
                         "MemorySize": 128,
                         "PackageType": "Zip",
                         "Role": {
                           "Fn::GetAtt": [
-                            "IamRoleLambdaOneExecution",
+                            "IamRoleLambdaHttpExecution",
+                            "Arn"
+                          ]
+                        },
+                        "Runtime": "dotnetcore3.1",
+                        "Timeout": 30,
+                        "VpcConfig": {
+                        	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
+                			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                        }
+                      }
+                    },
+                    "LambdaSqs": {
+                      "Type": "AWS::Lambda::Function",
+                      "Properties": {
+                        "Code": {
+                          "S3Bucket": {"Ref": "LambdaS3Bucket"},
+                          "S3Key": {"Ref": "LambdaS3Key"}       
+                        },
+                        "Environment": {
+                          "Variables": {
+                
+                          }
+                        },
+                        "Description" : {"Ref": "LambdaDescription"},
+                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-SQS-${LambdaName}" },
+                        "Handler": "Audit.Service::Audit.Service.Lambda.Audits::HandleSqsEvent",
+                        "MemorySize": 128,
+                        "PackageType": "Zip",
+                        "Role": {
+                          "Fn::GetAtt": [
+                            "IamRoleLambdaSqsExecution",
                             "Arn"
                           ]
                         },
@@ -349,19 +431,19 @@ step "Deploy Lambda" {
                     "LambdaVersion#{DeploymentId}": {
                      	"Type": "AWS::Lambda::Version",
                       	"Properties": {
-                        	"FunctionName": {"Ref": "LambdaOne"},
+                        	"FunctionName": {"Ref": "LambdaHttp"},
                           	"Description": {"Ref": "LambdaDescription"},
                           	"ProvisionedConcurrencyConfig": {
                             	"ProvisionedConcurrentExecutions": 1
                           	}
                         }
                     },
-                    "LambdaOnePermissions": {
+                    "LambdaHttpPermissions": {
                       "Type": "AWS::Lambda::Permission",
                       "Properties": {
                         "FunctionName": {
                           "Fn::GetAtt": [
-                            "LambdaOne",
+                            "LambdaHttp",
                             "Arn"
                           ]
                         },
@@ -390,7 +472,7 @@ step "Deploy Lambda" {
                           ]
                         }
                       }
-                    },
+                    },    
                 	"ProductsResource": {
                 		"Type": "AWS::ApiGateway::Resource",
                 		"Properties": {
@@ -658,7 +740,26 @@ step "Deploy Lambda" {
                         "LambdaHealthResourceMethodOne",
                         "LambdaHealthResourceMethodTwo"
                       ]
-                    }
+                    },
+                	"AuditsQueue": {
+                		"Type" : "AWS::SQS::Queue",
+                		"Properties": {
+                			"QueueName": {"Fn::Join": ["", ["audits-", {"Ref": "EnvironmentName"}, {"Ref": "Suffix"}]]}
+                		}
+                	},
+                	"LambdaFunctionEventSourceMapping": {
+                		"Type": "AWS::Lambda::EventSourceMapping",
+                		"Properties": {
+                			"Enabled": true,
+                			"BatchSize": 1,
+                			"EventSourceArn": {
+                				"Fn::GetAtt": ["AuditsQueue", "Arn"]
+                			},
+                			"FunctionName": {
+                				"Fn::GetAtt": ["LambdaSqs", "Arn"]
+                			}
+                		}
+                	}
                   },
                   "Outputs" : {
                     "DeploymentId" : {
@@ -680,12 +781,30 @@ step "Deploy Lambda" {
                     "SecurityGroupId" : {
                       "Description" : "The security group id",
                       "Value" : {"Ref": "InstanceSecurityGroup"}
-                    }    
+                    },
+                	"AduitsQueue": {
+                		"Description": "Url of the audits queue",
+                		"Value": {
+                			"Ref": "AuditsQueue"
+                		}
+                	},
+                	"AduitsQueueArn": {
+                		"Description": "Arn of the audits queue",
+                		"Value": {
+                			"Fn::GetAtt": ["AuditsQueue", "Arn"]
+                		}
+                	},
+                	"AduitsQueueName": {
+                		"Description": "Name of the audits queue",
+                		"Value": {
+                			"Fn::GetAtt": ["AuditsQueue", "QueueName"]
+                		}
+                	}
                   }
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"-#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionMajor}#{Octopus.Action[Get Stack Outputs].Output.PreReleaseSuffix}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"-#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionMajor}#{Octopus.Action[Get Stack Outputs].Output.PreReleaseSuffix}\"}]"
             Octopus.Action.Aws.IamCapabilities = "[\"CAPABILITY_NAMED_IAM\"]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
