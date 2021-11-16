@@ -51,7 +51,7 @@ namespace Audit.Service.Lambda
 
         static ActionType ActionTypeFromHttpMethod(string method)
         {
-            return method.ToLower() switch
+            return (method?.ToLower() ?? "") switch
             {
                 "post" => ActionType.Create,
                 "delete" => ActionType.Delete,
