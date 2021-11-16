@@ -10,7 +10,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 public interface AuditService {
   @Path("audits")
   @POST
-  void createAudit(
+  String createAudit(
       final String audit,
       @HeaderParam("Accept") String accept,
       @HeaderParam("X-Amz-Invocation-Type") String invocationType);

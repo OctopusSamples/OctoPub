@@ -32,6 +32,7 @@ public class AuditRepository {
           Constants.JSON_CONTENT_TYPE,
           Constants.EVENT_INVOKATION);
     } catch (final Exception ex) {
+      System.out.println(ex);
       /*
         Audits are a best effort creation, explicitly performed asynchronously to maintain
         the performance of the service. Sagas should be used if the failure of an audit event
