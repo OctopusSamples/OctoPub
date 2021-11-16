@@ -101,9 +101,6 @@ step "Create API Gateway" {
                 				},
                 				"PathPart": "health"
                 			}
-                		},
-                		"AuditsQueue": {
-                			"Type" : "AWS::SQS::Queue"
                 		}
                 	},
                 	"Outputs": {
@@ -135,18 +132,6 @@ step "Create API Gateway" {
                 			"Description": "ID of the resource exposing health checks",
                 			"Value": {
                 				"Ref": "Api"
-                			}
-                		},
-                		"AduitsQueue": {
-                			"Description": "Url of the audits queue",
-                			"Value": {
-                				"Ref": "AuditsQueue"
-                			}
-                		},
-                		"AduitsQueueArn": {
-                			"Description": "Arn of the audits queue",
-                			"Value": {
-                				"Fn::GetAtt": "AuditsQueue"
                 			}
                 		}
                 	}
