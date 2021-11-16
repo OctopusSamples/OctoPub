@@ -793,8 +793,8 @@ step "Deploy Lambda" {
                 		  "Path": "/",
                 		  "Policies": [
                 			{
-                			  "PolicyDocument": {
-                			  	"PolicyName": "apig-sqs-send-msg-policy",
+                				"PolicyName": "apig-sqs-send-msg-policy",
+                			  "PolicyDocument": {			  	
                 				"Statement": [
                 				  {
                 					"Action": "sqs:SendMessage",
