@@ -21,10 +21,10 @@ import org.h2.util.StringUtils;
 @Named("Products")
 public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResponse> {
 
-  private static final Pattern ROOT_RE = Pattern.compile("^/api/products/?$");
-  private static final Pattern INDIVIDUAL_RE = Pattern.compile("^/api/products/(?<id>\\d+)$");
+  private static final Pattern ROOT_RE = Pattern.compile("/api/products/?");
+  private static final Pattern INDIVIDUAL_RE = Pattern.compile("/api/products/(?<id>\\d+)");
   private static final Pattern HEALTH_RE =
-      Pattern.compile("^/health/products/(GET|POST|\\d+/GET)$");
+      Pattern.compile("/health/products/(GET|POST|\\d+/GET)");
 
   @Inject ProductsController productsController;
 
@@ -95,8 +95,9 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
                 .map(INDIVIDUAL_RE::matcher)
                 .get();
 
-        final String entity =
-            productsController.getOne(
+        matcher.find();
+
+        final String entity = productsController.getOne(
                 matcher.group("id"),
                 lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER));
 
@@ -122,6 +123,8 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
                 .map(Object::toString)
                 .map(INDIVIDUAL_RE::matcher)
                 .get();
+
+        matcher.find();
 
         final boolean result =
             productsController.delete(
