@@ -315,7 +315,7 @@ step "Deploy Lambda" {
                           }
                         ],
                         "Path": "/",
-                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}${Suffix}-role" }
+                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Web-role" }
                       }
                     },
                     "IamRoleLambdaSqsExecution": {
@@ -363,7 +363,7 @@ step "Deploy Lambda" {
                           }
                         ],
                         "Path": "/",
-                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}${Suffix}-role" }
+                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-SQS-role" }
                       }
                     },
                     "LambdaHttp": {
