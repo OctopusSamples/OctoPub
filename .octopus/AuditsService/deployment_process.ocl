@@ -842,6 +842,7 @@ step "Deploy Lambda" {
                 			  }
                 			],
                 			"PassthroughBehavior": "NEVER",
+                			"ContentHandling": "CONVERT_TO_TEXT",
                 			"RequestParameters": {
                 			  "integration.request.header.Content-Type": "'application/x-www-form-urlencoded'"
                 			},
