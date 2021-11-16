@@ -658,7 +658,13 @@ step "Deploy Lambda" {
                         "LambdaHealthResourceMethodOne",
                         "LambdaHealthResourceMethodTwo"
                       ]
-                    }
+                    },
+                	"AuditsQueue": {
+                		"Type" : "AWS::SQS::Queue",
+                		"Properties": {
+                			"QueueName": "audits"	
+                		}
+                	}
                   },
                   "Outputs" : {
                     "DeploymentId" : {
@@ -680,7 +686,25 @@ step "Deploy Lambda" {
                     "SecurityGroupId" : {
                       "Description" : "The security group id",
                       "Value" : {"Ref": "InstanceSecurityGroup"}
-                    }    
+                    },
+                	"AduitsQueue": {
+                		"Description": "Url of the audits queue",
+                		"Value": {
+                			"Ref": "AuditsQueue"
+                		}
+                	},
+                	"AduitsQueueArn": {
+                		"Description": "Arn of the audits queue",
+                		"Value": {
+                			"Fn::GetAtt": ["AuditsQueue", "Arn"]
+                		}
+                	},
+                	"AduitsQueueName": {
+                		"Description": "Name of the audits queue",
+                		"Value": {
+                			"Fn::GetAtt": ["AuditsQueue", "QueueName"]
+                		}
+                	}
                   }
                 }
             EOT
