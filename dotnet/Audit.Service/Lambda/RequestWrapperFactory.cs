@@ -14,6 +14,7 @@ namespace Audit.Service.Lambda
     /// </summary>
     public static class RequestWrapperFactory
     {
+        private static readonly int DefaultId = -1;
         private static readonly string HealthEndpoint = "/health";
         private static readonly Regex EntityCollectionRe = new Regex("^/api/audits/?$");
         private static readonly Regex SingleEntityRe = new Regex("^/api/audits/(?<id>\\d+)/?$");
@@ -30,7 +31,7 @@ namespace Audit.Service.Lambda
                         ? EntityType.Collection : EntityType.Individual,
                 Id = SingleEntityRe.IsMatch(request.Path ?? "")
                     ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
-                    : -1,
+                    : DefaultId,
                 Tenant = GetTenant((request.Headers ?? new Dictionary<string,string>())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
                     .Select(h => h.Value))
@@ -44,7 +45,7 @@ namespace Audit.Service.Lambda
                 Entity = message.Body,
                 ActionType = Enum.TryParse<ActionType>(message.Attributes?["action"], out var actionType) ? actionType : ActionType.Create,
                 EntityType = Enum.TryParse<EntityType>(message.Attributes?["entity"], out var entity) ? entity : EntityType.Individual,
-                Id = Int32.TryParse(message.Attributes?.ContainsKey("id") ?? false ? message.Attributes["id"] : "", out var id) ? id: -1,
+                Id = Int32.TryParse(message.Attributes?.ContainsKey("id") ?? false ? message.Attributes["id"] : "", out var id) ? id: DefaultId,
                 Tenant = message.Attributes?["tenant"] ?? Constants.DefaultTenant
             };
         }
