@@ -58,6 +58,9 @@ namespace Audit.Service.Lambda
                     {
                         var requestWrapper = serviceProvider.GetService<IRequestWrapperAccessor>();
                         requestWrapper.RequestWrapper = RequestWrapperFactory.CreateFromSqsMessage(m);
+
+                        Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(requestWrapper.RequestWrapper));
+
                         var handler = serviceProvider.GetService<AuditHandler>();
                         Task.Run(async () => await ProcessRequest(handler)).Wait();
                     }
