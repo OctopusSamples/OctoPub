@@ -75,6 +75,24 @@ public class ProductsController {
     return null;
   }
 
+  public boolean delete(@NonNull final String id, @NonNull final String acceptHeader)
+      throws DocumentSerializationException {
+    try {
+      final Integer intId = Integer.parseInt(id);
+      final Product product = productRepository.findOne(intId);
+      if (product != null &&
+          (Constants.DEFAULT_TENANT.equals(product.getTenant()) ||
+              tenantIdentifier.getTenant(acceptHeader).equals(product.getTenant()))) {
+        productRepository.delete(intId);
+        return true;
+      }
+    } catch (final NumberFormatException ex) {
+      // ignored, as the supplied id was not an int, and would never find any entities
+    }
+
+    return false;
+  }
+
   private Product getProductFromDocument(@NonNull final String document) {
     final JSONAPIDocument<Product> productDocument = resourceConverter
         .readDocument(document.getBytes(StandardCharsets.UTF_8), Product.class);

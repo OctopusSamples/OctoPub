@@ -47,6 +47,19 @@ public class ProxyResponse {
     addCorsHeaders();
   }
 
+  /**
+   * Constructor.
+   *
+   * @param statusCode The response HTTP status code.
+   */
+  public ProxyResponse(
+      final String statusCode) {
+    this.headers = new HashMap<>();
+    this.body = null;
+    this.statusCode = statusCode;
+    addCorsHeaders();
+  }
+
   private void addCorsHeaders() {
     headers.put("Access-Control-Allow-Origin", "*");
   }

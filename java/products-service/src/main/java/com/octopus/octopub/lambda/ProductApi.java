@@ -6,7 +6,6 @@ import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.services.LambdaUtils;
 import com.octopus.octopub.services.ProductsController;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
@@ -17,13 +16,15 @@ import javax.inject.Named;
 import javax.transaction.Transactional;
 import lombok.NonNull;
 import org.apache.commons.lang3.ObjectUtils;
+import org.h2.util.StringUtils;
 
 @Named("Products")
 public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResponse> {
 
   private static final Pattern ROOT_RE = Pattern.compile("^/api/products/?$");
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("^/api/products/(?<id>\\d+)$");
-  private static final Pattern HEALTH_RE = Pattern.compile("^/health/products/(GET|POST|\\d+/GET)$");
+  private static final Pattern HEALTH_RE =
+      Pattern.compile("^/health/products/(GET|POST|\\d+/GET)$");
 
   @Inject ProductsController productsController;
 
@@ -44,8 +45,9 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     return getAll(stringObjectMap)
         .or(() -> getOne(stringObjectMap))
         .or(() -> createOne(stringObjectMap))
+        .or(() -> deleteOne(stringObjectMap))
         .or(() -> checkHealth(stringObjectMap))
-        .orElse(new ProxyResponse("404", "\"message\": \"Path not found\""));
+        .orElse(new ProxyResponse("404", "{\"message\": \"Path not found\"}"));
   }
 
   /**
@@ -92,12 +94,43 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
                 .map(Object::toString)
                 .map(INDIVIDUAL_RE::matcher)
                 .get();
-        return Optional.of(
-            new ProxyResponse(
-                "200",
-                productsController.getOne(
-                    matcher.group("id"),
-                    lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER))));
+
+        final String entity =
+            productsController.getOne(
+                matcher.group("id"),
+                lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER));
+
+        return StringUtils.isNullOrEmpty(entity)
+            ? Optional.of(
+                 new ProxyResponse("404", "{\"message\": \"Entity not found\"}"))
+            : Optional.of(new ProxyResponse("200", entity));
+      }
+    } catch (final DocumentSerializationException e) {
+      return Optional.of(new ProxyResponse("500", e.toString()));
+    }
+
+    return Optional.empty();
+  }
+
+  private Optional<ProxyResponse> deleteOne(@NonNull final Map<String, Object> stringObjectMap) {
+    try {
+
+      if (requestIsMatch(stringObjectMap, INDIVIDUAL_RE, Constants.DELETE_METHOD)) {
+        final Matcher matcher =
+            Optional.ofNullable(stringObjectMap.get("path"))
+                .or(() -> Optional.of(""))
+                .map(Object::toString)
+                .map(INDIVIDUAL_RE::matcher)
+                .get();
+
+        final boolean result =
+            productsController.delete(
+                matcher.group("id"),
+                lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER));
+
+        return result
+            ? Optional.of(new ProxyResponse("202"))
+            : Optional.of(new ProxyResponse("404"));
       }
     } catch (final DocumentSerializationException e) {
       return Optional.of(new ProxyResponse("500", e.toString()));

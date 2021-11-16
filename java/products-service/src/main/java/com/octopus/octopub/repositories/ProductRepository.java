@@ -17,6 +17,12 @@ public class ProductRepository {
     return em.find(Product.class, id);
   }
 
+  public void delete(final int id) {
+    em.createQuery("delete from Product p where p.id=:id")
+        .setParameter("id", id)
+        .executeUpdate();
+  }
+
   public List<Product> findAll(@NonNull final String tenant) {
     return em
         .createQuery("Select product from Product product where product.tenant = 'main' or product.tenant = :tenant",

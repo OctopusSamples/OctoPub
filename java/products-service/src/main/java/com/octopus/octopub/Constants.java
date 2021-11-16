@@ -10,4 +10,5 @@ public final class Constants {
   public static final String ACCEPT_TENANT_INFO = "tenant";
   public static final String GET_METHOD = "get";
   public static final String POST_METHOD = "post";
+  public static final String DELETE_METHOD = "delete";
 }
