@@ -5,7 +5,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-@Path("messages")
+@Path("message")
 @RegisterRestClient
 public interface AuditService {
   @Path("audits")
