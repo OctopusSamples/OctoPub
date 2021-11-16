@@ -23,8 +23,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
 
   private static final Pattern ROOT_RE = Pattern.compile("/api/products/?");
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("/api/products/(?<id>\\d+)");
-  private static final Pattern HEALTH_RE =
-      Pattern.compile("/health/products/(GET|POST|\\d+/GET)");
+  private static final Pattern HEALTH_RE = Pattern.compile("/health/products/(GET|POST|\\d+/GET)");
 
   @Inject ProductsController productsController;
 
@@ -88,23 +87,18 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     try {
 
       if (requestIsMatch(stringObjectMap, INDIVIDUAL_RE, Constants.GET_METHOD)) {
-        final Matcher matcher =
-            Optional.ofNullable(stringObjectMap.get("path"))
-                .or(() -> Optional.of(""))
-                .map(Object::toString)
-                .map(INDIVIDUAL_RE::matcher)
-                .get();
+        final Optional<String> id = getGroup(INDIVIDUAL_RE, stringObjectMap.get("path"), "id");
 
-        matcher.find();
+        if (id.isPresent()) {
+          final String entity =
+              productsController.getOne(
+                  id.get(), lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER));
 
-        final String entity = productsController.getOne(
-                matcher.group("id"),
-                lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER));
-
-        return StringUtils.isNullOrEmpty(entity)
-            ? Optional.of(
-                 new ProxyResponse("404", "{\"message\": \"Entity not found\"}"))
-            : Optional.of(new ProxyResponse("200", entity));
+          if (!StringUtils.isNullOrEmpty(entity)) {
+            return Optional.of(new ProxyResponse("200", entity));
+          }
+        }
+        return Optional.of(new ProxyResponse("404", "{\"message\": \"Entity not found\"}"));
       }
     } catch (final DocumentSerializationException e) {
       return Optional.of(new ProxyResponse("500", e.toString()));
@@ -117,23 +111,18 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     try {
 
       if (requestIsMatch(stringObjectMap, INDIVIDUAL_RE, Constants.DELETE_METHOD)) {
-        final Matcher matcher =
-            Optional.ofNullable(stringObjectMap.get("path"))
-                .or(() -> Optional.of(""))
-                .map(Object::toString)
-                .map(INDIVIDUAL_RE::matcher)
-                .get();
+        final Optional<String> id = getGroup(INDIVIDUAL_RE, stringObjectMap.get("path"), "id");
 
-        matcher.find();
+        if (id.isPresent()) {
+          final boolean result =
+              productsController.delete(
+                  id.get(), lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER));
 
-        final boolean result =
-            productsController.delete(
-                matcher.group("id"),
-                lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER));
-
-        return result
-            ? Optional.of(new ProxyResponse("202"))
-            : Optional.of(new ProxyResponse("404"));
+          if (result) {
+            return Optional.of(new ProxyResponse("202"));
+          }
+        }
+        return Optional.of(new ProxyResponse("404"));
       }
     } catch (final DocumentSerializationException e) {
       return Optional.of(new ProxyResponse("500", e.toString()));
@@ -160,6 +149,22 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     } catch (final RuntimeException ex) {
       System.out.println(ex);
       throw ex;
+    }
+
+    return Optional.empty();
+  }
+
+  private Optional<String> getGroup(
+      @NonNull final Pattern pattern, @NonNull final Object input, @NonNull final String group) {
+    final Matcher matcher =
+        Optional.ofNullable(input)
+            .or(() -> Optional.of(""))
+            .map(Object::toString)
+            .map(pattern::matcher)
+            .get();
+
+    if (matcher.find()) {
+      return Optional.of(matcher.group(group));
     }
 
     return Optional.empty();
