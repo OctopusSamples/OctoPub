@@ -825,7 +825,7 @@ step "Deploy Lambda" {
                 				"Ref": "RestApi"
                 			},
                 			"ParentId": {"Ref": "MessageResourceId"},
-                			"PathPart": "audits}"
+                			"PathPart": "audits"
                 		}
                 	},
                 	"SqsProxyMethod": {
