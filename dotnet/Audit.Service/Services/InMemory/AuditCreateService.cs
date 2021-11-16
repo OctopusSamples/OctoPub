@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Threading.Tasks;
 using Audit.Service.Lambda;
 using Audit.Service.Repositories.InMemory;
+using PostSharp.Patterns.Contracts;
 
 namespace Audit.Service.Services.InMemory
 {
@@ -9,12 +11,12 @@ namespace Audit.Service.Services.InMemory
     {
         private readonly Db _context;
 
-        public AuditCreateService(Db context)
+        public AuditCreateService([Required] Db context)
         {
             _context = context;
         }
 
-        public Task<Models.Audit> CreateAsync(Models.Audit resource, RequestWrapper wrapper)
+        public Task<Models.Audit> CreateAsync([Required] Models.Audit resource, [Required] RequestWrapper wrapper)
         {
             resource.Id = FindUniqueId();
             resource.Tenant = wrapper.Tenant;
