@@ -318,6 +318,54 @@ step "Deploy Lambda" {
                         "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}${Suffix}-role" }
                       }
                     },
+                    "IamRoleLambdaSqsExecution": {
+                      "Type": "AWS::IAM::Role",
+                      "Properties": {
+                        "AssumeRolePolicyDocument": {
+                          "Version": "2012-10-17",
+                          "Statement": [
+                            {
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": [
+                                  "lambda.amazonaws.com"
+                                ]
+                              },
+                              "Action": [
+                                "sts:AssumeRole"
+                              ]
+                            }
+                          ]
+                        },
+                        "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"],
+                        "Policies": [
+                          {
+                            "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-policy" },
+                            "PolicyDocument": {
+                              "Version": "2012-10-17",
+                              "Statement": [
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "sqs:ReceiveMessage",
+                                    "sqs:DeleteMessage",
+                                    "sqs:GetQueueAttributes",
+                                    "sqs:ChangeMessageVisibility",
+                                  ],
+                                  "Resource": [
+                                    {
+                                      "Fn::GetAtt": ["AuditsQueue", "Arn"]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "Path": "/",
+                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}${Suffix}-role" }
+                      }
+                    },
                     "LambdaHttp": {
                       "Type": "AWS::Lambda::Function",
                       "Properties": {
@@ -368,7 +416,7 @@ step "Deploy Lambda" {
                         "PackageType": "Zip",
                         "Role": {
                           "Fn::GetAtt": [
-                            "IamRoleLambdaHttpExecution",
+                            "IamRoleLambdaSqsExecution",
                             "Arn"
                           ]
                         },
@@ -424,7 +472,7 @@ step "Deploy Lambda" {
                           ]
                         }
                       }
-                    },
+                    },    
                 	"ProductsResource": {
                 		"Type": "AWS::ApiGateway::Resource",
                 		"Properties": {
