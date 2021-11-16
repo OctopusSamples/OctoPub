@@ -4,6 +4,8 @@
     {
         public int Id { get; set; }
 
+        public string Branch { get; set; }
+
         public string Tenant { get; set; }
 
         public string Action { get; set; }
