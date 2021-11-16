@@ -759,6 +759,52 @@ step "Deploy Lambda" {
                 				"Fn::GetAtt": ["LambdaSqs", "Arn"]
                 			}
                 		}
+                	},
+                	"APIGatewayRole": {
+                		"Type": "AWS::IAM::Role",
+                		"Properties": {
+                		  "AssumeRolePolicyDocument": {
+                			"Statement": [
+                			  {
+                				"Action": [
+                				  "sts:AssumeRole"
+                				],
+                				"Effect": "Allow",
+                				"Principal": {
+                				  "Service": [
+                					"apigateway.amazonaws.com"
+                				  ]
+                				}
+                			  }
+                			],
+                			"Version": "2012-10-17"
+                		  },
+                		  "Path": "/",
+                		  "Policies": [
+                			{
+                			  "PolicyDocument": {
+                				"Statement": [
+                				  {
+                					"Action": "sqs:SendMessage",
+                					"Effect": "Allow",
+                					"Resource": {"Ref": "AuditsQueue"}
+                				  },
+                				  {
+                					"Action": [
+                					  "logs:CreateLogGroup",
+                					  "logs:CreateLogStream",
+                					  "logs:PutLogEvents"
+                					],
+                					"Effect": "Allow",
+                					"Resource": "*"
+                				  }
+                				],
+                				"Version": "2012-10-17"
+                			  }
+                			}
+                		  ],
+                		  "RoleName": "apig-sqs-send-msg-role"
+                		}		
                 	}
                   },
                   "Outputs" : {
