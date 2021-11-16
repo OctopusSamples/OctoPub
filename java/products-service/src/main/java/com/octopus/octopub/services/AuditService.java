@@ -12,5 +12,6 @@ public interface AuditService {
   @POST
   void createAudit(
       final String audit,
-      @HeaderParam("Accept") String accept);
+      @HeaderParam("Accept") String accept,
+      @HeaderParam("X-Amz-Invocation-Type") String invocationType);
 }
