@@ -772,6 +772,8 @@ step "Deploy Lambda" {
                       "DependsOn": [
                         "LambdaResourceMethodOne",
                         "LambdaResourceMethodTwo",
+                        "LambdaResourceMethodThree",
+                        "LambdaResourceMethodFour",
                         "LambdaHealthResourceMethodOne",
                         "LambdaHealthResourceMethodTwo"
                       ]
