@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
 using Audit.Service.Services.InMemory;
-using Audit.Service.Services.Lambda;
 using JsonApiSerializer;
 using Newtonsoft.Json;
 
@@ -19,25 +16,23 @@ namespace Audit.Service.Lambda
         private readonly AuditCreateService _auditCreateService;
         private readonly AuditGetAllService _auditGetAllService;
         private readonly AuditGetByIdService _auditGetByIdService;
-        private readonly IRequestWrapperAccessor _requestWrapperAccessor;
 
         public AuditHandler(AuditCreateService auditCreateService, AuditGetAllService auditGetAllService,
-            AuditGetByIdService auditGetByIdService, IRequestWrapperAccessor requestWrapperAccessor)
+            AuditGetByIdService auditGetByIdService)
         {
             _auditCreateService = auditCreateService;
             _auditGetAllService = auditGetAllService;
             _auditGetByIdService = auditGetByIdService;
-            _requestWrapperAccessor = requestWrapperAccessor;
         }
 
         /// <summary>
         /// Returns the health check details
         /// </summary>
         /// <returns>The health check details if the path and method are a match, or null otherwise</returns>
-        public APIGatewayProxyResponse GetHealth()
+        public APIGatewayProxyResponse GetHealth(RequestWrapper wrapper)
         {
-            if (_requestWrapperAccessor.RequestWrapper.ActionType != ActionType.Read ||
-                _requestWrapperAccessor.RequestWrapper.EntityType != EntityType.Health )
+            if (!(wrapper.ActionType == ActionType.Read &&
+                  wrapper.EntityType != EntityType.Health))
             {
                 return null;
             }
@@ -53,18 +48,17 @@ namespace Audit.Service.Lambda
         /// Returns all the audit records
         /// </summary>
         /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
-        public async Task<APIGatewayProxyResponse> GetAll()
+        public async Task<APIGatewayProxyResponse> GetAll(RequestWrapper wrapper)
         {
-            if (!(_requestWrapperAccessor.RequestWrapper.ActionType == ActionType.Read &&
-                _requestWrapperAccessor.RequestWrapper.EntityType == EntityType.Collection))
+            if (!(wrapper.ActionType == ActionType.Read &&
+                  wrapper.EntityType == EntityType.Collection))
             {
                 return null;
             }
 
-            var token = new CancellationTokenSource().Token;
             return new APIGatewayProxyResponse
             {
-                Body = JsonConvert.SerializeObject(await _auditGetAllService.GetAsync(token),
+                Body = JsonConvert.SerializeObject(await _auditGetAllService.GetAsync(wrapper),
                     new JsonApiSerializerSettings()),
                 StatusCode = 200
             };
@@ -74,16 +68,15 @@ namespace Audit.Service.Lambda
         /// Returns one audit record
         /// </summary>
         /// <returns>The audit record if the path and method are a match, or null otherwise</returns>
-        public async Task<APIGatewayProxyResponse> GetOne()
+        public async Task<APIGatewayProxyResponse> GetOne(RequestWrapper wrapper)
         {
-            if (!(_requestWrapperAccessor.RequestWrapper.ActionType == ActionType.Read &&
-                _requestWrapperAccessor.RequestWrapper.EntityType == EntityType.Individual))
+            if (!(wrapper.ActionType == ActionType.Read &&
+                  wrapper.EntityType == EntityType.Individual))
             {
                 return null;
             }
 
-            var token = new CancellationTokenSource().Token;
-            var result = await _auditGetByIdService.GetAsync(_requestWrapperAccessor.RequestWrapper.Id, token);
+            var result = await _auditGetByIdService.GetAsync(wrapper.Id, wrapper);
 
             if (result != null)
             {
@@ -105,20 +98,19 @@ namespace Audit.Service.Lambda
         /// Returns all the audit records
         /// </summary>
         /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
-        public async Task<APIGatewayProxyResponse> CreateOne()
+        public async Task<APIGatewayProxyResponse> CreateOne(RequestWrapper wrapper)
         {
-            if (!(_requestWrapperAccessor.RequestWrapper.ActionType == ActionType.Create &&
-                _requestWrapperAccessor.RequestWrapper.EntityType == EntityType.Individual))
+            if (!(wrapper.ActionType == ActionType.Create &&
+                  wrapper.EntityType == EntityType.Individual))
             {
                 return null;
             }
 
             try
             {
-                var token = new CancellationTokenSource().Token;
-                var entity = JsonConvert.DeserializeObject<Models.Audit>(_requestWrapperAccessor.RequestWrapper.Entity,
+                var entity = JsonConvert.DeserializeObject<Models.Audit>(wrapper.Entity,
                     new JsonApiSerializerSettings());
-                var newEntity = await _auditCreateService.CreateAsync(entity, token);
+                var newEntity = await _auditCreateService.CreateAsync(entity, wrapper);
                 return new APIGatewayProxyResponse
                 {
                     Body = JsonConvert.SerializeObject(newEntity, new JsonApiSerializerSettings()),
@@ -130,7 +122,7 @@ namespace Audit.Service.Lambda
                 return new APIGatewayProxyResponse
                 {
                     Body =
-                        $"{{\"message\": \"{ex}\", \"input\": \"{_requestWrapperAccessor.RequestWrapper.Entity}\"}}",
+                        $"{{\"message\": \"{ex}\", \"input\": \"{wrapper.Entity}\"}}",
                     StatusCode = 500
                 };
             }

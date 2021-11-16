@@ -6,7 +6,6 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.Json;
 using Amazon.Lambda.SQSEvents;
-using Audit.Service.Services.Lambda;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
@@ -28,10 +27,9 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
-                var requestWrapper = serviceProvider.GetService<IRequestWrapperAccessor>();
-                requestWrapper.RequestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
+                var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
                 var handler = serviceProvider.GetService<AuditHandler>();
-                return await ProcessRequest(handler);
+                return await ProcessRequest(handler, requestWrapper);
             }
             catch (Exception ex)
             {
@@ -59,13 +57,12 @@ namespace Audit.Service.Lambda
                 {
                     try
                     {
-                        var requestWrapper = serviceProvider.GetService<IRequestWrapperAccessor>();
-                        requestWrapper.RequestWrapper = RequestWrapperFactory.CreateFromSqsMessage(m);
+                        var requestWrapper = RequestWrapperFactory.CreateFromSqsMessage(m);
 
-                        Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(requestWrapper.RequestWrapper));
+                        Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(requestWrapper));
 
                         var handler = serviceProvider.GetService<AuditHandler>();
-                        var audit = Task.Run(async () => await ProcessRequest(handler)).Result;
+                        var audit = Task.Run(async () => await ProcessRequest(handler, requestWrapper)).Result;
 
                         Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(audit));
                     }
@@ -84,12 +81,12 @@ namespace Audit.Service.Lambda
                 .ForEach(t => t.Join());
         }
 
-        private async Task<APIGatewayProxyResponse> ProcessRequest(AuditHandler handler)
+        private async Task<APIGatewayProxyResponse> ProcessRequest(AuditHandler handler, RequestWrapper wrapper)
         {
-            return await handler.GetAll()
-                   ?? await handler.GetOne()
-                   ?? await handler.CreateOne()
-                   ?? handler.GetHealth()
+            return await handler.GetAll(wrapper)
+                   ?? await handler.GetOne(wrapper)
+                   ?? await handler.CreateOne(wrapper)
+                   ?? handler.GetHealth(wrapper)
                    ?? new APIGatewayProxyResponse
                    {
                        Body = "{\"message\": \"path not found\"}",

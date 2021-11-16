@@ -1,26 +1,23 @@
 ﻿using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using Audit.Service.Lambda;
 using Audit.Service.Repositories.InMemory;
-using Audit.Service.Services.Lambda;
 
 namespace Audit.Service.Services.InMemory
 {
     public class AuditCreateService
     {
         private readonly Db _context;
-        private readonly IRequestWrapperAccessor _requestWrapper;
 
-        public AuditCreateService(Db context, IRequestWrapperAccessor requestWrapper)
+        public AuditCreateService(Db context)
         {
             _context = context;
-            _requestWrapper = requestWrapper;
         }
 
-        public Task<Models.Audit> CreateAsync(Models.Audit resource, CancellationToken cancellationToken)
+        public Task<Models.Audit> CreateAsync(Models.Audit resource, RequestWrapper wrapper)
         {
             resource.Id = FindUniqueId();
-            resource.Tenant = _requestWrapper.RequestWrapper.Tenant;
+            resource.Tenant = wrapper.Tenant;
             _context.Audits.Add(resource);
             _context.SaveChanges();
             return Task.FromResult(resource);

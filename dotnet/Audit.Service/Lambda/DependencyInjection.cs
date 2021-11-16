@@ -1,8 +1,5 @@
-﻿using Amazon.Lambda.APIGatewayEvents;
-using Audit.Service.Repositories.InMemory;
-using Audit.Service.Services;
+﻿using Audit.Service.Repositories.InMemory;
 using Audit.Service.Services.InMemory;
-using Audit.Service.Services.Lambda;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -49,7 +46,6 @@ namespace Audit.Service.Lambda
                 return context;
             });
 
-            services.AddSingleton<IRequestWrapperAccessor, RequestWrapperAccessor>();
             services.AddSingleton<AuditCreateService>();
             services.AddSingleton<AuditGetAllService>();
             services.AddSingleton<AuditGetByIdService>();

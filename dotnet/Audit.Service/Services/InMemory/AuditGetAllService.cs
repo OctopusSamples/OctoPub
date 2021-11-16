@@ -1,26 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using Audit.Service.Lambda;
 using Audit.Service.Repositories.InMemory;
-using Audit.Service.Services.Lambda;
 
 namespace Audit.Service.Services.InMemory
 {
     public class AuditGetAllService
     {
         private readonly Db _context;
-        private readonly IRequestWrapperAccessor _requestWrapper;
 
-        public AuditGetAllService(Db context, IRequestWrapperAccessor requestWrapper)
+        public AuditGetAllService(Db context)
         {
             _context = context;
-            _requestWrapper = requestWrapper;
         }
 
-        public Task<IReadOnlyCollection<Models.Audit>> GetAsync(CancellationToken cancellationToken)
+        public Task<IReadOnlyCollection<Models.Audit>> GetAsync(RequestWrapper wrapper)
         {
-            var tenant = _requestWrapper.RequestWrapper.Tenant;
+            var tenant = wrapper.Tenant;
             IReadOnlyCollection<Models.Audit> list = _context.Audits
                 .Where(a => a.Tenant == Constants.DefaultTenant || a.Tenant == tenant)
                 .ToList();
