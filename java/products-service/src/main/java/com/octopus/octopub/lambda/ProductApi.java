@@ -119,7 +119,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
                   id.get(), lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER));
 
           if (result) {
-            return Optional.of(new ProxyResponse("202"));
+            return Optional.of(new ProxyResponse("204"));
           }
         }
         return Optional.of(new ProxyResponse("404"));
