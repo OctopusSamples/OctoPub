@@ -30,7 +30,7 @@ namespace Audit.Service.Lambda
                         ? EntityType.Collection : EntityType.Individual,
                 Id = SingleEntityRe.IsMatch(request.Path ?? "")
                     ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
-                    : 0,
+                    : -1,
                 Tenant = GetTenant((request.Headers ?? new Dictionary<string,string>())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
                     .Select(h => h.Value))
@@ -44,7 +44,7 @@ namespace Audit.Service.Lambda
                 Entity = message.Body,
                 ActionType = Enum.TryParse<ActionType>(message.Attributes?["action"], out var actionType) ? actionType : ActionType.Create,
                 EntityType = Enum.TryParse<EntityType>(message.Attributes?["entity"], out var entity) ? entity : EntityType.Individual,
-                Id = Int32.TryParse(message.Attributes?.ContainsKey("id") ?? false ? message.Attributes?["id"] : "", out var id) ? id: 0,
+                Id = Int32.TryParse(message.Attributes?.ContainsKey("id") ?? false ? message.Attributes["id"] : "", out var id) ? id: -1,
                 Tenant = message.Attributes?["tenant"] ?? Constants.DefaultTenant
             };
         }
