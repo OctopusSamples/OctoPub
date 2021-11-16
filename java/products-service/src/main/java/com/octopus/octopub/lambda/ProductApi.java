@@ -126,6 +126,9 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
           new ProxyResponse(
               "500",
               "{\"message\": \"" + e + "\", \"body\": \"" + getBody(stringObjectMap) + "\"}"));
+    } catch (final RuntimeException ex) {
+      System.out.println(ex);
+      throw ex;
     }
 
     return Optional.empty();
