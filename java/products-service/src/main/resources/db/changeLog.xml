@@ -26,5 +26,30 @@
       <column name="tenant" value="main"/>
     </insert>
   </changeSet>
+  <changeSet author="mcasperson" id="3">
+    <createTable tableName="REVINFO">
+      <column name="REV" type="int" autoIncrement="true">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="REVTSTMP" type="bigint"/>
+    </createTable>
+  </changeSet>
+  <changeSet author="mcasperson" id="4">
+    <createTable tableName="product_AUD">
+      <column name="REV" type="int">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="REVTYPE" type="tinyint"/>
+      <column name="id" type="int" autoIncrement="true">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="tenant" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
 </databaseChangeLog>
 

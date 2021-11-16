@@ -23,9 +23,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
 
   private static final Pattern ROOT_RE = Pattern.compile("^/api/products/?$");
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("^/api/products/(?<id>\\d+)$");
-  private static final Pattern[] HEALTH_RE = {
-    Pattern.compile("^/health/products/(GET|POST|\\d+/GET)$")
-  };
+  private static final Pattern HEALTH_RE = Pattern.compile("^/health/products/(GET|POST|\\d+/GET)$");
 
   @Inject ProductsController productsController;
 
@@ -61,10 +59,7 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
    * @return The optional proxy response
    */
   private Optional<ProxyResponse> checkHealth(@NonNull final Map<String, Object> stringObjectMap) {
-
-    final String path = stringObjectMap.get("path").toString();
-
-    if (Arrays.stream(HEALTH_RE).anyMatch(m -> m.matcher(path).matches())) {
+    if (requestIsMatch(stringObjectMap, HEALTH_RE, Constants.GET_METHOD)) {
       return Optional.of(new ProxyResponse("200", "{\"message\": \"OK\"}"));
     }
 
