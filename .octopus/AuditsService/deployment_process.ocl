@@ -544,7 +544,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Fn::Ref": "LambdaHttp" },
+                                { "Ref": "LambdaHttp" },
                                 "/invocations"
                               ]
                             ]
@@ -587,7 +587,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Fn::Ref": "LambdaHttp" },
+                                { "Ref": "LambdaHttp" },
                                 "/invocations"
                               ]
                             ]
@@ -631,7 +631,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Fn::Ref": "LambdaHttp" },
+                                { "Ref": "LambdaHttp" },
                                 "/invocations"
                               ]
                             ]
@@ -674,7 +674,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Fn::Ref": "LambdaHttp" },
+                                { "Ref": "LambdaHttp" },
                                 "/invocations"
                               ]
                             ]
@@ -717,7 +717,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Fn::Ref": "LambdaHttp" },
+                                { "Ref": "LambdaHttp" },
                                 "/invocations"
                               ]
                             ]
