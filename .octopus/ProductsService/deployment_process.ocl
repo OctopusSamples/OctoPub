@@ -400,7 +400,7 @@ step "Deploy Lambda" {
                 				  "",
                 				  [
                 					"https://",
-                					{"Ref": "ApiGatewayId"},
+                					{"Ref": "RestApi"},
                 					".execute-api.",
                 					{
                 					  "Ref": "AWS::Region"
