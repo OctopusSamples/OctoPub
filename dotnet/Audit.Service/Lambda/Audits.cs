@@ -65,7 +65,9 @@ namespace Audit.Service.Lambda
                         Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(requestWrapper.RequestWrapper));
 
                         var handler = serviceProvider.GetService<AuditHandler>();
-                        Task.Run(async () => await ProcessRequest(handler)).Wait();
+                        var audit = Task.Run(async () => await ProcessRequest(handler)).Result;
+
+                        Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(audit));
                     }
                     catch (Exception ex)
                     {
