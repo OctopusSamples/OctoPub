@@ -315,7 +315,7 @@ step "Deploy Lambda" {
                           }
                         ],
                         "Path": "/",
-                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-role" }
+                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}${Suffix}-role" }
                       }
                     },
                     "LambdaHttp": {
