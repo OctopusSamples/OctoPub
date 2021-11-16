@@ -29,7 +29,7 @@ public class AuditRepository {
        */
       auditResource.createAudit(
           new String(jsonApiConverter.buildResourceConverter().writeDocument(document)),
-          Constants.EVENT_INVOKATION);
+          Constants.EVENT_INVOCATION);
     } catch (final Exception ex) {
       System.out.println(ex);
       /*

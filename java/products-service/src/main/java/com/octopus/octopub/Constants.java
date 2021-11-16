@@ -4,7 +4,7 @@ public final class Constants {
   public static final String CREATED_ACTION = "CREATED";
   public static final String JSONAPI_CONTENT_TYPE = "application/vnd.api+json";
   public static final String JSON_CONTENT_TYPE = "application/json";
-  public static final String EVENT_INVOKATION = "Event";
+  public static final String EVENT_INVOCATION = "Event";
   public static final String DEFAULT_TENANT = "main";
   public static final String ACCEPT_HEADER = "Accept";
   public static final String MICROSERVICE_NAME = "Products";
