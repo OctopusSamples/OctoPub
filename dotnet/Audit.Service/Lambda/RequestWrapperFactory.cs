@@ -27,7 +27,7 @@ namespace Audit.Service.Lambda
                 EntityType = request.Path.StartsWith(HealthEndpoint)
                     ? EntityType.Health
                     : EntityCollectionRe.IsMatch(request.Path)
-                        ? EntityType.Collection : EntityType.Collection,
+                        ? EntityType.Collection : EntityType.Individual,
                 Id = SingleEntityRe.IsMatch(request.Path)
                     ? Int32.Parse(SingleEntityRe.Match(request.Path).Groups["id"].Value)
                     : 0,
@@ -43,7 +43,7 @@ namespace Audit.Service.Lambda
             {
                 Entity = message.Body,
                 ActionType = Enum.TryParse<ActionType>(message.Attributes["action"], out var actionType) ? actionType : ActionType.Read,
-                EntityType = Enum.TryParse<EntityType>(message.Attributes["entity"], out var entity) ? entity : EntityType.Individual,
+                EntityType = Enum.TryParse<EntityType>(message.Attributes["entity"], out var entity) ? entity : EntityType.Collection,
                 Id = Int32.TryParse(message.Attributes["id"], out var id) ? id: 0,
                 Tenant = message.Attributes["tenant"] ?? Constants.DefaultTenant
             };
