@@ -24,12 +24,12 @@ namespace Audit.Service.Lambda
             {
                 Entity = GetBody(request),
                 ActionType = ActionTypeFromHttpMethod(request.HttpMethod),
-                EntityType = request.Path.StartsWith(HealthEndpoint)
+                EntityType = request.Path?.StartsWith(HealthEndpoint) ?? false
                     ? EntityType.Health
-                    : EntityCollectionRe.IsMatch(request.Path)
+                    : EntityCollectionRe.IsMatch(request.Path ?? "")
                         ? EntityType.Collection : EntityType.Individual,
-                Id = SingleEntityRe.IsMatch(request.Path)
-                    ? Int32.Parse(SingleEntityRe.Match(request.Path).Groups["id"].Value)
+                Id = SingleEntityRe.IsMatch(request.Path ?? "")
+                    ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
                     : 0,
                 Tenant = GetTenant((request.Headers ?? new Dictionary<string,string>())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
