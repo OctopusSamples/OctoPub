@@ -407,7 +407,7 @@ step "Deploy Lambda" {
                 					},
                 					".amazonaws.com/",
                 					{
-                					  "Ref": "Stage"
+                					  "Ref": "EnvironmentName"
                 					},
                 					"/message/audits"
                 				  ]
