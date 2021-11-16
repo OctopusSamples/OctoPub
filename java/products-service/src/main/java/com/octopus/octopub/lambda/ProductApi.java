@@ -155,13 +155,10 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
   }
 
   private Optional<String> getGroup(
-      @NonNull final Pattern pattern, @NonNull final Object input, @NonNull final String group) {
-    final Matcher matcher =
-        Optional.ofNullable(input)
-            .or(() -> Optional.of(""))
-            .map(Object::toString)
-            .map(pattern::matcher)
-            .get();
+      @NonNull final Pattern pattern, final Object input, @NonNull final String group) {
+    if (input == null) return Optional.empty();
+
+    final Matcher matcher = pattern.matcher(input.toString());
 
     if (matcher.find()) {
       return Optional.of(matcher.group(group));
