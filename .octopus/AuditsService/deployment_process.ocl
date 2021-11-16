@@ -852,7 +852,7 @@ step "Deploy Lambda" {
                 					  "Ref": "AWS::AccountId"
                 					},
                 					"/",
-                					{ "Ref": "AuditsQueue" }
+                					"Fn::GetAtt": ["AuditsQueue", "QueueName"]
                 				  ]
                 				]
                 			  }
