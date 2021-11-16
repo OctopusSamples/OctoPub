@@ -27,8 +27,8 @@ namespace Audit.Service.Lambda
                 ActionType = ActionTypeFromHttpMethod(request.HttpMethod),
                 EntityType = request.Path?.StartsWith(HealthEndpoint) ?? false
                     ? EntityType.Health
-                    : EntityCollectionRe.IsMatch(request.Path ?? "")
-                        ? EntityType.Collection : EntityType.Individual,
+                    : SingleEntityRe.IsMatch(request.Path ?? "")
+                        ? EntityType.Individual : EntityType.Collection,
                 Id = SingleEntityRe.IsMatch(request.Path ?? "")
                     ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
                     : DefaultId,
