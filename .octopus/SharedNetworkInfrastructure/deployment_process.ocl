@@ -142,6 +142,12 @@ step "Create API Gateway" {
                 			"Value": {
                 				"Ref": "AuditsQueue"
                 			}
+                		},
+                		"AduitsQueueArn": {
+                			"Description": "Arn of the audits queue",
+                			"Value": {
+                				"Fn::GetAtt": "AuditsQueue"
+                			}
                 		}
                 	}
                 }
