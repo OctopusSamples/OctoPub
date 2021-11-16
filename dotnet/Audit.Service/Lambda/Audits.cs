@@ -51,6 +51,7 @@ namespace Audit.Service.Lambda
         public void HandleSqsEvent(SQSEvent sqsEvent, ILambdaContext context)
         {
             Console.Out.WriteLine("Audits.HandleSqsEvent(SQSEvent, ILambdaContext)");
+            Console.Out.WriteLine(sqsEvent.Records.Count + " records to process");
 
             var serviceProvider = DependencyInjection.ConfigureServices();
             sqsEvent.Records
