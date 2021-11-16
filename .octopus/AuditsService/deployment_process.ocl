@@ -331,7 +331,7 @@ step "Deploy Lambda" {
                           }
                         },
                         "Description" : {"Ref": "LambdaDescription"},
-                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
+                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Web${Suffix}" },
                         "Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsApi",
                         "MemorySize": 128,
                         "PackageType": "Zip",
@@ -362,7 +362,7 @@ step "Deploy Lambda" {
                           }
                         },
                         "Description" : {"Ref": "LambdaDescription"},
-                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
+                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-SQS${Suffix}" },
                         "Handler": "Audit.Service::Audit.Service.Lambda.Audits::HandleSqsEvent",
                         "MemorySize": 128,
                         "PackageType": "Zip",
