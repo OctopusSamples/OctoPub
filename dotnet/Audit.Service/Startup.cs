@@ -1,7 +1,5 @@
 using Audit.Service.Repositories.InMemory;
-using Audit.Service.Services;
 using Audit.Service.Services.InMemory;
-using Audit.Service.Services.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +32,6 @@ namespace Audit.Service
             services.AddScoped<AuditCreateService>();
             services.AddScoped<AuditCreateService>();
             services.AddScoped<AuditCreateService>();
-            services.AddScoped<ITenantParser, WebWebTenantParser>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
