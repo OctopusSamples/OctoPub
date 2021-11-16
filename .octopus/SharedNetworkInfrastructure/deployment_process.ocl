@@ -101,6 +101,18 @@ step "Create API Gateway" {
                 				},
                 				"PathPart": "health"
                 			}
+                		},
+                        "Messaging": {
+                			"Type": "AWS::ApiGateway::Resource",
+                			"Properties": {
+                				"RestApiId": {
+                					"Ref": "RestApi"
+                				},
+                				"ParentId": {
+                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
+                				},
+                				"PathPart": "message"
+                			}
                 		}
                 	},
                 	"Outputs": {
@@ -132,6 +144,12 @@ step "Create API Gateway" {
                 			"Description": "ID of the resource exposing health checks",
                 			"Value": {
                 				"Ref": "Api"
+                			}
+                		},
+                		"Messaging": {
+                			"Description": "ID of the resource exposing the SQS proxies",
+                			"Value": {
+                				"Ref": "Messaging"
                 			}
                 		}
                 	}
