@@ -256,7 +256,16 @@ step "Deploy Lambda" {
                     	"Properties": {
                     		"DestinationCidrBlock": "0.0.0.0/0",
                     		"GatewayId": {"Ref": "InternetGateway"},
-                    		"RouteTableId": {"Ref": "RouteTable"}
+                    		"RouteTableId": {"Ref": "RouteTableInternetGateway"}
+                		}
+                	},
+                	"NatRoute": {
+                    	"Type": "AWS::EC2::Route",
+                    	"DependsOn": "InternetGateway",
+                    	"Properties": {
+                    		"DestinationCidrBlock": "0.0.0.0/0",
+                    		"GatewayId": {"Ref": "NAT"},
+                    		"RouteTableId": {"Ref": "RouteTableNat"}
                 		}
                 	},
                 	"SubnetARouteTableAssociation": {
