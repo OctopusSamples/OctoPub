@@ -50,6 +50,8 @@ namespace Audit.Service.Lambda
         /// <param name="context">The SQS context</param>
         public void HandleSqsEvent(SQSEvent sqsEvent, ILambdaContext context)
         {
+            Console.Out.WriteLine("Audits.HandleSqsEvent(SQSEvent, ILambdaContext)");
+
             var serviceProvider = DependencyInjection.ConfigureServices();
             sqsEvent.Records
                 .Select(m => new Thread(() =>
