@@ -744,7 +744,7 @@ step "Deploy Lambda" {
                 	"AuditsQueue": {
                 		"Type" : "AWS::SQS::Queue",
                 		"Properties": {
-                			"QueueName": {"Fn::Join": ["", ["audits-", {"Ref": "Environment"}, {"Ref": "Suffix"}]]}
+                			"QueueName": {"Fn::Join": ["", ["audits-", {"Ref": "EnvironmentName"}, {"Ref": "Suffix"}]]}
                 		}
                 	},
                 	"LambdaFunctionEventSourceMapping": {
