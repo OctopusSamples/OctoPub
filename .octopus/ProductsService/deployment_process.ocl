@@ -286,6 +286,14 @@ step "Deploy Lambda" {
                     		"SubnetId": {"Ref": "SubnetC"}
                       }
                     },
+                    "SubnetGroup": {
+                	  "Type" : "AWS::RDS::DBSubnetGroup",
+                	  "Properties" : {
+                		  "DBSubnetGroupName" : "productdbsg",
+                		  "DBSubnetGroupDescription": "Products Subnet Group",
+                		  "SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
+                		}
+                	},
                 	"InstanceSecurityGroup": {
                 		"Type": "AWS::EC2::SecurityGroup",
                 		"Properties": {
