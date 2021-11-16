@@ -83,6 +83,10 @@ public class ProductsController {
           (Constants.DEFAULT_TENANT.equals(product.getTenant()) ||
               tenantIdentifier.getTenant(acceptHeader).equals(product.getTenant()))) {
         productRepository.delete(intId);
+        auditRepository.save(new Audit(
+            Constants.MICROSERVICE_NAME,
+            Constants.DELETED_ACTION,
+            "Product-" + intId));
         return true;
       }
     } catch (final NumberFormatException ex) {

@@ -2,6 +2,7 @@ package com.octopus.octopub;
 
 public final class Constants {
   public static final String CREATED_ACTION = "CREATED";
+  public static final String DELETED_ACTION = "DELETED";
   public static final String JSONAPI_CONTENT_TYPE = "application/vnd.api+json";
   public static final String JSON_CONTENT_TYPE = "application/json";
   public static final String EVENT_INVOCATION = "Event";
