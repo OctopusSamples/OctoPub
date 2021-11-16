@@ -54,8 +54,7 @@ public class ProductsController {
     auditRepository.save(new Audit(
         Constants.MICROSERVICE_NAME,
         Constants.CREATED_ACTION,
-        product.getId().toString(),
-        product.tenant));
+        product.getId().toString()));
 
     return respondWithProduct(product);
   }

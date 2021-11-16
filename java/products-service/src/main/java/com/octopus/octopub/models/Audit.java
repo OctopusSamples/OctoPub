@@ -10,15 +10,13 @@ public class Audit {
 
   @Id
   private String id;
-  private String tenant;
   private String subject;
   private String action;
   private String object;
 
-  public Audit(final String subject, final String action, final String object, final String tenant) {
+  public Audit(final String subject, final String action, final String object) {
     this.subject = subject;
     this.action = action;
     this.object = object;
-    this.tenant = tenant;
   }
 }
