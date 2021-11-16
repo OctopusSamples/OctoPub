@@ -15,13 +15,13 @@ namespace Audit.Service.Services.InMemory
             _context = context;
         }
 
-        public Task<IReadOnlyCollection<Models.Audit>> GetAsync(RequestWrapper wrapper)
+        public IReadOnlyCollection<Models.Audit> GetAsync(RequestWrapper wrapper)
         {
             var tenant = wrapper.Tenant;
             IReadOnlyCollection<Models.Audit> list = _context.Audits
                 .Where(a => a.Tenant == Constants.DefaultTenant || a.Tenant == tenant)
                 .ToList();
-            return Task.FromResult(list);
+            return list;
         }
     }
 }

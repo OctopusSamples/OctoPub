@@ -48,7 +48,7 @@ namespace Audit.Service.Lambda
         /// Returns all the audit records
         /// </summary>
         /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
-        public async Task<APIGatewayProxyResponse> GetAll(RequestWrapper wrapper)
+        public APIGatewayProxyResponse GetAll(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Read &&
                   wrapper.EntityType == EntityType.Collection))
@@ -58,7 +58,7 @@ namespace Audit.Service.Lambda
 
             return new APIGatewayProxyResponse
             {
-                Body = JsonConvert.SerializeObject(await _auditGetAllService.GetAsync(wrapper),
+                Body = JsonConvert.SerializeObject(_auditGetAllService.GetAsync(wrapper),
                     new JsonApiSerializerSettings()),
                 StatusCode = 200
             };
@@ -68,7 +68,7 @@ namespace Audit.Service.Lambda
         /// Returns one audit record
         /// </summary>
         /// <returns>The audit record if the path and method are a match, or null otherwise</returns>
-        public async Task<APIGatewayProxyResponse> GetOne(RequestWrapper wrapper)
+        public APIGatewayProxyResponse GetOne(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Read &&
                   wrapper.EntityType == EntityType.Individual))
@@ -76,7 +76,7 @@ namespace Audit.Service.Lambda
                 return null;
             }
 
-            var result = await _auditGetByIdService.GetAsync(wrapper.Id, wrapper);
+            var result = _auditGetByIdService.GetAsync(wrapper.Id, wrapper);
 
             if (result != null)
             {
@@ -98,7 +98,7 @@ namespace Audit.Service.Lambda
         /// Returns all the audit records
         /// </summary>
         /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
-        public async Task<APIGatewayProxyResponse> CreateOne(RequestWrapper wrapper)
+        public APIGatewayProxyResponse CreateOne(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Create &&
                   wrapper.EntityType == EntityType.Individual))
@@ -110,7 +110,7 @@ namespace Audit.Service.Lambda
             {
                 var entity = JsonConvert.DeserializeObject<Models.Audit>(wrapper.Entity,
                     new JsonApiSerializerSettings());
-                var newEntity = await _auditCreateService.CreateAsync(entity, wrapper);
+                var newEntity = _auditCreateService.CreateAsync(entity, wrapper);
                 return new APIGatewayProxyResponse
                 {
                     Body = JsonConvert.SerializeObject(newEntity, new JsonApiSerializerSettings()),

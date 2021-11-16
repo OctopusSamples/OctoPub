@@ -22,14 +22,14 @@ namespace Audit.Service.Lambda
         /// <param name="request">The request details in proxy format</param>
         /// <param name="context">The lambda context</param>
         /// <returns>The API content</returns>
-        public async Task<APIGatewayProxyResponse> AuditsApi(APIGatewayProxyRequest request, ILambdaContext context)
+        public APIGatewayProxyResponse AuditsApi(APIGatewayProxyRequest request, ILambdaContext context)
         {
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
                 var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
                 var handler = serviceProvider.GetService<AuditHandler>();
-                return await ProcessRequest(handler, requestWrapper);
+                return ProcessRequest(handler, requestWrapper);
             }
             catch (Exception ex)
             {
@@ -63,7 +63,7 @@ namespace Audit.Service.Lambda
                         Console.Out.WriteLine(requestWrapper.Entity);
 
                         var handler = serviceProvider.GetService<AuditHandler>();
-                        var audit = Task.Run(async () => await ProcessRequest(handler, requestWrapper)).Result;
+                        var audit = ProcessRequest(handler, requestWrapper);
 
                         Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(audit));
                     }
@@ -82,11 +82,11 @@ namespace Audit.Service.Lambda
                 .ForEach(t => t.Join());
         }
 
-        private async Task<APIGatewayProxyResponse> ProcessRequest(AuditHandler handler, RequestWrapper wrapper)
+        private APIGatewayProxyResponse ProcessRequest(AuditHandler handler, RequestWrapper wrapper)
         {
-            return await handler.GetAll(wrapper)
-                   ?? await handler.GetOne(wrapper)
-                   ?? await handler.CreateOne(wrapper)
+            return handler.GetAll(wrapper)
+                   ?? handler.GetOne(wrapper)
+                   ?? handler.CreateOne(wrapper)
                    ?? handler.GetHealth(wrapper)
                    ?? new APIGatewayProxyResponse
                    {

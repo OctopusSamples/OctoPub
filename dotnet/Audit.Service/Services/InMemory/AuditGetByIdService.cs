@@ -13,12 +13,12 @@ namespace Audit.Service.Services.InMemory
             _context = context;
         }
 
-        public Task<Models.Audit> GetAsync(int id, RequestWrapper wrapper)
+        public Models.Audit GetAsync(int id, RequestWrapper wrapper)
         {
             var audit = _context.Audits.Find(id);
             return audit.Tenant == Constants.DefaultTenant || audit.Tenant == wrapper.Tenant
-                ? Task.FromResult(audit)
-                : Task.FromResult<Models.Audit>(null);
+                ? audit
+                : null;
         }
     }
 }
