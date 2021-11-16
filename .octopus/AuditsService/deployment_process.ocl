@@ -787,7 +787,7 @@ step "Deploy Lambda" {
                 				  {
                 					"Action": "sqs:SendMessage",
                 					"Effect": "Allow",
-                					"Resource": {"Ref": "AuditsQueue"}
+                					"Resource": "*"
                 				  },
                 				  {
                 					"Action": [
