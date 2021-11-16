@@ -18,7 +18,7 @@ namespace Audit.Service.Lambda
         private static readonly DependencyInjection DependencyInjection = new DependencyInjection();
 
         /// <summary>
-        /// This is the entry point to the Lambda.
+        /// This is the HTTP entry point to the Lambda.
         /// </summary>
         /// <param name="request">The request details in proxy format</param>
         /// <param name="context">The lambda context</param>
@@ -43,16 +43,28 @@ namespace Audit.Service.Lambda
             }
         }
 
-        public string HandleSQSEvent(SQSEvent sqsEvent, ILambdaContext context)
+        /// <summary>
+        /// The Message bus entry point to the Lambda.
+        /// </summary>
+        /// <param name="sqsEvent">The SQS event details</param>
+        /// <param name="context">The SQS context</param>
+        public void HandleSqsEvent(SQSEvent sqsEvent, ILambdaContext context)
         {
             var serviceProvider = DependencyInjection.ConfigureServices();
             sqsEvent.Records
                 .Select(m => new Thread(() =>
                 {
-                    var requestWrapper = serviceProvider.GetService<IRequestWrapperAccessor>();
-                    requestWrapper.RequestWrapper = RequestWrapperFactory.CreateFromSqsMessage(m);
-                    var handler = serviceProvider.GetService<AuditHandler>();
-                    Task.Run(async () => await ProcessRequest(handler)).Wait();
+                    try
+                    {
+                        var requestWrapper = serviceProvider.GetService<IRequestWrapperAccessor>();
+                        requestWrapper.RequestWrapper = RequestWrapperFactory.CreateFromSqsMessage(m);
+                        var handler = serviceProvider.GetService<AuditHandler>();
+                        Task.Run(async () => await ProcessRequest(handler)).Wait();
+                    }
+                    catch (Exception ex)
+                    {
+                        // need to do something here to allow sagas to roll themselves back
+                    }
                 }))
                 .Select(t =>
                 {
@@ -61,8 +73,6 @@ namespace Audit.Service.Lambda
                 })
                 .ToList()
                 .ForEach(t => t.Join());
-
-            return "All done";
         }
 
         private async Task<APIGatewayProxyResponse> ProcessRequest(AuditHandler handler)
