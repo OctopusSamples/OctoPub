@@ -818,7 +818,17 @@ step "Deploy Lambda" {
                 		  "RoleName": "apig-sqs-send-msg-role"
                 		}		
                 	},
-                	"SqsProxy": {
+                	"SqsProxyResource": {
+                		"Type": "AWS::ApiGateway::Resource",
+                		"Properties": {
+                			"RestApiId": {
+                				"Ref": "RestApi"
+                			},
+                			"ParentId": {"Ref": "MessageResourceId"},
+                			"PathPart": "audits}"
+                		}
+                	},
+                	"SqsProxyMethod": {
                 		"Type": "AWS::ApiGateway::Method",
                 		"Properties": {
                 		  "AuthorizationType": "NONE",
@@ -852,7 +862,7 @@ step "Deploy Lambda" {
                 					  "Ref": "AWS::AccountId"
                 					},
                 					"/",
-                					"Fn::GetAtt": ["AuditsQueue", "QueueName"]
+                					{"Fn::GetAtt": ["AuditsQueue", "QueueName"]}
                 				  ]
                 				]
                 			  }
@@ -865,7 +875,7 @@ step "Deploy Lambda" {
                 			  "StatusCode": "200"
                 			}
                 		  ],
-                		  "ResourceId": {"Ref": "MessageResourceId"},
+                		  "ResourceId": {"Ref": "SqsProxyResource"},
                 		  "RestApiId": {"Ref": "RestApi"}
                 		}		
                 	}
