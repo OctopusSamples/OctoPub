@@ -198,7 +198,7 @@ step "Deploy Lambda" {
                 	"SubnetA": {
                     	"Type": "AWS::EC2::Subnet",
                     	"Properties": {
-                    		"AvailabilityZone": "us-west-1a",
+                    		"AvailabilityZone": { "Fn::Select" : [ "0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
                     		"VpcId": {"Ref": "VPC"},
                     		"CidrBlock": "10.0.0.0/24",
                     		"MapPublicIpOnLaunch": true
@@ -207,7 +207,7 @@ step "Deploy Lambda" {
                 	"SubnetB": {
                     	"Type": "AWS::EC2::Subnet",
                     	"Properties": {
-                    		"AvailabilityZone": "us-west-1b",
+                    		"AvailabilityZone": { "Fn::Select" : [ "1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
                     		"VpcId": {"Ref": "VPC"},
                     		"CidrBlock": "10.0.1.0/24",
                     		"MapPublicIpOnLaunch": true
@@ -216,7 +216,7 @@ step "Deploy Lambda" {
                 	"SubnetC": {
                     	"Type": "AWS::EC2::Subnet",
                     	"Properties": {
-                    		"AvailabilityZone": "us-west-1c",
+                    		"AvailabilityZone": { "Fn::Select" : [ "2", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
                     		"VpcId": {"Ref": "VPC"},
                     		"CidrBlock": "10.0.2.0/24",
                     		"MapPublicIpOnLaunch": true
