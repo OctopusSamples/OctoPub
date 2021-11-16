@@ -42,8 +42,8 @@ namespace Audit.Service.Lambda
             return new RequestWrapper
             {
                 Entity = message.Body,
-                ActionType = Enum.TryParse<ActionType>(message.Attributes["action"], out var actionType) ? actionType : ActionType.Read,
-                EntityType = Enum.TryParse<EntityType>(message.Attributes["entity"], out var entity) ? entity : EntityType.Collection,
+                ActionType = Enum.TryParse<ActionType>(message.Attributes["action"], out var actionType) ? actionType : ActionType.Create,
+                EntityType = Enum.TryParse<EntityType>(message.Attributes["entity"], out var entity) ? entity : EntityType.Individual,
                 Id = Int32.TryParse(message.Attributes["id"], out var id) ? id: 0,
                 Tenant = message.Attributes["tenant"] ?? Constants.DefaultTenant
             };
