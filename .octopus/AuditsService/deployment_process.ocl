@@ -350,7 +350,7 @@ step "Deploy Lambda" {
                                     "sqs:ReceiveMessage",
                                     "sqs:DeleteMessage",
                                     "sqs:GetQueueAttributes",
-                                    "sqs:ChangeMessageVisibility",
+                                    "sqs:ChangeMessageVisibility"
                                   ],
                                   "Resource": [
                                     {
