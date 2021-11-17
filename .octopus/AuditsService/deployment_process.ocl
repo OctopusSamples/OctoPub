@@ -832,6 +832,7 @@ step "Deploy Lambda" {
                 		"Type": "AWS::ApiGateway::Method",
                 		"Properties": {
                 		  "AuthorizationType": "NONE",
+                		  "ApiKeyRequired" : true,
                 		  "HttpMethod": "POST",
                 		  "Integration": {
                 			"Credentials": {"Fn::GetAtt": ["APIGatewayRole", "Arn"]},
