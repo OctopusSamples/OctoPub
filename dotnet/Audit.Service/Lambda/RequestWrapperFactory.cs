@@ -130,8 +130,6 @@ namespace Audit.Service.Lambda
                 .SelectMany(v => v.Split(";"))
                 // trim the results and make them lowercase
                 .Select(v => v.Trim().ToLower())
-                // find any header value segments that indicate the tenant
-                .Where(v => v.StartsWith("tenant="))
                 // split those values on the equals
                 .Select(v => v.Split("="))
                 // validate that the results have 2 elements
@@ -140,7 +138,7 @@ namespace Audit.Service.Lambda
 
             var appVersion = versions
                 // find any header value segments that indicate the tenant
-                .Where(v => v[0].Trim().StartsWith(Constants.AcceptVersionInfo + "="))
+                .Where(v => v[0].Trim() == Constants.AcceptVersionInfo)
                 // get the second element
                 .Select(v => v[1].Trim())
                 // if nothing was found, we assume we are the default tenant
@@ -148,7 +146,7 @@ namespace Audit.Service.Lambda
 
             var tenantVersion = versions
                 // find any header value segments that indicate the tenant
-                .Where(v => v[0].Trim().StartsWith(Constants.AcceptTenantInfo + "="))
+                .Where(v => v[0].Trim() == Constants.AcceptTenantInfo)
                 // get the second element
                 .Select(v => v[1].Trim())
                 // if nothing was found, we assume we are the default tenant
