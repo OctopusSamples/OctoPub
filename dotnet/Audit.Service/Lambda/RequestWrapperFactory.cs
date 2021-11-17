@@ -73,8 +73,8 @@ namespace Audit.Service.Lambda
                 Id = Int32.TryParse(GetAttribute(message.MessageAttributes, "id"), out var id)
                     ? id
                     : DefaultId,
-                Tenant = message.Attributes?.ContainsKey("tenant") ?? false
-                    ? message.Attributes["tenant"]
+                Tenant = message.MessageAttributes?.ContainsKey("tenant") ?? false
+                    ? message.MessageAttributes["tenant"].StringValue
                     : Constants.DefaultTenant
             };
         }
