@@ -63,16 +63,14 @@ namespace Audit.Service.Lambda
             {
                 Entity = message.Body,
                 ActionType =
-                    Enum.TryParse<ActionType>(
-                        GetAttribute(message.Attributes, "action"), out var actionType)
+                    Enum.TryParse<ActionType>(GetAttribute(message.MessageAttributes, "action"), out var actionType)
                         ? actionType
                         : ActionType.None,
                 EntityType =
-                    Enum.TryParse<EntityType>(
-                        GetAttribute(message.Attributes, "entity"), out var entity)
+                    Enum.TryParse<EntityType>(GetAttribute(message.MessageAttributes, "entity"), out var entity)
                         ? entity
                         : EntityType.None,
-                Id = Int32.TryParse(GetAttribute(message.Attributes, "id"), out var id)
+                Id = Int32.TryParse(GetAttribute(message.MessageAttributes, "id"), out var id)
                     ? id
                     : DefaultId,
                 Tenant = message.Attributes?.ContainsKey("tenant") ?? false
@@ -81,9 +79,9 @@ namespace Audit.Service.Lambda
             };
         }
 
-        static string GetAttribute(Dictionary<string, string> attributes, string key)
+        static string GetAttribute(Dictionary<string, SQSEvent.MessageAttribute> attributes, string key)
         {
-            return attributes?.ContainsKey(key) ?? false ? attributes?[key] : string.Empty;
+            return attributes?.ContainsKey(key) ?? false ? attributes?[key].StringValue : string.Empty;
         }
 
         /// <summary>
