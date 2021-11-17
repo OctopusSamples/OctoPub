@@ -39,7 +39,7 @@ public class AuditRepository {
           Constants.EVENT_INVOCATION,
           apiKey.orElse(""));
     } catch (final Exception ex) {
-      System.out.println(ex);
+      System.out.println("AuditRepository.save(Audit, List<String>): " + ex);
       /*
         Audits are a best effort creation, explicitly performed asynchronously to maintain
         the performance of the service. Sagas should be used if the failure of an audit event

@@ -144,7 +144,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
               "500",
               "{\"message\": \"" + e + "\", \"body\": \"" + getBody(input) + "\"}"));
     } catch (final RuntimeException ex) {
-      System.out.println(ex);
+      System.out.println("ProductApi.createOne(APIGatewayProxyRequestEvent): " + ex);
       throw ex;
     }
 
