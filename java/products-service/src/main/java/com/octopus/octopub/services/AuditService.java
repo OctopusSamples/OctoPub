@@ -15,5 +15,6 @@ public interface AuditService {
   @Consumes(Constants.JSON_CONTENT_TYPE)
   String createAudit(
       final String audit,
-      @HeaderParam("X-Amz-Invocation-Type") String invocationType);
+      @HeaderParam("X-Amz-Invocation-Type") String invocationType,
+      @HeaderParam("X-API-Key") String apiKey);
 }

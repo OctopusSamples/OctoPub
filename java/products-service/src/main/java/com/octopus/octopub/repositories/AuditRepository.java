@@ -8,6 +8,7 @@ import com.octopus.octopub.producers.JsonApiConverter;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import lombok.NonNull;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
@@ -19,6 +20,9 @@ public class AuditRepository {
   @Inject
   JsonApiConverter jsonApiConverter;
 
+  @ConfigProperty(name = "infrastructure.api-key")
+  String apiKey;
+
   public void save(@NonNull final Audit audit) {
     try {
       final JSONAPIDocument<Audit> document = new JSONAPIDocument<Audit>(audit);
@@ -29,7 +33,8 @@ public class AuditRepository {
        */
       auditResource.createAudit(
           new String(jsonApiConverter.buildResourceConverter().writeDocument(document)),
-          Constants.EVENT_INVOCATION);
+          Constants.EVENT_INVOCATION,
+          apiKey);
     } catch (final Exception ex) {
       System.out.println(ex);
       /*
