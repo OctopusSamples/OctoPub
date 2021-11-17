@@ -81,7 +81,7 @@ namespace Audit.Service.Lambda
 
         static string GetAttribute(Dictionary<string, SQSEvent.MessageAttribute> attributes, string key)
         {
-            return attributes?.ContainsKey(key) ?? false ? attributes?[key].StringValue ?? string.Empty : string.Empty;
+            return attributes?.ContainsKey(key) ?? false ? attributes[key].StringValue ?? string.Empty : string.Empty;
         }
 
         /// <summary>
