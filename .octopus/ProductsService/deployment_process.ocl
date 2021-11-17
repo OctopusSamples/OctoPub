@@ -169,6 +169,9 @@ step "Deploy Lambda" {
                     },
                     "Method": {
                      	"Type": "String" 
+                    },
+                    "ApiKey": {
+                    		"Type": "String" 
                     }
                   },
                   "Resources": {
@@ -198,30 +201,50 @@ step "Deploy Lambda" {
                 	"SubnetA": {
                     	"Type": "AWS::EC2::Subnet",
                     	"Properties": {
-                    		"AvailabilityZone": "us-west-1a",
+                    		"AvailabilityZone": { "Fn::Select" : [ "0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
                     		"VpcId": {"Ref": "VPC"},
-                    		"CidrBlock": "10.0.0.0/24",
+                    		"CidrBlock": "10.0.3.0/24",
                     		"MapPublicIpOnLaunch": true
                 		}
                 	},
                 	"SubnetB": {
                     	"Type": "AWS::EC2::Subnet",
                     	"Properties": {
-                    		"AvailabilityZone": "us-west-1b",
+                    		"AvailabilityZone": { "Fn::Select" : [ "0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
                     		"VpcId": {"Ref": "VPC"},
-                    		"CidrBlock": "10.0.1.0/24",
+                    		"CidrBlock": "10.0.4.0/24",
                     		"MapPublicIpOnLaunch": true
                 		}
                 	},
-                	"SubnetGroup": {
-                	  "Type" : "AWS::RDS::DBSubnetGroup",
-                	  "Properties" : {
-                		  "DBSubnetGroupName" : "productdbsg",
-                		  "DBSubnetGroupDescription": "Products Subnet Group",
-                		  "SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                	"SubnetC": {
+                    	"Type": "AWS::EC2::Subnet",
+                    	"Properties": {
+                    		"AvailabilityZone": { "Fn::Select" : [ "1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
+                    		"VpcId": {"Ref": "VPC"},
+                    		"CidrBlock": "10.0.5.0/24",
+                    		"MapPublicIpOnLaunch": true
                 		}
                 	},
-                	"RouteTable": {
+                	"EIP" : {
+                	   "Type" : "AWS::EC2::EIP",
+                	   "Properties" : {
+                		  "Domain" : "vpc"
+                	   }
+                	},
+                	"NAT" : {
+                	   "Type" : "AWS::EC2::NatGateway",
+                	   "Properties" : {
+                		  "AllocationId" : { "Fn::GetAtt" : ["EIP", "AllocationId"]},
+                		  "SubnetId" : { "Ref" : "SubnetA"}
+                		 }
+                	},
+                	"RouteTableInternetGateway": {
+                    	"Type": "AWS::EC2::RouteTable",
+                    	"Properties": {
+                    		"VpcId": {"Ref": "VPC"}
+                    	}
+                    },
+                	"RouteTableNat": {
                     	"Type": "AWS::EC2::RouteTable",
                     	"Properties": {
                     		"VpcId": {"Ref": "VPC"}
@@ -233,23 +256,47 @@ step "Deploy Lambda" {
                     	"Properties": {
                     		"DestinationCidrBlock": "0.0.0.0/0",
                     		"GatewayId": {"Ref": "InternetGateway"},
-                    		"RouteTableId": {"Ref": "RouteTable"}
+                    		"RouteTableId": {"Ref": "RouteTableInternetGateway"}
+                		}
+                	},
+                	"NatRoute": {
+                    	"Type": "AWS::EC2::Route",
+                    	"DependsOn": "InternetGateway",
+                    	"Properties": {
+                    		"DestinationCidrBlock": "0.0.0.0/0",
+                    		"NatGatewayId": {"Ref": "NAT"},
+                    		"RouteTableId": {"Ref": "RouteTableNat"}
                 		}
                 	},
                 	"SubnetARouteTableAssociation": {
                     	"Type": "AWS::EC2::SubnetRouteTableAssociation",
                     	"Properties": {
-                    		"RouteTableId": {"Ref": "RouteTable"},
+                    		"RouteTableId": {"Ref": "RouteTableInternetGateway"},
                     		"SubnetId": {"Ref": "SubnetA"}
                       }
                     },
                 	"SubnetBRouteTableAssociation": {
                     	"Type": "AWS::EC2::SubnetRouteTableAssociation",
                     	"Properties": {
-                    		"RouteTableId": {"Ref": "RouteTable"},
+                    		"RouteTableId": {"Ref": "RouteTableNat"},
                     		"SubnetId": {"Ref": "SubnetB"}
                       }
                     },
+                	"SubnetCRouteTableAssociation": {
+                    	"Type": "AWS::EC2::SubnetRouteTableAssociation",
+                    	"Properties": {
+                    		"RouteTableId": {"Ref": "RouteTableNat"},
+                    		"SubnetId": {"Ref": "SubnetC"}
+                      }
+                    },
+                    "SubnetGroup": {
+                	  "Type" : "AWS::RDS::DBSubnetGroup",
+                	  "Properties" : {
+                		  "DBSubnetGroupName" : "productdbsg",
+                		  "DBSubnetGroupDescription": "Products Subnet Group",
+                		  "SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
+                		}
+                	},
                 	"InstanceSecurityGroup": {
                 		"Type": "AWS::EC2::SecurityGroup",
                 		"Properties": {
@@ -357,7 +404,8 @@ step "Deploy Lambda" {
                             "DATABASE_PASSWORD": {"Ref": "DBPassword"},
                             "DATABASE_HOSTNAME": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
                             "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
-                            "LAMBDA_NAME": "DatabaseInit"
+                            "LAMBDA_NAME": "DatabaseInit",
+                            "API_KEY": {"Ref": "ApiKey"}
                           }
                         },
                         "Description" : {"Ref": "LambdaDescription"},
@@ -375,7 +423,7 @@ step "Deploy Lambda" {
                         "Timeout": 30,
                         "VpcConfig": {
                         	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
-                			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                			"SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
                         }
                       },
                       "DependsOn": [
@@ -429,7 +477,7 @@ step "Deploy Lambda" {
                         "Timeout": 30,
                         "VpcConfig": {
                         	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
-                			"SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                			"SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
                         }
                       },
                       "DependsOn": [
@@ -811,7 +859,11 @@ step "Deploy Lambda" {
                     },
                     "SubnetBId" : {
                       "Description" : "The Subnet B id",
-                      "Value" : {"Ref": "SubnetA"}
+                      "Value" : {"Ref": "SubnetB"}
+                    },
+                	"SubnetCId" : {
+                      "Description" : "The Subnet C id",
+                      "Value" : {"Ref": "SubnetC"}
                     },
                     "SecurityGroupId" : {
                       "Description" : "The security group id",
@@ -832,8 +884,8 @@ step "Deploy Lambda" {
                   }
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"Method\",\"ParameterValue\":\"GET\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"Method\",\"ParameterValue\":\"GET\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"Method\",\"ParameterValue\":\"GET\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"Method\",\"ParameterValue\":\"GET\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"}]"
             Octopus.Action.Aws.IamCapabilities = "[\"CAPABILITY_NAMED_IAM\"]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
