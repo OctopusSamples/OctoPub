@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,14 +25,16 @@ public class TenantIdentifier {
    * @param header The "Accept" header
    * @return The tenant that the request is made under, defaulting to main.
    */
-  public String getTenant(final String header) {
-    if (StringUtils.isAllBlank(header)) {
+  public String getTenant(final List<String> header) {
+    if (header == null || header.size() == 0 || header.stream().allMatch(StringUtils::isAllBlank)) {
       return Constants.DEFAULT_TENANT;
     }
 
     final List<String[]> acceptElements =
-        // split on semi colons
-        Arrays.stream(header.split(";"))
+
+        header.stream()
+            // split on semi colons
+            .flatMap(h -> Stream.of(h.split(";")))
             // remove any blank strings
             .filter(s -> !StringUtils.isAllBlank(s))
             // trim all strings

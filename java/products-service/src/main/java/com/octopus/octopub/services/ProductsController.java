@@ -18,30 +18,24 @@ import lombok.NonNull;
 @ApplicationScoped
 public class ProductsController {
 
-  @Inject
-  ProductRepository productRepository;
+  @Inject ProductRepository productRepository;
 
-  @Inject
-  AuditRepository auditRepository;
+  @Inject AuditRepository auditRepository;
 
-  @Inject
-  ResourceConverter resourceConverter;
+  @Inject ResourceConverter resourceConverter;
 
-  @Inject
-  TenantIdentifier tenantIdentifier;
+  @Inject TenantIdentifier tenantIdentifier;
 
-  public String getAll(@NonNull final String acceptHeader)
+  public String getAll(@NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
-    final List<Product> products = productRepository.findAll(
-        tenantIdentifier.getTenant(acceptHeader));
+    final List<Product> products =
+        productRepository.findAll(tenantIdentifier.getTenant(acceptHeaders));
     final JSONAPIDocument<List<Product>> document = new JSONAPIDocument<List<Product>>(products);
     final byte[] content = resourceConverter.writeDocumentCollection(document);
     return new String(content);
   }
 
-  public String create(
-      @NonNull final String document,
-      @NonNull final String acceptHeader)
+  public String create(@NonNull final String document, @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
 
@@ -49,23 +43,25 @@ public class ProductsController {
       throw new MissingData();
     }
 
-    product.tenant = tenantIdentifier.getTenant(acceptHeader);
+    product.tenant = tenantIdentifier.getTenant(acceptHeaders);
     productRepository.save(product);
-    auditRepository.save(new Audit(
-        Constants.MICROSERVICE_NAME,
-        Constants.CREATED_ACTION,
-        "Product-" + product.getId().toString()));
+    auditRepository.save(
+        new Audit(
+            Constants.MICROSERVICE_NAME,
+            Constants.CREATED_ACTION,
+            "Product-" + product.getId().toString()),
+        acceptHeaders);
 
     return respondWithProduct(product);
   }
 
-  public String getOne(@NonNull final String id, @NonNull final String acceptHeader)
+  public String getOne(@NonNull final String id, @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     try {
       final Product product = productRepository.findOne(Integer.parseInt(id));
-      if (product != null &&
-          (Constants.DEFAULT_TENANT.equals(product.getTenant()) ||
-              tenantIdentifier.getTenant(acceptHeader).equals(product.getTenant()))) {
+      if (product != null
+          && (Constants.DEFAULT_TENANT.equals(product.getTenant())
+              || tenantIdentifier.getTenant(acceptHeaders).equals(product.getTenant()))) {
         return respondWithProduct(product);
       }
     } catch (final NumberFormatException ex) {
@@ -74,19 +70,18 @@ public class ProductsController {
     return null;
   }
 
-  public boolean delete(@NonNull final String id, @NonNull final String acceptHeader)
+  public boolean delete(@NonNull final String id, @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     try {
       final Integer intId = Integer.parseInt(id);
       final Product product = productRepository.findOne(intId);
-      if (product != null &&
-          (Constants.DEFAULT_TENANT.equals(product.getTenant()) ||
-              tenantIdentifier.getTenant(acceptHeader).equals(product.getTenant()))) {
+      if (product != null
+          && (Constants.DEFAULT_TENANT.equals(product.getTenant())
+              || tenantIdentifier.getTenant(acceptHeaders).equals(product.getTenant()))) {
         productRepository.delete(intId);
-        auditRepository.save(new Audit(
-            Constants.MICROSERVICE_NAME,
-            Constants.DELETED_ACTION,
-            "Product-" + intId));
+        auditRepository.save(
+            new Audit(Constants.MICROSERVICE_NAME, Constants.DELETED_ACTION, "Product-" + intId),
+            acceptHeaders);
         return true;
       }
     } catch (final NumberFormatException ex) {
@@ -97,8 +92,8 @@ public class ProductsController {
   }
 
   private Product getProductFromDocument(@NonNull final String document) {
-    final JSONAPIDocument<Product> productDocument = resourceConverter
-        .readDocument(document.getBytes(StandardCharsets.UTF_8), Product.class);
+    final JSONAPIDocument<Product> productDocument =
+        resourceConverter.readDocument(document.getBytes(StandardCharsets.UTF_8), Product.class);
     return productDocument.get();
   }
 

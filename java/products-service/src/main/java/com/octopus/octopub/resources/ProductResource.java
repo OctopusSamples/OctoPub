@@ -3,6 +3,7 @@ package com.octopus.octopub.resources;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.services.ProductsController;
+import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -28,7 +29,7 @@ public class ProductResource {
   @GET
   public Response getAll(
       @Context final SecurityContext ctx,
-      @HeaderParam(Constants.ACCEPT_HEADER) final String acceptHeader)
+      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
       throws DocumentSerializationException {
     return Response.ok(productsController.getAll(acceptHeader)).build();
   }
@@ -38,7 +39,7 @@ public class ProductResource {
   public Response create(
       @Context final SecurityContext ctx,
       @NonNull final String document,
-      @HeaderParam(Constants.ACCEPT_HEADER) final String acceptHeader)
+      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
       throws DocumentSerializationException {
     return Response.ok(productsController.create(document, acceptHeader)).build();
   }
@@ -48,7 +49,7 @@ public class ProductResource {
   public Response getOne(
       @Context final SecurityContext ctx,
       @PathParam("id") final String id,
-      @HeaderParam(Constants.ACCEPT_HEADER) final String acceptHeader)
+      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
       throws DocumentSerializationException {
     return Optional.ofNullable(productsController.getOne(id, acceptHeader))
         .map(d -> Response.ok(d).build())

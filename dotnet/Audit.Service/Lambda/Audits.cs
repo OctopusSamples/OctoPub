@@ -57,6 +57,8 @@ namespace Audit.Service.Lambda
                 {
                     try
                     {
+                        Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(m));
+
                         var requestWrapper = RequestWrapperFactory.CreateFromSqsMessage(m);
 
                         Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(requestWrapper));

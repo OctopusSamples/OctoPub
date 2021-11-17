@@ -64,18 +64,15 @@ namespace Audit.Service.Lambda
                 Entity = message.Body,
                 ActionType =
                     Enum.TryParse<ActionType>(
-                        GetAttribute(message.Attributes, "action"),
-                        out var actionType)
+                        GetAttribute(message.Attributes, "action"), out var actionType)
                         ? actionType
                         : ActionType.None,
                 EntityType =
                     Enum.TryParse<EntityType>(
-                        GetAttribute(message.Attributes, "entity"),
-                        out var entity)
+                        GetAttribute(message.Attributes, "entity"), out var entity)
                         ? entity
                         : EntityType.None,
-                Id = Int32.TryParse(GetAttribute(message.Attributes, "id"),
-                    out var id)
+                Id = Int32.TryParse(GetAttribute(message.Attributes, "id"), out var id)
                     ? id
                     : DefaultId,
                 Tenant = message.Attributes?.ContainsKey("tenant") ?? false

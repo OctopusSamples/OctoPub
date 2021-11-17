@@ -2,12 +2,11 @@ package com.octopus.octopub.lambda;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
-import com.octopus.octopub.services.LambdaUtils;
 import com.octopus.octopub.services.ProductsController;
 import java.util.Base64;
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +18,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.h2.util.StringUtils;
 
 @Named("Products")
-public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResponse> {
+public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, ProxyResponse> {
 
   private static final Pattern ROOT_RE = Pattern.compile("/api/products/?");
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("/api/products/(?<id>\\d+)");
@@ -27,25 +26,23 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
 
   @Inject ProductsController productsController;
 
-  @Inject LambdaUtils lambdaUtils;
-
   /**
    * See https://github.com/quarkusio/quarkus/issues/5811 for why we need @Transactional.
    *
-   * @param stringObjectMap The request details
+   * @param input The request details
    * @param context The request context
    * @return The proxy response
    */
   @Override
   @Transactional
   public ProxyResponse handleRequest(
-      @NonNull final Map<String, Object> stringObjectMap, @NonNull final Context context) {
+      @NonNull final APIGatewayProxyRequestEvent input, @NonNull final Context context) {
 
-    return getAll(stringObjectMap)
-        .or(() -> getOne(stringObjectMap))
-        .or(() -> createOne(stringObjectMap))
-        .or(() -> deleteOne(stringObjectMap))
-        .or(() -> checkHealth(stringObjectMap))
+    return getAll(input)
+        .or(() -> getOne(input))
+        .or(() -> createOne(input))
+        .or(() -> deleteOne(input))
+        .or(() -> checkHealth(input))
         .orElse(new ProxyResponse("404", "{\"message\": \"Path not found\"}"));
   }
 
@@ -56,25 +53,25 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
    * to service a GET request, and a GET request to /health/products/1/DELETE will return 200 OK if
    * the service responding to /api/products/1 is available to service a DELETE request.
    *
-   * @param stringObjectMap The request details
+   * @param input The request details
    * @return The optional proxy response
    */
-  private Optional<ProxyResponse> checkHealth(@NonNull final Map<String, Object> stringObjectMap) {
-    if (requestIsMatch(stringObjectMap, HEALTH_RE, Constants.GET_METHOD)) {
+  private Optional<ProxyResponse> checkHealth(@NonNull final APIGatewayProxyRequestEvent input) {
+    if (requestIsMatch(input, HEALTH_RE, Constants.GET_METHOD)) {
       return Optional.of(new ProxyResponse("200", "{\"message\": \"OK\"}"));
     }
 
     return Optional.empty();
   }
 
-  private Optional<ProxyResponse> getAll(@NonNull final Map<String, Object> stringObjectMap) {
+  private Optional<ProxyResponse> getAll(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
-      if (requestIsMatch(stringObjectMap, ROOT_RE, Constants.GET_METHOD)) {
+      if (requestIsMatch(input, ROOT_RE, Constants.GET_METHOD)) {
         return Optional.of(
             new ProxyResponse(
                 "200",
                 productsController.getAll(
-                    lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER))));
+                    input.getMultiValueHeaders().get(Constants.ACCEPT_HEADER))));
       }
     } catch (final DocumentSerializationException e) {
       return Optional.of(new ProxyResponse("500", e.toString()));
@@ -83,16 +80,16 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     return Optional.empty();
   }
 
-  private Optional<ProxyResponse> getOne(@NonNull final Map<String, Object> stringObjectMap) {
+  private Optional<ProxyResponse> getOne(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
 
-      if (requestIsMatch(stringObjectMap, INDIVIDUAL_RE, Constants.GET_METHOD)) {
-        final Optional<String> id = getGroup(INDIVIDUAL_RE, stringObjectMap.get("path"), "id");
+      if (requestIsMatch(input, INDIVIDUAL_RE, Constants.GET_METHOD)) {
+        final Optional<String> id = getGroup(INDIVIDUAL_RE, input.getPath(), "id");
 
         if (id.isPresent()) {
           final String entity =
               productsController.getOne(
-                  id.get(), lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER));
+                  id.get(), input.getMultiValueHeaders().get(Constants.ACCEPT_HEADER));
 
           if (!StringUtils.isNullOrEmpty(entity)) {
             return Optional.of(new ProxyResponse("200", entity));
@@ -107,16 +104,16 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     return Optional.empty();
   }
 
-  private Optional<ProxyResponse> deleteOne(@NonNull final Map<String, Object> stringObjectMap) {
+  private Optional<ProxyResponse> deleteOne(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
 
-      if (requestIsMatch(stringObjectMap, INDIVIDUAL_RE, Constants.DELETE_METHOD)) {
-        final Optional<String> id = getGroup(INDIVIDUAL_RE, stringObjectMap.get("path"), "id");
+      if (requestIsMatch(input, INDIVIDUAL_RE, Constants.DELETE_METHOD)) {
+        final Optional<String> id = getGroup(INDIVIDUAL_RE, input.getPath(), "id");
 
         if (id.isPresent()) {
           final boolean result =
               productsController.delete(
-                  id.get(), lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER));
+                  id.get(), input.getMultiValueHeaders().get(Constants.ACCEPT_HEADER));
 
           if (result) {
             return Optional.of(new ProxyResponse("204"));
@@ -131,21 +128,21 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
     return Optional.empty();
   }
 
-  private Optional<ProxyResponse> createOne(@NonNull final Map<String, Object> stringObjectMap) {
+  private Optional<ProxyResponse> createOne(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
-      if (requestIsMatch(stringObjectMap, ROOT_RE, Constants.POST_METHOD)) {
+      if (requestIsMatch(input, ROOT_RE, Constants.POST_METHOD)) {
         return Optional.of(
             new ProxyResponse(
                 "200",
                 productsController.create(
-                    getBody(stringObjectMap),
-                    lambdaUtils.getHeader(stringObjectMap, Constants.ACCEPT_HEADER))));
+                    getBody(input),
+                    input.getMultiValueHeaders().get(Constants.ACCEPT_HEADER))));
       }
     } catch (final DocumentSerializationException e) {
       return Optional.of(
           new ProxyResponse(
               "500",
-              "{\"message\": \"" + e + "\", \"body\": \"" + getBody(stringObjectMap) + "\"}"));
+              "{\"message\": \"" + e + "\", \"body\": \"" + getBody(input) + "\"}"));
     } catch (final RuntimeException ex) {
       System.out.println(ex);
       throw ex;
@@ -168,19 +165,19 @@ public class ProductApi implements RequestHandler<Map<String, Object>, ProxyResp
   }
 
   private boolean requestIsMatch(
-      @NonNull final Map<String, Object> stringObjectMap,
+      @NonNull final APIGatewayProxyRequestEvent input,
       @NonNull final Pattern regex,
       @NonNull final String method) {
-    final String path = ObjectUtils.defaultIfNull(stringObjectMap.get("path"), "").toString();
+    final String path = ObjectUtils.defaultIfNull(input.getPath(), "");
     final String requestMethod =
-        ObjectUtils.defaultIfNull(stringObjectMap.get("httpMethod"), "").toString().toLowerCase();
+        ObjectUtils.defaultIfNull(input.getHttpMethod(), "").toLowerCase();
     return regex.matcher(path).matches() && method.toLowerCase().equals(requestMethod);
   }
 
-  private String getBody(@NonNull final Map<String, Object> stringObjectMap) {
-    final String body = ObjectUtils.defaultIfNull(stringObjectMap.get("body"), "").toString();
+  private String getBody(@NonNull final APIGatewayProxyRequestEvent input) {
+    final String body = ObjectUtils.defaultIfNull(input.getBody(), "");
     final String isBase64Encoded =
-        ObjectUtils.defaultIfNull(stringObjectMap.get("isBase64Encoded"), "")
+        ObjectUtils.defaultIfNull(input.getIsBase64Encoded(), "")
             .toString()
             .toLowerCase();
 
