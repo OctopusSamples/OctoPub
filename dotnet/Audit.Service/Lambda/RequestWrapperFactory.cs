@@ -28,11 +28,14 @@ namespace Audit.Service.Lambda
                 EntityType = request.Path?.StartsWith(HealthEndpoint) ?? false
                     ? EntityType.Health
                     : SingleEntityRe.IsMatch(request.Path ?? "")
-                        ? EntityType.Individual : EntityType.Collection,
+                        ? EntityType.Individual
+                        : EntityCollectionRe.IsMatch(request.Path ?? "")
+                            ? EntityType.Collection
+                            : EntityType.None,
                 Id = SingleEntityRe.IsMatch(request.Path ?? "")
                     ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
                     : DefaultId,
-                Tenant = GetTenant((request.Headers ?? new Dictionary<string,string>())
+                Tenant = GetTenant((request.Headers ?? new Dictionary<string, string>())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
                     .Select(h => h.Value))
             };
@@ -43,10 +46,25 @@ namespace Audit.Service.Lambda
             return new RequestWrapper
             {
                 Entity = message.Body,
-                ActionType = Enum.TryParse<ActionType>(message.Attributes?.ContainsKey("action") ?? false ? message.Attributes?["action"] : "", out var actionType) ? actionType : ActionType.Create,
-                EntityType = Enum.TryParse<EntityType>(message.Attributes?.ContainsKey("entity") ?? false ?message.Attributes?["entity"] : "", out var entity) ? entity : EntityType.Individual,
-                Id = Int32.TryParse(message.Attributes?.ContainsKey("id") ?? false ? message.Attributes["id"] : "", out var id) ? id: DefaultId,
-                Tenant = message.Attributes?.ContainsKey("tenant") ?? false ? message.Attributes["tenant"] : Constants.DefaultTenant
+                ActionType =
+                    Enum.TryParse<ActionType>(
+                        message.Attributes?.ContainsKey("action") ?? false ? message.Attributes?["action"] : "",
+                        out var actionType)
+                        ? actionType
+                        : ActionType.None,
+                EntityType =
+                    Enum.TryParse<EntityType>(
+                        message.Attributes?.ContainsKey("entity") ?? false ? message.Attributes?["entity"] : "",
+                        out var entity)
+                        ? entity
+                        : EntityType.None,
+                Id = Int32.TryParse(message.Attributes?.ContainsKey("id") ?? false ? message.Attributes["id"] : "",
+                    out var id)
+                    ? id
+                    : DefaultId,
+                Tenant = message.Attributes?.ContainsKey("tenant") ?? false
+                    ? message.Attributes["tenant"]
+                    : Constants.DefaultTenant
             };
         }
 
@@ -57,7 +75,8 @@ namespace Audit.Service.Lambda
                 "post" => ActionType.Create,
                 "delete" => ActionType.Delete,
                 "patch" => ActionType.Update,
-                _ => ActionType.Read
+                "get" => ActionType.Read,
+                _ => ActionType.None
             };
         }
 
@@ -82,7 +101,7 @@ namespace Audit.Service.Lambda
                 .Where(v => v.Length == 2)
                 .ToList();
 
-            var appVersion =  versions
+            var appVersion = versions
                 // find any header value segments that indicate the tenant
                 .Where(v => v[0].Trim().StartsWith(Constants.AcceptVersionInfo + "="))
                 // get the second element

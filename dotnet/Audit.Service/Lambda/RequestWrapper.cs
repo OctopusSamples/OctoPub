@@ -2,6 +2,7 @@
 {
     public enum ActionType
     {
+        None,
         Read,
         Update,
         Delete,
@@ -10,6 +11,7 @@
 
     public enum EntityType
     {
+        None,
         Individual,
         Collection,
         Health
