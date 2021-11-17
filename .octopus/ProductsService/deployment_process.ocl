@@ -261,7 +261,7 @@ step "Deploy Lambda" {
                     	"DependsOn": "InternetGateway",
                     	"Properties": {
                     		"DestinationCidrBlock": "0.0.0.0/0",
-                    		"GatewayId": {"Ref": "NAT"},
+                    		"NatGatewayId": {"Ref": "NAT"},
                     		"RouteTableId": {"Ref": "RouteTableNat"}
                 		}
                 	},
