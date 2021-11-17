@@ -848,7 +848,7 @@ step "Deploy Lambda" {
                 			  "integration.request.header.Content-Type": "'application/x-www-form-urlencoded'"
                 			},
                 			"RequestTemplates": {
-                			  "application/json": "Action=SendMessage&MessageBody=$util.base64Decode($input.body)&MessageAttributes.member.1.Name=action&MessageAttributes.member.1.Value.DataType=String&MessageAttributes.member.1.Value.StringValue=Create&MessageAttributes.member.2.Name=entity&MessageAttributes.member.2.Value.DataType=String&MessageAttributes.member.2.Value.StringValue=Audit"
+                			  "application/json": "Action=SendMessage&MessageBody=$util.base64Decode($input.body)&MessageAttributes.member.1.Name=action&MessageAttribute.1.Value.DataType=String&MessageAttribute.1.Value.StringValue=Create&MessageAttribute.2.Name=entity&MessageAttribute.2.Value.DataType=String&MessageAttribute.2.Value.StringValue=Individual"
                 			},
                 			"Type": "AWS",
                 			"Uri": {
