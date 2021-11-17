@@ -1,19 +1,25 @@
 ﻿namespace Audit.Service.Lambda
 {
+    /// <summary>
+    /// CRUD actions.
+    /// </summary>
     public enum ActionType
     {
         None,
         Read,
+        ReadAll,
         Update,
         Delete,
         Create
     }
 
+    /// <summary>
+    /// The type of entity the request is working with.
+    /// </summary>
     public enum EntityType
     {
         None,
-        Individual,
-        Collection,
+        Audit,
         Health
     }
 

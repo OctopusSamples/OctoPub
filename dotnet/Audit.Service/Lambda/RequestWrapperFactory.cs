@@ -9,30 +9,41 @@ using Amazon.Lambda.SQSEvents;
 namespace Audit.Service.Lambda
 {
     /// <summary>
-    /// A factory class providing methods for creating RequestWrapper instances from the various inputs available
+    /// This service supports access via HTTP and async messages. Regardless of the access type, all requests
+    /// are processed as if they were RESTful JSONAPI requests.
+    ///
+    /// The RequestWrapper class is used to describe the intent of a request, without being tied to any particular
+    /// protocol. Incoming requests are converted to a RequestWrapper, and the RequestWrapper is then used to
+    /// satisfy the request.
+    ///
+    /// This factory class provides methods for creating RequestWrapper instances from the various inputs available
     /// from HTTP or async message requests.
     /// </summary>
     public static class RequestWrapperFactory
     {
         private static readonly int DefaultId = -1;
         private static readonly string HealthEndpoint = "/health";
+        private static readonly string AuditEndpoint = "/api/audits";
         private static readonly Regex EntityCollectionRe = new Regex("^/api/audits/?$");
         private static readonly Regex SingleEntityRe = new Regex("^/api/audits/(?<id>\\d+)/?$");
 
+        /// <summary>
+        /// Convert an API Gateway proxy request to a RequestWrapper.
+        /// </summary>
+        /// <param name="request">The standard API Gateway proxy input.</param>
+        /// <returns>The equivalent RequestWrapper</returns>
         public static RequestWrapper CreateFromHttpRequest(APIGatewayProxyRequest request)
         {
             return new RequestWrapper
             {
                 Entity = GetBody(request),
-                ActionType = ActionTypeFromHttpMethod(request.HttpMethod),
+                ActionType = ActionTypeFromHttpMethod(request.HttpMethod, request.Path),
                 EntityType = request.Path?.StartsWith(HealthEndpoint) ?? false
                     ? EntityType.Health
-                    : SingleEntityRe.IsMatch(request.Path ?? "")
-                        ? EntityType.Individual
-                        : EntityCollectionRe.IsMatch(request.Path ?? "")
-                            ? EntityType.Collection
-                            : EntityType.None,
-                Id = SingleEntityRe.IsMatch(request.Path ?? "")
+                    : request.Path?.StartsWith(AuditEndpoint) ?? false
+                        ? EntityType.Audit
+                        : EntityType.None,
+                Id = SingleEntityRe.IsMatch(request.Path ?? string.Empty)
                     ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
                     : DefaultId,
                 Tenant = GetTenant((request.Headers ?? new Dictionary<string, string>())
@@ -41,6 +52,11 @@ namespace Audit.Service.Lambda
             };
         }
 
+        /// <summary>
+        /// Convert an SQS message request to a RequestWrapper.
+        /// </summary>
+        /// <param name="message">The SQS message</param>
+        /// <returns>The equivalent RequestWrapper</returns>
         public static RequestWrapper CreateFromSqsMessage(SQSEvent.SQSMessage message)
         {
             return new RequestWrapper
@@ -48,17 +64,17 @@ namespace Audit.Service.Lambda
                 Entity = message.Body,
                 ActionType =
                     Enum.TryParse<ActionType>(
-                        message.Attributes?.ContainsKey("action") ?? false ? message.Attributes?["action"] : "",
+                        GetAttribute(message.Attributes, "action"),
                         out var actionType)
                         ? actionType
                         : ActionType.None,
                 EntityType =
                     Enum.TryParse<EntityType>(
-                        message.Attributes?.ContainsKey("entity") ?? false ? message.Attributes?["entity"] : "",
+                        GetAttribute(message.Attributes, "entity"),
                         out var entity)
                         ? entity
                         : EntityType.None,
-                Id = Int32.TryParse(message.Attributes?.ContainsKey("id") ?? false ? message.Attributes["id"] : "",
+                Id = Int32.TryParse(GetAttribute(message.Attributes, "id"),
                     out var id)
                     ? id
                     : DefaultId,
@@ -68,9 +84,25 @@ namespace Audit.Service.Lambda
             };
         }
 
-        static ActionType ActionTypeFromHttpMethod(string method)
+        static string GetAttribute(Dictionary<string, string> attributes, string key)
         {
-            return (method?.ToLower() ?? "") switch
+            return attributes?.ContainsKey(key) ?? false ? attributes?[key] : string.Empty;
+        }
+
+        /// <summary>
+        /// Convert HTTP methods to their CRUD actions.
+        /// </summary>
+        /// <param name="method">The HTTP method</param>
+        /// <returns>The equivalent CRUD action</returns>
+        static ActionType ActionTypeFromHttpMethod(string method, string path)
+        {
+            var fixedMethod = method?.ToLower() ?? string.Empty;;
+            if (fixedMethod == "get" && EntityCollectionRe.IsMatch(path))
+            {
+                return ActionType.ReadAll;
+            }
+
+            return fixedMethod switch
             {
                 "post" => ActionType.Create,
                 "delete" => ActionType.Delete,
@@ -80,6 +112,11 @@ namespace Audit.Service.Lambda
             };
         }
 
+        /// <summary>
+        /// Extract the body of a HTTP request.
+        /// </summary>
+        /// <param name="request">The API Gateway proxy request.</param>
+        /// <returns>The unencoded request body</returns>
         static string GetBody(APIGatewayProxyRequest request)
         {
             return request.IsBase64Encoded
@@ -87,6 +124,11 @@ namespace Audit.Service.Lambda
                 : request.Body;
         }
 
+        /// <summary>
+        /// Extract the tenant from the request.
+        /// </summary>
+        /// <param name="acceptHeader">The Http request accept header</param>
+        /// <returns>The custom tenant name, or the default tenant if no specific value was provided.</returns>
         static string GetTenant(IEnumerable<string> acceptHeader)
         {
             var versions = (acceptHeader ?? Enumerable.Empty<string>())

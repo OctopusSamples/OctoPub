@@ -50,8 +50,8 @@ namespace Audit.Service.Lambda
         /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
         public APIGatewayProxyResponse GetAll(RequestWrapper wrapper)
         {
-            if (!(wrapper.ActionType == ActionType.Read &&
-                  wrapper.EntityType == EntityType.Collection))
+            if (!(wrapper.ActionType == ActionType.ReadAll &&
+                  wrapper.EntityType == EntityType.Audit))
             {
                 return null;
             }
@@ -71,7 +71,7 @@ namespace Audit.Service.Lambda
         public APIGatewayProxyResponse GetOne(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Read &&
-                  wrapper.EntityType == EntityType.Individual))
+                  wrapper.EntityType == EntityType.Audit))
             {
                 return null;
             }
@@ -101,7 +101,7 @@ namespace Audit.Service.Lambda
         public APIGatewayProxyResponse CreateOne(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Create &&
-                  wrapper.EntityType == EntityType.Individual))
+                  wrapper.EntityType == EntityType.Audit))
             {
                 return null;
             }
