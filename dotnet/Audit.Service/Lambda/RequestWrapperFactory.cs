@@ -74,7 +74,7 @@ namespace Audit.Service.Lambda
                     ? id
                     : DefaultId,
                 Tenant = message.MessageAttributes?.ContainsKey("tenant") ?? false
-                    ? message.MessageAttributes["tenant"].StringValue
+                    ? GetTenant(message.MessageAttributes["tenant"].StringValue.Split(","))
                     : Constants.DefaultTenant
             };
         }
