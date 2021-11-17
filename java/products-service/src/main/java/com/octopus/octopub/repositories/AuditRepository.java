@@ -35,7 +35,7 @@ public class AuditRepository {
        */
       auditResource.createAudit(
           new String(jsonApiConverter.buildResourceConverter().writeDocument(document)),
-          acceptHeaders,
+          String.join(",", acceptHeaders),
           Constants.EVENT_INVOCATION,
           apiKey.orElse(""));
     } catch (final Exception ex) {
