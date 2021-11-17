@@ -5,6 +5,7 @@ import com.octopus.octopub.Constants;
 import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.services.AuditService;
 import com.octopus.octopub.producers.JsonApiConverter;
+import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import lombok.NonNull;
@@ -21,7 +22,7 @@ public class AuditRepository {
   JsonApiConverter jsonApiConverter;
 
   @ConfigProperty(name = "infrastructure.api-key")
-  String apiKey;
+  Optional<String> apiKey;
 
   public void save(@NonNull final Audit audit) {
     try {
@@ -34,7 +35,7 @@ public class AuditRepository {
       auditResource.createAudit(
           new String(jsonApiConverter.buildResourceConverter().writeDocument(document)),
           Constants.EVENT_INVOCATION,
-          apiKey);
+          apiKey.orElse(""));
     } catch (final Exception ex) {
       System.out.println(ex);
       /*
