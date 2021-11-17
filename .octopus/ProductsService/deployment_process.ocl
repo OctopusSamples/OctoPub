@@ -404,8 +404,7 @@ step "Deploy Lambda" {
                             "DATABASE_PASSWORD": {"Ref": "DBPassword"},
                             "DATABASE_HOSTNAME": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
                             "DATABASE_PORT": {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
-                            "LAMBDA_NAME": "DatabaseInit",
-                            "API_KEY": {"Ref": "ApiKey"}
+                            "LAMBDA_NAME": "DatabaseInit"
                           }
                         },
                         "Description" : {"Ref": "LambdaDescription"},
