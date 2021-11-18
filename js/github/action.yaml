@@ -1,10 +1,6 @@
 name: 'Pipeline Frontend'
 inputs:
-  octopus_server_url:  
-    required: true
-  octopus_api_token:  
-    required: true
-  run_number:  
+  run_number:
     required: true
 on:
   push:
@@ -49,95 +45,33 @@ runs:
       working-directory: js
 
     - name: Create zip
-      run: cd build; zip -r ../pipeline-builder-github-frontend.0.1.0.${{ inputs.run_number }}.zip .
+      run: cd build; zip -r ../octopub-frontend.0.1.0.${{ inputs.run_number }}.zip .
       shell: bash
       working-directory: js
 
     - name: Create zip
-      run: zip pipeline-builder-github-frontend-sbom.0.1.0.${{ inputs.run_number }}.zip bom.xml
+      run: zip octopub-frontend-sbom.0.1.0.${{ inputs.run_number }}.zip bom.xml
       shell: bash
       working-directory: js
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-      with:
-        tag_name: pipeline-backend.0.1.${{ inputs.run_number }}
-        release_name: Pipeline Backend Release 0.1.${{ inputs.run_number }}
-        draft: false
-        prerelease: false
-
-    - name: Upload Release Asset
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: js/pipeline-builder-github-frontend.0.1.0.${{ inputs.run_number }}.zip
-        asset_name: pipeline-builder-github-frontend.0.1.0.${{ inputs.run_number }}.zip
-        asset_content_type: application/zip
-
-    - name: Push Package
-      run: >
-        octo push --package pipeline-builder-github-frontend.0.1.0.${{ inputs.run_number }}.zip
-        --server ${{ inputs.octopus_server_url }}
-        --apiKey ${{ inputs.octopus_api_token }}
-        --space "Content Team"
+    - run: >
+        ./mvnw deploy:deploy-file
+        -Dfile=octopub-frontend.0.0.1.${{ inputs.run_number }}.zip
+        -DgroupId=com.octopus.octopub
+        -DartifactId=octopub-frontend
+        -Dversion=0.0.1.${{ github.run_number }}
+        -Dpackaging=zip
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
       shell: bash
       working-directory: js
 
-    - name: Push SBOM Package
-      run: >
-        octo push --package pipeline-builder-github-frontend-sbom.0.1.0.${{ inputs.run_number }}.zip
-        --server ${{ inputs.octopus_server_url }}
-        --apiKey ${{ inputs.octopus_api_token }}
-        --space "Content Team"
+    - run: >
+        ./mvnw deploy:deploy-file
+        -Dfile=octopub-frontend-sbom.0.0.1.${{ inputs.run_number }}.zip
+        -DgroupId=com.octopus.octopub
+        -DartifactId=octopub-frontend-sbom
+        -Dversion=0.0.1.${{ github.run_number }}
+        -Dpackaging=zip
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
       shell: bash
       working-directory: js
-
-    - name: Trigger deployment Jenkins Pipelines
-      run: >
-        octo create-release
-        --project "Jenkins Pipeline Generator Frontend"
-        --deployTo "Development"
-        --waitForDeployment
-        --server ${{ inputs.octopus_server_url }}
-        --apiKey ${{ inputs.octopus_api_token }}
-        --space "Content Team"
-      shell: bash
-
-    - name: Trigger deployment Jenkins Pipelines Security env
-      run: >
-        octo deploy-release
-        --project "Jenkins Pipeline Generator Frontend"
-        --deployTo "Development (Security)"
-        --version latest
-        --server ${{ inputs.octopus_server_url }}
-        --apiKey ${{ inputs.octopus_api_token }}
-        --space "Content Team"
-      shell: bash
-
-    - name: Trigger deployment Github Actions
-      run: >
-        octo create-release
-        --project "GitHub Action Workflow Generator Frontend"
-        --deployTo "Development"
-        --waitForDeployment
-        --server ${{ inputs.octopus_server_url }}
-        --apiKey ${{ inputs.octopus_api_token }}
-        --space "Content Team"
-      shell: bash
-
-    - name: Trigger deployment Github Actions Security env
-      run: >
-        octo deploy-release
-        --project "GitHub Action Workflow Generator Frontend"
-        --deployTo "Development (Security)"
-        --version latest
-        --server ${{ inputs.octopus_server_url }}
-        --apiKey ${{ inputs.octopus_api_token }}
-        --space "Content Team"
-      shell: bash

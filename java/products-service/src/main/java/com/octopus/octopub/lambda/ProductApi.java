@@ -167,6 +167,13 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     return Optional.empty();
   }
 
+  /**
+   * Headers are case insensitive, but the maps we get from Lambda are case sensitive, so we need to
+   * have some additional logic to get the available headers.
+   * @param headers The list of headers
+   * @param header The name of the header to return
+   * @return The list of header values
+   */
   private List<String> getHeaders(final Map<String, List<String>> headers, @NonNull final String header) {
     if (headers == null) {
       return List.of();

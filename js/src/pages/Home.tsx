@@ -21,7 +21,8 @@ const useStyles = makeStyles((theme: Theme) =>
             justifyContent: "center"
         },
         book: {
-            justifyContent: "center"
+            justifyContent: "center",
+            height: "250px"
         }
     })
 );
@@ -70,7 +71,7 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
             >
                 {!books && <div>Loading...</div>}
                 {books && books.data.map(b =>
-                    <Grid item xs={2}
+                    <Grid item xs={4}
                           className={classes.book}
                           container={true}>
                         <div>{b.attributes.name}</div>
