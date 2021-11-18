@@ -627,6 +627,7 @@ step "Deploy Lambda" {
                 			"IntegrationResponses": [
                 			  {
                 				"StatusCode": 200,
+                				"ContentHandling": "CONVERT_TO_TEXT",
                 				"ResponseParameters": {
                 				  "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
                 				  "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
@@ -641,7 +642,8 @@ step "Deploy Lambda" {
                 			"RequestTemplates": {
                 			  "application/json": "{\"statusCode\": 200}"
                 			},
-                			"Type": "MOCK"
+                			"Type": "MOCK",
+                			"ContentHandling": "CONVERT_TO_TEXT"
                 		  },
                 		  "MethodResponses": [
                 			{
