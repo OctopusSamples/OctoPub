@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +30,8 @@ namespace Audit.Service.Lambda
                 var serviceProvider = DependencyInjection.ConfigureServices();
                 var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
                 var handler = serviceProvider.GetService<AuditHandler>();
-                return ProcessRequest(handler, requestWrapper);
+                return AddCors(ProcessRequest(handler, requestWrapper));
+
             }
             catch (Exception ex)
             {
@@ -95,6 +97,16 @@ namespace Audit.Service.Lambda
                        Body = "{\"message\": \"path not found\"}",
                        StatusCode = 404
                    };
+        }
+
+        private APIGatewayProxyResponse AddCors(APIGatewayProxyResponse response)
+        {
+            if (response.Headers == null)
+            {
+                response.Headers = new Dictionary<string, string>();
+            }
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            return response;
         }
     }
 }

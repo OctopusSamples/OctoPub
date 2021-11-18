@@ -17,7 +17,7 @@ import {DynamicConfig} from "./config/dynamicConfig";
 
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
-    settings: {basename: "", title: "", productEndpoint: "", editorFormat: "", google: {tag: ""}},
+    settings: {basename: "", title: "", productEndpoint: "", auditEndpoint: "", editorFormat: "", google: {tag: ""}},
     useDefaultTheme: true
 });
 
@@ -58,7 +58,10 @@ function App(config: DynamicConfig) {
                                             <Route
                                                 key={`${item.key}`}
                                                 path={`${item.path}`}
-                                                component={(item.component && item.component({setCopyText, copyText})) || DefaultComponent}
+                                                component={(item.component && item.component({
+                                                    setCopyText,
+                                                    copyText
+                                                })) || DefaultComponent}
                                                 exact
                                             />
                                         ))
@@ -66,7 +69,10 @@ function App(config: DynamicConfig) {
                                         <Route
                                             key={`${route.key}`}
                                             path={`${route.path}`}
-                                            component={(route.component && route.component({setCopyText, copyText})) || DefaultComponent}
+                                            component={(route.component && route.component({
+                                                setCopyText,
+                                                copyText
+                                            })) || DefaultComponent}
                                             exact
                                         />
                                     )

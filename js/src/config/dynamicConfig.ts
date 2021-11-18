@@ -6,6 +6,7 @@ export interface DynamicConfig {
     settings: {
         basename: string,
         productEndpoint: string,
+        auditEndpoint: string,
         title: string,
         editorFormat: string
         google: {
