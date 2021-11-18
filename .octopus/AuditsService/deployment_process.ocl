@@ -610,50 +610,6 @@ step "Deploy Lambda" {
                         "RestApiId": {"Ref": "RestApi"}
                       }
                     },
-                    "LambdaResourceMethodThree": {
-                      "Type": "AWS::ApiGateway::Method",
-                      "Properties": {    
-                      	"ApiKeyRequired" : true,
-                        "AuthorizationType": "NONE",  
-                        "HttpMethod": "POST",
-                        "Integration": {          
-                          "IntegrationHttpMethod": "POST",          
-                          "TimeoutInMillis": 20000,
-                          "Type": "AWS_PROXY",
-                          "Uri": {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":apigateway:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":lambda:path/2015-03-31/functions/",
-                                "arn:aws:lambda:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":function:",
-                                { "Ref": "LambdaHttp" },
-                                "/invocations"
-                              ]
-                            ]
-                          }
-                        },        
-                        "ResourceId": {
-                          "Ref": "ProductsResource"
-                        },
-                        "RestApiId": {"Ref": "RestApi"}
-                      }
-                    },
                     "LambdaHealthResourceMethodOne": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
@@ -818,16 +774,6 @@ step "Deploy Lambda" {
                 		  "RoleName": "apig-sqs-send-msg-role"
                 		}		
                 	},
-                	"SqsProxyResource": {
-                		"Type": "AWS::ApiGateway::Resource",
-                		"Properties": {
-                			"RestApiId": {
-                				"Ref": "RestApi"
-                			},
-                			"ParentId": {"Ref": "MessageResourceId"},
-                			"PathPart": "audits"
-                		}
-                	},
                 	"SqsProxyMethod": {
                 		"Type": "AWS::ApiGateway::Method",
                 		"Properties": {
@@ -880,7 +826,7 @@ step "Deploy Lambda" {
                 			  "StatusCode": "200"
                 			}
                 		  ],
-                		  "ResourceId": {"Ref": "SqsProxyResource"},
+                		  "ResourceId": {"Ref": "ProductsResource"},
                 		  "RestApiId": {"Ref": "RestApi"}
                 		}		
                 	}
