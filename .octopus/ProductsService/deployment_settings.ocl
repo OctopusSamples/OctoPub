@@ -2,4 +2,5 @@ connectivity_policy {
 }
 
 versioning_strategy {
+    template = "#{Octopus.Version.LastMajor}.#{Octopus.Version.LastMinor}.#{Octopus.Version.NextPatch}"
 }
