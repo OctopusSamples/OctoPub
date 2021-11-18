@@ -6,6 +6,10 @@ inputs:
     required: true
   github_user:
     required: true
+  octopus_server_url:
+    required: true
+  octopus_api_token:
+    required: true
 runs:
   using: "composite"
   steps:
@@ -102,3 +106,14 @@ runs:
         -Dpackaging=zip
       shell: bash
       working-directory: java/products-service
+
+    - name: Trigger deployment
+      run: >
+        octo create-release
+        --project "Products Service"
+        --deployTo "Development"
+        --waitForDeployment
+        --server ${{ inputs.octopus_server_url }}
+        --apiKey ${{ inputs.octopus_api_token }}
+        --space "Octopub"
+      shell: bash
