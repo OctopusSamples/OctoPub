@@ -9,6 +9,12 @@ inputs:
   github_user:
     description: The github username
     required: true
+  octopus_server_url:
+    description: The octopus URL
+    required: true
+  octopus_api_token:
+    description: The octopus API token
+    required: true
 description: Build the audit microservice
 runs:
   using: "composite"
@@ -126,3 +132,14 @@ runs:
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
       shell: bash
       working-directory: dotnet
+
+    - name: Trigger deployment
+      run: >
+        octo create-release
+        --project "Audits Service"
+        --deployTo "Development"
+        --waitForDeployment
+        --server ${{ inputs.octopus_server_url }}
+        --apiKey ${{ inputs.octopus_api_token }}
+        --space "Octopub"
+      shell: bash
