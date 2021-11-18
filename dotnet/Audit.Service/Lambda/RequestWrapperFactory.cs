@@ -126,7 +126,7 @@ namespace Audit.Service.Lambda
         /// <returns>The custom tenant name, or the default tenant if no specific value was provided.</returns>
         static string GetTenant(IEnumerable<string> acceptHeader)
         {
-            var versions = (acceptHeader ?? Enumerable.Empty<string>())
+            return (acceptHeader ?? Enumerable.Empty<string>())
                 .SelectMany(v => v.Split(";"))
                 // trim the results and make them lowercase
                 .Select(v => v.Trim().ToLower())
@@ -134,25 +134,11 @@ namespace Audit.Service.Lambda
                 .Select(v => v.Split("="))
                 // validate that the results have 2 elements
                 .Where(v => v.Length == 2)
-                .ToList();
-
-            var appVersion = versions
-                // find any header value segments that indicate the tenant
-                .Where(v => v[0].Trim() == Constants.AcceptVersionInfo)
-                // get the second element
-                .Select(v => v[1].Trim())
-                // if nothing was found, we assume we are the default tenant
-                .FirstOrDefault();
-
-            var tenantVersion = versions
-                // find any header value segments that indicate the tenant
                 .Where(v => v[0].Trim() == Constants.AcceptTenantInfo)
                 // get the second element
                 .Select(v => v[1].Trim())
                 // if nothing was found, we assume we are the default tenant
-                .FirstOrDefault();
-
-            return tenantVersion ?? appVersion ?? Constants.DefaultTenant;
+                .FirstOrDefault() ?? Constants.DefaultTenant;
         }
     }
 }
