@@ -90,14 +90,6 @@ step "Get Stack Outputs" {
                     
                 set_octopusvariable "Health" ${PIPELINE_HEALTH_RESOURCE_ID}
                 
-                PIPELINE_MESSAGING_RESOURCE_ID=$(aws cloudformation \
-                	describe-stacks \
-                    --stack-name #{CloudFormation.ApiGateway} \
-                    --query "Stacks[0].Outputs[?OutputKey=='Messaging'].OutputValue" \
-                    --output text)
-                    
-                set_octopusvariable "Messaging" ${PIPELINE_MESSAGING_RESOURCE_ID}
-                
                 REST_API=$(aws cloudformation \
                 	describe-stacks \
                     --stack-name #{CloudFormation.ApiGateway} \
@@ -152,9 +144,6 @@ step "Deploy Lambda" {
                       "Type" : "String"
                     },
                     "HealthResourceId" : {
-                      "Type" : "String"
-                    },
-                    "MessageResourceId" : {
                       "Type" : "String"
                     },
                     "LambdaS3Key" : {
@@ -610,50 +599,6 @@ step "Deploy Lambda" {
                         "RestApiId": {"Ref": "RestApi"}
                       }
                     },
-                    "LambdaResourceMethodThree": {
-                      "Type": "AWS::ApiGateway::Method",
-                      "Properties": {    
-                      	"ApiKeyRequired" : true,
-                        "AuthorizationType": "NONE",  
-                        "HttpMethod": "POST",
-                        "Integration": {          
-                          "IntegrationHttpMethod": "POST",          
-                          "TimeoutInMillis": 20000,
-                          "Type": "AWS_PROXY",
-                          "Uri": {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":apigateway:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":lambda:path/2015-03-31/functions/",
-                                "arn:aws:lambda:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":function:",
-                                { "Ref": "LambdaHttp" },
-                                "/invocations"
-                              ]
-                            ]
-                          }
-                        },        
-                        "ResourceId": {
-                          "Ref": "ProductsResource"
-                        },
-                        "RestApiId": {"Ref": "RestApi"}
-                      }
-                    },
                     "LambdaHealthResourceMethodOne": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
@@ -818,16 +763,6 @@ step "Deploy Lambda" {
                 		  "RoleName": "apig-sqs-send-msg-role"
                 		}		
                 	},
-                	"SqsProxyResource": {
-                		"Type": "AWS::ApiGateway::Resource",
-                		"Properties": {
-                			"RestApiId": {
-                				"Ref": "RestApi"
-                			},
-                			"ParentId": {"Ref": "MessageResourceId"},
-                			"PathPart": "audits"
-                		}
-                	},
                 	"SqsProxyMethod": {
                 		"Type": "AWS::ApiGateway::Method",
                 		"Properties": {
@@ -880,7 +815,7 @@ step "Deploy Lambda" {
                 			  "StatusCode": "200"
                 			}
                 		  ],
-                		  "ResourceId": {"Ref": "SqsProxyResource"},
+                		  "ResourceId": {"Ref": "ProductsResource"},
                 		  "RestApiId": {"Ref": "RestApi"}
                 		}		
                 	}
@@ -927,8 +862,8 @@ step "Deploy Lambda" {
                   }
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"MessageResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Messaging}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"-#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionMajor}#{Octopus.Action[Get Stack Outputs].Output.PreReleaseSuffix}\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"MessageResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Messaging}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"-#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionMajor}#{Octopus.Action[Get Stack Outputs].Output.PreReleaseSuffix}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"-#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionMajor}#{Octopus.Action[Get Stack Outputs].Output.PreReleaseSuffix}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"-#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionMajor}#{Octopus.Action[Get Stack Outputs].Output.PreReleaseSuffix}\"}]"
             Octopus.Action.Aws.IamCapabilities = "[\"CAPABILITY_NAMED_IAM\"]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
