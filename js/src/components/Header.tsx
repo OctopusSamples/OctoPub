@@ -76,7 +76,7 @@ const Header: FC<HeaderProps> = ({
             <Toolbar className={classes.toolbar}>
                 <div className={classes.title}>
                     <Link className={classes.heading} onClick={() =>{
-                        history.push(context.settings.basename + '/index.html');
+                        history.push('/index.html');
                     }}>
                         <Typography variant="h6" noWrap>
                             {context.settings.title}
