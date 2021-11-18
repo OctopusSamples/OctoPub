@@ -1,7 +1,7 @@
-import {FC, ReactElement, useContext, useState} from "react";
+import {FC, ReactElement, useContext, useEffect, useState} from "react";
 import {Helmet} from "react-helmet";
 import {createStyles, makeStyles} from "@material-ui/core/styles";
-import {Button, FormLabel, Grid, Link, TextField, Theme} from "@material-ui/core";
+import {Grid, Theme} from "@material-ui/core";
 
 // constants
 import {useHistory} from "react-router-dom";
@@ -26,6 +26,16 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 );
 
+interface Products {
+    data: {
+        id: number,
+        attributes: {
+            tenant: string,
+            name: string
+        }
+    }[]
+}
+
 const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     const history = useHistory();
@@ -33,6 +43,18 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const classes = useStyles();
 
     const context = useContext(AppContext);
+
+    const [books, setBooks] = useState<Products | null>(null);
+
+    useEffect(() => {
+        fetch(context.settings.productEndpoint, {
+            headers: {
+                'Accept': 'application/vnd.api+json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => setBooks(data));
+    }, []);
 
     return (
         <>
@@ -46,21 +68,13 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 className={classes.root}
                 xs={12}
             >
-                <Grid item xs={2}
-                      className={classes.book}
-                      container={true}>
-                    <div>Book 1</div>
-                </Grid>
-                <Grid item xs={2}
-                      className={classes.book}
-                      container={true}>
-                    <div>Book 2</div>
-                </Grid>
-                <Grid item xs={2}
-                      className={classes.book}
-                      container={true}>
-                    <div>Book 3</div>
-                </Grid>
+                {!books && <div>Loading...</div>}
+                {books && books.data.map(b =>
+                    <Grid item xs={2}
+                          className={classes.book}
+                          container={true}>
+                        <div>{b.attributes.name}</div>
+                    </Grid>)}
             </Grid>
         </>
     );

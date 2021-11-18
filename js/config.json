@@ -2,7 +2,7 @@
   "settings": {
     "basename": "",
     "title": "OctoPub",
-    "generateApiPath": "",
+    "productEndpoint": "",
     "editorFormat": "",
     "google": {
       "tag": ""

@@ -7,9 +7,12 @@ import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.services.ProductsController;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
@@ -71,7 +74,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
             new ProxyResponse(
                 "200",
                 productsController.getAll(
-                    input.getMultiValueHeaders().get(Constants.ACCEPT_HEADER))));
+                    getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
       }
     } catch (final DocumentSerializationException e) {
       return Optional.of(new ProxyResponse("500", e.toString()));
@@ -89,7 +92,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         if (id.isPresent()) {
           final String entity =
               productsController.getOne(
-                  id.get(), input.getMultiValueHeaders().get(Constants.ACCEPT_HEADER));
+                  id.get(), getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER));
 
           if (!StringUtils.isNullOrEmpty(entity)) {
             return Optional.of(new ProxyResponse("200", entity));
@@ -113,7 +116,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         if (id.isPresent()) {
           final boolean result =
               productsController.delete(
-                  id.get(), input.getMultiValueHeaders().get(Constants.ACCEPT_HEADER));
+                  id.get(), getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER));
 
           if (result) {
             return Optional.of(new ProxyResponse("204"));
@@ -136,7 +139,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                 "200",
                 productsController.create(
                     getBody(input),
-                    input.getMultiValueHeaders().get(Constants.ACCEPT_HEADER))));
+                    getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
       }
     } catch (final DocumentSerializationException e) {
       return Optional.of(
@@ -162,6 +165,17 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     }
 
     return Optional.empty();
+  }
+
+  private List<String> getHeaders(final Map<String, List<String>> headers, @NonNull final String header) {
+    if (headers == null) {
+      return List.of();
+    }
+
+    return headers.entrySet().stream()
+        .filter(e -> header.equalsIgnoreCase(e.getKey()))
+        .flatMap(e -> e.getValue().stream())
+        .collect(Collectors.toList());
   }
 
   private boolean requestIsMatch(
