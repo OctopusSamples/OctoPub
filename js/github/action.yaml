@@ -60,7 +60,7 @@ runs:
 
     - run: >
         mvn deploy:deploy-file
-        -Dfile=octopub-frontend.0.0.1.${{ inputs.run_number }}.zip
+        -Dfile=octopub-frontend.0.1.0.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend
         -Dversion=0.0.1.${{ github.run_number }}
@@ -71,7 +71,7 @@ runs:
 
     - run: >
         mvn deploy:deploy-file
-        -Dfile=octopub-frontend-sbom.0.0.1.${{ inputs.run_number }}.zip
+        -Dfile=octopub-frontend-sbom.0.1.0.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend-sbom
         -Dversion=0.0.1.${{ github.run_number }}
