@@ -777,7 +777,7 @@ step "Deploy Lambda" {
                 			"IntegrationHttpMethod": "POST",
                 			"IntegrationResponses": [
                 			  {
-                				"StatusCode": "204"
+                				"StatusCode": "202"
                 			  }
                 			],
                 			"PassthroughBehavior": "NEVER",
@@ -812,7 +812,7 @@ step "Deploy Lambda" {
                 			  "ResponseModels": {
                 				"application/json": "Empty"
                 			  },
-                			  "StatusCode": "204"
+                			  "StatusCode": "202"
                 			}
                 		  ],
                 		  "ResourceId": {"Ref": "ProductsResource"},
