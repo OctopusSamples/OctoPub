@@ -1,4 +1,4 @@
-name: octopub-frontend
+name: Frontend
 
 on:
   push:
