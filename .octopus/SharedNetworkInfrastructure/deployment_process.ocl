@@ -78,18 +78,6 @@ step "Create API Gateway" {
                 				"PathPart": "api"
                 			}
                 		},
-                		"Web": {
-                			"Type": "AWS::ApiGateway::Resource",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				},
-                				"ParentId": {
-                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
-                				},
-                				"PathPart": "web"
-                			}
-                		},
                         "Health": {
                 			"Type": "AWS::ApiGateway::Resource",
                 			"Properties": {
@@ -119,7 +107,7 @@ step "Create API Gateway" {
                 		"Web": {
                 			"Description": "ID of the resource the frontend",
                 			"Value": {
-                				"Ref": "Web"
+                				"Ref": "Catchall"
                 			}
                 		},
                 		"Health": {
