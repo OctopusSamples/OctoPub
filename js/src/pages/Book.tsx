@@ -13,13 +13,9 @@ interface Params {
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        imageParent: {
-          padding: "8px"
-        },
         image: {
             objectFit: "contain",
-            objectPosition: "top",
-            height: "100%",
+            padding: "64px",
             width: "100%"
         }
     })
@@ -54,7 +50,7 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
             </Helmet>
             {!book && <div>Loading...</div>}
             {book && <Grid container={true}>
-                <Grid className={classes.imageParent} item md={4} sm={12}>
+                <Grid item md={4} sm={12}>
                     <img className={classes.image} src={book.data.attributes.image} alt={book.data.attributes.name}/>
                 </Grid>
                 <Grid item md={8} sm={12}>
