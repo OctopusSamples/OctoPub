@@ -14,7 +14,7 @@ export async function loadConfig(): Promise<DynamicConfig> {
         .catch(error => defaultResponse);
     // Set some default values if the config file was not present or not configured
     config.settings.basename = baseUrl;
-    config.settings.title = config.settings.title || "Pipeline Builder";
+    config.settings.title = config.settings.title || "OctoPub";
     config.settings.generateApiPath = config.settings.generateApiPath || "/api/pipeline/jenkins/generate";
     return config;
 }
