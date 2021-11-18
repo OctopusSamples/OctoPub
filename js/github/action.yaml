@@ -59,7 +59,7 @@ runs:
       working-directory: js
 
     - run: >
-        ./mvnw deploy:deploy-file
+        mvn deploy:deploy-file
         -Dfile=octopub-frontend.0.0.1.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend
@@ -70,7 +70,7 @@ runs:
       working-directory: js
 
     - run: >
-        ./mvnw deploy:deploy-file
+        mvn deploy:deploy-file
         -Dfile=octopub-frontend-sbom.0.0.1.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend-sbom
