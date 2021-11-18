@@ -17,5 +17,5 @@ public interface AuditService {
   String createAudit(
       final String audit,
       @HeaderParam(Constants.ACCEPT_HEADER) String accept,
-      @HeaderParam("X-API-Key") String apiKey);
+      @HeaderParam(Constants.API_GATEWAY_API_KEY_HEADER) String apiKey);
 }
