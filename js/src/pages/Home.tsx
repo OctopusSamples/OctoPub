@@ -21,7 +21,8 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         book: {
             justifyContent: "center",
-            height: "250px"
+            height: "40%",
+            width: "30%"
         }
     })
 );

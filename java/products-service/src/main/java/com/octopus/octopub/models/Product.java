@@ -25,4 +25,16 @@ public class Product {
 
   @Audited
   public String name;
+
+  @Audited
+  public String pdf;
+
+  @Audited
+  public String epub;
+
+  @Audited
+  public String image;
+
+  @Audited
+  public String description;
 }
