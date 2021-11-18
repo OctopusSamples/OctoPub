@@ -17,5 +17,6 @@ jobs:
       - name: Build
         uses: ./js/github
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           run_number: ${{ github.run_number }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_user: ${{ github.actor }}
