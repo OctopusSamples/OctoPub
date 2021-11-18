@@ -4,7 +4,7 @@ import {Helmet} from "react-helmet";
 import {AppContext} from "../App";
 import {DataGrid} from "@material-ui/data-grid";
 
-interface Audits {
+interface AuditsCollection {
     data: Audit[]
 }
 
@@ -22,7 +22,7 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     const context = useContext(AppContext);
 
-    const [audits, setAudits] = useState<Audits | null>(null);
+    const [audits, setAudits] = useState<AuditsCollection | null>(null);
 
     const columns = [
         { field: 'id', headerName: 'ID', width: 70 },
