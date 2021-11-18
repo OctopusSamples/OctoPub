@@ -473,7 +473,7 @@ step "Deploy Lambda" {
                         }
                       }
                     },    
-                	"ProductsResource": {
+                	"EntityResource": {
                 		"Type": "AWS::ApiGateway::Resource",
                 		"Properties": {
                 			"RestApiId": {
@@ -483,7 +483,7 @@ step "Deploy Lambda" {
                 			"PathPart": {"Ref": "Path"}
                 		}
                 	},
-                    "ProductsHealthResource": {
+                    "HealthResource": {
                 		"Type": "AWS::ApiGateway::Resource",
                 		"Properties": {
                 			"RestApiId": {
@@ -493,23 +493,23 @@ step "Deploy Lambda" {
                 			"PathPart": {"Ref": "Path"}
                 		}
                 	},
-                    "ProductsProxyResource": {
+                    "EntityProxyResource": {
                 		"Type": "AWS::ApiGateway::Resource",
                 		"Properties": {
                 			"RestApiId": {
                 				"Ref": "RestApi"
                 			},
-                			"ParentId": {"Ref": "ProductsResource"},
+                			"ParentId": {"Ref": "EntityResource"},
                 			"PathPart": "{proxy+}"
                 		}
                 	},
-                    "ProductsHealthProxyResource": {
+                    "HealthProxyResource": {
                 		"Type": "AWS::ApiGateway::Resource",
                 		"Properties": {
                 			"RestApiId": {
                 				"Ref": "RestApi"
                 			},
-                			"ParentId": {"Ref": "ProductsHealthResource"},
+                			"ParentId": {"Ref": "HealthResource"},
                 			"PathPart": "{proxy+}"
                 		}
                 	},
@@ -551,7 +551,7 @@ step "Deploy Lambda" {
                           }
                         },        
                         "ResourceId": {
-                          "Ref": "ProductsResource"
+                          "Ref": "EntityResource"
                         },
                         "RestApiId": {"Ref": "RestApi"}
                       }
@@ -594,7 +594,7 @@ step "Deploy Lambda" {
                           }
                         },        
                         "ResourceId": {
-                          "Ref": "ProductsProxyResource"
+                          "Ref": "EntityProxyResource"
                         },
                         "RestApiId": {"Ref": "RestApi"}
                       }
@@ -637,7 +637,7 @@ step "Deploy Lambda" {
                           }
                         },        
                         "ResourceId": {
-                          "Ref": "ProductsHealthResource"
+                          "Ref": "HealthResource"
                         },
                         "RestApiId": {"Ref": "RestApi"}
                       }
@@ -680,7 +680,7 @@ step "Deploy Lambda" {
                           }
                         },        
                         "ResourceId": {
-                          "Ref": "ProductsHealthProxyResource"
+                          "Ref": "HealthProxyResource"
                         },
                         "RestApiId": {"Ref": "RestApi"}
                       }
@@ -786,7 +786,7 @@ step "Deploy Lambda" {
                 			  "integration.request.header.Content-Type": "'application/x-www-form-urlencoded'"
                 			},
                 			"RequestTemplates": {
-                			  "application/json": "Action=SendMessage&MessageBody=$util.base64Decode($input.body)&MessageAttribute.1.Name=action&MessageAttribute.1.Value.DataType=String&MessageAttribute.1.Value.StringValue=Create&MessageAttribute.2.Name=entity&MessageAttribute.2.Value.DataType=String&MessageAttribute.2.Value.StringValue=Audit&MessageAttribute.3.Name=tenant&MessageAttribute.3.Value.DataType=String&MessageAttribute.3.Value.StringValue=$input.params('accept')"
+                			  "application/json": "Action=SendMessage&MessageBody=$util.base64Decode($input.body)&MessageAttribute.1.Name=action&MessageAttribute.1.Value.DataType=String&MessageAttribute.1.Value.StringValue=Create&MessageAttribute.2.Name=entity&MessageAttribute.2.Value.DataType=String&MessageAttribute.2.Value.StringValue=Audit&MessageAttribute.3.Name=tenant&MessageAttribute.3.Value.DataType=String&MessageAttribute.3.Value.StringValue=$util.urlEncode($input.params('accept'))"
                 			},
                 			"Type": "AWS",
                 			"Uri": {
@@ -815,7 +815,7 @@ step "Deploy Lambda" {
                 			  "StatusCode": "202"
                 			}
                 		  ],
-                		  "ResourceId": {"Ref": "ProductsResource"},
+                		  "ResourceId": {"Ref": "EntityResource"},
                 		  "RestApiId": {"Ref": "RestApi"}
                 		}		
                 	}
