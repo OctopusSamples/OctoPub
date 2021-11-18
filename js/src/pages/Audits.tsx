@@ -25,9 +25,9 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const [audits, setAudits] = useState<AuditsCollection | null>(null);
 
     const columns = [
-        { field: 'id', headerName: 'ID', width: 70 },
+        { field: 'id', headerName: 'Id', width: 70 },
         { field: 'subject', headerName: 'Subject', width: 130 },
-        { field: 'action', headerName: 'Action', width: 130 },
+        { field: 'action', headerName: 'Action', width: 600 },
         { field: 'object', headerName: 'Object', width: 130 },
     ];
 
@@ -54,7 +54,6 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 columns={columns}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
-                checkboxSelection
             />}
 
         </>
