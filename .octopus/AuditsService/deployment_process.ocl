@@ -90,14 +90,6 @@ step "Get Stack Outputs" {
                     
                 set_octopusvariable "Health" ${PIPELINE_HEALTH_RESOURCE_ID}
                 
-                PIPELINE_MESSAGING_RESOURCE_ID=$(aws cloudformation \
-                	describe-stacks \
-                    --stack-name #{CloudFormation.ApiGateway} \
-                    --query "Stacks[0].Outputs[?OutputKey=='Messaging'].OutputValue" \
-                    --output text)
-                    
-                set_octopusvariable "Messaging" ${PIPELINE_MESSAGING_RESOURCE_ID}
-                
                 REST_API=$(aws cloudformation \
                 	describe-stacks \
                     --stack-name #{CloudFormation.ApiGateway} \
