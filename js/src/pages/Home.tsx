@@ -39,8 +39,6 @@ interface Products {
 
 const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
-    const history = useHistory();
-
     const classes = useStyles();
 
     const context = useContext(AppContext);
@@ -55,7 +53,7 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
         })
             .then(response => response.json())
             .then(data => setBooks(data));
-    }, []);
+    }, [context.settings.productEndpoint, setBooks]);
 
     return (
         <>
