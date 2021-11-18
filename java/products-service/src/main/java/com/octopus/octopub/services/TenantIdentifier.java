@@ -13,12 +13,6 @@ public class TenantIdentifier {
    * The "Accept" header contains the version and tenant information. For more information see the
    * discussion at https://github.com/json-api/json-api/issues/406.
    *
-   * <p>So we expect to see headers like: "Accept: application/vnd.api+json; version=1.0" indicates
-   * that version 1.0 of the service should be used. "Accept: application/vnd.api+json;
-   * tenant=mytest" indicates the default version should be used with the test tenant "mytest".
-   * "Accept: application/vnd.api+json; version=1.0-mytest" indicates version 1.0-mytest of the
-   * service should be used, which also implies that the test tenant "mytest" should be used.
-   *
    * @param header The "Accept" header
    * @return The tenant that the request is made under, defaulting to main.
    */
