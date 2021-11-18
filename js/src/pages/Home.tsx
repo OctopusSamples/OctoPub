@@ -4,7 +4,6 @@ import {createStyles, makeStyles} from "@material-ui/core/styles";
 import {Grid, Theme} from "@material-ui/core";
 
 // constants
-import {useHistory} from "react-router-dom";
 import {AppContext} from "../App";
 import {CommonProps} from "../model/RouteItem.model";
 
