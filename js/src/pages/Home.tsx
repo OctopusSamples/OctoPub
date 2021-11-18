@@ -6,6 +6,8 @@ import {Grid, Theme} from "@material-ui/core";
 // constants
 import {AppContext} from "../App";
 import {CommonProps} from "../model/RouteItem.model";
+import {Products} from "../model/Product";
+import {useHistory} from "react-router-dom";
 
 // define css-in-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -23,25 +25,22 @@ const useStyles = makeStyles((theme: Theme) =>
             justifyContent: "center",
             height: "40%",
             width: "30%"
+        },
+        image: {
+            objectFit: "contain",
+            height: "100%",
+            width: "100%"
         }
     })
 );
-
-interface Products {
-    data: {
-        id: number,
-        attributes: {
-            tenant: string,
-            name: string
-        }
-    }[]
-}
 
 const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     const classes = useStyles();
 
     const context = useContext(AppContext);
+
+    const history = useHistory();
 
     const [books, setBooks] = useState<Products | null>(null);
 
@@ -71,8 +70,11 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 {books && books.data.map(b =>
                     <Grid item xs={4}
                           className={classes.book}
-                          container={true}>
-                        <div>{b.attributes.name}</div>
+                          container={true}
+                          onClick={() =>{
+                              history.push('/book/' + b.id);
+                          }}>
+                        <img className={classes.image} src={b.attributes.image} alt={b.attributes.name}/>
                     </Grid>)}
             </Grid>
         </>
