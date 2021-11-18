@@ -17,6 +17,5 @@ public interface AuditService {
   String createAudit(
       final String audit,
       @HeaderParam(Constants.ACCEPT_HEADER) String accept,
-      @HeaderParam("X-Amz-Invocation-Type") String invocationType,
       @HeaderParam("X-API-Key") String apiKey);
 }
