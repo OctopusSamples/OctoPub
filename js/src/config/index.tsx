@@ -8,6 +8,7 @@ import Book from '../pages/Book';
 // interface
 import RouteItem, {CommonProps} from '../model/RouteItem.model';
 import Audits from "../pages/Audits";
+import AddBook from "../pages/AddBook";
 
 // define app routes
 export const routes: Array<RouteItem> = [
@@ -40,8 +41,7 @@ export const routes: Array<RouteItem> = [
         component: (props: CommonProps) => () => <Book {...props}/>,
         icon: HomeIcon,
         appendDivider: true
-    }
-    ,
+    },
     {
         key: "router-audits",
         title: "Audits",
@@ -49,6 +49,16 @@ export const routes: Array<RouteItem> = [
         path: "/audits",
         enabled: true,
         component: (props: CommonProps) => () => <Audits {...props}/>,
+        icon: HomeIcon,
+        appendDivider: true
+    },
+    {
+        key: "router-addbook",
+        title: "Add Book",
+        tooltip: "Add Book",
+        path: "/addBook",
+        enabled: true,
+        component: (props: CommonProps) => () => <AddBook {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     }

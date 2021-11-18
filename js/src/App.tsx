@@ -58,10 +58,7 @@ function App(config: DynamicConfig) {
                                             <Route
                                                 key={`${item.key}`}
                                                 path={`${item.path}`}
-                                                component={(item.component && item.component({
-                                                    setCopyText,
-                                                    copyText
-                                                })) || DefaultComponent}
+                                                component={(item.component && item.component({bookId: null, apiKey: null})) || DefaultComponent}
                                                 exact
                                             />
                                         ))
@@ -69,10 +66,7 @@ function App(config: DynamicConfig) {
                                         <Route
                                             key={`${route.key}`}
                                             path={`${route.path}`}
-                                            component={(route.component && route.component({
-                                                setCopyText,
-                                                copyText
-                                            })) || DefaultComponent}
+                                            component={(route.component && route.component({bookId: null, apiKey: null})) || DefaultComponent}
                                             exact
                                         />
                                     )

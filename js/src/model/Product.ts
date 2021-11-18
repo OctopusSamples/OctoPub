@@ -7,13 +7,13 @@ export interface Product {
 }
 
 export interface ProductData {
-    id: number,
+    id: number | null,
     attributes: {
-        tenant: string,
-        name: string,
-        image: string,
-        pdf: string,
-        epub: string,
-        description: string
+        tenant: string | null,
+        name: string | null,
+        image: string | null,
+        pdf: string | null,
+        epub: string | null,
+        description: string | null
     }
 }

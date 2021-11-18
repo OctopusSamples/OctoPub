@@ -4,7 +4,7 @@ import {Helmet} from "react-helmet";
 import {Grid, Theme} from "@material-ui/core";
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
-import {useParams} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 import {createStyles, makeStyles} from "@material-ui/core/styles";
 
 interface Params {
@@ -51,7 +51,7 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
             {!book && <div>Loading...</div>}
             {book && <Grid container={true}>
                 <Grid item md={4} sm={12}>
-                    <img className={classes.image} src={book.data.attributes.image} alt={book.data.attributes.name}/>
+                    <img className={classes.image} src={book.data.attributes.image || "https://via.placeholder.com/300x400"} alt={book.data.attributes.name || ""}/>
                 </Grid>
                 <Grid item md={8} sm={12}>
                     <h1>{book.data.attributes.name}</h1>

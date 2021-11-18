@@ -16,7 +16,7 @@ import ContentCopy from '@material-ui/icons/ContentCopy';
 import {FC, useContext} from "react";
 import {AppContext} from "../App";
 import {useHistory} from "react-router-dom";
-import {History} from "@material-ui/icons";
+import {AddCircleOutline, History} from "@material-ui/icons";
 
 // define css-in-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -84,6 +84,11 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
+                <IconButton onClick={() => history.push('/addBook')}>
+                    <Tooltip title={"Add Book"} placement={"bottom"}>
+                        <AddCircleOutline/>
+                    </Tooltip>
+                </IconButton>
                 <IconButton onClick={() => history.push('/audits')}>
                     <Tooltip title={"Audits"} placement={"bottom"}>
                         <History/>

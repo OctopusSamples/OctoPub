@@ -71,10 +71,12 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     <Grid item xs={4}
                           className={classes.book}
                           container={true}
-                          onClick={() =>{
+                          onClick={() => {
                               history.push('/book/' + b.id);
                           }}>
-                        <img className={classes.image} src={b.attributes.image} alt={b.attributes.name}/>
+                        <img className={classes.image}
+                             src={b.attributes.image || "https://via.placeholder.com/300x400"}
+                             alt={b.attributes.name || "Unknown"}/>
                     </Grid>)}
             </Grid>
         </>
