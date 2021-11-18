@@ -6,6 +6,10 @@ inputs:
     required: true
   github_user:
     required: true
+  octopus_server_url:
+    required: true
+  octopus_api_token:
+    required: true
 on:
   push:
   workflow_dispatch:
@@ -79,3 +83,14 @@ runs:
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
       shell: bash
       working-directory: js
+
+    - name: Trigger deployment Frontend
+      run: >
+        octo create-release
+        --project "Octopub Frontend"
+        --deployTo "Development"
+        --waitForDeployment
+        --server ${{ inputs.octopus_server_url }}
+        --apiKey ${{ inputs.octopus_api_token }}
+        --space "Octopub"
+      shell: bash

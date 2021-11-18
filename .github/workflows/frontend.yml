@@ -20,3 +20,5 @@ jobs:
           run_number: ${{ github.run_number }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_user: ${{ github.actor }}
+          octopus_server_url: ${{ secrets.OCTOPUS_URL }}
+          octopus_api_token: ${{ secrets.OCTOPUS_API_KEY }}
