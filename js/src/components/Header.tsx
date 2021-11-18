@@ -15,6 +15,7 @@ import Brightness3Icon from "@material-ui/icons/Brightness3";
 import ContentCopy from '@material-ui/icons/ContentCopy';
 import {FC, useContext} from "react";
 import {AppContext} from "../App";
+import {useHistory} from "react-router-dom";
 
 // define css-in-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -45,7 +46,8 @@ const useStyles = makeStyles((theme: Theme) =>
             display: "none",
         },
         heading: {
-            color: "white"
+            color: "white",
+            cursor: "pointer"
         }
     })
 );
@@ -64,6 +66,7 @@ const Header: FC<HeaderProps> = ({
                                  }: HeaderProps) => {
     const classes = useStyles();
     const context = useContext(AppContext);
+    const history = useHistory();
     return (
         <AppBar
             position="relative"
@@ -72,7 +75,9 @@ const Header: FC<HeaderProps> = ({
         >
             <Toolbar className={classes.toolbar}>
                 <div className={classes.title}>
-                    <Link href={`${process.env.PUBLIC_URL}/index.html`} className={classes.heading}>
+                    <Link className={classes.heading} onClick={() =>{
+                        history.push(context.settings.basename + '/index.html');
+                    }}>
                         <Typography variant="h6" noWrap>
                             {context.settings.title}
                         </Typography>
