@@ -1,5 +1,6 @@
 package com.octopus.octopub.models;
 
+import com.github.jasminb.jsonapi.IntegerIdHandler;
 import com.github.jasminb.jsonapi.annotations.Type;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,7 +17,7 @@ import org.hibernate.envers.Audited;
 public class Product {
 
   @Id
-  @com.github.jasminb.jsonapi.annotations.Id
+  @com.github.jasminb.jsonapi.annotations.Id(IntegerIdHandler.class)
   @GeneratedValue(strategy= GenerationType.IDENTITY)
   public Integer id;
 

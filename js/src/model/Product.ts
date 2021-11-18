@@ -8,6 +8,7 @@ export interface Product {
 
 export interface ProductData {
     id: number | null,
+    type: string | null,
     attributes: {
         tenant: string | null,
         name: string | null,

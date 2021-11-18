@@ -16,7 +16,7 @@ import ContentCopy from '@material-ui/icons/ContentCopy';
 import {FC, useContext} from "react";
 import {AppContext} from "../App";
 import {useHistory} from "react-router-dom";
-import {AddCircleOutline, History} from "@material-ui/icons";
+import {AddCircleOutline, History, SettingsApplications} from "@material-ui/icons";
 
 // define css-in-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -84,6 +84,13 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
+                {copyText &&
+                <IconButton onClick={() => navigator.clipboard.writeText(copyText)}>
+                    <Tooltip title={"Copy to clipboard"} placement={"bottom"}>
+                        <ContentCopy/>
+                    </Tooltip>
+                </IconButton>
+                }
                 <IconButton onClick={() => history.push('/addBook')}>
                     <Tooltip title={"Add Book"} placement={"bottom"}>
                         <AddCircleOutline/>
@@ -94,13 +101,11 @@ const Header: FC<HeaderProps> = ({
                         <History/>
                     </Tooltip>
                 </IconButton>
-                {copyText &&
-                <IconButton onClick={() => navigator.clipboard.writeText(copyText)}>
-                    <Tooltip title={"Copy to clipboard"} placement={"bottom"}>
-                        <ContentCopy/>
+                <IconButton onClick={() => history.push('/settings')}>
+                    <Tooltip title={"Settings"} placement={"bottom"}>
+                        <SettingsApplications/>
                     </Tooltip>
                 </IconButton>
-                }
                 <IconButton onClick={toggleTheme}>
                     {useDefaultTheme ? (
                         <Tooltip title="Switch to dark mode" placement="bottom">

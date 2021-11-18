@@ -9,6 +9,7 @@ import Book from '../pages/Book';
 import RouteItem, {CommonProps} from '../model/RouteItem.model';
 import Audits from "../pages/Audits";
 import AddBook from "../pages/AddBook";
+import Settings from "../pages/Settings";
 
 // define app routes
 export const routes: Array<RouteItem> = [
@@ -59,6 +60,16 @@ export const routes: Array<RouteItem> = [
         path: "/addBook",
         enabled: true,
         component: (props: CommonProps) => () => <AddBook {...props}/>,
+        icon: HomeIcon,
+        appendDivider: true
+    },
+    {
+        key: "router-settings",
+        title: "Settings",
+        tooltip: "Settings",
+        path: "/settings",
+        enabled: true,
+        component: (props: CommonProps) => () => <Settings {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     }
