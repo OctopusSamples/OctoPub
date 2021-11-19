@@ -12,7 +12,6 @@ import {
 } from "@material-ui/core";
 import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness3Icon from "@material-ui/icons/Brightness3";
-import ContentCopy from '@material-ui/icons/ContentCopy';
 import {FC, useContext} from "react";
 import {AppContext} from "../App";
 import {useHistory} from "react-router-dom";
