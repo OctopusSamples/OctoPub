@@ -50,7 +50,13 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 'Accept': 'application/vnd.api+json'
             }
         })
-            .then(response => response.json())
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Something went wrong');
+                }
+            })
             .then(data => setBooks(data));
     }, [context.settings.productEndpoint, setBooks]);
 

@@ -37,7 +37,13 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 'Accept': 'application/vnd.api+json'
             }
         })
-            .then(response => response.json())
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Something went wrong');
+                }
+            })
             .then(data => setAudits(data));
     }, [setAudits, context.settings.auditEndpoint]);
 
