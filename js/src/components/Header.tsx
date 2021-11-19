@@ -57,13 +57,11 @@ const useStyles = makeStyles((theme: Theme) =>
 interface HeaderProps {
     toggleTheme: () => void;
     useDefaultTheme: boolean;
-    copyText?: string;
 }
 
 const Header: FC<HeaderProps> = ({
                                      toggleTheme,
-                                     useDefaultTheme,
-                                     copyText
+                                     useDefaultTheme
                                  }: HeaderProps) => {
     const classes = useStyles();
     const context = useContext(AppContext);
@@ -84,13 +82,6 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
-                {copyText &&
-                <IconButton onClick={() => navigator.clipboard.writeText(copyText)}>
-                    <Tooltip title={"Copy to clipboard"} placement={"bottom"}>
-                        <ContentCopy/>
-                    </Tooltip>
-                </IconButton>
-                }
                 <IconButton onClick={() => history.push('/addBook')}>
                     <Tooltip title={"Add Book"} placement={"bottom"}>
                         <AddCircleOutline/>

@@ -5,7 +5,7 @@ import {Button, createStyles, FormLabel, Grid, makeStyles, TextField} from "@mat
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
 import {useHistory} from "react-router-dom";
-import { useStateWithCallbackLazy } from 'use-state-with-callback';
+import {useStateWithCallbackLazy} from 'use-state-with-callback';
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -38,7 +38,8 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
         if (!localStorage.getItem("apiKey")) {
             setError("The API key must be defined in the settings page.");
         } else {
-            setDisabled(false, () => {});
+            setDisabled(false, () => {
+            });
         }
     }, [setDisabled, setError]);
 
@@ -54,35 +55,40 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     <FormLabel>Name</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
-                    <TextField id={"name"} disabled={disabled} fullWidth={true} variant={"outlined"} value={book.data.attributes.name}
+                    <TextField id={"name"} disabled={disabled} fullWidth={true} variant={"outlined"}
+                               value={book.data.attributes.name}
                                onChange={v => updateBook(v, "name")}/>
                 </Grid>
                 <Grid item md={2} sm={12}>
                     <FormLabel>Image</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
-                    <TextField id={"image"} disabled={disabled} fullWidth={true} variant={"outlined"} value={book.data.attributes.image}
+                    <TextField id={"image"} disabled={disabled} fullWidth={true} variant={"outlined"}
+                               value={book.data.attributes.image}
                                onChange={v => updateBook(v, "image")}/>
                 </Grid>
                 <Grid item md={2} sm={12}>
                     <FormLabel>EPUB</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
-                    <TextField id={"epub"} disabled={disabled} fullWidth={true} variant={"outlined"} value={book.data.attributes.epub}
+                    <TextField id={"epub"} disabled={disabled} fullWidth={true} variant={"outlined"}
+                               value={book.data.attributes.epub}
                                onChange={v => updateBook(v, "epub")}/>
                 </Grid>
                 <Grid item md={2} sm={12}>
                     <FormLabel>PDF</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
-                    <TextField id={"pdf"} disabled={disabled} fullWidth={true} variant={"outlined"} value={book.data.attributes.pdf}
+                    <TextField id={"pdf"} disabled={disabled} fullWidth={true} variant={"outlined"}
+                               value={book.data.attributes.pdf}
                                onChange={v => updateBook(v, "pdf")}/>
                 </Grid>
                 <Grid item md={2} sm={12}>
                     <FormLabel>Description</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
-                    <TextField id={"description"} disabled={disabled} multiline={true} rows={10} fullWidth={true} variant={"outlined"}
+                    <TextField id={"description"} disabled={disabled} multiline={true} rows={10} fullWidth={true}
+                               variant={"outlined"}
                                value={book.data.attributes.description}
                                onChange={v => updateBook(v, "description")}/>
                 </Grid>
@@ -104,7 +110,13 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     );
 
     function updateBook(input: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, property: string) {
-        setBook({data: {id: null, type: book.data.type, attributes: {...book.data.attributes, [property]: input.target.value}}})
+        setBook({
+            data: {
+                id: null,
+                type: book.data.type,
+                attributes: {...book.data.attributes, [property]: input.target.value}
+            }
+        })
     }
 
     function saveBook() {
@@ -116,12 +128,15 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     'Content-Type': 'application/vnd.api+json',
                     'X-API-Key': localStorage.getItem("apiKey") || ""
                 },
-                body: JSON.stringify(book)
+                body: JSON.stringify(book, (key, value) => {
+                    if (value !== null) return value
+                })
             })
                 .then(response => response.json())
                 .then(_ => history.push('/index.html'))
                 .catch(_ => {
-                    setDisabled(false, () => {});
+                    setDisabled(false, () => {
+                    });
                     setError("An error occurred and the book was not saved.");
                 })
         );

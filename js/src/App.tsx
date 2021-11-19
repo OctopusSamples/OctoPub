@@ -37,9 +37,6 @@ function App(config: DynamicConfig) {
     let theme: Theme = createTheme(useDefaultTheme ? lightTheme : darkTheme);
     theme = responsiveFontSizes(theme);
 
-    //
-    const [copyText, setCopyText] = useState("");
-
 
     return (
         <>
@@ -50,7 +47,7 @@ function App(config: DynamicConfig) {
                 <ThemeProvider theme={theme}>
                     <Router basename={config.settings.basename}>
                         <Switch>
-                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme} copyText={copyText}>
+                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
                                 {/* for each route config, a react route is created */}
                                 {routes.map((route: RouteItem) =>
                                     route.subRoutes ? (

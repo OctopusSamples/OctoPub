@@ -31,15 +31,13 @@ interface LayoutProps {
     toggleTheme: () => void;
     useDefaultTheme: boolean;
     children: ReactNode;
-    copyText?: string;
 }
 
 // functional component
 const Layout: FC<LayoutProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
-                                     children,
-                                     copyText
+                                     children
                                  }: LayoutProps) => {
     const classes = useStyles();
     return (
@@ -48,7 +46,6 @@ const Layout: FC<LayoutProps> = ({
             <Header
                 toggleTheme={toggleTheme}
                 useDefaultTheme={useDefaultTheme}
-                copyText={copyText}
             />
             <main
                 className={clsx(classes.content)}

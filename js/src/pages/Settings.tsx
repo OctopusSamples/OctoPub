@@ -3,7 +3,6 @@ import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
 import {createStyles, FormLabel, Grid, makeStyles, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
-import {useHistory} from "react-router-dom";
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -12,7 +11,6 @@ const useStyles = makeStyles(() =>
 );
 
 const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
-    const history = useHistory();
     const context = useContext(AppContext);
     const classes = useStyles();
     const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem("apiKey"));

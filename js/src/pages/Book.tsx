@@ -4,7 +4,7 @@ import {Helmet} from "react-helmet";
 import {Grid, Theme} from "@material-ui/core";
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
-import {useHistory, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import {createStyles, makeStyles} from "@material-ui/core/styles";
 
 interface Params {
