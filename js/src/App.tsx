@@ -39,8 +39,6 @@ function App(config: DynamicConfig) {
 
     const apiKey = localStorage.getItem("apiKey");
 
-    const [deleteBookId, setDeleteBookId] = useState<string | null>(null);
-    const [updateBookId, setUpdateBookId] = useState<string | null>(null);
     const [allBookId, setAllBookId] = useState<string | null>(null);
 
     return (
@@ -52,9 +50,7 @@ function App(config: DynamicConfig) {
                 <ThemeProvider theme={theme}>
                     <Router basename={config.settings.basename}>
                         <Switch>
-                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme} apiKey={apiKey} setAllBookId={setAllBookId}
-                                    deleteBookId={deleteBookId} setDeleteBookId={setDeleteBookId}
-                                    updateBookId={updateBookId} setUpdateBookId={setUpdateBookId}>
+                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme} apiKey={apiKey} setAllBookId={setAllBookId} allBookId={allBookId}>
                                 {/* for each route config, a react route is created */}
                                 {routes.map((route: RouteItem) =>
                                     route.subRoutes ? (
@@ -65,10 +61,7 @@ function App(config: DynamicConfig) {
                                                 component={(item.component && item.component({
                                                     apiKey,
                                                     setAllBookId,
-                                                    deleteBookId,
-                                                    setDeleteBookId,
-                                                    updateBookId,
-                                                    setUpdateBookId
+                                                    allBookId
                                                 })) || DefaultComponent}
                                                 exact
                                             />
@@ -80,10 +73,7 @@ function App(config: DynamicConfig) {
                                             component={(route.component && route.component({
                                                 apiKey,
                                                 setAllBookId,
-                                                deleteBookId,
-                                                setDeleteBookId,
-                                                updateBookId,
-                                                setUpdateBookId
+                                                allBookId
                                             })) || DefaultComponent}
                                             exact
                                         />

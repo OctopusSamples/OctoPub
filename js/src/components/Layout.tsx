@@ -40,11 +40,8 @@ const Layout: FC<LayoutProps> = ({
                                      useDefaultTheme,
                                      children,
                                      apiKey,
-                                     setUpdateBookId,
-                                     updateBookId,
-                                     deleteBookId,
-                                     setDeleteBookId,
-                                     setAllBookId
+                                     setAllBookId,
+                                     allBookId
                                  }: LayoutProps) => {
     const classes = useStyles();
     return (
@@ -55,10 +52,7 @@ const Layout: FC<LayoutProps> = ({
                 useDefaultTheme={useDefaultTheme}
                 apiKey={apiKey}
                 setAllBookId={setAllBookId}
-                deleteBookId={deleteBookId}
-                setDeleteBookId={setDeleteBookId}
-                setUpdateBookId={setUpdateBookId}
-                updateBookId={updateBookId}/>
+                allBookId={allBookId}/>
             <main
                 className={clsx(classes.content)}
             >

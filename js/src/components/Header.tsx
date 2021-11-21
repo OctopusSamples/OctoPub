@@ -63,8 +63,7 @@ const Header: FC<HeaderProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
                                      apiKey,
-                                     deleteBookId,
-                                     updateBookId
+                                     allBookId
                                  }: HeaderProps) => {
     const classes = useStyles();
     const context = useContext(AppContext);
@@ -85,15 +84,15 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
-                {deleteBookId && apiKey &&
-                <IconButton onClick={() => history.push('/deleteBook/' + deleteBookId)}>
+                {allBookId && apiKey &&
+                <IconButton onClick={() => history.push('/deleteBook/' + allBookId)}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>
                     </Tooltip>
                 </IconButton>
                 }
-                {updateBookId && apiKey &&
-                <IconButton onClick={() => history.push('/updateBook/' + deleteBookId)}>
+                {allBookId && apiKey &&
+                <IconButton onClick={() => history.push('/updateBook/' + allBookId)}>
                     <Tooltip title={"Update"} placement={"bottom"}>
                         <Edit/>
                     </Tooltip>
