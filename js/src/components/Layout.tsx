@@ -31,13 +31,15 @@ interface LayoutProps {
     toggleTheme: () => void;
     useDefaultTheme: boolean;
     children: ReactNode;
+    currentProduct?: string;
 }
 
 // functional component
 const Layout: FC<LayoutProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
-                                     children
+                                     children,
+                                     currentProduct
                                  }: LayoutProps) => {
     const classes = useStyles();
     return (
@@ -46,6 +48,7 @@ const Layout: FC<LayoutProps> = ({
             <Header
                 toggleTheme={toggleTheme}
                 useDefaultTheme={useDefaultTheme}
+                currentProduct={currentProduct}
             />
             <main
                 className={clsx(classes.content)}

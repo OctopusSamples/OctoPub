@@ -1,4 +1,4 @@
-import React, {useReducer} from "react";
+import React, {useReducer, useState} from "react";
 import {createTheme, responsiveFontSizes, Theme, ThemeProvider,} from "@material-ui/core/styles";
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import {Helmet} from "react-helmet";
@@ -37,6 +37,7 @@ function App(config: DynamicConfig) {
     let theme: Theme = createTheme(useDefaultTheme ? lightTheme : darkTheme);
     theme = responsiveFontSizes(theme);
 
+    const [bookId, setBookId] = useState<string | null>(null);
 
     return (
         <>
@@ -55,7 +56,7 @@ function App(config: DynamicConfig) {
                                             <Route
                                                 key={`${item.key}`}
                                                 path={`${item.path}`}
-                                                component={(item.component && item.component({bookId: null, apiKey: null})) || DefaultComponent}
+                                                component={(item.component && item.component({bookId, setBookId, apiKey: null})) || DefaultComponent}
                                                 exact
                                             />
                                         ))
@@ -63,7 +64,7 @@ function App(config: DynamicConfig) {
                                         <Route
                                             key={`${route.key}`}
                                             path={`${route.path}`}
-                                            component={(route.component && route.component({bookId: null, apiKey: null})) || DefaultComponent}
+                                            component={(route.component && route.component({bookId, setBookId, apiKey: null})) || DefaultComponent}
                                             exact
                                         />
                                     )

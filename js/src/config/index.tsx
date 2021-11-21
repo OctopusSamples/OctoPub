@@ -10,6 +10,7 @@ import RouteItem, {CommonProps} from '../model/RouteItem.model';
 import Audits from "../pages/Audits";
 import AddBook from "../pages/AddBook";
 import Settings from "../pages/Settings";
+import DeleteBook from "../pages/DeleteBook";
 
 // define app routes
 export const routes: Array<RouteItem> = [
@@ -60,6 +61,16 @@ export const routes: Array<RouteItem> = [
         path: "/addBook",
         enabled: true,
         component: (props: CommonProps) => () => <AddBook {...props}/>,
+        icon: HomeIcon,
+        appendDivider: true
+    },
+    {
+        key: "router-deletebook",
+        title: "Delete Book",
+        tooltip: "Delete Book",
+        path: "/deleteBook",
+        enabled: true,
+        component: (props: CommonProps) => () => <DeleteBook {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     },

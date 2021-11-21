@@ -15,7 +15,7 @@ import Brightness3Icon from "@material-ui/icons/Brightness3";
 import {FC, useContext} from "react";
 import {AppContext} from "../App";
 import {useHistory} from "react-router-dom";
-import {AddCircleOutline, History, SettingsApplications} from "@material-ui/icons";
+import {AddCircleOutline, Delete, History, SettingsApplications} from "@material-ui/icons";
 
 // define css-in-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -56,11 +56,13 @@ const useStyles = makeStyles((theme: Theme) =>
 interface HeaderProps {
     toggleTheme: () => void;
     useDefaultTheme: boolean;
+    currentProduct?: string;
 }
 
 const Header: FC<HeaderProps> = ({
                                      toggleTheme,
-                                     useDefaultTheme
+                                     useDefaultTheme,
+                                     currentProduct
                                  }: HeaderProps) => {
     const classes = useStyles();
     const context = useContext(AppContext);
@@ -73,7 +75,7 @@ const Header: FC<HeaderProps> = ({
         >
             <Toolbar className={classes.toolbar}>
                 <div className={classes.title}>
-                    <Link className={classes.heading} onClick={() =>{
+                    <Link className={classes.heading} onClick={() => {
                         history.push('/index.html');
                     }}>
                         <Typography variant="h6" noWrap>
@@ -81,6 +83,13 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
+                {currentProduct &&
+                <IconButton onClick={() => history.push('/deleteBook')}>
+                    <Tooltip title={"Delete"} placement={"bottom"}>
+                        <Delete/>
+                    </Tooltip>
+                </IconButton>
+                }
                 <IconButton onClick={() => history.push('/addBook')}>
                     <Tooltip title={"Add Book"} placement={"bottom"}>
                         <AddCircleOutline/>
