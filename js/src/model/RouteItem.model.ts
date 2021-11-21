@@ -1,8 +1,6 @@
 import {ComponentType, FC} from "react";
 
 export interface CommonProps {
-    bookId: string | null;
-    setBookId: (bookId: string) => void;
     apiKey: string | null;
 }
 

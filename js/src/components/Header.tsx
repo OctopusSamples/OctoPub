@@ -14,7 +14,7 @@ import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness3Icon from "@material-ui/icons/Brightness3";
 import {FC, useContext} from "react";
 import {AppContext} from "../App";
-import {useHistory} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 import {AddCircleOutline, Delete, History, SettingsApplications} from "@material-ui/icons";
 import {CommonProps} from "../model/RouteItem.model";
 
@@ -59,11 +59,16 @@ interface HeaderProps extends CommonProps {
     useDefaultTheme: boolean;
 }
 
+interface Params {
+    bookId: string
+}
+
 const Header: FC<HeaderProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
-                                     bookId
+                                     apiKey
                                  }: HeaderProps) => {
+    const { bookId } = useParams<Params>();
     const classes = useStyles();
     const context = useContext(AppContext);
     const history = useHistory();
@@ -83,18 +88,20 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
-                {bookId &&
-                <IconButton onClick={() => history.push('/deleteBook')}>
+                {bookId && apiKey &&
+                <IconButton onClick={() => history.push('/deleteBook/' + bookId)}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>
                     </Tooltip>
                 </IconButton>
                 }
+                {apiKey &&
                 <IconButton onClick={() => history.push('/addBook')}>
                     <Tooltip title={"Add Book"} placement={"bottom"}>
                         <AddCircleOutline/>
                     </Tooltip>
                 </IconButton>
+                }
                 <IconButton onClick={() => history.push('/audits')}>
                     <Tooltip title={"Audits"} placement={"bottom"}>
                         <History/>

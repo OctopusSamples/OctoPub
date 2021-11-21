@@ -39,9 +39,7 @@ const Layout: FC<LayoutProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
                                      children,
-                                     apiKey,
-                                     bookId,
-                                     setBookId
+                                     apiKey
                                  }: LayoutProps) => {
     const classes = useStyles();
     return (
@@ -50,8 +48,6 @@ const Layout: FC<LayoutProps> = ({
             <Header
                 toggleTheme={toggleTheme}
                 useDefaultTheme={useDefaultTheme}
-                bookId={bookId}
-                setBookId={setBookId}
                 apiKey={apiKey}
             />
             <main

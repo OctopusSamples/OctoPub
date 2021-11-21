@@ -28,7 +28,6 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const context = useContext(AppContext);
 
     const { bookId } = useParams<Params>();
-    props.setBookId(bookId);
 
     const [book, setBook] = useState<Product | null>(null);
 

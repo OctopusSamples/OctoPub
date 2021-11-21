@@ -68,7 +68,7 @@ export const routes: Array<RouteItem> = [
         key: "router-deletebook",
         title: "Delete Book",
         tooltip: "Delete Book",
-        path: "/deleteBook",
+        path: "/deleteBook/:bookId",
         enabled: true,
         component: (props: CommonProps) => () => <DeleteBook {...props}/>,
         icon: HomeIcon,

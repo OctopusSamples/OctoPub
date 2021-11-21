@@ -4,7 +4,7 @@ import {Helmet} from "react-helmet";
 import {Button, createStyles, FormLabel, Grid, makeStyles, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
-import {useHistory} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 import {useStateWithCallbackLazy} from 'use-state-with-callback';
 
 const useStyles = makeStyles(() =>
@@ -13,7 +13,12 @@ const useStyles = makeStyles(() =>
     })
 );
 
+interface Params {
+    bookId: string
+}
+
 const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
+    const { bookId } = useParams<Params>();
     const history = useHistory();
     const context = useContext(AppContext);
     const classes = useStyles();
@@ -35,7 +40,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     });
 
     useEffect(() => {
-        fetch(context.settings.productEndpoint + "/" + props.bookId, {
+        fetch(context.settings.productEndpoint + "/" + bookId, {
             headers: {
                 'Accept': 'application/vnd.api+json'
             }
@@ -44,7 +49,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             .then(data => {
                 setBook(data);
             });
-    }, [setBook, context.settings.productEndpoint, props.bookId]);
+    }, [setBook, context.settings.productEndpoint,bookId]);
 
     useEffect(() => {
         if (props.apiKey) {
@@ -117,7 +122,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     function deleteBook() {
         setDisabled(true, () =>
-            fetch(context.settings.productEndpoint + "/" + props.bookId, {
+            fetch(context.settings.productEndpoint + "/" + bookId, {
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/vnd.api+json',
@@ -129,7 +134,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 })
             })
                 .then((response) => {
-                    if (response.ok) {
+                    if (response.ok || response.status === 204) {
                         return response.json();
                     } else {
                         throw new Error('Something went wrong');
@@ -139,7 +144,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 .catch(_ => {
                     setDisabled(false, () => {
                     });
-                    setError("An error occurred and the book was not deleted.");
+                    setError("An error occurred while deleting the book.");
                 })
         );
     }

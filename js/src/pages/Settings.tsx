@@ -11,6 +11,7 @@ const useStyles = makeStyles(() =>
 );
 
 const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
+
     const context = useContext(AppContext);
     const classes = useStyles();
     const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem("apiKey"));
