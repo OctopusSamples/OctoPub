@@ -1,4 +1,4 @@
-import React, {useReducer} from "react";
+import React, {useReducer, useState} from "react";
 import {createTheme, responsiveFontSizes, Theme, ThemeProvider,} from "@material-ui/core/styles";
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import {Helmet} from "react-helmet";
@@ -39,6 +39,8 @@ function App(config: DynamicConfig) {
 
     const apiKey = localStorage.getItem("apiKey");
 
+    const [deleteBookId, setDeleteBookId] = useState<string | null>(null);
+
     return (
         <>
             <Helmet>
@@ -48,7 +50,7 @@ function App(config: DynamicConfig) {
                 <ThemeProvider theme={theme}>
                     <Router basename={config.settings.basename}>
                         <Switch>
-                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme} apiKey={apiKey}>
+                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme} apiKey={apiKey} deleteBookId={deleteBookId} setDeleteBookId={setDeleteBookId}>
                                 {/* for each route config, a react route is created */}
                                 {routes.map((route: RouteItem) =>
                                     route.subRoutes ? (
@@ -56,7 +58,7 @@ function App(config: DynamicConfig) {
                                             <Route
                                                 key={`${item.key}`}
                                                 path={`${item.path}`}
-                                                component={(item.component && item.component({apiKey})) || DefaultComponent}
+                                                component={(item.component && item.component({apiKey, deleteBookId, setDeleteBookId})) || DefaultComponent}
                                                 exact
                                             />
                                         ))
@@ -64,7 +66,7 @@ function App(config: DynamicConfig) {
                                         <Route
                                             key={`${route.key}`}
                                             path={`${route.path}`}
-                                            component={(route.component && route.component({apiKey})) || DefaultComponent}
+                                            component={(route.component && route.component({apiKey, deleteBookId, setDeleteBookId})) || DefaultComponent}
                                             exact
                                         />
                                     )

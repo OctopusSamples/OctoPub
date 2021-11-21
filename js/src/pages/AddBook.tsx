@@ -7,13 +7,16 @@ import {Product} from "../model/Product";
 import {useHistory} from "react-router-dom";
 import {useStateWithCallbackLazy} from 'use-state-with-callback';
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme) =>
     createStyles({
-        label: {}
+        label: {
+            color: theme.palette.text.primary
+        }
     })
 );
-
 const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
+    props.setDeleteBookId(null);
+
     const history = useHistory();
     const context = useContext(AppContext);
     const classes = useStyles();
@@ -51,8 +54,8 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 </title>
             </Helmet>
             <Grid container={true}>
-                <Grid className={classes.label} md={2} sm={12}>
-                    <FormLabel>Name</FormLabel>
+                <Grid md={2} sm={12}>
+                    <FormLabel className={classes.label}>Name</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
                     <TextField id={"name"} disabled={disabled} fullWidth={true} variant={"outlined"}
@@ -60,7 +63,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                                onChange={v => updateBook(v, "name")}/>
                 </Grid>
                 <Grid item md={2} sm={12}>
-                    <FormLabel>Image</FormLabel>
+                    <FormLabel className={classes.label}>Image</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
                     <TextField id={"image"} disabled={disabled} fullWidth={true} variant={"outlined"}
@@ -68,7 +71,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                                onChange={v => updateBook(v, "image")}/>
                 </Grid>
                 <Grid item md={2} sm={12}>
-                    <FormLabel>EPUB</FormLabel>
+                    <FormLabel className={classes.label}>EPUB</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
                     <TextField id={"epub"} disabled={disabled} fullWidth={true} variant={"outlined"}
@@ -76,7 +79,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                                onChange={v => updateBook(v, "epub")}/>
                 </Grid>
                 <Grid item md={2} sm={12}>
-                    <FormLabel>PDF</FormLabel>
+                    <FormLabel className={classes.label}>PDF</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
                     <TextField id={"pdf"} disabled={disabled} fullWidth={true} variant={"outlined"}
@@ -84,7 +87,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                                onChange={v => updateBook(v, "pdf")}/>
                 </Grid>
                 <Grid item md={2} sm={12}>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel className={classes.label}>Description</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
                     <TextField id={"description"} disabled={disabled} multiline={true} rows={10} fullWidth={true}

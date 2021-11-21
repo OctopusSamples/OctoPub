@@ -14,7 +14,7 @@ import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness3Icon from "@material-ui/icons/Brightness3";
 import {FC, useContext} from "react";
 import {AppContext} from "../App";
-import {useHistory, useParams} from "react-router-dom";
+import {useHistory} from "react-router-dom";
 import {AddCircleOutline, Delete, History, SettingsApplications} from "@material-ui/icons";
 import {CommonProps} from "../model/RouteItem.model";
 
@@ -66,9 +66,9 @@ interface Params {
 const Header: FC<HeaderProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
-                                     apiKey
+                                     apiKey,
+                                     deleteBookId
                                  }: HeaderProps) => {
-    const { bookId } = useParams<Params>();
     const classes = useStyles();
     const context = useContext(AppContext);
     const history = useHistory();
@@ -88,8 +88,8 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
-                {bookId && apiKey &&
-                <IconButton onClick={() => history.push('/deleteBook/' + bookId)}>
+                {deleteBookId && apiKey &&
+                <IconButton onClick={() => history.push('/deleteBook/' + deleteBookId)}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>
                     </Tooltip>
