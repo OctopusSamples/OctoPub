@@ -13,6 +13,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -29,9 +30,10 @@ public class ProductResource {
   @GET
   public Response getAll(
       @Context final SecurityContext ctx,
-      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
+      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader,
+      @QueryParam(Constants.FILTER_QUERY_PARAM) final String filter)
       throws DocumentSerializationException {
-    return Response.ok(productsController.getAll(acceptHeader)).build();
+    return Response.ok(productsController.getAll(acceptHeader, filter)).build();
   }
 
   @POST

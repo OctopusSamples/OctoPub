@@ -26,10 +26,10 @@ public class ProductsController {
 
   @Inject TenantIdentifier tenantIdentifier;
 
-  public String getAll(@NonNull final List<String> acceptHeaders)
+  public String getAll(@NonNull final List<String> acceptHeaders, final String filterParam)
       throws DocumentSerializationException {
     final List<Product> products =
-        productRepository.findAll(tenantIdentifier.getTenant(acceptHeaders));
+        productRepository.findAll(tenantIdentifier.getTenant(acceptHeaders), filterParam);
     final JSONAPIDocument<List<Product>> document = new JSONAPIDocument<List<Product>>(products);
     final byte[] content = resourceConverter.writeDocumentCollection(document);
     return new String(content);

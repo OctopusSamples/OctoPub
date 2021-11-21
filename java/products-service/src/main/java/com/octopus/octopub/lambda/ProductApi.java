@@ -74,7 +74,13 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
             new ProxyResponse(
                 "200",
                 productsController.getAll(
-                    getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
+                    getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER),
+                    getQueryParam(
+                            input.getMultiValueQueryStringParameters(),
+                            Constants.FILTER_QUERY_PARAM)
+                        .stream()
+                        .findFirst()
+                        .orElse(null))));
       }
     } catch (final DocumentSerializationException e) {
       return Optional.of(new ProxyResponse("500", e.toString()));
@@ -144,8 +150,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     } catch (final DocumentSerializationException e) {
       return Optional.of(
           new ProxyResponse(
-              "500",
-              "{\"message\": \"" + e + "\", \"body\": \"" + getBody(input) + "\"}"));
+              "500", "{\"message\": \"" + e + "\", \"body\": \"" + getBody(input) + "\"}"));
     } catch (final RuntimeException ex) {
       System.out.println("ProductApi.createOne(APIGatewayProxyRequestEvent): " + ex);
       throw ex;
@@ -170,11 +175,33 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   /**
    * Headers are case insensitive, but the maps we get from Lambda are case sensitive, so we need to
    * have some additional logic to get the available headers.
+   *
+   * @param params The list of query params
+   * @param query The name of the query to return
+   * @return The list of header values
+   */
+  private List<String> getQueryParam(
+      final Map<String, List<String>> params, @NonNull final String query) {
+    if (params == null) {
+      return List.of();
+    }
+
+    return params.entrySet().stream()
+        .filter(e -> query.equalsIgnoreCase(e.getKey()))
+        .flatMap(e -> e.getValue().stream())
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Headers are case insensitive, but the maps we get from Lambda are case sensitive, so we need to
+   * have some additional logic to get the available headers.
+   *
    * @param headers The list of headers
    * @param header The name of the header to return
    * @return The list of header values
    */
-  private List<String> getHeaders(final Map<String, List<String>> headers, @NonNull final String header) {
+  private List<String> getHeaders(
+      final Map<String, List<String>> headers, @NonNull final String header) {
     if (headers == null) {
       return List.of();
     }
@@ -190,17 +217,14 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
       @NonNull final Pattern regex,
       @NonNull final String method) {
     final String path = ObjectUtils.defaultIfNull(input.getPath(), "");
-    final String requestMethod =
-        ObjectUtils.defaultIfNull(input.getHttpMethod(), "").toLowerCase();
+    final String requestMethod = ObjectUtils.defaultIfNull(input.getHttpMethod(), "").toLowerCase();
     return regex.matcher(path).matches() && method.toLowerCase().equals(requestMethod);
   }
 
   private String getBody(@NonNull final APIGatewayProxyRequestEvent input) {
     final String body = ObjectUtils.defaultIfNull(input.getBody(), "");
     final String isBase64Encoded =
-        ObjectUtils.defaultIfNull(input.getIsBase64Encoded(), "")
-            .toString()
-            .toLowerCase();
+        ObjectUtils.defaultIfNull(input.getIsBase64Encoded(), "").toString().toLowerCase();
 
     if ("true".equals(isBase64Encoded)) {
       return new String(Base64.getDecoder().decode(body));
