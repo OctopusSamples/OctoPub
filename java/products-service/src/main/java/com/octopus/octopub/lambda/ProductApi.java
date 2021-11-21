@@ -45,6 +45,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         .or(() -> getOne(input))
         .or(() -> createOne(input))
         .or(() -> deleteOne(input))
+        .or(() -> updateOne(input))
         .or(() -> checkHealth(input))
         .orElse(new ProxyResponse("404", "{\"message\": \"Path not found\"}"));
   }
@@ -153,6 +154,28 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
               "500", "{\"message\": \"" + e + "\", \"body\": \"" + getBody(input) + "\"}"));
     } catch (final RuntimeException ex) {
       System.out.println("ProductApi.createOne(APIGatewayProxyRequestEvent): " + ex);
+      throw ex;
+    }
+
+    return Optional.empty();
+  }
+
+  private Optional<ProxyResponse> updateOne(@NonNull final APIGatewayProxyRequestEvent input) {
+    try {
+      if (requestIsMatch(input, ROOT_RE, Constants.PATCH_METHOD)) {
+        return Optional.of(
+            new ProxyResponse(
+                "200",
+                productsController.update(
+                    getBody(input),
+                    getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
+      }
+    } catch (final DocumentSerializationException e) {
+      return Optional.of(
+          new ProxyResponse(
+              "500", "{\"message\": \"" + e + "\", \"body\": \"" + getBody(input) + "\"}"));
+    } catch (final RuntimeException ex) {
+      System.out.println("ProductApi.updateOne(APIGatewayProxyRequestEvent): " + ex);
       throw ex;
     }
 

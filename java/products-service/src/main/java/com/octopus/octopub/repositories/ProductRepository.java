@@ -30,6 +30,19 @@ public class ProductRepository {
     em.createQuery("delete from Product p where p.id=:id").setParameter("id", id).executeUpdate();
   }
 
+  public void update(@NonNull final Product product) {
+    final Product existingProduct = em.find(Product.class, product.id);
+    if (existingProduct != null) {
+      existingProduct.name = product.name;
+      existingProduct.tenant = product.tenant;
+      existingProduct.description = product.description;
+      existingProduct.epub = product.epub;
+      existingProduct.image = product.epub;
+      existingProduct.pdf = product.pdf;
+      em.merge(existingProduct);
+    }
+  }
+
   public List<Product> findAll(@NonNull final String tenant, final String filter) {
 
     final CriteriaBuilder builder = em.getCriteriaBuilder();

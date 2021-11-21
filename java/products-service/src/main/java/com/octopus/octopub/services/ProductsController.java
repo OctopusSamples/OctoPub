@@ -4,6 +4,7 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
+import com.octopus.octopub.exceptions.InvalidInput;
 import com.octopus.octopub.exceptions.MissingData;
 import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.models.Product;
@@ -53,6 +54,44 @@ public class ProductsController {
         acceptHeaders);
 
     return respondWithProduct(product);
+  }
+
+  public String update(@NonNull final String document, @NonNull final List<String> acceptHeaders)
+      throws DocumentSerializationException {
+    final Product product = getProductFromDocument(document);
+
+    // The input was missing the required data
+    if (product == null) {
+      throw new MissingData();
+    }
+
+    // find the product we are updating
+    final Product existingProduct = productRepository.findOne(product.id);
+    // the existing product must have the same tenant asthe current request to be updated
+    if (tenantIdentifier.getTenant(acceptHeaders).equals(existingProduct.tenant)) {
+      // update the product details
+      productRepository.update(product);
+
+      // Create an audit record noting the change
+      auditRepository.save(
+          new Audit(
+              Constants.MICROSERVICE_NAME,
+              Constants.UPDATED_ACTION,
+              "Product-" + product.getId().toString()),
+          acceptHeaders);
+
+      return respondWithProduct(product);
+    } else {
+      // Create an audit record noting the failure
+      auditRepository.save(
+          new Audit(
+              Constants.MICROSERVICE_NAME,
+              Constants.UPDATED_FAILED_TENANT_MISMATCH_ACTION,
+              "Product-" + product.getId().toString()),
+          acceptHeaders);
+      // Throw an exception, which will be picked up by a Provider to create a custom response
+      throw new InvalidInput("Failed to update a record created by another tenant.");
+    }
   }
 
   public String getOne(@NonNull final String id, @NonNull final List<String> acceptHeaders)
