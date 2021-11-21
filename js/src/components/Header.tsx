@@ -59,10 +59,6 @@ interface HeaderProps extends CommonProps {
     useDefaultTheme: boolean;
 }
 
-interface Params {
-    bookId: string
-}
-
 const Header: FC<HeaderProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
