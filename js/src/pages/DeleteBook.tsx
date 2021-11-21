@@ -20,7 +20,7 @@ interface Params {
 }
 
 const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
-    props.setDeleteBookId(null);
+    props.setAllBookId(null);
 
     const { bookId } = useParams<Params>();
     const history = useHistory();

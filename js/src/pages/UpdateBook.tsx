@@ -4,7 +4,7 @@ import {Helmet} from "react-helmet";
 import {Button, createStyles, FormLabel, Grid, makeStyles, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
-import {useHistory} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 import {useStateWithCallbackLazy} from 'use-state-with-callback';
 
 const useStyles = makeStyles((theme) =>
@@ -14,9 +14,15 @@ const useStyles = makeStyles((theme) =>
         }
     })
 );
-const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
+
+interface Params {
+    bookId: string
+}
+
+const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     props.setAllBookId(null);
 
+    const { bookId } = useParams<Params>();
     const history = useHistory();
     const context = useContext(AppContext);
     const classes = useStyles();
@@ -38,11 +44,22 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     });
 
     useEffect(() => {
-        if (!props.apiKey) {
-            setError("The API key must be defined in the settings page.");
-        } else {
-            setDisabled(false, () => {
+        fetch(context.settings.productEndpoint + "/" + bookId, {
+            headers: {
+                'Accept': 'application/vnd.api+json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                setBook(data);
             });
+    }, [setBook, context.settings.productEndpoint,bookId]);
+
+    useEffect(() => {
+        if (props.apiKey) {
+            setDisabled(false, () => {});
+        } else {
+            setError("The API key must be defined in the settings page.");
         }
     }, [setDisabled, setError, props.apiKey]);
 
@@ -54,6 +71,13 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 </title>
             </Helmet>
             <Grid container={true}>
+                <Grid md={2} sm={12}>
+                    <FormLabel className={classes.label}>Id</FormLabel>
+                </Grid>
+                <Grid item md={10} sm={12}>
+                    <TextField id={"id"} disabled={true} fullWidth={true} variant={"outlined"}
+                               value={book.data.id}/>
+                </Grid>
                 <Grid md={2} sm={12}>
                     <FormLabel className={classes.label}>Name</FormLabel>
                 </Grid>
@@ -99,7 +123,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
                 </Grid>
                 <Grid item md={10} sm={12}>
-                    <Button variant={"outlined"} disabled={disabled} onClick={_ => saveBook()}>Create New Book</Button>
+                    <Button variant={"outlined"} disabled={disabled} onClick={_ => saveBook()}>Update Book</Button>
                 </Grid>
                 <Grid item md={2} sm={12}>
 
@@ -124,8 +148,8 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     function saveBook() {
         setDisabled(true, () =>
-            fetch(context.settings.productEndpoint, {
-                method: 'POST',
+            fetch(context.settings.productEndpoint + "/" + bookId, {
+                method: 'PATCH',
                 headers: {
                     'Accept': 'application/vnd.api+json',
                     'Content-Type': 'application/vnd.api+json',
@@ -146,11 +170,11 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 .catch(_ => {
                     setDisabled(false, () => {
                     });
-                    setError("An error occurred and the book was not saved.");
+                    setError("An error occurred and the book was not updated.");
                 })
         );
     }
 }
 
 
-export default AddBook;
+export default UpdateBook;

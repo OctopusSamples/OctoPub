@@ -15,7 +15,7 @@ import Brightness3Icon from "@material-ui/icons/Brightness3";
 import {FC, useContext} from "react";
 import {AppContext} from "../App";
 import {useHistory} from "react-router-dom";
-import {AddCircleOutline, Delete, History, SettingsApplications} from "@material-ui/icons";
+import {AddCircleOutline, Delete, Edit, History, SettingsApplications} from "@material-ui/icons";
 import {CommonProps} from "../model/RouteItem.model";
 
 // define css-in-js
@@ -63,7 +63,8 @@ const Header: FC<HeaderProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
                                      apiKey,
-                                     deleteBookId
+                                     deleteBookId,
+                                     updateBookId
                                  }: HeaderProps) => {
     const classes = useStyles();
     const context = useContext(AppContext);
@@ -88,6 +89,13 @@ const Header: FC<HeaderProps> = ({
                 <IconButton onClick={() => history.push('/deleteBook/' + deleteBookId)}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>
+                    </Tooltip>
+                </IconButton>
+                }
+                {updateBookId && apiKey &&
+                <IconButton onClick={() => history.push('/updateBook/' + deleteBookId)}>
+                    <Tooltip title={"Update"} placement={"bottom"}>
+                        <Edit/>
                     </Tooltip>
                 </IconButton>
                 }

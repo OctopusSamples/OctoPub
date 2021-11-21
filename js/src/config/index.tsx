@@ -11,6 +11,7 @@ import Audits from "../pages/Audits";
 import AddBook from "../pages/AddBook";
 import Settings from "../pages/Settings";
 import DeleteBook from "../pages/DeleteBook";
+import UpdateBook from "../pages/UpdateBook";
 
 // define app routes
 export const routes: Array<RouteItem> = [
@@ -71,6 +72,16 @@ export const routes: Array<RouteItem> = [
         path: "/deleteBook/:bookId",
         enabled: true,
         component: (props: CommonProps) => () => <DeleteBook {...props}/>,
+        icon: HomeIcon,
+        appendDivider: true
+    },
+    {
+        key: "router-updatebook",
+        title: "Update Book",
+        tooltip: "Update Book",
+        path: "/updateBook/:bookId",
+        enabled: true,
+        component: (props: CommonProps) => () => <UpdateBook {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     },

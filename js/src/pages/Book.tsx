@@ -30,6 +30,7 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const { bookId } = useParams<Params>();
 
     props.setDeleteBookId(bookId);
+    props.setUpdateBookId(bookId);
 
     const [book, setBook] = useState<Product | null>(null);
 

@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
-    props.setDeleteBookId(null);
+    props.setAllBookId(null);
 
     const classes = useStyles();
 

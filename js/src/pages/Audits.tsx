@@ -19,7 +19,7 @@ interface Audit {
 }
 
 const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
-    props.setDeleteBookId(null);
+    props.setAllBookId(null);
 
     const context = useContext(AppContext);
 

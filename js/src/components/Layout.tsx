@@ -40,8 +40,11 @@ const Layout: FC<LayoutProps> = ({
                                      useDefaultTheme,
                                      children,
                                      apiKey,
+                                     setUpdateBookId,
+                                     updateBookId,
                                      deleteBookId,
-                                     setDeleteBookId
+                                     setDeleteBookId,
+                                     setAllBookId
                                  }: LayoutProps) => {
     const classes = useStyles();
     return (
@@ -51,9 +54,11 @@ const Layout: FC<LayoutProps> = ({
                 toggleTheme={toggleTheme}
                 useDefaultTheme={useDefaultTheme}
                 apiKey={apiKey}
+                setAllBookId={setAllBookId}
                 deleteBookId={deleteBookId}
                 setDeleteBookId={setDeleteBookId}
-            />
+                setUpdateBookId={setUpdateBookId}
+                updateBookId={updateBookId}/>
             <main
                 className={clsx(classes.content)}
             >
