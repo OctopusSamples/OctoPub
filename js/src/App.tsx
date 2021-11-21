@@ -39,6 +39,8 @@ function App(config: DynamicConfig) {
 
     const [bookId, setBookId] = useState<string | null>(null);
 
+    const apiKey = localStorage.getItem("apiKey");
+
     return (
         <>
             <Helmet>
@@ -48,7 +50,7 @@ function App(config: DynamicConfig) {
                 <ThemeProvider theme={theme}>
                     <Router basename={config.settings.basename}>
                         <Switch>
-                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
+                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme} apiKey={apiKey} bookId={bookId} setBookId={setBookId}>
                                 {/* for each route config, a react route is created */}
                                 {routes.map((route: RouteItem) =>
                                     route.subRoutes ? (
@@ -56,7 +58,7 @@ function App(config: DynamicConfig) {
                                             <Route
                                                 key={`${item.key}`}
                                                 path={`${item.path}`}
-                                                component={(item.component && item.component({bookId, setBookId, apiKey: null})) || DefaultComponent}
+                                                component={(item.component && item.component({bookId, setBookId, apiKey: apiKey})) || DefaultComponent}
                                                 exact
                                             />
                                         ))
@@ -64,7 +66,7 @@ function App(config: DynamicConfig) {
                                         <Route
                                             key={`${route.key}`}
                                             path={`${route.path}`}
-                                            component={(route.component && route.component({bookId, setBookId, apiKey: null})) || DefaultComponent}
+                                            component={(route.component && route.component({bookId, setBookId, apiKey: apiKey})) || DefaultComponent}
                                             exact
                                         />
                                     )

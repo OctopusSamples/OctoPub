@@ -5,6 +5,7 @@ import {createStyles, CssBaseline, makeStyles, Theme,} from "@material-ui/core";
 // components
 import Header from "./Header";
 import Footer from "./Footer";
+import {CommonProps} from "../model/RouteItem.model";
 
 // define css-in-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -27,11 +28,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 // define interface to represent component props
-interface LayoutProps {
+interface LayoutProps extends CommonProps {
     toggleTheme: () => void;
     useDefaultTheme: boolean;
     children: ReactNode;
-    currentProduct?: string;
 }
 
 // functional component
@@ -39,7 +39,9 @@ const Layout: FC<LayoutProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
                                      children,
-                                     currentProduct
+                                     apiKey,
+                                     bookId,
+                                     setBookId
                                  }: LayoutProps) => {
     const classes = useStyles();
     return (
@@ -48,7 +50,9 @@ const Layout: FC<LayoutProps> = ({
             <Header
                 toggleTheme={toggleTheme}
                 useDefaultTheme={useDefaultTheme}
-                currentProduct={currentProduct}
+                bookId={bookId}
+                setBookId={setBookId}
+                apiKey={apiKey}
             />
             <main
                 className={clsx(classes.content)}

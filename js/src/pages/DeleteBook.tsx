@@ -35,10 +35,6 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     });
 
     useEffect(() => {
-        if (!localStorage.getItem("apiKey")) {
-            setError("The API key must be defined in the settings page.");
-        }
-
         fetch(context.settings.productEndpoint + "/" + props.bookId, {
             headers: {
                 'Accept': 'application/vnd.api+json'
@@ -47,11 +43,16 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             .then(response => response.json())
             .then(data => {
                 setBook(data);
-                if (localStorage.getItem("apiKey")) {
-                    setDisabled(false, () => {});
-                }
             });
-    }, [setDisabled, setError, setBook]);
+    }, [setBook, context.settings.productEndpoint, props.bookId]);
+
+    useEffect(() => {
+        if (props.apiKey) {
+            setDisabled(false, () => {});
+        } else {
+            setError("The API key must be defined in the settings page.");
+        }
+    }, [setDisabled, setError, props.apiKey]);
 
     return (
         <>
@@ -121,7 +122,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 headers: {
                     'Accept': 'application/vnd.api+json',
                     'Content-Type': 'application/vnd.api+json',
-                    'X-API-Key': localStorage.getItem("apiKey") || ""
+                    'X-API-Key': props.apiKey || ""
                 },
                 body: JSON.stringify(book, (key, value) => {
                     if (value !== null) return value
@@ -138,7 +139,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 .catch(_ => {
                     setDisabled(false, () => {
                     });
-                    setError("An error occurred and the book was not saved.");
+                    setError("An error occurred and the book was not deleted.");
                 })
         );
     }

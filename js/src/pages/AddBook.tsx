@@ -35,13 +35,13 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     });
 
     useEffect(() => {
-        if (!localStorage.getItem("apiKey")) {
+        if (!props.apiKey) {
             setError("The API key must be defined in the settings page.");
         } else {
             setDisabled(false, () => {
             });
         }
-    }, [setDisabled, setError]);
+    }, [setDisabled, setError, props.apiKey]);
 
     return (
         <>
@@ -126,7 +126,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 headers: {
                     'Accept': 'application/vnd.api+json',
                     'Content-Type': 'application/vnd.api+json',
-                    'X-API-Key': localStorage.getItem("apiKey") || ""
+                    'X-API-Key': props.apiKey || ""
                 },
                 body: JSON.stringify(book, (key, value) => {
                     if (value !== null) return value

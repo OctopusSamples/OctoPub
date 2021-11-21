@@ -16,6 +16,7 @@ import {FC, useContext} from "react";
 import {AppContext} from "../App";
 import {useHistory} from "react-router-dom";
 import {AddCircleOutline, Delete, History, SettingsApplications} from "@material-ui/icons";
+import {CommonProps} from "../model/RouteItem.model";
 
 // define css-in-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -53,16 +54,15 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 // define interface to represent component props
-interface HeaderProps {
+interface HeaderProps extends CommonProps {
     toggleTheme: () => void;
     useDefaultTheme: boolean;
-    currentProduct?: string;
 }
 
 const Header: FC<HeaderProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
-                                     currentProduct
+                                     bookId
                                  }: HeaderProps) => {
     const classes = useStyles();
     const context = useContext(AppContext);
@@ -83,7 +83,7 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
-                {currentProduct &&
+                {bookId &&
                 <IconButton onClick={() => history.push('/deleteBook')}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>

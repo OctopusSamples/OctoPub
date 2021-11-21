@@ -27,7 +27,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     <FormLabel>API Key</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12}>
-                    <TextField id={"apiKey"} fullWidth={true} variant={"outlined"} value={apiKey}
+                    <TextField id="apiKey" fullWidth={true} type="password" variant="outlined" value={apiKey}
                                onChange={v => {
                                    setApiKey(v.target.value);
                                    localStorage.setItem("apiKey", v.target.value);
