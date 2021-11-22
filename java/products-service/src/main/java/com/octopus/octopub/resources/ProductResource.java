@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -24,8 +25,7 @@ import lombok.NonNull;
 @RequestScoped
 public class ProductResource {
 
-  @Inject
-  ProductsController productsController;
+  @Inject ProductsController productsController;
 
   @GET
   public Response getAll(
@@ -44,6 +44,29 @@ public class ProductResource {
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
       throws DocumentSerializationException {
     return Response.ok(productsController.create(document, acceptHeader)).build();
+  }
+
+  @PATCH
+  @Path("{id}")
+  @Transactional
+  public Response update(
+      @Context final SecurityContext ctx,
+      @NonNull final String document,
+      @PathParam("id") final String id,
+      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
+      throws DocumentSerializationException {
+    return Response.ok(productsController.update(id, document, acceptHeader)).build();
+  }
+
+  @POST
+  @Path("{id}")
+  @Transactional
+  public Response delete(
+      @Context final SecurityContext ctx,
+      @PathParam("id") final String id,
+      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
+      throws DocumentSerializationException {
+    return Response.ok(productsController.delete(id, acceptHeader)).build();
   }
 
   @GET

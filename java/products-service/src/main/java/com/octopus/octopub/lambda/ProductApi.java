@@ -4,6 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.octopus.octopub.Constants;
+import com.octopus.octopub.exceptions.EntityNotFound;
 import com.octopus.octopub.services.ProductsController;
 import java.util.Base64;
 import java.util.List;
@@ -220,18 +221,31 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   private Optional<ProxyResponse> updateOne(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
       if (requestIsMatch(input, INDIVIDUAL_RE, Constants.PATCH_METHOD)) {
-        return Optional.of(
-            new ProxyResponse(
-                "200",
-                productsController.update(
-                    getBody(input),
-                    getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
+        // attempt to extract the ID from the path
+        final Optional<String> id = getGroup(INDIVIDUAL_RE, input.getPath(), "id");
+        // This should be present, but be defensive and check
+        if (id.isPresent()) {
+          return Optional.of(
+              new ProxyResponse(
+                  "200",
+                  productsController.update(
+                      id.get(),
+                      getBody(input),
+                      getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
+        }
+        // If the id was not found in the path, return a 404
+        return Optional.of(buildNotFound());
       }
+    } catch (final EntityNotFound ex) {
+      // If the resource didn't exist in the system to be updated, return a 404
+      return Optional.of(buildNotFound());
     } catch (final Exception e) {
+      // assume all other exceptions are a server side issue, and return a 500
       e.printStackTrace();
       return Optional.of(buildError(e, getBody(input)));
     }
 
+    // This handler does not recognize the request, so return an empty result
     return Optional.empty();
   }
 
@@ -343,7 +357,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   /**
    * Build a error object for a 404 not found error.
    * https://jsonapi.org/format/#error-objects
-   * @return
+   * @return The ProxyResponse representing the error.
    */
   private ProxyResponse buildNotFound() {
     return new ProxyResponse(

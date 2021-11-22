@@ -4,6 +4,7 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
+import com.octopus.octopub.exceptions.EntityNotFound;
 import com.octopus.octopub.exceptions.InvalidInput;
 import com.octopus.octopub.exceptions.MissingData;
 import com.octopus.octopub.models.Audit;
@@ -56,42 +57,55 @@ public class ProductsController {
     return respondWithProduct(product);
   }
 
-  public String update(@NonNull final String document, @NonNull final List<String> acceptHeaders)
+  public String update(
+      @NonNull final String id,
+      @NonNull final String document,
+      @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
 
     // The input was missing the required data
-    if (product == null || product.id == null) {
+    if (product == null) {
       throw new MissingData();
     }
 
-    // find the product we are updating
-    final Product existingProduct = productRepository.findOne(product.id);
-    // the existing product must have the same tenant asthe current request to be updated
-    if (tenantIdentifier.getTenant(acceptHeaders).equals(existingProduct.tenant)) {
-      // update the product details
-      productRepository.update(product);
+    try {
+      // find the product we are updating
+      final Product existingProduct = productRepository.findOne(Integer.parseInt(id));
 
-      // Create an audit record noting the change
-      auditRepository.save(
-          new Audit(
-              Constants.MICROSERVICE_NAME,
-              Constants.UPDATED_ACTION,
-              "Product-" + product.getId().toString()),
-          acceptHeaders);
+      if (existingProduct != null) {
+        // the existing product must have the same tenant as the current request to be updated
+        if (tenantIdentifier.getTenant(acceptHeaders).equals(existingProduct.tenant)) {
+          // update the product details
+          productRepository.update(product);
 
-      return respondWithProduct(product);
-    } else {
-      // Create an audit record noting the failure
-      auditRepository.save(
-          new Audit(
-              Constants.MICROSERVICE_NAME,
-              Constants.UPDATED_FAILED_TENANT_MISMATCH_ACTION,
-              "Product-" + product.getId().toString()),
-          acceptHeaders);
-      // Throw an exception, which will be picked up by a Provider to create a custom response
-      throw new InvalidInput("Failed to update a record created by another tenant.");
+          // Create an audit record noting the change
+          auditRepository.save(
+              new Audit(
+                  Constants.MICROSERVICE_NAME,
+                  Constants.UPDATED_ACTION,
+                  "Product-" + product.getId().toString()),
+              acceptHeaders);
+
+          return respondWithProduct(product);
+
+        } else {
+          // Create an audit record noting the failure
+          auditRepository.save(
+              new Audit(
+                  Constants.MICROSERVICE_NAME,
+                  Constants.UPDATED_FAILED_TENANT_MISMATCH_ACTION,
+                  "Product-" + product.getId().toString()),
+              acceptHeaders);
+          // Throw an exception, which will be picked up by a Provider to create a custom response
+          throw new InvalidInput("Failed to update a record created by another tenant.");
+        }
+      }
+    } catch (final NumberFormatException ex) {
+      // ignored, as the supplied id was not an int, and would never find any entities
     }
+
+    throw new EntityNotFound();
   }
 
   public String getOne(@NonNull final String id, @NonNull final List<String> acceptHeaders)
