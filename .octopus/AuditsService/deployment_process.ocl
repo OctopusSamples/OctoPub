@@ -450,7 +450,7 @@ step "Deploy Lambda" {
                 							  [
                 								"server=",
                 								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
-                								":",
+                								";port=",
                 								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
                 								";database=audits;user=",
                 								{
@@ -514,7 +514,7 @@ step "Deploy Lambda" {
                 							  [
                 								"server=",
                 								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
-                								":",
+                								";port=",
                 								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
                 								";database=audits;user=",
                 								{
