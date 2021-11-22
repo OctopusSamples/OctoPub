@@ -66,12 +66,6 @@
     </addColumn>
   </changeSet>
   <changeSet author="mcasperson" id="6">
-    <insert tableName="product">
-      <column name="name" value="The 10 Pillars of Pragmatic Kubernetes Deployments"/>
-      <column name="partition" value="main"/>
-    </insert>
-  </changeSet>
-  <changeSet author="mcasperson" id="7">
     <update tableName="product">
       <column name="pdf" value="https://github.com/OctopusDeploy/TenPillarsK8s/releases/latest/download/tenpillarsk8s.pdf"/>
       <column name="epub" value="https://github.com/OctopusDeploy/TenPillarsK8s/releases/latest/download/tenpillarsk8s.epub"/>
