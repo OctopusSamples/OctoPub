@@ -20,10 +20,12 @@ const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             flexGrow: 1,
             padding: theme.spacing(3),
+            overflowY: "auto",
+            height: "80vh"
         },
         toolbar: {
             ...theme.mixins.toolbar,
-        },
+        }
     })
 );
 

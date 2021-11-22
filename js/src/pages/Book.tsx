@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
             width: "100%"
         },
         content: {
+
             "& a": {
                 color: theme.palette.text.primary
             }
@@ -56,11 +57,11 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 </title>
             </Helmet>
             {!book && <div>Loading...</div>}
-            {book && <Grid container={true}>
+            {book && <Grid container={true} className={classes.content}>
                 <Grid item md={4} sm={12}>
                     <img className={classes.image} src={book.data.attributes.image || "https://via.placeholder.com/300x400"} alt={book.data.attributes.name || ""}/>
                 </Grid>
-                <Grid className={classes.content} item md={8} sm={12}>
+                <Grid  item md={8} sm={12}>
                     <h1>{book.data.attributes.name}</h1>
                     <p>{book.data.attributes.description}</p>
                     <h2>Downloads</h2>

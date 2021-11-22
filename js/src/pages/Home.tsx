@@ -18,13 +18,13 @@ const useStyles = makeStyles((theme: Theme) =>
             flexDirection: "row",
             minWidth: "100%",
             minHeight: "100%",
-            height: "80vh",
             justifyContent: "center"
         },
         book: {
             justifyContent: "center",
             height: "40%",
-            width: "30%"
+            width: "30%",
+            paddingBottom: "8px"
         },
         image: {
             objectFit: "contain",
@@ -77,7 +77,7 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 {!books && !error && <div>Loading...</div>}
                 {!books && error && <div>{error}</div>}
                 {books && books.data.map(b =>
-                    <Grid item xs={4}
+                    <Grid item md={3} sm={6} xs={12}
                           className={classes.book}
                           container={true}
                           onClick={() => {
