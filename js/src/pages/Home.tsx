@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
         image: {
             objectFit: "contain",
             height: "100%",
-            width: "100%"
+            cursor: "pointer"
         }
     })
 );
