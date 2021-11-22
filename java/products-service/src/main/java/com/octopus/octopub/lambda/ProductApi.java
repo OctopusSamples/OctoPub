@@ -25,7 +25,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   private static final Pattern ROOT_RE = Pattern.compile("/api/products/?");
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("/api/products/(?<id>\\d+)");
-  private static final Pattern HEALTH_RE = Pattern.compile("/health/products/(GET|POST|\\d+/GET)");
+  private static final Pattern HEALTH_RE = Pattern.compile("/health/products/(GET|POST|\\d+/(GET|DELETE|PATCH))");
 
   @Inject ProductsController productsController;
 
