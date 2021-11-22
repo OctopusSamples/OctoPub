@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Audit.Service.Lambda;
+﻿using Audit.Service.Lambda;
 using Audit.Service.Repositories.InMemory;
 
 namespace Audit.Service.Services.InMemory
@@ -15,19 +14,11 @@ namespace Audit.Service.Services.InMemory
 
         public Models.Audit CreateAsync(Models.Audit resource, RequestWrapper wrapper)
         {
-            resource.Id = FindUniqueId();
+            resource.Id = null;
             resource.Tenant = wrapper.Tenant;
             _context.Audits.Add(resource);
             _context.SaveChanges();
             return resource;
-        }
-
-        private int FindUniqueId()
-        {
-            var id = _context.Audits.Count();
-            while (_context.Audits.Find(id) != null) ++id;
-
-            return id;
         }
     }
 }

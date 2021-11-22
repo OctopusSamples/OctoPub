@@ -1,4 +1,7 @@
-﻿using System.Data.Entity.Migrations;
+﻿using System.Collections.Generic;
+using System.Data.Entity.Infrastructure.Annotations;
+using System.Data.Entity.Migrations;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Audit.Service.Migrations
 {
@@ -8,7 +11,9 @@ namespace Audit.Service.Migrations
         {
             CreateTable("audit", c => new
             {
-                Id = c.Int(identity: true, nullable: false),
+                Id = c.Int(identity: true, nullable: false,
+                    annotations: new Dictionary<string, AnnotationValues>
+                        {{ "MySql:ValueGenerationStrategy", new AnnotationValues(null, MySqlValueGenerationStrategy.IdentityColumn) }}),
                 Branch = c.String(),
                 Tenant = c.String(),
                 Action = c.String(),

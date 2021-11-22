@@ -43,8 +43,9 @@ namespace Audit.Service.Lambda
                 }
                 else
                 {
-                    optionsBuilder.UseMySQL(
+                    optionsBuilder.UseMySql(
                         configuration.GetConnectionString("MySqlDatabase"),
+                        new MySqlServerVersion("8.0"),
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
                 var context = new Db(optionsBuilder.Options);

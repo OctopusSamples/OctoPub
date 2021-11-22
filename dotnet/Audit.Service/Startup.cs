@@ -32,8 +32,9 @@ namespace Audit.Service
                 }
                 else
                 {
-                    opt.UseMySQL(
+                    opt.UseMySql(
                         Configuration.GetConnectionString("MySqlDatabase"),
+                        new MySqlServerVersion("8.0"),
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
             });

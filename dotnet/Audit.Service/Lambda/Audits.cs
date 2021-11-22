@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.Json;
 using Amazon.Lambda.SQSEvents;
+using Audit.Service.Repositories.InMemory;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
@@ -27,6 +30,10 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
+
+                var db = serviceProvider.GetService<Db>();
+                db.Database.Migrate();
+
                 var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
                 var handler = serviceProvider.GetService<AuditHandler>();
                 return AddCors(ProcessRequest(handler, requestWrapper));

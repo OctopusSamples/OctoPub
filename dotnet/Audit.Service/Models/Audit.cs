@@ -1,8 +1,12 @@
-﻿namespace Audit.Service.Models
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Audit.Service.Models
 {
     public class Audit
     {
-        public int Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int? Id { get; set; }
 
         public string Branch { get; set; }
 
