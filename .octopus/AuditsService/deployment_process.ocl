@@ -1022,7 +1022,7 @@ step "Deploy Lambda" {
                 		"SubnetBId": {
                 			"Description": "The Subnet B id",
                 			"Value": {
-                				"Ref": "SubnetA"
+                				"Ref": "SubnetB"
                 			}
                 		},
                 		"SecurityGroupId": {
