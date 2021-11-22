@@ -1176,10 +1176,16 @@ step "Database Migration" {
             Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.RunOnServer = "true"
             Octopus.Action.Script.ScriptBody = <<-EOT
+                LAMBDA=#{Octopus.Environment.Name}-InitDB-#{Lambda.AuditsService}
+                
+                echo "Executing ${LAMBDA}"
+                
                 aws lambda invoke \
-                	--function-name #{Octopus.Environment.Name}-InitDB-#{Lambda.AuditsService} \
+                	--function-name ${LAMBDA} \
                     --payload '{}' \
                     response.json
+                    
+                cat response.json
             EOT
             Octopus.Action.Script.ScriptSource = "Inline"
             Octopus.Action.Script.Syntax = "Bash"
