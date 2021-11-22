@@ -17,6 +17,28 @@ namespace Audit.Service.Lambda
         private static readonly DependencyInjection DependencyInjection = new DependencyInjection();
 
         /// <summary>
+        /// This is the entry point to the Lambda to run database migrations.
+        /// </summary>
+        /// <param name="request">The request details in proxy format</param>
+        /// <param name="context">The lambda context</param>
+        /// <returns>201 if the migration succeeded, or 500 if it failed</returns>
+        public APIGatewayProxyResponse AuditsDbMigration(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            try
+            {
+                DependencyInjection.ConfigureServices(true);
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 201
+                };
+            }
+            catch (Exception ex)
+            {
+                return BuildError(ex);
+            }
+        }
+
+        /// <summary>
         /// This is the HTTP entry point to the Lambda.
         /// </summary>
         /// <param name="request">The request details in proxy format</param>
@@ -26,7 +48,7 @@ namespace Audit.Service.Lambda
         {
             try
             {
-                var serviceProvider = DependencyInjection.ConfigureServices();
+                var serviceProvider = DependencyInjection.ConfigureServices(false);
                 var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
                 var handler = serviceProvider.GetService<AuditHandler>();
                 return AddCors(ProcessRequest(handler, requestWrapper));
@@ -48,7 +70,7 @@ namespace Audit.Service.Lambda
             Console.Out.WriteLine("Audits.HandleSqsEvent(SQSEvent, ILambdaContext)");
             Console.Out.WriteLine(sqsEvent.Records.Count + " records to process");
 
-            var serviceProvider = DependencyInjection.ConfigureServices();
+            var serviceProvider = DependencyInjection.ConfigureServices(false);
             sqsEvent.Records
                 .Select(m => new Thread(() =>
                 {

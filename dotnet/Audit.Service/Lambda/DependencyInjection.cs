@@ -19,7 +19,7 @@ namespace Audit.Service.Lambda
         /// Builds a dependency injection context.
         /// </summary>
         /// <returns>The DI service provider</returns>
-        public ServiceProvider ConfigureServices()
+        public ServiceProvider ConfigureServices(bool applyMigrations)
         {
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
@@ -51,7 +51,7 @@ namespace Audit.Service.Lambda
 
                 var context = new Db(optionsBuilder.Options);
 
-                InitializeDatabase(context, configuration);
+                InitializeDatabase(context, configuration, applyMigrations);
 
                 /*
                  * The in memory database lives as long as the Lambda is hot. But it will eventually be reset
@@ -71,7 +71,7 @@ namespace Audit.Service.Lambda
             return services.BuildServiceProvider();
         }
 
-        private void InitializeDatabase(Db context, IConfigurationRoot configuration)
+        private void InitializeDatabase(Db context, IConfigurationRoot configuration, bool applyMigrations)
         {
             if (context.Database.IsInMemory())
             {
@@ -83,8 +83,10 @@ namespace Audit.Service.Lambda
                     Int32.TryParse(configuration.GetSection("Database:MySqlTimeout").Value, out var timeout)
                         ? timeout
                         : Constants.DefaultMySqlTimeout);
-                context.Database.GetMigrations();
-                context.Database.Migrate();
+                if (applyMigrations)
+                {
+                    context.Database.Migrate();
+                }
             }
         }
 
