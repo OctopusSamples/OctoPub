@@ -440,8 +440,24 @@ step "Deploy Lambda" {
                 				"Environment": {
                 					"Variables": {
                 						"ConnectionStrings__MySqlDatabase": {
-                							"Fn::Sub": "server=${DBHost};database=audits;user=${DBUsername};password=${DBPassword}"
-                						}
+                							"Fn::Join": [
+                							  "",
+                							  [
+                								"server=",
+                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
+                								":",
+                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
+                								";database=audits;user=",
+                								{
+                								  "Ref": "AWS::DBUsername"
+                								},
+                								";password=",
+                								{
+                								  "Ref": "DBPassword"
+                								}
+                							  ]
+                							]
+                						  }
                 					}
                 				},
                 				"Description": {
