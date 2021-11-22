@@ -139,7 +139,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     function updateBook(input: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, property: string) {
         setBook({
             data: {
-                id: null,
+                id: book.data.id,
                 type: book.data.type,
                 attributes: {...book.data.attributes, [property]: input.target.value}
             }
