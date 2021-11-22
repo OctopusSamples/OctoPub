@@ -454,7 +454,7 @@ step "Deploy Lambda" {
                 								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
                 								";database=audits;user=",
                 								{
-                								  "Ref": "AWS::DBUsername"
+                								  "Ref": "DBUsername"
                 								},
                 								";password=",
                 								{
@@ -518,7 +518,7 @@ step "Deploy Lambda" {
                 								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
                 								";database=audits;user=",
                 								{
-                								  "Ref": "AWS::DBUsername"
+                								  "Ref": "DBUsername"
                 								},
                 								";password=",
                 								{
