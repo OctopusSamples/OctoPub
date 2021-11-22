@@ -7,6 +7,7 @@ namespace Audit.Service.Repositories.InMemory
         public Db(DbContextOptions<Db> options)
             : base(options)
         {
+
         }
 
         public DbSet<Models.Audit> Audits { get; set; }

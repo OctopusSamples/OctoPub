@@ -1,5 +1,4 @@
 using System;
-using Audit.Service.Models;
 using Audit.Service.Repositories.InMemory;
 using Audit.Service.Services.InMemory;
 using Microsoft.AspNetCore.Builder;
@@ -8,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 
 namespace Audit.Service
 {
@@ -59,6 +57,11 @@ namespace Audit.Service
             {
                 endpoints.MapControllers();
             });
+
+            var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
+            using var serviceScope = serviceScopeFactory.CreateScope();
+            var dbContext = serviceScope.ServiceProvider.GetService<Db>();
+            dbContext.Database.EnsureCreated();
         }
     }
 }
