@@ -9,7 +9,7 @@ namespace Audit.Service.Migrations
     {
         public override void Up()
         {
-            CreateTable("audit", c => new
+            CreateTable("audits", c => new
             {
                 Id = c.Int(identity: true, nullable: false,
                     annotations: new Dictionary<string, AnnotationValues>

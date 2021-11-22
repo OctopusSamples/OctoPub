@@ -49,6 +49,7 @@ namespace Audit.Service.Lambda
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
                 var context = new Db(optionsBuilder.Options);
+                context.Database.EnsureCreated();
 
                 /*
                  * The in memory database lives as long as the Lambda is hot. But it will eventually be reset

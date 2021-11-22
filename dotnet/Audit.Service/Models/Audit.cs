@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Audit.Service.Models
 {
+    [Table("audits")]
     public class Audit
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
