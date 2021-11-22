@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Audit.Service.Migrations
 {
     [DbContext(typeof(Db))]
-    [Migration("addInitialTable")]
+    [Migration("00001-AddInitialTable")]
     public class AddAuditsTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
