@@ -533,7 +533,7 @@ step "Deploy Lambda" {
                 					"Ref": "LambdaDescription"
                 				},
                 				"FunctionName": {
-                					"Fn::Sub": "${EnvironmentName}-DB-${LambdaName}"
+                					"Fn::Sub": "${EnvironmentName}-InitDB-${LambdaName}"
                 				},
                 				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsDbMigration",
                 				"MemorySize": 128,
@@ -1160,6 +1160,30 @@ step "Deploy Lambda" {
             Octopus.Action.AwsAccount.UseInstanceRole = "False"
             Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.RunOnServer = "true"
+        }
+        worker_pool_variable = "WorkerPool"
+    }
+}
+
+step "Database Migration" {
+
+    action {
+        action_type = "Octopus.AwsRunScript"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.RunOnServer = "true"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                aws lambda invoke \
+                	--function-name #{Octopus.Environment.Name}-InitDB-#{Lambda.AuditsService} \
+                    --payload '{}' \
+                    response.json
+            EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "PowerShell"
+            OctopusUseBundledTooling = "False"
         }
         worker_pool_variable = "WorkerPool"
     }
