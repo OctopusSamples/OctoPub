@@ -49,7 +49,16 @@ namespace Audit.Service.Lambda
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
                 var context = new Db(optionsBuilder.Options);
-                context.Database.EnsureCreated();
+
+                if (useInMemoryDb)
+                {
+                    context.Database.EnsureCreated();
+                }
+                else
+                {
+                    context.Database.SetCommandTimeout(Int32.TryParse(configuration.GetSection("Database:MySqlTimeout").Value, out var timeout) ? timeout : 180 );
+                    context.Database.Migrate();
+                }
 
                 /*
                  * The in memory database lives as long as the Lambda is hot. But it will eventually be reset

@@ -30,10 +30,6 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
-
-                var db = serviceProvider.GetService<Db>();
-                db.Database.Migrate();
-
                 var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
                 var handler = serviceProvider.GetService<AuditHandler>();
                 return AddCors(ProcessRequest(handler, requestWrapper));
