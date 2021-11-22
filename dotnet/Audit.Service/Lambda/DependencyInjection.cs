@@ -25,6 +25,7 @@ namespace Audit.Service.Lambda
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("LAMBDA_ENVIRONMENT")}.json", optional: true)
+                .AddEnvironmentVariables()
                 .Build();
 
             var services = new ServiceCollection();
