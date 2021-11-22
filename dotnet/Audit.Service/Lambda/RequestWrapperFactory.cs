@@ -22,7 +22,7 @@ namespace Audit.Service.Lambda
     public static class RequestWrapperFactory
     {
         private static readonly int DefaultId = -1;
-        private static readonly string HealthEndpoint = "/health";
+        private static readonly Regex HealthEndpointRe = new Regex("^/health/audits/(GET|POST|\\d+/GET)/?$");
         private static readonly string AuditEndpoint = "/api/audits";
         private static readonly Regex EntityCollectionRe = new Regex("^/api/audits/?$");
         private static readonly Regex SingleEntityRe = new Regex("^/api/audits/(?<id>\\d+)/?$");
@@ -38,7 +38,7 @@ namespace Audit.Service.Lambda
             {
                 Entity = GetBody(request),
                 ActionType = ActionTypeFromHttpMethod(request.HttpMethod, request.Path),
-                EntityType = request.Path?.StartsWith(HealthEndpoint) ?? false
+                EntityType = HealthEndpointRe.IsMatch(request.Path)
                     ? EntityType.Health
                     : request.Path?.StartsWith(AuditEndpoint) ?? false
                         ? EntityType.Audit
@@ -91,7 +91,7 @@ namespace Audit.Service.Lambda
         /// <returns>The equivalent CRUD action</returns>
         static ActionType ActionTypeFromHttpMethod(string method, string path)
         {
-            var fixedMethod = method?.ToLower() ?? string.Empty;;
+            var fixedMethod = method?.ToLower() ?? string.Empty;
             if (fixedMethod == "get" && EntityCollectionRe.IsMatch(path))
             {
                 return ActionType.ReadAll;

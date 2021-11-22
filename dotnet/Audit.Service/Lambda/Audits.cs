@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.Json;
@@ -35,11 +34,7 @@ namespace Audit.Service.Lambda
             }
             catch (Exception ex)
             {
-                return new APIGatewayProxyResponse
-                {
-                    Body = System.Text.Json.JsonSerializer.Serialize(ex.ToString()),
-                    StatusCode = 500
-                };
+                return BuildError(ex);
             }
         }
 
@@ -92,11 +87,7 @@ namespace Audit.Service.Lambda
                    ?? handler.GetOne(wrapper)
                    ?? handler.CreateOne(wrapper)
                    ?? handler.GetHealth(wrapper)
-                   ?? new APIGatewayProxyResponse
-                   {
-                       Body = "{\"message\": \"path not found\"}",
-                       StatusCode = 404
-                   };
+                   ?? BuildNotFound();
         }
 
         private APIGatewayProxyResponse AddCors(APIGatewayProxyResponse response)
@@ -107,6 +98,36 @@ namespace Audit.Service.Lambda
             }
             response.Headers.Add("Access-Control-Allow-Origin", "*");
             return response;
+        }
+
+        private APIGatewayProxyResponse BuildError(Exception ex)
+        {
+            return new APIGatewayProxyResponse
+            {
+                Body = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    errors = new[]
+                    {
+                        new {code = ex.GetType().Name}
+                    }
+                }),
+                StatusCode = 500
+            };
+        }
+
+        private APIGatewayProxyResponse BuildNotFound()
+        {
+            return new APIGatewayProxyResponse
+            {
+                Body = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    errors = new[]
+                    {
+                        new {title = "Resource was not found"}
+                    }
+                }),
+                StatusCode = 404
+            };
         }
     }
 }
