@@ -22,8 +22,17 @@ import org.h2.util.StringUtils;
 @Named("Products")
 public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, ProxyResponse> {
 
+  /**
+   * A regular expression matching the collection of entities.
+   */
   private static final Pattern ROOT_RE = Pattern.compile("/api/products/?");
+  /**
+   * A regular expression matching a single entity.
+   */
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("/api/products/(?<id>\\d+)");
+  /**
+   * A regular expression matching a health endpoint.
+   */
   private static final Pattern HEALTH_RE =
       Pattern.compile("/health/products/(GET|POST|\\d+/(GET|DELETE|PATCH))");
 
@@ -41,13 +50,19 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   public ProxyResponse handleRequest(
       @NonNull final APIGatewayProxyRequestEvent input, @NonNull final Context context) {
 
+    /*
+      Lambdas don't enjoy the same middleware and framework support as web servers, so we are
+      on our own with functionality such as routing requests to handlers. This code simply calls
+      each handler to find the first one that responds to the request.
+     */
     return getAll(input)
         .or(() -> getOne(input))
         .or(() -> createOne(input))
         .or(() -> deleteOne(input))
         .or(() -> updateOne(input))
         .or(() -> checkHealth(input))
-        .orElse(new ProxyResponse("404", "{\"message\": \"Path not found\"}"));
+        .orElse(new ProxyResponse(
+        "404", "{\"errors\": [{\"title\": \"Path not found\"}]}"));
   }
 
   /**
@@ -56,6 +71,24 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
    * to /health/products/GET will return 200 OK if the service responding to /api/products is able
    * to service a GET request, and a GET request to /health/products/1/DELETE will return 200 OK if
    * the service responding to /api/products/1 is available to service a DELETE request.
+   *
+   * This approach was taken to support the fact that Lambdas may well have unique services responding
+   * to each individual endpoint. For example, you may have a dedicated lambda fetching resource collections
+   * (i.e. /api/products), and a dedicated lambda fetching individual resources (i.e. /api/products/1).
+   * The health of these lambdas may be independent of one another.
+   *
+   * This is unlike a traditional web service, where it is usually taken for granted that a single application
+   * responds to all these requests, and therefore a single health endpoint can represent the status
+   * of all endpoints.
+   *
+   * By ensuring every path has a matching health endpoint, we allow clients to verify the status of
+   * the service without having to know which lambdas respond to which requests. This does mean that
+   * a client may need to verify the health of half a dozen endpoints to fully determine the state of
+   * the client's dependencies, but this is a more accurate representation of the health of the system.
+   *
+   * This particular service will typically be deployed with one lambda responding to many endpoints,
+   * but clients can not assume this is always the case, and must check the health of each endpoint
+   * to accurately evaluate the health of the service.
    *
    * @param input The request details
    * @return The optional proxy response
@@ -68,6 +101,11 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     return Optional.empty();
   }
 
+  /**
+   * Update a collection of products.
+   * @param input The Lambda request.
+   * @return The Lambda response.
+   */
   private Optional<ProxyResponse> getAll(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
       if (requestIsMatch(input, ROOT_RE, Constants.GET_METHOD)) {
@@ -91,6 +129,11 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     return Optional.empty();
   }
 
+  /**
+   * Return a product.
+   * @param input The Lambda request.
+   * @return The Lambda response.
+   */
   private Optional<ProxyResponse> getOne(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
 
@@ -116,6 +159,11 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     return Optional.empty();
   }
 
+  /**
+   * Delete a product.
+   * @param input The Lambda request.
+   * @return The Lambda response.
+   */
   private Optional<ProxyResponse> deleteOne(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
 
@@ -141,6 +189,11 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     return Optional.empty();
   }
 
+  /**
+   * Create a product.
+   * @param input The Lambda request.
+   * @return The Lambda response.
+   */
   private Optional<ProxyResponse> createOne(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
       if (requestIsMatch(input, ROOT_RE, Constants.POST_METHOD)) {
@@ -159,6 +212,11 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     return Optional.empty();
   }
 
+  /**
+   * Update a product.
+   * @param input The Lambda request.
+   * @return The Lambda response.
+   */
   private Optional<ProxyResponse> updateOne(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
       if (requestIsMatch(input, INDIVIDUAL_RE, Constants.PATCH_METHOD)) {
@@ -177,6 +235,13 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     return Optional.empty();
   }
 
+  /**
+   * Get the regex group from the pattern for the input.
+   * @param pattern The regex pattern.
+   * @param input The input to apply the pattern to.
+   * @param group The group name to return.
+   * @return The regex group value.
+   */
   private Optional<String> getGroup(
       @NonNull final Pattern pattern, final Object input, @NonNull final String group) {
     if (input == null) return Optional.empty();
@@ -230,6 +295,13 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         .collect(Collectors.toList());
   }
 
+  /**
+   * Determine if the Lambda request matches path and method.
+   * @param input The Lmabda request.
+   * @param regex The path regex.
+   * @param method The HTTP method.
+   * @return true if this request matches the supplied values, and false otherwise.
+   */
   private boolean requestIsMatch(
       @NonNull final APIGatewayProxyRequestEvent input,
       @NonNull final Pattern regex,
@@ -239,6 +311,11 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     return regex.matcher(path).matches() && method.toLowerCase().equals(requestMethod);
   }
 
+  /**
+   * Get the request body, and deal with the fact that it may be base64 encoded.
+   * @param input The Lambda request
+   * @return The unencoded request body
+   */
   private String getBody(@NonNull final APIGatewayProxyRequestEvent input) {
     final String body = ObjectUtils.defaultIfNull(input.getBody(), "");
     final String isBase64Encoded =
@@ -251,16 +328,34 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     return body;
   }
 
+  /**
+   * Build an error object including the exception name and the body of the request that was sent.
+   * https://jsonapi.org/format/#error-objects
+   * @param ex The exception
+   * @param requestBody The request body
+   * @return The ProxyResponse representing the error.
+   */
   private ProxyResponse buildError(@NonNull final Exception ex, final String requestBody) {
       return new ProxyResponse(
           "500", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\", \"meta\": {\"requestBody\": \"" +  requestBody + "\"}}]}");
   }
 
+  /**
+   * Build a error object for a 404 not found error.
+   * https://jsonapi.org/format/#error-objects
+   * @return
+   */
   private ProxyResponse buildNotFound() {
     return new ProxyResponse(
         "404", "{\"errors\": [{\"title\": \"Resource not found\"}]}");
   }
 
+  /**
+   * Build an error object including the exception name.
+   * https://jsonapi.org/format/#error-objects
+   * @param ex The exception
+   * @return The ProxyResponse representing the error.
+   */
   private ProxyResponse buildError(@NonNull final Exception ex) {
     return new ProxyResponse(
         "500", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\"}]}");
