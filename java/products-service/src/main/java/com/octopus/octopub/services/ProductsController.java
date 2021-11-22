@@ -61,7 +61,7 @@ public class ProductsController {
     final Product product = getProductFromDocument(document);
 
     // The input was missing the required data
-    if (product == null) {
+    if (product == null || product.id == null) {
       throw new MissingData();
     }
 
