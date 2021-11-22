@@ -11,7 +11,7 @@ public final class Constants {
   public static final String ACCEPT_HEADER = "Accept";
   public static final String FILTER_QUERY_PARAM = "filter";
   public static final String API_GATEWAY_API_KEY_HEADER = "X-API-Key";
-  public static final String MICROSERVICE_NAME = "Products";
+  public static final String MICROSERVICE_NAME = "Products Service";
   public static final String ACCEPT_VERSION_INFO = "products-version";
   public static final String ACCEPT_TENANT_INFO = "tenant";
   public static final String GET_METHOD = "get";
