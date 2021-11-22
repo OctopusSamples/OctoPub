@@ -8,7 +8,6 @@ namespace Audit.Service.Repositories.InMemory
         public Db(DbContextOptions<Db> options)
             : base(options)
         {
-            Database.EnsureCreated();
             Database.SetCommandTimeout(180);
         }
 
