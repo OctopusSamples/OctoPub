@@ -13,7 +13,10 @@ namespace Audit.Service
             {
                 using (var appContext = scope.ServiceProvider.GetRequiredService<Db>())
                 {
-                    appContext.Database.Migrate();
+                    if (appContext.Database.IsMySql())
+                    {
+                        appContext.Database.Migrate();
+                    }
                 }
             }
             return host;
