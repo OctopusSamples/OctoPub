@@ -46,7 +46,7 @@ namespace Audit.Service.Lambda
                 Id = SingleEntityRe.IsMatch(request.Path ?? string.Empty)
                     ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
                     : DefaultId,
-                Tenant = GetTenant((request.Headers ?? new Dictionary<string, string>())
+                Partition = GetTenant((request.Headers ?? new Dictionary<string, string>())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
                     .Select(h => h.Value))
             };
@@ -73,9 +73,9 @@ namespace Audit.Service.Lambda
                 Id = Int32.TryParse(GetAttribute(message.MessageAttributes, "id"), out var id)
                     ? id
                     : DefaultId,
-                Tenant = message.MessageAttributes?.ContainsKey("tenant") ?? false
+                Partition = message.MessageAttributes?.ContainsKey("tenant") ?? false
                     ? GetTenant(message.MessageAttributes["tenant"].StringValue.Split(","))
-                    : Constants.DefaultTenant
+                    : Constants.DefaultPartition
             };
         }
 
@@ -134,11 +134,11 @@ namespace Audit.Service.Lambda
                 .Select(v => v.Split("="))
                 // validate that the results have 2 elements
                 .Where(v => v.Length == 2)
-                .Where(v => v[0].Trim() == Constants.AcceptTenantInfo)
+                .Where(v => v[0].Trim() == Constants.AcceptPartitionInfo)
                 // get the second element
                 .Select(v => v[1].Trim())
                 // if nothing was found, we assume we are the default tenant
-                .FirstOrDefault() ?? Constants.DefaultTenant;
+                .FirstOrDefault() ?? Constants.DefaultPartition;
         }
     }
 }

@@ -97,7 +97,7 @@ namespace Audit.Service.Lambda
                 context.Audits.Add(new Models.Audit
                 {
                     Id = 0, Action = "Created a sample audit record for the ephemeral inmemory database",
-                    Object = "Test", Subject = "Test", Tenant = Constants.DefaultTenant
+                    Object = "Test", Subject = "Test", Partition = Constants.DefaultPartition
                 });
                 context.SaveChanges();
                 _initializedDatabase = true;

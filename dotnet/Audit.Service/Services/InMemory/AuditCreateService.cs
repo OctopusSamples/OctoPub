@@ -15,7 +15,7 @@ namespace Audit.Service.Services.InMemory
         public Models.Audit Create(Models.Audit resource, RequestWrapper wrapper)
         {
             resource.Id = null;
-            resource.Tenant = wrapper.Tenant;
+            resource.Partition = wrapper.Partition;
             _context.Audits.Add(resource);
             _context.SaveChanges();
             return resource;

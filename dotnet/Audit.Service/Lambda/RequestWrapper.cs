@@ -33,6 +33,6 @@
         public EntityType EntityType { get; set; }
         public string Entity { get; set; }
         public int Id { get; set; }
-        public string Tenant { get; set; }
+        public string Partition { get; set; }
     }
 }
