@@ -443,7 +443,7 @@ step "Deploy Lambda" {
                 				"Environment": {
                 					"Variables": {
                 						"ConnectionStrings__MySqlDatabase": {
-                							"Fn::Sub": "server=${DBHost};database=audits;user=${DBUser};password=${DBPassword}"
+                							"Fn::Sub": "server=${DBHost};database=audits;user=${DBUsername};password=${DBPassword}"
                 						}
                 					}
                 				},
@@ -490,7 +490,7 @@ step "Deploy Lambda" {
                 				"Environment": {
                 					"Variables": {
                 						"ConnectionStrings__MySqlDatabase": {
-                							"Fn::Sub": "server=${DBHost};database=audits;user=${DBUser};password=${DBPassword}"
+                							"Fn::Sub": "server=${DBHost};database=audits;user=${DBUsername};password=${DBPassword}"
                 						}
                 					}
                 				},
