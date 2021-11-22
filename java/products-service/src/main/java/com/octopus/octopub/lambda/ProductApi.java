@@ -3,7 +3,6 @@ package com.octopus.octopub.lambda;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
-import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.services.ProductsController;
 import java.util.Base64;
@@ -25,7 +24,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   private static final Pattern ROOT_RE = Pattern.compile("/api/products/?");
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("/api/products/(?<id>\\d+)");
-  private static final Pattern HEALTH_RE = Pattern.compile("/health/products/(GET|POST|\\d+/(GET|DELETE|PATCH))");
+  private static final Pattern HEALTH_RE =
+      Pattern.compile("/health/products/(GET|POST|\\d+/(GET|DELETE|PATCH))");
 
   @Inject ProductsController productsController;
 
@@ -83,8 +83,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                         .findFirst()
                         .orElse(null))));
       }
-    } catch (final DocumentSerializationException e) {
-      return Optional.of(new ProxyResponse("500", e.toString()));
+    } catch (final Exception e) {
+      return Optional.of(buildError(e));
     }
 
     return Optional.empty();
@@ -105,10 +105,10 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
             return Optional.of(new ProxyResponse("200", entity));
           }
         }
-        return Optional.of(new ProxyResponse("404", "{\"message\": \"Entity not found\"}"));
+        return Optional.of(buildNotFound());
       }
-    } catch (final DocumentSerializationException e) {
-      return Optional.of(new ProxyResponse("500", e.toString()));
+    } catch (final Exception e) {
+      return Optional.of(buildError(e));
     }
 
     return Optional.empty();
@@ -129,10 +129,10 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
             return Optional.of(new ProxyResponse("204"));
           }
         }
-        return Optional.of(new ProxyResponse("404"));
+        return Optional.of(buildNotFound());
       }
-    } catch (final DocumentSerializationException e) {
-      return Optional.of(new ProxyResponse("500", e.toString()));
+    } catch (final Exception e) {
+      return Optional.of(buildError(e));
     }
 
     return Optional.empty();
@@ -148,13 +148,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                     getBody(input),
                     getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
       }
-    } catch (final DocumentSerializationException e) {
-      return Optional.of(
-          new ProxyResponse(
-              "500", "{\"message\": \"" + e + "\", \"body\": \"" + getBody(input) + "\"}"));
-    } catch (final RuntimeException ex) {
-      System.out.println("ProductApi.createOne(APIGatewayProxyRequestEvent): " + ex);
-      throw ex;
+    } catch (final Exception e) {
+      return Optional.of(buildError(e, getBody(input)));
     }
 
     return Optional.empty();
@@ -170,13 +165,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                     getBody(input),
                     getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
       }
-    } catch (final DocumentSerializationException e) {
-      return Optional.of(
-          new ProxyResponse(
-              "500", "{\"message\": \"" + e + "\", \"body\": \"" + getBody(input) + "\"}"));
-    } catch (final RuntimeException ex) {
-      System.out.println("ProductApi.updateOne(APIGatewayProxyRequestEvent): " + ex);
-      throw ex;
+    } catch (final Exception e) {
+      return Optional.of(buildError(e, getBody(input)));
     }
 
     return Optional.empty();
@@ -254,5 +244,20 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     }
 
     return body;
+  }
+
+  private ProxyResponse buildError(@NonNull final Exception ex, final String requestBody) {
+      return new ProxyResponse(
+          "500", "{\"message\": [{\"detail\": \"" + ex + "\", \"meta\": {\"requestBody\": \"" +  requestBody + "\"}}]}");
+  }
+
+  private ProxyResponse buildNotFound() {
+    return new ProxyResponse(
+        "404", "{\"message\": [{\"detail\": \"Resource not found\"}]}");
+  }
+
+  private ProxyResponse buildError(@NonNull final Exception ex) {
+    return new ProxyResponse(
+        "500", "{\"message\": [{\"detail\": \"" + ex + "\"}]}");
   }
 }
