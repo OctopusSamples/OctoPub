@@ -839,6 +839,50 @@ step "Deploy Lambda" {
                         "RestApiId": {"Ref": "RestApi"}
                       }
                     },
+                    "LambdaResourceMethodFive": {
+                      "Type": "AWS::ApiGateway::Method",
+                      "Properties": {      
+                      	"ApiKeyRequired" : true,
+                        "AuthorizationType": "NONE",  
+                        "HttpMethod": "PATCH",
+                        "Integration": {          
+                          "IntegrationHttpMethod": "POST",          
+                          "TimeoutInMillis": 20000,
+                          "Type": "AWS_PROXY",
+                          "Uri": {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":apigateway:",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ":lambda:path/2015-03-31/functions/",
+                                "arn:aws:lambda:",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ":",
+                                {
+                                  "Ref": "AWS::AccountId"
+                                },
+                                ":function:",
+                                { "Ref": "LambdaOne" },
+                                "/invocations"
+                              ]
+                            ]
+                          }
+                        },        
+                        "ResourceId": {
+                          "Ref": "ProductsProxyResource"
+                        },
+                        "RestApiId": {"Ref": "RestApi"}
+                      }
+                    },
                     "LambdaHealthResourceMethodOne": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
