@@ -1,6 +1,10 @@
-﻿using Audit.Service.Repositories.InMemory;
+﻿using System;
+using System.Configuration;
+using System.Reflection;
+using Audit.Service.Repositories.InMemory;
 using Audit.Service.Services.InMemory;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Audit.Service.Lambda
@@ -18,13 +22,27 @@ namespace Audit.Service.Lambda
         /// <returns>The DI service provider</returns>
         public ServiceProvider ConfigureServices()
         {
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("LAMBDA_ENVIRONMENT")}.json", optional: true)
+                .Build();
+
             var services = new ServiceCollection();
 
             // create an in memory database
             services.AddSingleton(provider =>
             {
                 var optionsBuilder = new DbContextOptionsBuilder<Db>();
-                optionsBuilder.UseInMemoryDatabase("audit");
+                if (Boolean.Parse((ReadOnlySpan<char>)configuration.GetSection("Database:UseInMemory").Value))
+                {
+                    optionsBuilder.UseInMemoryDatabase("audit");
+                }
+                else
+                {
+                    optionsBuilder.UseMySQL(
+                        configuration.GetConnectionString("MySqlDatabase"),
+                        x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
+                }
                 var context = new Db(optionsBuilder.Options);
 
                 /*

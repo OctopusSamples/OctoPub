@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using Audit.Service.Repositories.InMemory;
 using Audit.Service.Services.InMemory;
 using Microsoft.AspNetCore.Builder;
@@ -31,7 +32,9 @@ namespace Audit.Service
                 }
                 else
                 {
-                    opt.UseMySQL(Configuration.GetConnectionString("MySqlDatabase"));
+                    opt.UseMySQL(
+                        Configuration.GetConnectionString("MySqlDatabase"),
+                        x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
             });
             services.AddScoped<AuditCreateService>();
