@@ -1186,6 +1186,11 @@ step "Database Migration" {
             OctopusUseBundledTooling = "False"
         }
         worker_pool_variable = "WorkerPool"
+
+        container {
+            feed = "Dockerhub"
+            image = "octopusdeploy/worker-tools:3.2.1-ubuntu.18.04"
+        }
     }
 }
 
