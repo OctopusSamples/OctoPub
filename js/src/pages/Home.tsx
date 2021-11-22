@@ -44,6 +44,7 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const history = useHistory();
 
     const [books, setBooks] = useState<Products | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetch(context.settings.productEndpoint, {
@@ -55,11 +56,11 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 if (response.ok) {
                     return response.json();
                 } else {
-                    throw new Error('Something went wrong');
+                    setError("Failed to return the list of books. Please try again later.")
                 }
             })
             .then(data => setBooks(data));
-    }, [context.settings.productEndpoint, setBooks]);
+    }, [context.settings.productEndpoint, setBooks, setError]);
 
     return (
         <>
@@ -73,7 +74,8 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 className={classes.root}
                 xs={12}
             >
-                {!books && <div>Loading...</div>}
+                {!books && !error && <div>Loading...</div>}
+                {!books && error && <div>{error}</div>}
                 {books && books.data.map(b =>
                     <Grid item xs={4}
                           className={classes.book}
