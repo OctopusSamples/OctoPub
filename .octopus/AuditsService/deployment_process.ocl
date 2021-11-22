@@ -242,6 +242,14 @@ step "Deploy Lambda" {
                     		"SubnetId": {"Ref": "SubnetB"}
                       }
                     },
+                    "SubnetGroup": {
+                	  "Type" : "AWS::RDS::DBSubnetGroup",
+                	  "Properties" : {
+                		  "DBSubnetGroupName" : "productdbsg",
+                		  "DBSubnetGroupDescription": "Products Subnet Group",
+                		  "SubnetIds" : [ {"Ref": "SubnetA"}, {"Ref": "SubnetB"} ]
+                		}
+                	},
                 	"InstanceSecurityGroup": {
                 		"Type": "AWS::EC2::SecurityGroup",
                 		"Properties": {
@@ -263,6 +271,24 @@ step "Deploy Lambda" {
                         "FromPort": "0",
                         "ToPort": "65535",
                         "SourceSecurityGroupId": { "Ref": "InstanceSecurityGroup" }
+                      }
+                    },
+                    "RDSCluster": {
+                      "Type": "AWS::RDS::DBCluster",
+                      "Properties": {
+                      	"DBSubnetGroupName": {"Ref": "SubnetGroup"},
+                        "MasterUsername": {"Ref": "DBUsername"},
+                        "MasterUserPassword": {"Ref": "DBPassword"},
+                        "DatabaseName": "products",
+                        "Engine": "aurora",
+                        "EngineMode": "serverless",
+                        "VpcSecurityGroupIds" : [{ "Ref": "InstanceSecurityGroup" }],
+                        "ScalingConfiguration": {
+                          "AutoPause": true,
+                          "MaxCapacity": 16,
+                          "MinCapacity": 2,
+                          "SecondsUntilAutoPause": 300
+                        }
                       }
                     },
                     "AppLogGroupOne": {
