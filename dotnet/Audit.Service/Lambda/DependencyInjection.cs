@@ -24,7 +24,8 @@ namespace Audit.Service.Lambda
         {
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("LAMBDA_ENVIRONMENT")}.json", optional: true)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("LAMBDA_ENVIRONMENT")}.json",
+                    optional: true)
                 .AddEnvironmentVariables()
                 .Build();
 
@@ -48,34 +49,17 @@ namespace Audit.Service.Lambda
                         new MySqlServerVersion("8.0"),
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
+
                 var context = new Db(optionsBuilder.Options);
 
-                if (useInMemoryDb)
-                {
-                    context.Database.EnsureCreated();
-                }
-                else
-                {
-                    context.Database.SetCommandTimeout(Int32.TryParse(configuration.GetSection("Database:MySqlTimeout").Value, out var timeout) ? timeout : 180 );
-                    context.Database.GetMigrations();
-                    context.Database.Migrate();
-                }
+                InitializeDatabase(context, configuration);
 
                 /*
                  * The in memory database lives as long as the Lambda is hot. But it will eventually be reset
                  * back to a blank state.
                  * To be able to test queries, we add a sample record so requests are not always empty.
                  */
-                if (useInMemoryDb && !_initializedDatabase)
-                {
-                    context.Audits.Add(new Models.Audit
-                    {
-                        Id = 0, Action = "Created a sample audit record for the ephemeral inmemory database",
-                        Object = "Test", Subject = "Test", Tenant = Constants.DefaultTenant
-                    });
-                    context.SaveChanges();
-                    _initializedDatabase = true;
-                }
+                PopulateDatabase(context);
 
                 return context;
             });
@@ -86,6 +70,37 @@ namespace Audit.Service.Lambda
             services.AddSingleton<AuditHandler>();
 
             return services.BuildServiceProvider();
+        }
+
+        private void InitializeDatabase(Db context, IConfigurationRoot configuration)
+        {
+            if (context.Database.IsInMemory())
+            {
+                context.Database.EnsureCreated();
+            }
+            else if (context.Database.IsMySql())
+            {
+                context.Database.SetCommandTimeout(
+                    Int32.TryParse(configuration.GetSection("Database:MySqlTimeout").Value, out var timeout)
+                        ? timeout
+                        : Constants.DefaultMySqlTimeout);
+                context.Database.GetMigrations();
+                context.Database.Migrate();
+            }
+        }
+
+        private void PopulateDatabase(Db context)
+        {
+            if (context.Database.IsInMemory()  && !_initializedDatabase)
+            {
+                context.Audits.Add(new Models.Audit
+                {
+                    Id = 0, Action = "Created a sample audit record for the ephemeral inmemory database",
+                    Object = "Test", Subject = "Test", Tenant = Constants.DefaultTenant
+                });
+                context.SaveChanges();
+                _initializedDatabase = true;
+            }
         }
     }
 }
