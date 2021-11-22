@@ -1182,7 +1182,7 @@ step "Database Migration" {
                     response.json
             EOT
             Octopus.Action.Script.ScriptSource = "Inline"
-            Octopus.Action.Script.Syntax = "PowerShell"
+            Octopus.Action.Script.Syntax = "Bash"
             OctopusUseBundledTooling = "False"
         }
         worker_pool_variable = "WorkerPool"
