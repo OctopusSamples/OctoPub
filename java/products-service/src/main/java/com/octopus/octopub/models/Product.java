@@ -22,7 +22,7 @@ public class Product {
   public Integer id;
 
   @Audited
-  public String tenant;
+  public String partition;
 
   @Audited
   public String name;

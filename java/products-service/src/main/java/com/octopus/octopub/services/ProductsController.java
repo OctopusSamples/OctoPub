@@ -26,12 +26,13 @@ public class ProductsController {
 
   @Inject ResourceConverter resourceConverter;
 
-  @Inject TenantIdentifier tenantIdentifier;
+  @Inject
+  PartitionIdentifier partitionIdentifier;
 
   public String getAll(@NonNull final List<String> acceptHeaders, final String filterParam)
       throws DocumentSerializationException {
     final List<Product> products =
-        productRepository.findAll(tenantIdentifier.getTenant(acceptHeaders), filterParam);
+        productRepository.findAll(partitionIdentifier.getPartition(acceptHeaders), filterParam);
     final JSONAPIDocument<List<Product>> document = new JSONAPIDocument<List<Product>>(products);
     final byte[] content = resourceConverter.writeDocumentCollection(document);
     return new String(content);
@@ -45,7 +46,7 @@ public class ProductsController {
       throw new MissingData();
     }
 
-    product.tenant = tenantIdentifier.getTenant(acceptHeaders);
+    product.partition = partitionIdentifier.getPartition(acceptHeaders);
     productRepository.save(product);
     auditRepository.save(
         new Audit(
@@ -74,8 +75,8 @@ public class ProductsController {
       final Product existingProduct = productRepository.findOne(Integer.parseInt(id));
 
       if (existingProduct != null) {
-        // the existing product must have the same tenant as the current request to be updated
-        if (tenantIdentifier.getTenant(acceptHeaders).equals(existingProduct.tenant)) {
+        // the existing product must have the same partition as the current request to be updated
+        if (partitionIdentifier.getPartition(acceptHeaders).equals(existingProduct.partition)) {
           // update the product details
           productRepository.update(product);
 
@@ -94,11 +95,11 @@ public class ProductsController {
           auditRepository.save(
               new Audit(
                   Constants.MICROSERVICE_NAME,
-                  Constants.UPDATED_FAILED_TENANT_MISMATCH_ACTION,
+                  Constants.UPDATED_FAILED_PARTITION_MISMATCH_ACTION,
                   "Product-" + product.getId().toString()),
               acceptHeaders);
           // Throw an exception, which will be picked up by a Provider to create a custom response
-          throw new InvalidInput("Failed to update a record created by another tenant.");
+          throw new InvalidInput("Failed to update a record created by another partition.");
         }
       }
     } catch (final NumberFormatException ex) {
@@ -113,8 +114,8 @@ public class ProductsController {
     try {
       final Product product = productRepository.findOne(Integer.parseInt(id));
       if (product != null
-          && (Constants.DEFAULT_TENANT.equals(product.getTenant())
-              || tenantIdentifier.getTenant(acceptHeaders).equals(product.getTenant()))) {
+          && (Constants.DEFAULT_PARTITION.equals(product.getPartition())
+              || partitionIdentifier.getPartition(acceptHeaders).equals(product.getPartition()))) {
         return respondWithProduct(product);
       }
     } catch (final NumberFormatException ex) {
@@ -129,8 +130,8 @@ public class ProductsController {
       final Integer intId = Integer.parseInt(id);
       final Product product = productRepository.findOne(intId);
       if (product != null
-          && (Constants.DEFAULT_TENANT.equals(product.getTenant())
-              || tenantIdentifier.getTenant(acceptHeaders).equals(product.getTenant()))) {
+          && (Constants.DEFAULT_PARTITION.equals(product.getPartition())
+              || partitionIdentifier.getPartition(acceptHeaders).equals(product.getPartition()))) {
         productRepository.delete(intId);
         auditRepository.save(
             new Audit(Constants.MICROSERVICE_NAME, Constants.DELETED_ACTION, "Product-" + intId),

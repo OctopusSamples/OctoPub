@@ -16,6 +16,6 @@ public class GreetingResourceTest {
   public void testHelloEndpoint() {
     auditRepository.save(
         new Audit(Constants.MICROSERVICE_NAME, Constants.CREATED_ACTION, "Test"),
-        List.of(Constants.JSON_CONTENT_TYPE + "; tenant=integration-tests"));
+        List.of(Constants.JSON_CONTENT_TYPE + "; partition=integration-tests"));
   }
 }

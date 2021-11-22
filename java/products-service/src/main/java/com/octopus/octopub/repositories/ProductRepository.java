@@ -34,7 +34,7 @@ public class ProductRepository {
     final Product existingProduct = em.find(Product.class, product.id);
     if (existingProduct != null) {
       existingProduct.name = product.name;
-      existingProduct.tenant = product.tenant;
+      existingProduct.partition = product.partition;
       existingProduct.description = product.description;
       existingProduct.epub = product.epub;
       existingProduct.image = product.epub;
@@ -43,17 +43,17 @@ public class ProductRepository {
     }
   }
 
-  public List<Product> findAll(@NonNull final String tenant, final String filter) {
+  public List<Product> findAll(@NonNull final String partition, final String filter) {
 
     final CriteriaBuilder builder = em.getCriteriaBuilder();
     final CriteriaQuery<Product> criteria = builder.createQuery(Product.class);
     final From<Product, Product> root = criteria.from(Product.class);
 
-    // add the tenant search rules
-    final Predicate tenantPredicate =
+    // add the partition search rules
+    final Predicate partitionPredicate =
         builder.or(
-            builder.equal(root.get("tenant"), Constants.DEFAULT_TENANT),
-            builder.equal(root.get("tenant"), tenant));
+            builder.equal(root.get("partition"), Constants.DEFAULT_PARTITION),
+            builder.equal(root.get("partition"), partition));
 
     if (!StringUtils.isNullOrEmpty(filter)) {
       /*
@@ -66,11 +66,11 @@ public class ProductRepository {
       final Predicate filterPredicate = rootNode.accept(visitor, em);
 
       // combine with the filter rules
-      final Predicate combinedPredicate = builder.and(tenantPredicate, filterPredicate);
+      final Predicate combinedPredicate = builder.and(partitionPredicate, filterPredicate);
 
       criteria.where(combinedPredicate);
     } else {
-      criteria.where(tenantPredicate);
+      criteria.where(partitionPredicate);
     }
 
     return em.createQuery(criteria).getResultList();

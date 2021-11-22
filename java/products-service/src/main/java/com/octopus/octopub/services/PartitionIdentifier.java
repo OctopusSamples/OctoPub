@@ -7,18 +7,18 @@ import javax.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.StringUtils;
 
 @ApplicationScoped
-public class TenantIdentifier {
+public class PartitionIdentifier {
 
   /**
-   * The "Accept" header contains the version and tenant information. For more information see the
+   * The "Accept" header contains the version and partition information. For more information see the
    * discussion at https://github.com/json-api/json-api/issues/406.
    *
    * @param header The "Accept" header
-   * @return The tenant that the request is made under, defaulting to main.
+   * @return The partition that the request is made under, defaulting to main.
    */
-  public String getTenant(final List<String> header) {
+  public String getPartition(final List<String> header) {
     if (header == null || header.size() == 0 || header.stream().allMatch(StringUtils::isAllBlank)) {
-      return Constants.DEFAULT_TENANT;
+      return Constants.DEFAULT_PARTITION;
     }
 
     return header.stream()
@@ -34,9 +34,9 @@ public class TenantIdentifier {
         .map(s -> s.split("="))
         // the split is expected to produce 2 strings
         .filter(a -> a.length == 2)
-        .filter(a -> a[0].trim().equals(Constants.ACCEPT_TENANT_INFO))
+        .filter(a -> a[0].trim().equals(Constants.ACCEPT_PARTITION_INFO))
         .map(a -> a[1].trim())
         .findFirst()
-        .orElse(Constants.DEFAULT_TENANT);
+        .orElse(Constants.DEFAULT_PARTITION);
   }
 }

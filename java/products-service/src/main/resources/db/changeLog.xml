@@ -12,7 +12,7 @@
       <column name="id" type="int" autoIncrement="true">
         <constraints primaryKey="true"/>
       </column>
-      <column name="tenant" type="varchar(255)">
+      <column name="partition" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
       <column name="name" type="varchar(255)">
@@ -23,7 +23,7 @@
   <changeSet author="mcasperson" id="2">
     <insert tableName="product">
       <column name="name" value="The 10 Pillars of Pragmatic Kubernetes Deployments"/>
-      <column name="tenant" value="main"/>
+      <column name="partition" value="main"/>
     </insert>
   </changeSet>
   <changeSet author="mcasperson" id="3">
@@ -43,7 +43,7 @@
       <column name="id" type="int">
         <constraints primaryKey="true"/>
       </column>
-      <column name="tenant" type="varchar(255)">
+      <column name="partition" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
       <column name="name" type="varchar(255)">
@@ -68,7 +68,7 @@
   <changeSet author="mcasperson" id="6">
     <insert tableName="product">
       <column name="name" value="The 10 Pillars of Pragmatic Kubernetes Deployments"/>
-      <column name="tenant" value="main"/>
+      <column name="partition" value="main"/>
     </insert>
   </changeSet>
   <changeSet author="mcasperson" id="7">
