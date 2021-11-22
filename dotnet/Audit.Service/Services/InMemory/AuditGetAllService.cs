@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Audit.Service.Lambda;
-using Audit.Service.Repositories.InMemory;
+using Audit.Service.Repositories;
 
 namespace Audit.Service.Services.InMemory
 {

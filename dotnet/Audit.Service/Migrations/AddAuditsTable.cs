@@ -1,30 +1,35 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.Migrations;
+using Audit.Service.Repositories;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Audit.Service.Migrations
 {
-    public class AddAuditsTable : DbMigration
+    [DbContext(typeof(Db))]
+    [Migration("addInitialTable")]
+    public class AddAuditsTable : Migration
     {
-        public override void Up()
+        protected override void Up(MigrationBuilder migrationBuilder)
         {
-            CreateTable("audits", c => new
-            {
-                Id = c.Int(identity: true, nullable: false,
-                    annotations: new Dictionary<string, AnnotationValues>
-                        {{ "MySql:ValueGenerationStrategy", new AnnotationValues(null, MySqlValueGenerationStrategy.IdentityColumn) }}),
-                Branch = c.String(),
-                Tenant = c.String(),
-                Action = c.String(),
-                Subject = c.String(),
-                Object = c.String()
-            });
-        }
-
-        public override void Down()
-        {
-            DropTable("audit");
+            migrationBuilder.CreateTable(
+                name: "audits",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Branch = table.Column<string>(nullable: true),
+                    Tenant = table.Column<string>(nullable: true),
+                    Action = table.Column<string>(nullable: true),
+                    Subject = table.Column<string>(nullable: true),
+                    Object = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Authors", x => x.Id);
+                });
         }
     }
 }

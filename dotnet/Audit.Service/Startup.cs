@@ -1,6 +1,6 @@
 using System;
 using System.Reflection;
-using Audit.Service.Repositories.InMemory;
+using Audit.Service.Repositories;
 using Audit.Service.Services.InMemory;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

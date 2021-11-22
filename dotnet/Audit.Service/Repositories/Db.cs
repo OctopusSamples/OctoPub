@@ -1,7 +1,6 @@
-﻿using System.Data.Entity.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace Audit.Service.Repositories.InMemory
+namespace Audit.Service.Repositories
 {
     public class Db : DbContext
     {

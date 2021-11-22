@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Reflection;
-using Audit.Service.Repositories.InMemory;
+using Audit.Service.Repositories;
 using Audit.Service.Services.InMemory;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -57,6 +57,7 @@ namespace Audit.Service.Lambda
                 else
                 {
                     context.Database.SetCommandTimeout(Int32.TryParse(configuration.GetSection("Database:MySqlTimeout").Value, out var timeout) ? timeout : 180 );
+                    context.Database.GetMigrations();
                     context.Database.Migrate();
                 }
 
