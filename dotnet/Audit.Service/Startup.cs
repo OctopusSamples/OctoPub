@@ -1,3 +1,5 @@
+using System;
+using Audit.Service.Models;
 using Audit.Service.Repositories.InMemory;
 using Audit.Service.Services.InMemory;
 using Microsoft.AspNetCore.Builder;
@@ -23,12 +25,17 @@ namespace Audit.Service
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSwaggerGen(c =>
+            services.AddDbContext<Db>(opt =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "audit_service", Version = "v1" });
+                if (Boolean.Parse((ReadOnlySpan<char>)Configuration.GetSection("Database:UseInMemory").Value))
+                {
+                    opt.UseInMemoryDatabase("audit");
+                }
+                else
+                {
+                    opt.UseMySQL(Configuration.GetConnectionString("MySqlDatabase"));
+                }
             });
-
-            services.AddDbContext<Db>(opt => opt.UseInMemoryDatabase("audit"));
             services.AddScoped<AuditCreateService>();
             services.AddScoped<AuditCreateService>();
             services.AddScoped<AuditCreateService>();
@@ -40,8 +47,6 @@ namespace Audit.Service
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "audit_service v1"));
             }
 
             app.UseHttpsRedirection();
