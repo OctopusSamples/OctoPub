@@ -6,6 +6,8 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.Json;
 using Amazon.Lambda.SQSEvents;
+using Audit.Service.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
@@ -26,7 +28,9 @@ namespace Audit.Service.Lambda
         {
             try
             {
-                DependencyInjection.ConfigureServices(true);
+                var servideProvider = DependencyInjection.ConfigureServices();
+                var db = servideProvider.GetService<Db>();
+                db.Database.Migrate();
                 return new APIGatewayProxyResponse
                 {
                     StatusCode = 201
@@ -48,7 +52,7 @@ namespace Audit.Service.Lambda
         {
             try
             {
-                var serviceProvider = DependencyInjection.ConfigureServices(false);
+                var serviceProvider = DependencyInjection.ConfigureServices();
                 var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
                 var handler = serviceProvider.GetService<AuditHandler>();
                 return AddCors(ProcessRequest(handler, requestWrapper));
@@ -70,7 +74,7 @@ namespace Audit.Service.Lambda
             Console.Out.WriteLine("Audits.HandleSqsEvent(SQSEvent, ILambdaContext)");
             Console.Out.WriteLine(sqsEvent.Records.Count + " records to process");
 
-            var serviceProvider = DependencyInjection.ConfigureServices(false);
+            var serviceProvider = DependencyInjection.ConfigureServices();
             sqsEvent.Records
                 .Select(m => new Thread(() =>
                 {
