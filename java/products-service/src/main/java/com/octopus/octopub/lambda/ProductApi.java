@@ -162,7 +162,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   private Optional<ProxyResponse> updateOne(@NonNull final APIGatewayProxyRequestEvent input) {
     try {
-      if (requestIsMatch(input, ROOT_RE, Constants.PATCH_METHOD)) {
+      if (requestIsMatch(input, INDIVIDUAL_RE, Constants.PATCH_METHOD)) {
         return Optional.of(
             new ProxyResponse(
                 "200",
