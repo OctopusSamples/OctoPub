@@ -29,11 +29,14 @@ namespace Audit.Service.Lambda
 
             var services = new ServiceCollection();
 
+            var useInMemoryDb =
+                Boolean.Parse((ReadOnlySpan<char>)configuration.GetSection("Database:UseInMemory").Value);
+
             // create an in memory database
             services.AddSingleton(provider =>
             {
                 var optionsBuilder = new DbContextOptionsBuilder<Db>();
-                if (Boolean.Parse((ReadOnlySpan<char>)configuration.GetSection("Database:UseInMemory").Value))
+                if (useInMemoryDb)
                 {
                     optionsBuilder.UseInMemoryDatabase("audit");
                 }
@@ -50,7 +53,7 @@ namespace Audit.Service.Lambda
                  * back to a blank state.
                  * To be able to test queries, we add a sample record so requests are not always empty.
                  */
-                if (!_initializedDatabase)
+                if (useInMemoryDb && !_initializedDatabase)
                 {
                     context.Audits.Add(new Models.Audit
                     {
