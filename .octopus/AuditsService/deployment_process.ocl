@@ -494,6 +494,70 @@ step "Deploy Lambda" {
                 				}
                 			}
                 		},
+                		"LambdaDbMigrations": {
+                			"Type": "AWS::Lambda::Function",
+                			"Properties": {
+                				"Code": {
+                					"S3Bucket": {
+                						"Ref": "LambdaS3Bucket"
+                					},
+                					"S3Key": {
+                						"Ref": "LambdaS3Key"
+                					}
+                				},
+                				"Environment": {
+                					"Variables": {
+                						"Database__UseInMemory": {"Ref": "UseInMemeoryDB"},
+                						"ConnectionStrings__MySqlDatabase": {
+                							"Fn::Join": [
+                							  "",
+                							  [
+                								"server=",
+                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
+                								";port=",
+                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
+                								";database=audits;user=",
+                								{
+                								  "Ref": "DBUsername"
+                								},
+                								";password=",
+                								{
+                								  "Ref": "DBPassword"
+                								}
+                							  ]
+                							]
+                						  }
+                					}
+                				},
+                				"Description": {
+                					"Ref": "LambdaDescription"
+                				},
+                				"FunctionName": {
+                					"Fn::Sub": "${EnvironmentName}-DB-${LambdaName}"
+                				},
+                				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsDbMigration",
+                				"MemorySize": 128,
+                				"PackageType": "Zip",
+                				"Role": {
+                					"Fn::GetAtt": [
+                						"IamRoleLambdaHttpExecution",
+                						"Arn"
+                					]
+                				},
+                				"Runtime": "dotnetcore3.1",
+                				"Timeout": 30,
+                				"VpcConfig": {
+                					"SecurityGroupIds": [{
+                						"Ref": "InstanceSecurityGroup"
+                					}],
+                					"SubnetIds": [{
+                						"Ref": "SubnetA"
+                					}, {
+                						"Ref": "SubnetB"
+                					}]
+                				}
+                			}
+                		},
                 		"LambdaSqs": {
                 			"Type": "AWS::Lambda::Function",
                 			"Properties": {
