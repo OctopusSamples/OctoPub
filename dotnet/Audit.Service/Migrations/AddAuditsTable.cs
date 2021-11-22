@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data.Entity.Infrastructure.Annotations;
-using System.Data.Entity.Migrations;
-using Audit.Service.Repositories;
+﻿using Audit.Service.Repositories;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;

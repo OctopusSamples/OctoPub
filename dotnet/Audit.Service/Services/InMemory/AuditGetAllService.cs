@@ -15,7 +15,7 @@ namespace Audit.Service.Services.InMemory
             _context = context;
         }
 
-        public IReadOnlyCollection<Models.Audit> GetAsync(RequestWrapper wrapper)
+        public IReadOnlyCollection<Models.Audit> Get(RequestWrapper wrapper)
         {
             var tenant = wrapper.Tenant;
             IReadOnlyCollection<Models.Audit> list = _context.Audits

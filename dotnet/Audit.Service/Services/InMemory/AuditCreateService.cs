@@ -12,7 +12,7 @@ namespace Audit.Service.Services.InMemory
             _context = context;
         }
 
-        public Models.Audit CreateAsync(Models.Audit resource, RequestWrapper wrapper)
+        public Models.Audit Create(Models.Audit resource, RequestWrapper wrapper)
         {
             resource.Id = null;
             resource.Tenant = wrapper.Tenant;

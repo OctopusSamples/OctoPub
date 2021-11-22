@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
 using Audit.Service.Services.InMemory;
 using JsonApiSerializer;
@@ -58,7 +56,7 @@ namespace Audit.Service.Lambda
 
             return new APIGatewayProxyResponse
             {
-                Body = JsonConvert.SerializeObject(_auditGetAllService.GetAsync(wrapper),
+                Body = JsonConvert.SerializeObject(_auditGetAllService.Get(wrapper),
                     new JsonApiSerializerSettings()),
                 StatusCode = 200
             };
@@ -76,7 +74,7 @@ namespace Audit.Service.Lambda
                 return null;
             }
 
-            var result = _auditGetByIdService.GetAsync(wrapper.Id, wrapper);
+            var result = _auditGetByIdService.Get(wrapper.Id, wrapper);
 
             if (result != null)
             {
@@ -110,7 +108,7 @@ namespace Audit.Service.Lambda
             {
                 var entity = JsonConvert.DeserializeObject<Models.Audit>(wrapper.Entity,
                     new JsonApiSerializerSettings());
-                var newEntity = _auditCreateService.CreateAsync(entity, wrapper);
+                var newEntity = _auditCreateService.Create(entity, wrapper);
                 return new APIGatewayProxyResponse
                 {
                     Body = JsonConvert.SerializeObject(newEntity, new JsonApiSerializerSettings()),

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Reflection;
 using Audit.Service.Repositories;
 using Audit.Service.Services.InMemory;
@@ -32,7 +31,7 @@ namespace Audit.Service.Lambda
             var services = new ServiceCollection();
 
             var useInMemoryDb =
-                Boolean.Parse((ReadOnlySpan<char>)configuration.GetSection("Database:UseInMemory").Value);
+                bool.Parse(configuration.GetSection("Database:UseInMemory").Value);
 
             // create an in memory database
             services.AddSingleton(provider =>
@@ -46,7 +45,7 @@ namespace Audit.Service.Lambda
                 {
                     optionsBuilder.UseMySql(
                         configuration.GetConnectionString("MySqlDatabase"),
-                        new MySqlServerVersion("8.0"),
+                        new MySqlServerVersion(Constants.MySqlVersion),
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
 
@@ -91,7 +90,7 @@ namespace Audit.Service.Lambda
 
         private void PopulateDatabase(Db context)
         {
-            if (context.Database.IsInMemory()  && !_initializedDatabase)
+            if (context.Database.IsInMemory() && !_initializedDatabase)
             {
                 context.Audits.Add(new Models.Audit
                 {
