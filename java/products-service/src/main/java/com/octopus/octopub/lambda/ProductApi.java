@@ -84,6 +84,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                         .orElse(null))));
       }
     } catch (final Exception e) {
+      e.printStackTrace();
       return Optional.of(buildError(e));
     }
 
@@ -108,6 +109,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         return Optional.of(buildNotFound());
       }
     } catch (final Exception e) {
+      e.printStackTrace();
       return Optional.of(buildError(e));
     }
 
@@ -132,6 +134,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         return Optional.of(buildNotFound());
       }
     } catch (final Exception e) {
+      e.printStackTrace();
       return Optional.of(buildError(e));
     }
 
@@ -149,6 +152,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                     getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
       }
     } catch (final Exception e) {
+      e.printStackTrace();
       return Optional.of(buildError(e, getBody(input)));
     }
 
@@ -166,6 +170,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                     getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
       }
     } catch (final Exception e) {
+      e.printStackTrace();
       return Optional.of(buildError(e, getBody(input)));
     }
 
@@ -248,16 +253,16 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   private ProxyResponse buildError(@NonNull final Exception ex, final String requestBody) {
       return new ProxyResponse(
-          "500", "{\"message\": [{\"detail\": \"" + ex + "\", \"meta\": {\"requestBody\": \"" +  requestBody + "\"}}]}");
+          "500", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\", \"meta\": {\"requestBody\": \"" +  requestBody + "\"}}]}");
   }
 
   private ProxyResponse buildNotFound() {
     return new ProxyResponse(
-        "404", "{\"message\": [{\"detail\": \"Resource not found\"}]}");
+        "404", "{\"errors\": [{\"title\": \"Resource not found\"}]}");
   }
 
   private ProxyResponse buildError(@NonNull final Exception ex) {
     return new ProxyResponse(
-        "500", "{\"message\": [{\"detail\": \"" + ex + "\"}]}");
+        "500", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\"}]}");
   }
 }
