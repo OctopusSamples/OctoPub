@@ -71,52 +71,52 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 </title>
             </Helmet>
             <Grid container={true}>
-                <Grid md={2} sm={12}>
+                <Grid md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>Name</FormLabel>
                 </Grid>
-                <Grid item md={10} sm={12}>
+                <Grid item md={10} sm={12} xs={12}>
                     <TextField id={"name"} disabled={true} fullWidth={true} variant={"outlined"}
                                value={book.data.attributes.name}/>
                 </Grid>
-                <Grid item md={2} sm={12}>
+                <Grid item md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>Image</FormLabel>
                 </Grid>
-                <Grid item md={10} sm={12}>
+                <Grid item md={10} sm={12} xs={12}>
                     <TextField id={"image"} disabled={true} fullWidth={true} variant={"outlined"}
                                value={book.data.attributes.image}/>
                 </Grid>
-                <Grid item md={2} sm={12}>
+                <Grid item md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>EPUB</FormLabel>
                 </Grid>
-                <Grid item md={10} sm={12}>
+                <Grid item md={10} sm={12} xs={12}>
                     <TextField id={"epub"} disabled={true} fullWidth={true} variant={"outlined"}
                                value={book.data.attributes.epub}/>
                 </Grid>
-                <Grid item md={2} sm={12}>
+                <Grid item md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>PDF</FormLabel>
                 </Grid>
-                <Grid item md={10} sm={12}>
+                <Grid item md={10} sm={12} xs={12}>
                     <TextField id={"pdf"} disabled={true} fullWidth={true} variant={"outlined"}
                                value={book.data.attributes.pdf}/>
                 </Grid>
-                <Grid item md={2} sm={12}>
+                <Grid item md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>Description</FormLabel>
                 </Grid>
-                <Grid item md={10} sm={12}>
+                <Grid item md={10} sm={12} xs={12}>
                     <TextField id={"description"} disabled={true} multiline={true} rows={10} fullWidth={true}
                                variant={"outlined"}
                                value={book.data.attributes.description}/>
                 </Grid>
-                <Grid item md={2} sm={12}>
+                <Grid item md={2} sm={12} xs={12}>
 
                 </Grid>
-                <Grid item md={10} sm={12}>
+                <Grid item md={10} sm={12} xs={12}>
                     <Button variant={"outlined"} disabled={disabled} onClick={_ => deleteBook()}>Delete Book</Button>
                 </Grid>
-                <Grid item md={2} sm={12}>
+                <Grid item md={2} sm={12} xs={12}>
 
                 </Grid>
-                <Grid item md={10} sm={12}>
+                <Grid item md={10} sm={12} xs={12}>
                     {error && <span>{error}</span>}
                 </Grid>
             </Grid>

@@ -17,6 +17,11 @@ const useStyles = makeStyles((theme: Theme) =>
             objectFit: "contain",
             padding: "64px",
             width: "100%"
+        },
+        content: {
+            "& a": {
+                color: theme.palette.text.primary
+            }
         }
     })
 );
@@ -55,7 +60,7 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 <Grid item md={4} sm={12}>
                     <img className={classes.image} src={book.data.attributes.image || "https://via.placeholder.com/300x400"} alt={book.data.attributes.name || ""}/>
                 </Grid>
-                <Grid item md={8} sm={12}>
+                <Grid className={classes.content} item md={8} sm={12}>
                     <h1>{book.data.attributes.name}</h1>
                     <p>{book.data.attributes.description}</p>
                     <h2>Downloads</h2>
