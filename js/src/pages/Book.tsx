@@ -47,7 +47,7 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
         })
             .then(response => response.json())
             .then(data => setBook(data));
-    }, [bookId, setBook, context.settings.productEndpoint]);
+    }, [bookId, setBook, context.settings.productEndpoint, props.partition]);
 
     return (
         <>

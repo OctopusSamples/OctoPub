@@ -42,6 +42,7 @@ const Layout: FC<LayoutProps> = ({
                                      useDefaultTheme,
                                      children,
                                      apiKey,
+                                     partition,
                                      setAllBookId,
                                      allBookId
                                  }: LayoutProps) => {
@@ -53,6 +54,7 @@ const Layout: FC<LayoutProps> = ({
                 toggleTheme={toggleTheme}
                 useDefaultTheme={useDefaultTheme}
                 apiKey={apiKey}
+                partition={partition}
                 setAllBookId={setAllBookId}
                 allBookId={allBookId}/>
             <main

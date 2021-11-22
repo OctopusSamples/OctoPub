@@ -46,7 +46,7 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 }
             })
             .then(data => setAudits(data));
-    }, [setAudits, context.settings.auditEndpoint]);
+    }, [setAudits, context.settings.auditEndpoint, props.partition]);
 
     return (
         <>

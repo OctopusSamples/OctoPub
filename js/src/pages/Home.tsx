@@ -60,7 +60,7 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 }
             })
             .then(data => setBooks(data));
-    }, [context.settings.productEndpoint, setBooks, setError]);
+    }, [context.settings.productEndpoint, setBooks, setError, props.partition]);
 
     return (
         <>

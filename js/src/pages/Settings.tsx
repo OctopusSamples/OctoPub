@@ -39,7 +39,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     <FormLabel>Partition</FormLabel>
                 </Grid>
                 <Grid item md={10} sm={12} xs={12}>
-                    <TextField id="partition" fullWidth={true} variant="outlined" value={apiKey}
+                    <TextField id="partition" fullWidth={true} variant="outlined" value={partition}
                                onChange={v => {
                                    setPartition(v.target.value);
                                    localStorage.setItem("partition", v.target.value.trim());
