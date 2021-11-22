@@ -5,7 +5,6 @@ import {Button, createStyles, FormLabel, Grid, makeStyles, TextField} from "@mat
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
 import {useHistory, useParams} from "react-router-dom";
-import {useStateWithCallbackLazy} from 'use-state-with-callback';
 
 const useStyles = makeStyles((theme) =>
     createStyles({
@@ -22,11 +21,11 @@ interface Params {
 const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     props.setAllBookId(null);
 
-    const { bookId } = useParams<Params>();
+    const {bookId} = useParams<Params>();
     const history = useHistory();
     const context = useContext(AppContext);
     const classes = useStyles();
-    const [disabled, setDisabled] = useStateWithCallbackLazy<boolean>(true);
+    const [disabled, setDisabled] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [book, setBook] = useState<Product>({
         data: {
@@ -53,11 +52,11 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             .then(data => {
                 setBook(data);
             });
-    }, [setBook, context.settings.productEndpoint,bookId]);
+    }, [setBook, context.settings.productEndpoint, bookId]);
 
     useEffect(() => {
         if (props.apiKey) {
-            setDisabled(false, () => {});
+            setDisabled(false);
         } else {
             setError("The API key must be defined in the settings page.");
         }
@@ -147,32 +146,30 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     }
 
     function saveBook() {
-        setDisabled(true, () =>
-            fetch(context.settings.productEndpoint + "/" + bookId, {
-                method: 'PATCH',
-                headers: {
-                    'Accept': 'application/vnd.api+json',
-                    'Content-Type': 'application/vnd.api+json',
-                    'X-API-Key': props.apiKey || ""
-                },
-                body: JSON.stringify(book, (key, value) => {
-                    if (value !== null) return value
-                })
+        setDisabled(true);
+        fetch(context.settings.productEndpoint + "/" + bookId, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/vnd.api+json',
+                'Content-Type': 'application/vnd.api+json',
+                'X-API-Key': props.apiKey || ""
+            },
+            body: JSON.stringify(book, (key, value) => {
+                if (value !== null) return value
             })
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Something went wrong');
-                    }
-                })
-                .then(_ => history.push('/index.html'))
-                .catch(_ => {
-                    setDisabled(false, () => {
-                    });
-                    setError("An error occurred and the book was not updated.");
-                })
-        );
+        })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Something went wrong');
+                }
+            })
+            .then(_ => history.push('/index.html'))
+            .catch(_ => {
+                setDisabled(false);
+                setError("An error occurred and the book was not updated.");
+            });
     }
 }
 

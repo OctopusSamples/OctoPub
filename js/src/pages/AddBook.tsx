@@ -5,7 +5,6 @@ import {Button, createStyles, FormLabel, Grid, makeStyles, TextField} from "@mat
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
 import {useHistory} from "react-router-dom";
-import {useStateWithCallbackLazy} from 'use-state-with-callback';
 
 const useStyles = makeStyles((theme) =>
     createStyles({
@@ -20,7 +19,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const history = useHistory();
     const context = useContext(AppContext);
     const classes = useStyles();
-    const [disabled, setDisabled] = useStateWithCallbackLazy<boolean>(true);
+    const [disabled, setDisabled] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [book, setBook] = useState<Product>({
         data: {
@@ -41,8 +40,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
         if (!props.apiKey) {
             setError("The API key must be defined in the settings page.");
         } else {
-            setDisabled(false, () => {
-            });
+            setDisabled(false);
         }
     }, [setDisabled, setError, props.apiKey]);
 
@@ -123,32 +121,30 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     }
 
     function saveBook() {
-        setDisabled(true, () =>
-            fetch(context.settings.productEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/vnd.api+json',
-                    'Content-Type': 'application/vnd.api+json',
-                    'X-API-Key': props.apiKey || ""
-                },
-                body: JSON.stringify(book, (key, value) => {
-                    if (value !== null) return value
-                })
+        setDisabled(true);
+        fetch(context.settings.productEndpoint, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/vnd.api+json',
+                'Content-Type': 'application/vnd.api+json',
+                'X-API-Key': props.apiKey || ""
+            },
+            body: JSON.stringify(book, (key, value) => {
+                if (value !== null) return value
             })
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Something went wrong');
-                    }
-                })
-                .then(_ => history.push('/index.html'))
-                .catch(_ => {
-                    setDisabled(false, () => {
-                    });
-                    setError("An error occurred and the book was not saved.");
-                })
-        );
+        })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Something went wrong');
+                }
+            })
+            .then(_ => history.push('/index.html'))
+            .catch(_ => {
+                setDisabled(false);
+                setError("An error occurred and the book was not saved.");
+            });
     }
 }
 

@@ -5,7 +5,6 @@ import {Button, createStyles, FormLabel, Grid, makeStyles, TextField} from "@mat
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
 import {useHistory, useParams} from "react-router-dom";
-import {useStateWithCallbackLazy} from 'use-state-with-callback';
 
 const useStyles = makeStyles((theme) =>
     createStyles({
@@ -26,7 +25,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const history = useHistory();
     const context = useContext(AppContext);
     const classes = useStyles();
-    const [disabled, setDisabled] = useStateWithCallbackLazy<boolean>(true);
+    const [disabled, setDisabled] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [book, setBook] = useState<Product>({
         data: {
@@ -57,7 +56,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     useEffect(() => {
         if (props.apiKey) {
-            setDisabled(false, () => {});
+            setDisabled(false);
         } else {
             setError("The API key must be defined in the settings page.");
         }
@@ -125,8 +124,8 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     );
 
     function deleteBook() {
-        setDisabled(true, () =>
-            fetch(context.settings.productEndpoint + "/" + bookId, {
+        setDisabled(true);
+        fetch(context.settings.productEndpoint + "/" + bookId, {
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/vnd.api+json',
@@ -144,10 +143,9 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 })
                 .then(_ => history.push('/index.html'))
                 .catch(_ => {
-                    setDisabled(false, () => {});
+                    setDisabled(false);
                     setError("An error occurred while deleting the book.");
-                })
-        );
+                });
     }
 }
 
