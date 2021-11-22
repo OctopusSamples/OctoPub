@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace Audit.Service.Repositories.InMemory
 {
@@ -8,6 +9,7 @@ namespace Audit.Service.Repositories.InMemory
             : base(options)
         {
             Database.EnsureCreated();
+            Database.SetCommandTimeout(180);
         }
 
         public DbSet<Models.Audit> Audits { get; set; }
