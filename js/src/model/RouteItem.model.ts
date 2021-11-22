@@ -2,6 +2,7 @@ import {ComponentType, FC} from "react";
 
 export interface CommonProps {
     apiKey: string | null;
+    partition: string | null;
     setAllBookId: (id: string | null) => void;
     allBookId: string | null;
 }

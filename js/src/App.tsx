@@ -38,6 +38,7 @@ function App(config: DynamicConfig) {
     theme = responsiveFontSizes(theme);
 
     const apiKey = localStorage.getItem("apiKey");
+    const partition = localStorage.getItem("partition") || "main";
 
     const [allBookId, setAllBookId] = useState<string | null>(null);
 
@@ -50,7 +51,7 @@ function App(config: DynamicConfig) {
                 <ThemeProvider theme={theme}>
                     <Router basename={config.settings.basename}>
                         <Switch>
-                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme} apiKey={apiKey} setAllBookId={setAllBookId} allBookId={allBookId}>
+                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme} apiKey={apiKey} partition={partition} setAllBookId={setAllBookId} allBookId={allBookId}>
                                 {/* for each route config, a react route is created */}
                                 {routes.map((route: RouteItem) =>
                                     route.subRoutes ? (
@@ -60,6 +61,7 @@ function App(config: DynamicConfig) {
                                                 path={`${item.path}`}
                                                 component={(item.component && item.component({
                                                     apiKey,
+                                                    partition,
                                                     setAllBookId,
                                                     allBookId
                                                 })) || DefaultComponent}
@@ -72,6 +74,7 @@ function App(config: DynamicConfig) {
                                             path={`${route.path}`}
                                             component={(route.component && route.component({
                                                 apiKey,
+                                                partition,
                                                 setAllBookId,
                                                 allBookId
                                             })) || DefaultComponent}

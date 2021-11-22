@@ -49,7 +49,7 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
     useEffect(() => {
         fetch(context.settings.productEndpoint, {
             headers: {
-                'Accept': 'application/vnd.api+json'
+                'Accept': 'application/vnd.api+json; partition=' + props.partition
             }
         })
             .then((response) => {

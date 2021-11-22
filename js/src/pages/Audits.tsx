@@ -35,7 +35,7 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
     useEffect(() => {
         fetch(context.settings.auditEndpoint, {
             headers: {
-                'Accept': 'application/vnd.api+json'
+                'Accept': 'application/vnd.api+json; partition=' + props.partition
             }
         })
             .then((response) => {
