@@ -184,7 +184,7 @@ step "Deploy Lambda" {
                 				"InstanceTenancy": "default",
                 				"Tags": [{
                 					"Key": "Name",
-                					"Value": "Products Microservice VPC"
+                					"Value": "Audits Microservice VPC"
                 				}]
                 			}
                 		},
@@ -271,7 +271,7 @@ step "Deploy Lambda" {
                 			"Type": "AWS::RDS::DBSubnetGroup",
                 			"Properties": {
                 				"DBSubnetGroupName": "auditdbsg",
-                				"DBSubnetGroupDescription": "Products Subnet Group",
+                				"DBSubnetGroupDescription": "Audits Subnet Group",
                 				"SubnetIds": [{
                 					"Ref": "SubnetA"
                 				}, {
@@ -320,7 +320,7 @@ step "Deploy Lambda" {
                 				"MasterUserPassword": {
                 					"Ref": "DBPassword"
                 				},
-                				"DatabaseName": "products",
+                				"DatabaseName": "audits",
                 				"Engine": "aurora",
                 				"EngineMode": "serverless",
                 				"VpcSecurityGroupIds": [{
