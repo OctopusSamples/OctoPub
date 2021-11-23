@@ -16,7 +16,7 @@ namespace Audit.Service.Services.InMemory
         public Models.Audit Get(int id, RequestWrapper wrapper)
         {
             var audit = _context.Audits.Find(id);
-            return audit.DataPartition == Constants.DefaultPartition || audit.DataPartition == wrapper.Partition
+            return audit.DataPartition == Constants.DefaultPartition || audit.DataPartition == wrapper.DataPartition
                 ? audit
                 : null;
         }

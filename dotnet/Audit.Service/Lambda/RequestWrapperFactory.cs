@@ -46,7 +46,7 @@ namespace Audit.Service.Lambda
                 Id = SingleEntityRe.IsMatch(request.Path ?? string.Empty)
                     ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
                     : DefaultId,
-                Partition = GetTenant((request.Headers ?? new Dictionary<string, string>())
+                DataPartition = GetTenant((request.Headers ?? new Dictionary<string, string>())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
                     .Select(h => h.Value))
             };
@@ -73,7 +73,7 @@ namespace Audit.Service.Lambda
                 Id = Int32.TryParse(GetAttribute(message.MessageAttributes, "id"), out var id)
                     ? id
                     : DefaultId,
-                Partition = message.MessageAttributes?.ContainsKey("tenant") ?? false
+                DataPartition = message.MessageAttributes?.ContainsKey("tenant") ?? false
                     ? GetTenant(message.MessageAttributes["tenant"].StringValue.Split(","))
                     : Constants.DefaultPartition
             };

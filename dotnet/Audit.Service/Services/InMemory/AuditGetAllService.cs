@@ -17,7 +17,7 @@ namespace Audit.Service.Services.InMemory
 
         public IReadOnlyCollection<Models.Audit> Get(RequestWrapper wrapper)
         {
-            var tenant = wrapper.Partition;
+            var tenant = wrapper.DataPartition;
             IReadOnlyCollection<Models.Audit> list = _context.Audits
                 .Where(a => a.DataPartition == Constants.DefaultPartition || a.DataPartition == tenant)
                 .ToList();
