@@ -54,7 +54,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
                 if (!props.apiKey) {
                     setError("The API key must be defined in the settings page.");
-                } else if (data.properties.dataPartition != props.partition) {
+                } else if (data.properties.dataPartition !== props.partition) {
                     setError("This book belongs to another data partition, and cannot be edited.");
                 } else {
                     setDisabled(false);
