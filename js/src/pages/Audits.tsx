@@ -3,6 +3,7 @@ import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
 import {AppContext} from "../App";
 import {DataGrid} from "@material-ui/data-grid";
+import {getJsonApi} from "../utils/network";
 
 interface AuditsCollection {
     data: Audit[]
@@ -24,6 +25,7 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const context = useContext(AppContext);
 
     const [audits, setAudits] = useState<AuditsCollection | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const columns = [
         { field: 'id', headerName: 'Id', width: 70 },
@@ -33,18 +35,9 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
     ];
 
     useEffect(() => {
-        fetch(context.settings.auditEndpoint, {
-            headers: {
-                'Accept': 'application/vnd.api+json; dataPartition=' + props.partition
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(response);
-            })
-            .then(data => setAudits(data));
+        getJsonApi<AuditsCollection>(context.settings.auditEndpoint, props.partition)
+            .then(data => setAudits(data))
+            .catch(() => setError("Failed to retrieve audit resources."))
     }, [setAudits, context.settings.auditEndpoint, props.partition]);
 
     return (
@@ -54,7 +47,8 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     {context.settings.title}
                 </title>
             </Helmet>
-            {!audits && <div>Loading...</div>}
+            {!audits && !error && <div>Loading...</div>}
+            {!audits && error && <div>{error}</div>}
             {audits && <DataGrid
                 rows={audits.data.map((a: Audit) => ({id: a.id, subject: a.attributes.subject, action: a.attributes.action, object: a.attributes.object}))}
                 columns={columns}
