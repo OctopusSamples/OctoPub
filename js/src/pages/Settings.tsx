@@ -42,7 +42,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                                }}/>
                 </Grid>
                 <Grid className={classes.cell} md={2} sm={12} xs={12}>
-                    <FormLabel>Partition</FormLabel>
+                    <FormLabel>Data Partition</FormLabel>
                 </Grid>
                 <Grid className={classes.cell} item md={10} sm={12} xs={12}>
                     <TextField id="partition" fullWidth={true} variant="outlined" value={partition}
