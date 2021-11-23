@@ -125,7 +125,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
         fetch(context.settings.productEndpoint, {
             method: 'POST',
             headers: {
-                'Accept': 'application/vnd.api+json; partition=' + props.partition,
+                'Accept': 'application/vnd.api+json; dataPartition=' + props.partition,
                 'Content-Type': 'application/vnd.api+json',
                 'X-API-Key': props.apiKey || ""
             },

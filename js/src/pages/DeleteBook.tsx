@@ -51,16 +51,16 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             .then(response => response.json())
             .then(data => {
                 setBook(data);
-            });
-    }, [setBook, context.settings.productEndpoint,bookId]);
 
-    useEffect(() => {
-        if (props.apiKey) {
-            setDisabled(false);
-        } else {
-            setError("The API key must be defined in the settings page.");
-        }
-    }, [setDisabled, setError, props.apiKey]);
+                if (!props.apiKey) {
+                    setError("The API key must be defined in the settings page.");
+                } else if (data.properties.dataPartition != props.partition) {
+                    setError("This book belongs to another data partition, and cannot be edited.");
+                } else {
+                    setDisabled(false);
+                }
+            });
+    }, [setBook, setDisabled, props.apiKey, props.partition, context.settings.productEndpoint,bookId]);
 
     return (
         <>
