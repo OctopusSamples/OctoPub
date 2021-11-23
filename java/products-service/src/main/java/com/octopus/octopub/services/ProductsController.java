@@ -26,8 +26,7 @@ public class ProductsController {
 
   @Inject ResourceConverter resourceConverter;
 
-  @Inject
-  PartitionIdentifier partitionIdentifier;
+  @Inject PartitionIdentifier partitionIdentifier;
 
   public String getAll(@NonNull final List<String> acceptHeaders, final String filterParam)
       throws DocumentSerializationException {
@@ -124,14 +123,13 @@ public class ProductsController {
     return null;
   }
 
-  public boolean delete(@NonNull final String id, @NonNull final List<String> acceptHeaders)
-      throws DocumentSerializationException {
+  public boolean delete(@NonNull final String id, @NonNull final List<String> acceptHeaders) {
     try {
       final Integer intId = Integer.parseInt(id);
       final Product product = productRepository.findOne(intId);
+      // The product being deleted must match the current partition
       if (product != null
-          && (Constants.DEFAULT_PARTITION.equals(product.getPartition())
-              || partitionIdentifier.getPartition(acceptHeaders).equals(product.getPartition()))) {
+          && partitionIdentifier.getPartition(acceptHeaders).equals(product.getPartition())) {
         productRepository.delete(intId);
         auditRepository.save(
             new Audit(Constants.MICROSERVICE_NAME, Constants.DELETED_ACTION, "Product-" + intId),
