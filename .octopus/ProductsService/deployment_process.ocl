@@ -600,7 +600,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -739,7 +739,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -783,7 +783,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -827,7 +827,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -871,7 +871,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -914,7 +914,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -957,7 +957,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::AccountId"
                                 },
                                 ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
