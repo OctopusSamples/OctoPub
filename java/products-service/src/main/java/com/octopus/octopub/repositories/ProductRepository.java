@@ -33,11 +33,11 @@ public class ProductRepository {
   public void update(@NonNull final Product product, @NonNull final Integer id) {
     final Product existingProduct = em.find(Product.class, id);
     if (existingProduct != null) {
-      existingProduct.name = product.name;
-      existingProduct.description = product.description;
-      existingProduct.epub = product.epub;
-      existingProduct.image = product.epub;
-      existingProduct.pdf = product.pdf;
+      if (product.name != null) existingProduct.name = product.name;
+      if (product.description != null) existingProduct.description = product.description;
+      if (product.epub != null) existingProduct.epub = product.epub;
+      if (product.image != null) existingProduct.image = product.epub;
+      if (product.pdf != null) existingProduct.pdf = product.pdf;
       em.merge(existingProduct);
     }
   }
