@@ -1,25 +1,14 @@
 import {FC, ReactElement, useContext, useState} from "react";
 import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
-import {createStyles, FormLabel, Grid, makeStyles, TextField} from "@material-ui/core";
+import {FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
-
-const useStyles = makeStyles((theme) =>
-    createStyles({
-        container: {
-            height: "fit-content",
-            color: theme.palette.text.primary
-        },
-        cell: {
-            padding: "8px"
-        }
-    })
-);
+import {styles} from "../styles";
 
 const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     const context = useContext(AppContext);
-    const classes = useStyles();
+    const classes = styles();
     const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem("apiKey"));
     const [partition, setPartition] = useState<string | null>(localStorage.getItem("partition") || "main");
 
@@ -31,8 +20,8 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 </title>
             </Helmet>
             <Grid container={true} className={classes.container}>
-                <Grid className={classes.cell} md={2} sm={12} xs={12}>
-                    <FormLabel>API Key</FormLabel>
+                <Grid container={true} className={classes.cell} md={2} sm={12} xs={12}>
+                    <FormLabel className={classes.label}>API Key</FormLabel>
                 </Grid>
                 <Grid className={classes.cell} item md={10} sm={12} xs={12}>
                     <TextField id="apiKey" fullWidth={true} type="password" variant="outlined" value={apiKey}
@@ -41,8 +30,8 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                                    localStorage.setItem("apiKey", v.target.value);
                                }}/>
                 </Grid>
-                <Grid className={classes.cell} md={2} sm={12} xs={12}>
-                    <FormLabel>Data Partition</FormLabel>
+                <Grid container={true} className={classes.cell} md={2} sm={12} xs={12}>
+                    <FormLabel className={classes.label}>Data Partition</FormLabel>
                 </Grid>
                 <Grid className={classes.cell} item md={10} sm={12} xs={12}>
                     <TextField id="partition" fullWidth={true} variant="outlined" value={partition}
