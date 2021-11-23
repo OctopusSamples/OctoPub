@@ -757,7 +757,7 @@ step "Deploy Lambda" {
                 								},
                 								":function:",
                 								{
-                									"Ref": "LambdaHttp"
+                									"Ref": "LambdaVersion#{DeploymentId}"
                 								},
                 								"/invocations"
                 							]
@@ -804,7 +804,7 @@ step "Deploy Lambda" {
                 								},
                 								":function:",
                 								{
-                									"Ref": "LambdaHttp"
+                									"Ref": "LambdaVersion#{DeploymentId}"
                 								},
                 								"/invocations"
                 							]
@@ -851,7 +851,7 @@ step "Deploy Lambda" {
                 								},
                 								":function:",
                 								{
-                									"Ref": "LambdaHttp"
+                									"Ref": "LambdaVersion#{DeploymentId}"
                 								},
                 								"/invocations"
                 							]
@@ -898,7 +898,7 @@ step "Deploy Lambda" {
                 								},
                 								":function:",
                 								{
-                									"Ref": "LambdaHttp"
+                									"Ref": "LambdaVersion#{DeploymentId}"
                 								},
                 								"/invocations"
                 							]
