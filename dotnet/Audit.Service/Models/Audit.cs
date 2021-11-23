@@ -11,7 +11,7 @@ namespace Audit.Service.Models
 
         public string Branch { get; set; }
 
-        public string Partition { get; set; }
+        public string DataPartition { get; set; }
 
         public string Action { get; set; }
 

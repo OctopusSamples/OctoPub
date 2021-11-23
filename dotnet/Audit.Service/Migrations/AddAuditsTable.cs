@@ -18,7 +18,7 @@ namespace Audit.Service.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Branch = table.Column<string>(nullable: true),
-                    Partition = table.Column<string>(nullable: true),
+                    DataPartition = table.Column<string>(nullable: true),
                     Action = table.Column<string>(nullable: true),
                     Subject = table.Column<string>(nullable: true),
                     Object = table.Column<string>(nullable: true)

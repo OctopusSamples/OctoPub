@@ -19,7 +19,7 @@ namespace Audit.Service.Services.InMemory
         {
             var tenant = wrapper.Partition;
             IReadOnlyCollection<Models.Audit> list = _context.Audits
-                .Where(a => a.Partition == Constants.DefaultPartition || a.Partition == tenant)
+                .Where(a => a.DataPartition == Constants.DefaultPartition || a.DataPartition == tenant)
                 .ToList();
             return list;
         }
