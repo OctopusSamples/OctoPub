@@ -52,12 +52,11 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 'Accept': 'application/vnd.api+json; dataPartition=' + props.partition
             }
         })
-            .then((response) => {
+            .then(response => {
                 if (response.ok) {
                     return response.json();
-                } else {
-                    setError("Failed to return the list of books. Please try again later.")
                 }
+                return Promise.reject(response);
             })
             .then(data => setBooks(data));
     }, [context.settings.productEndpoint, setBooks, setError, props.partition]);

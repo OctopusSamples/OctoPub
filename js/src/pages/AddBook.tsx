@@ -133,12 +133,11 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 if (value !== null) return value
             })
         })
-            .then((response) => {
+            .then(response => {
                 if (response.ok) {
                     return response.json();
-                } else {
-                    throw new Error('Something went wrong');
                 }
+                return Promise.reject(response);
             })
             .then(_ => history.push('/index.html'))
             .catch(_ => {

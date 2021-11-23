@@ -45,10 +45,15 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     useEffect(() => {
         fetch(context.settings.productEndpoint + "/" + bookId, {
             headers: {
-                'Accept': 'application/vnd.api+json'
+                'Accept': 'application/vnd.api+json; dataPartition=' + props.partition,
             }
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return Promise.reject(response);
+            })
             .then(data => {
                 setBook(data);
 
@@ -59,7 +64,8 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 } else {
                     setDisabled(false);
                 }
-            });
+            })
+            .catch(() => setError("There was an error retrieving the resource."));
     }, [setBook, setDisabled, props.apiKey, props.partition, context.settings.productEndpoint, bookId]);
 
     return (

@@ -45,7 +45,12 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 'Accept': 'application/vnd.api+json; dataPartition=' + props.partition
             }
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return Promise.reject(response);
+            })
             .then(data => setBook(data));
     }, [bookId, setBook, context.settings.productEndpoint, props.partition]);
 
