@@ -2,6 +2,7 @@ package com.octopus.octopub.lambda;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.octopus.octopub.services.LiquidbaseUpdater;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
@@ -21,21 +22,14 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 public class DatabaseInit implements RequestHandler<Map<String, Object>, ProxyResponse> {
 
   @Inject
-  DataSource defaultDataSource;
+  LiquidbaseUpdater liquidbaseUpdater;
 
   @Override
   public ProxyResponse handleRequest(final Map<String, Object> stringObjectMap,
       final Context context) {
 
       try {
-        final Connection connection = defaultDataSource.getConnection();
-        final Database database = DatabaseFactory.getInstance()
-            .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-        final Liquibase liquibase = new Liquibase(
-            "db/changeLog.xml",
-            new ClassLoaderResourceAccessor(),
-            database);
-        liquibase.update(new Contexts(), new LabelExpression());
+        liquidbaseUpdater.update();
         return new ProxyResponse("200", "ok");
       } catch (final LiquibaseException | SQLException ex) {
         return new ProxyResponse("500", ex.toString());

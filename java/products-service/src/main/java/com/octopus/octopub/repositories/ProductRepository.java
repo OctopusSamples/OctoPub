@@ -34,7 +34,7 @@ public class ProductRepository {
     final Product existingProduct = em.find(Product.class, product.id);
     if (existingProduct != null) {
       existingProduct.name = product.name;
-      existingProduct.partition = product.partition;
+      existingProduct.dataPartition = product.dataPartition;
       existingProduct.description = product.description;
       existingProduct.epub = product.epub;
       existingProduct.image = product.epub;

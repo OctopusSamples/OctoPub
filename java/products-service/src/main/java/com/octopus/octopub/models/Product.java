@@ -2,6 +2,7 @@ package com.octopus.octopub.models;
 
 import com.github.jasminb.jsonapi.IntegerIdHandler;
 import com.github.jasminb.jsonapi.annotations.Type;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,10 +20,11 @@ public class Product {
   @Id
   @com.github.jasminb.jsonapi.annotations.Id(IntegerIdHandler.class)
   @GeneratedValue(strategy= GenerationType.IDENTITY)
+  @Column(name = "id")
   public Integer id;
 
   @Audited
-  public String partition;
+  public String dataPartition;
 
   @Audited
   public String name;

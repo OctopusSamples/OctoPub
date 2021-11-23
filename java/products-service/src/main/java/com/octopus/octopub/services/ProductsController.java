@@ -45,7 +45,7 @@ public class ProductsController {
       throw new MissingData();
     }
 
-    product.partition = partitionIdentifier.getPartition(acceptHeaders);
+    product.dataPartition = partitionIdentifier.getPartition(acceptHeaders);
     productRepository.save(product);
     auditRepository.save(
         new Audit(
@@ -75,7 +75,7 @@ public class ProductsController {
 
       if (existingProduct != null) {
         // the existing product must have the same partition as the current request to be updated
-        if (partitionIdentifier.getPartition(acceptHeaders).equals(existingProduct.partition)) {
+        if (partitionIdentifier.getPartition(acceptHeaders).equals(existingProduct.dataPartition)) {
           // update the product details
           productRepository.update(product);
 
@@ -113,8 +113,8 @@ public class ProductsController {
     try {
       final Product product = productRepository.findOne(Integer.parseInt(id));
       if (product != null
-          && (Constants.DEFAULT_PARTITION.equals(product.getPartition())
-              || partitionIdentifier.getPartition(acceptHeaders).equals(product.getPartition()))) {
+          && (Constants.DEFAULT_PARTITION.equals(product.getDataPartition())
+              || partitionIdentifier.getPartition(acceptHeaders).equals(product.getDataPartition()))) {
         return respondWithProduct(product);
       }
     } catch (final NumberFormatException ex) {
@@ -129,7 +129,7 @@ public class ProductsController {
       final Product product = productRepository.findOne(intId);
       // The product being deleted must match the current partition
       if (product != null
-          && partitionIdentifier.getPartition(acceptHeaders).equals(product.getPartition())) {
+          && partitionIdentifier.getPartition(acceptHeaders).equals(product.getDataPartition())) {
         productRepository.delete(intId);
         auditRepository.save(
             new Audit(Constants.MICROSERVICE_NAME, Constants.DELETED_ACTION, "Product-" + intId),
