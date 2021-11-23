@@ -149,12 +149,12 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
               productsController.getOne(
                   id.get(), getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER));
 
-          if (!StringUtils.isNullOrEmpty(entity)) {
-            return Optional.of(new ProxyResponse("200", entity));
-          }
+          return Optional.of(new ProxyResponse("200", entity));
         }
         return Optional.of(buildNotFound());
       }
+    } catch (final EntityNotFound ex) {
+      return Optional.of(buildNotFound());
     } catch (final Exception e) {
       e.printStackTrace();
       return Optional.of(buildError(e));
@@ -185,6 +185,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         }
         return Optional.of(buildNotFound());
       }
+    } catch (final EntityNotFound ex) {
+      return Optional.of(buildNotFound());
     } catch (final Exception e) {
       e.printStackTrace();
       return Optional.of(buildError(e));

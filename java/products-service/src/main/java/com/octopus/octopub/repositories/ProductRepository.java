@@ -32,7 +32,7 @@ public class ProductRepository {
     em.createQuery("delete from Product p where p.id=:id").setParameter("id", id).executeUpdate();
   }
 
-  public void update(@NonNull final Product product, @NonNull final Integer id) {
+  public Product update(@NonNull final Product product, @NonNull final Integer id) {
     final Product existingProduct = em.find(Product.class, id);
     if (existingProduct != null) {
       if (product.name != null) {
@@ -51,7 +51,10 @@ public class ProductRepository {
         existingProduct.pdf = product.pdf;
       }
       em.merge(existingProduct);
+      return existingProduct;
     }
+
+    return null;
   }
 
   public List<Product> findAll(@NonNull final List<String> partitions, final String filter) {

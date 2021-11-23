@@ -84,7 +84,7 @@ public class ProductsController {
         // the existing product must have the same partition as the current request to be updated
         if (partitionIdentifier.getPartition(acceptHeaders).equals(existingProduct.dataPartition)) {
           // update the product details
-          productRepository.update(product, intId);
+          final Product updated = productRepository.update(product, intId);
 
           // Create an audit record noting the change
           auditRepository.save(
@@ -94,7 +94,7 @@ public class ProductsController {
                   "Product-" + intId),
               acceptHeaders);
 
-          return respondWithProduct(product);
+          return respondWithProduct(updated);
 
         } else {
           // Create an audit record noting the failure
@@ -104,8 +104,8 @@ public class ProductsController {
                   Constants.UPDATED_FAILED_PARTITION_MISMATCH_ACTION,
                   "Product-" + intId),
               acceptHeaders);
-          // Throw an exception, which will be picked up by a Provider to create a custom response
-          throw new InvalidInput("Failed to update a record created by another partition.");
+
+          // Don't update the resource, and flow through to return a 404 not found error
         }
       }
     } catch (final NumberFormatException ex) {
@@ -127,7 +127,7 @@ public class ProductsController {
     } catch (final NumberFormatException ex) {
       // ignored, as the supplied id was not an int, and would never find any entities
     }
-    return null;
+    throw new EntityNotFound();
   }
 
   public boolean delete(@NonNull final String id, @NonNull final List<String> acceptHeaders) {

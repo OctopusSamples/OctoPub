@@ -20,13 +20,13 @@ public class LiquidbaseUpdater {
   DataSource defaultDataSource;
 
   public void update() throws SQLException, LiquibaseException {
-    final Connection connection = defaultDataSource.getConnection();
-    final Database database = DatabaseFactory.getInstance()
-        .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-    final Liquibase liquibase = new Liquibase(
-        "db/changeLog.xml",
-        new ClassLoaderResourceAccessor(),
-        database);
-    liquibase.update(new Contexts(), new LabelExpression());
+    try (Connection connection = defaultDataSource.getConnection()) {
+      final Database database =
+          DatabaseFactory.getInstance()
+              .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+      final Liquibase liquibase =
+          new Liquibase("db/changeLog.xml", new ClassLoaderResourceAccessor(), database);
+      liquibase.update(new Contexts(), new LabelExpression());
+    }
   }
 }
