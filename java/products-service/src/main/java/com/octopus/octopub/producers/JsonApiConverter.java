@@ -12,6 +12,7 @@ public class JsonApiConverter {
   public ResourceConverter buildResourceConverter() {
     final ResourceConverter resourceConverter = new ResourceConverter(Product.class, Audit.class);
     resourceConverter.disableDeserializationOption(DeserializationFeature.REQUIRE_RESOURCE_ID);
+    resourceConverter.enableDeserializationOption(DeserializationFeature.ALLOW_UNKNOWN_INCLUSIONS);
     return resourceConverter;
   }
 }
