@@ -3,6 +3,7 @@ package com.octopus.octopub.lambda;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
 import com.octopus.octopub.services.ProductsController;
@@ -18,7 +19,9 @@ import javax.inject.Named;
 import javax.transaction.Transactional;
 import lombok.NonNull;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.h2.util.StringUtils;
+import org.jose4j.json.internal.json_simple.JSONValue;
 
 @Named("Products")
 public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, ProxyResponse> {
@@ -351,7 +354,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
    */
   private ProxyResponse buildError(@NonNull final Exception ex, final String requestBody) {
       return new ProxyResponse(
-          "500", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\", \"meta\": {\"requestBody\": \"" +  requestBody + "\"}}]}");
+          "500", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\", \"meta\": {\"requestBody\": \"" +  StringEscapeUtils.escapeJson(requestBody) + "\"}}]}");
   }
 
   /**
