@@ -14,7 +14,7 @@ interface Audit {
         subject: string,
         object: string,
         action: string,
-        partition: string
+        dataPartition: string
     }
 }
 
