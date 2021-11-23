@@ -85,7 +85,7 @@ public class ProductsController {
               new Audit(
                   Constants.MICROSERVICE_NAME,
                   Constants.UPDATED_ACTION,
-                  "Product-" + product.getId().toString()),
+                  "Product-" + intId),
               acceptHeaders);
 
           return respondWithProduct(product);

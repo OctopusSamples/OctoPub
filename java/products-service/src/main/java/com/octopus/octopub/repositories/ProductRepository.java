@@ -30,7 +30,7 @@ public class ProductRepository {
     em.createQuery("delete from Product p where p.id=:id").setParameter("id", id).executeUpdate();
   }
 
-  public void update(@NonNull final Product product, @NonNull Integer id) {
+  public void update(@NonNull final Product product, @NonNull final Integer id) {
     final Product existingProduct = em.find(Product.class, id);
     if (existingProduct != null) {
       existingProduct.name = product.name;
