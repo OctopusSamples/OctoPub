@@ -127,6 +127,9 @@ namespace Audit.Service.Lambda
         static string GetTenant(IEnumerable<string> acceptHeader)
         {
             return (acceptHeader ?? Enumerable.Empty<string>())
+                // Ignore null values
+                .Where(v => v != null)
+                // Split the headers on the semi colon
                 .SelectMany(v => v.Split(";"))
                 // trim the results and make them lowercase
                 .Select(v => v.Trim().ToLower())
@@ -134,6 +137,7 @@ namespace Audit.Service.Lambda
                 .Select(v => v.Split("="))
                 // validate that the results have 2 elements
                 .Where(v => v.Length == 2)
+                // We are interested in results that match the data partition setting
                 .Where(v => v[0].Trim().Equals(Constants.AcceptPartitionInfo, StringComparison.OrdinalIgnoreCase))
                 // get the second element
                 .Select(v => v[1].Trim())

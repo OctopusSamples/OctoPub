@@ -1,10 +1,11 @@
 ﻿using System;
 using Amazon.Lambda.APIGatewayEvents;
-using Audit.Service.Services.InMemory;
+using Audit.Service.Lambda;
+using Audit.Service.Services;
 using JsonApiSerializer;
 using Newtonsoft.Json;
 
-namespace Audit.Service.Lambda
+namespace Audit.Service.Handler
 {
     /// <summary>
     /// This class is created by the DI provider, and does the work of mapping requests to responses.
@@ -85,11 +86,7 @@ namespace Audit.Service.Lambda
                 };
             }
 
-            return new APIGatewayProxyResponse
-            {
-                Body = "{\"message\": \"Entity not found\"}",
-                StatusCode = 404
-            };
+            return BuildNotFound();
         }
 
         /// <summary>
@@ -117,13 +114,27 @@ namespace Audit.Service.Lambda
             }
             catch (Exception ex)
             {
-                return new APIGatewayProxyResponse
-                {
-                    Body =
-                        $"{{\"message\": \"{ex}\", \"input\": \"{wrapper.Entity}\"}}",
-                    StatusCode = 500
-                };
+                return BuildServerError(ex);
             }
+        }
+
+        private APIGatewayProxyResponse BuildServerError(Exception ex)
+        {
+            return new APIGatewayProxyResponse
+            {
+                Body =
+                    $"{{\"errors\": [{{\"code\": \"{ex.GetType().Name}\"}}]}}",
+                StatusCode = 500
+            };
+        }
+
+        private APIGatewayProxyResponse BuildNotFound()
+        {
+            return new APIGatewayProxyResponse
+            {
+                Body = "{\"errors\": [{\"title\": \"Resource not found\"}]}",
+                StatusCode = 404
+            };
         }
     }
 }

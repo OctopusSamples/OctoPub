@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Reflection;
+using Audit.Service.Handler;
 using Audit.Service.Repositories;
-using Audit.Service.Services.InMemory;
+using Audit.Service.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

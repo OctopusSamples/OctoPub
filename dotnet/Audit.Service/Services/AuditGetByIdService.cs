@@ -1,8 +1,7 @@
-﻿using System.Threading.Tasks;
-using Audit.Service.Lambda;
+﻿using Audit.Service.Lambda;
 using Audit.Service.Repositories;
 
-namespace Audit.Service.Services.InMemory
+namespace Audit.Service.Services
 {
     public class AuditGetByIdService
     {
