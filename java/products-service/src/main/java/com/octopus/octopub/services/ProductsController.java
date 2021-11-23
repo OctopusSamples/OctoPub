@@ -20,18 +20,24 @@ import lombok.NonNull;
 @ApplicationScoped
 public class ProductsController {
 
-  @Inject ProductRepository productRepository;
+  @Inject
+  ProductRepository productRepository;
 
-  @Inject AuditRepository auditRepository;
+  @Inject
+  AuditRepository auditRepository;
 
-  @Inject ResourceConverter resourceConverter;
+  @Inject
+  ResourceConverter resourceConverter;
 
-  @Inject PartitionIdentifier partitionIdentifier;
+  @Inject
+  PartitionIdentifier partitionIdentifier;
 
   public String getAll(@NonNull final List<String> acceptHeaders, final String filterParam)
       throws DocumentSerializationException {
     final List<Product> products =
-        productRepository.findAll(partitionIdentifier.getPartition(acceptHeaders), filterParam);
+        productRepository.findAll(
+            List.of(Constants.DEFAULT_PARTITION, partitionIdentifier.getPartition(acceptHeaders)),
+            filterParam);
     final JSONAPIDocument<List<Product>> document = new JSONAPIDocument<List<Product>>(products);
     final byte[] content = resourceConverter.writeDocumentCollection(document);
     return new String(content);
@@ -115,7 +121,7 @@ public class ProductsController {
       final Product product = productRepository.findOne(Integer.parseInt(id));
       if (product != null
           && (Constants.DEFAULT_PARTITION.equals(product.getDataPartition())
-              || partitionIdentifier.getPartition(acceptHeaders).equals(product.getDataPartition()))) {
+          || partitionIdentifier.getPartition(acceptHeaders).equals(product.getDataPartition()))) {
         return respondWithProduct(product);
       }
     } catch (final NumberFormatException ex) {

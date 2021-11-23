@@ -7,6 +7,7 @@ import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -20,7 +21,8 @@ import org.h2.util.StringUtils;
 @ApplicationScoped
 public class ProductRepository {
 
-  @Inject EntityManager em;
+  @Inject
+  EntityManager em;
 
   public Product findOne(final int id) {
     return em.find(Product.class, id);
@@ -33,16 +35,26 @@ public class ProductRepository {
   public void update(@NonNull final Product product, @NonNull final Integer id) {
     final Product existingProduct = em.find(Product.class, id);
     if (existingProduct != null) {
-      if (product.name != null) existingProduct.name = product.name;
-      if (product.description != null) existingProduct.description = product.description;
-      if (product.epub != null) existingProduct.epub = product.epub;
-      if (product.image != null) existingProduct.image = product.epub;
-      if (product.pdf != null) existingProduct.pdf = product.pdf;
+      if (product.name != null) {
+        existingProduct.name = product.name;
+      }
+      if (product.description != null) {
+        existingProduct.description = product.description;
+      }
+      if (product.epub != null) {
+        existingProduct.epub = product.epub;
+      }
+      if (product.image != null) {
+        existingProduct.image = product.epub;
+      }
+      if (product.pdf != null) {
+        existingProduct.pdf = product.pdf;
+      }
       em.merge(existingProduct);
     }
   }
 
-  public List<Product> findAll(@NonNull final String partition, final String filter) {
+  public List<Product> findAll(@NonNull final List<String> partitions, final String filter) {
 
     final CriteriaBuilder builder = em.getCriteriaBuilder();
     final CriteriaQuery<Product> criteria = builder.createQuery(Product.class);
@@ -51,8 +63,8 @@ public class ProductRepository {
     // add the partition search rules
     final Predicate partitionPredicate =
         builder.or(
-            builder.equal(root.get("dataPartition"), Constants.DEFAULT_PARTITION),
-            builder.equal(root.get("dataPartition"), partition));
+            partitions.stream().map(p -> builder.equal(root.get("dataPartition"), p)).collect(
+                Collectors.toList()).toArray(new Predicate[0]));
 
     if (!StringUtils.isNullOrEmpty(filter)) {
       /*
