@@ -18,6 +18,11 @@ import javax.persistence.criteria.Predicate;
 import lombok.NonNull;
 import org.h2.util.StringUtils;
 
+/**
+ * Repositories are the interface between the application and the data store. They don't
+ * contain any business logic, security rules, or manual audit logging. Note though that
+ * we use Envers to automatically track database changes.
+ */
 @ApplicationScoped
 public class ProductRepository {
 

@@ -7,6 +7,9 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * A utility class with methods to extract data partition information from headers.
+ */
 @ApplicationScoped
 public class PartitionIdentifier {
 

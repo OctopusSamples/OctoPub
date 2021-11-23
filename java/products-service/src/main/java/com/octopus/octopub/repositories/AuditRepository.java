@@ -12,9 +12,14 @@ import javax.inject.Inject;
 import lombok.NonNull;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.logging.Logger;
+
 
 @ApplicationScoped
 public class AuditRepository {
+
+  @Inject
+  Logger log;
 
   @RestClient
   AuditService auditResource;
@@ -38,7 +43,7 @@ public class AuditRepository {
           String.join(",", acceptHeaders),
           apiKey.orElse(""));
     } catch (final Exception ex) {
-      System.out.println("AuditRepository.save(Audit, List<String>): " + ex);
+      log.error("AuditRepository.save(Audit, List<String>): " + ex);
       /*
         Audits are a best effort creation, explicitly performed asynchronously to maintain
         the performance of the service. Sagas should be used if the failure of an audit event

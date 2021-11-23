@@ -17,6 +17,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import lombok.NonNull;
 
+/**
+ * Controllers take the raw input from the upstream service, like Lambda or a web server,
+ * convert the inputs to POJOs, apply the security rules, create an audit trail, and then pass
+ * the requests down to repositories.
+ */
 @ApplicationScoped
 public class ProductsController {
 

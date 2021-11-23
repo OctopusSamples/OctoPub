@@ -21,6 +21,9 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import lombok.NonNull;
 
+/**
+ * WHen this app is run as a web server, this class defines the REST API endpoints.
+ */
 @Path("/api/products")
 @RequestScoped
 public class ProductResource {
@@ -64,8 +67,7 @@ public class ProductResource {
   public Response delete(
       @Context final SecurityContext ctx,
       @PathParam("id") final String id,
-      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
-      throws DocumentSerializationException {
+      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader) {
     return Response.ok(productsController.delete(id, acceptHeader)).build();
   }
 
