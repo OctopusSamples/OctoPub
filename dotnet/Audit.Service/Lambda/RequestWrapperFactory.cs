@@ -134,7 +134,7 @@ namespace Audit.Service.Lambda
                 .Select(v => v.Split("="))
                 // validate that the results have 2 elements
                 .Where(v => v.Length == 2)
-                .Where(v => v[0].Trim() == Constants.AcceptPartitionInfo)
+                .Where(v => v[0].Trim().Equals(Constants.AcceptPartitionInfo, StringComparison.OrdinalIgnoreCase))
                 // get the second element
                 .Select(v => v[1].Trim())
                 // if nothing was found, we assume we are the default tenant
