@@ -1,6 +1,5 @@
 package com.octopus.octopub.providers;
 
-import com.octopus.octopub.exceptions.InvalidInput;
 import com.octopus.octopub.exceptions.MissingData;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;

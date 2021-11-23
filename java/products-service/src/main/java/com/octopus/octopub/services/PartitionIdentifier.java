@@ -2,6 +2,7 @@ package com.octopus.octopub.services;
 
 import com.octopus.octopub.Constants;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +23,8 @@ public class PartitionIdentifier {
     }
 
     return header.stream()
+        // make sure we aren't processing null values
+        .filter(Objects::nonNull)
         // split on semi colons
         .flatMap(h -> Stream.of(h.split(";")))
         // remove any blank strings

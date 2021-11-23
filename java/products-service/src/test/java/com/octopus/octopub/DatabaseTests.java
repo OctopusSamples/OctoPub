@@ -48,6 +48,10 @@ public class DatabaseTests {
     final Product product = new Product();
     product.setName("test");
     product.setDataPartition("main");
+    product.setDescription("a test book");
+    product.setEpub("http://example.org");
+    product.setPdf("http://example.org");
+    product.setImage("http://example.org");
     final String result =
         productsController.create(
             productToResourceDocument(product),
@@ -62,6 +66,10 @@ public class DatabaseTests {
   public void updateProduct() throws DocumentSerializationException {
     final Product product = new Product();
     product.setName("test");
+    product.setDescription("a test book");
+    product.setEpub("http://example.org");
+    product.setPdf("http://example.org");
+    product.setImage("http://example.org");
     final String result =
         productsController.create(
             productToResourceDocument(product),
@@ -70,6 +78,10 @@ public class DatabaseTests {
 
     final Product product2 = new Product();
     product2.setName("test2");
+    product2.setDescription("a test book updated");
+    product2.setEpub("http://example.org/updated");
+    product2.setPdf("http://example.org/updated");
+    product2.setImage("http://example.org/updated");
     final String getResult =
         productsController.update(
             resultObject.getId().toString(),
@@ -79,11 +91,15 @@ public class DatabaseTests {
 
     assertNotNull(getResultObject.getId());
     assertEquals("testing", getResultObject.getDataPartition());
-    assertEquals("test2", getResultObject.getName());
+    assertEquals("a test book updated", getResultObject.getDescription());
+    assertEquals("http://example.org/updated", getResultObject.getEpub());
+    assertEquals("http://example.org/updated", getResultObject.getPdf());
+    assertEquals("http://example.org/updated", getResultObject.getImage());
   }
 
   /**
    * You should not be able to update a resource in another partition.
+   *
    * @param partition The partition to use when updating
    * @throws DocumentSerializationException
    */
@@ -101,10 +117,20 @@ public class DatabaseTests {
 
     final Product product2 = new Product();
     product2.setName("test2");
-    assertThrows(EntityNotFound.class, () -> productsController.update(
-            resultObject.getId().toString(),
-            productToResourceDocument(product2),
-            List.of("application/vnd.api+json; dataPartition=" + partition)));
+    assertThrows(
+        EntityNotFound.class,
+        () ->
+            productsController.update(
+                resultObject.getId().toString(),
+                productToResourceDocument(product2),
+                List.of("application/vnd.api+json; dataPartition=" + partition)));
+
+    // verify the same exceptions occur when no header is set
+    assertThrows(
+        EntityNotFound.class,
+        () ->
+            productsController.update(
+                resultObject.getId().toString(), productToResourceDocument(product2), List.of()));
   }
 
   @Test
@@ -118,7 +144,8 @@ public class DatabaseTests {
             List.of("application/vnd.api+json; dataPartition=testing"));
     final Product resultObject = getProductFromDocument(result);
 
-    final boolean success = productsController.delete(
+    final boolean success =
+        productsController.delete(
             resultObject.getId().toString(),
             List.of("application/vnd.api+json; dataPartition=testing"));
 
@@ -127,6 +154,7 @@ public class DatabaseTests {
 
   /**
    * You should not be able to delete a resource in another partition.
+   *
    * @param partition The partition to use when updating
    * @throws DocumentSerializationException
    */
@@ -142,9 +170,12 @@ public class DatabaseTests {
             List.of("application/vnd.api+json; dataPartition=testing"));
     final Product resultObject = getProductFromDocument(result);
 
-    assertFalse(productsController.delete(
-        resultObject.getId().toString(),
-        List.of("application/vnd.api+json; dataPartition=" + partition)));
+    assertFalse(
+        productsController.delete(
+            resultObject.getId().toString(),
+            List.of("application/vnd.api+json; dataPartition=" + partition)));
+
+    assertFalse(productsController.delete(resultObject.getId().toString(), List.of()));
   }
 
   @Test
@@ -172,6 +203,7 @@ public class DatabaseTests {
 
   /**
    * You should not be able to get a resource in another partition.
+   *
    * @param partition The partition to use when retrieving
    * @throws DocumentSerializationException
    */
@@ -187,9 +219,16 @@ public class DatabaseTests {
             List.of("application/vnd.api+json; dataPartition=testing"));
     final Product resultObject = getProductFromDocument(result);
 
-    assertThrows(EntityNotFound.class, () -> productsController.getOne(
-        resultObject.getId().toString(),
-        List.of("application/vnd.api+json; dataPartition=" + partition)));
+    assertThrows(
+        EntityNotFound.class,
+        () ->
+            productsController.getOne(
+                resultObject.getId().toString(),
+                List.of("application/vnd.api+json; dataPartition=" + partition)));
+
+    assertThrows(
+        EntityNotFound.class,
+        () -> productsController.getOne(resultObject.getId().toString(), List.of()));
   }
 
   @Test
@@ -218,6 +257,7 @@ public class DatabaseTests {
 
   /**
    * You should not be able to list resources in another partition.
+   *
    * @param partition The partition to use when retrieving
    * @throws DocumentSerializationException
    */
@@ -233,12 +273,17 @@ public class DatabaseTests {
             List.of("application/vnd.api+json; dataPartition=testing"));
     final Product resultObject = getProductFromDocument(result);
 
-    final String getResult = productsController.getAll(
-        List.of("application/vnd.api+json; dataPartition=" + partition),
-        "");
+    final String getResult =
+        productsController.getAll(
+            List.of("application/vnd.api+json; dataPartition=" + partition), "");
     final List<Product> getResultObjects = getProductsFromDocument(getResult);
 
     assertFalse(getResultObjects.stream().anyMatch(p -> p.getId() == resultObject.getId()));
+
+    final String getResult2 = productsController.getAll(List.of(), "");
+    final List<Product> getResultObjects2 = getProductsFromDocument(getResult2);
+
+    assertFalse(getResultObjects2.stream().anyMatch(p -> p.getId() == resultObject.getId()));
   }
 
   private Product getProductFromDocument(@NonNull final String document) {

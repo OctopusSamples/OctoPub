@@ -20,7 +20,9 @@ public class PartitionIdentifierTest {
       "main,application/vnd.api+json; dataPartition=",
       "main,application/vnd.api+json; dataPartition= ",
       "main,application/vnd.api+json; ",
-      "main,application/vnd.api+json"})
+      "main,application/vnd.api+json",
+      "main, ",
+      "main,"})
   public void testPartitions(final String expected, final String acceptHeader) {
     Assert.equals(expected, PARTITION_IDENTIFIER.getPartition(new ArrayList<>(){{add(acceptHeader);}}));
     Assert.equals(expected, PARTITION_IDENTIFIER.getPartition(new ArrayList<>(){{add(acceptHeader); add("application/vnd.api+json");}}));
