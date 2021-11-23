@@ -52,8 +52,8 @@ public class ProductRepository {
     // add the partition search rules
     final Predicate partitionPredicate =
         builder.or(
-            builder.equal(root.get("partition"), Constants.DEFAULT_PARTITION),
-            builder.equal(root.get("partition"), partition));
+            builder.equal(root.get("dataPartition"), Constants.DEFAULT_PARTITION),
+            builder.equal(root.get("dataPartition"), partition));
 
     if (!StringUtils.isNullOrEmpty(filter)) {
       /*
