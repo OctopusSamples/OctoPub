@@ -6,6 +6,7 @@ import {AppContext} from "../App";
 import {Product} from "../model/Product";
 import {useParams} from "react-router-dom";
 import {createStyles, makeStyles} from "@material-ui/core/styles";
+import {getJsonApi} from "../utils/network";
 
 interface Params {
     bookId: string
@@ -40,17 +41,7 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const [book, setBook] = useState<Product | null>(null);
 
     useEffect(() => {
-        fetch(context.settings.productEndpoint + "/" + bookId, {
-            headers: {
-                'Accept': 'application/vnd.api+json; dataPartition=' + props.partition
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(response);
-            })
+        getJsonApi<Product>(context.settings.productEndpoint + "/" + bookId, props.partition)
             .then(data => setBook(data));
     }, [bookId, setBook, context.settings.productEndpoint, props.partition]);
 

@@ -5,7 +5,8 @@ import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
 import {useHistory} from "react-router-dom";
-import {styles} from "../styles";
+import {styles} from "../utils/styles";
+import {postJsonApi} from "../utils/network";
 
 const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     props.setAllBookId(null);
@@ -116,23 +117,12 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     function saveBook() {
         setDisabled(true);
-        fetch(context.settings.productEndpoint, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/vnd.api+json; dataPartition=' + props.partition,
-                'Content-Type': 'application/vnd.api+json',
-                'X-API-Key': props.apiKey || ""
-            },
-            body: JSON.stringify(book, (key, value) => {
+        postJsonApi(JSON.stringify(book, (key, value) => {
                 if (value !== null) return value
-            })
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(response);
-            })
+            }),
+            context.settings.productEndpoint,
+            props.partition,
+            props.apiKey)
             .then(_ => history.push('/index.html'))
             .catch(_ => {
                 setDisabled(false);

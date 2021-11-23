@@ -3,7 +3,7 @@ import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
 import {FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
-import {styles} from "../styles";
+import {styles} from "../utils/styles";
 
 const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
 

@@ -5,7 +5,8 @@ import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
 import {useHistory, useParams} from "react-router-dom";
-import {styles} from "../styles";
+import {styles} from "../utils/styles";
+import {deleteJsonApi, getJsonApi} from "../utils/network";
 
 interface Params {
     bookId: string
@@ -36,17 +37,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     });
 
     useEffect(() => {
-        fetch(context.settings.productEndpoint + "/" + bookId, {
-            headers: {
-                'Accept': 'application/vnd.api+json; dataPartition=' + props.partition,
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(response);
-            })
+        getJsonApi<Product>(context.settings.productEndpoint + "/" + bookId, props.partition)
             .then(data => {
                 setBook(data);
 
@@ -126,22 +117,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     function deleteBook() {
         setDisabled(true);
-        fetch(context.settings.productEndpoint + "/" + bookId, {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/vnd.api+json; dataPartition=' + props.partition,
-                'Content-Type': 'application/vnd.api+json',
-                'X-API-Key': props.apiKey || ""
-            },
-            body: JSON.stringify(book, (key, value) => {
-                if (value !== null) return value
-            })
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Something went wrong')
-                }
-            })
+        deleteJsonApi(context.settings.productEndpoint + "/" + bookId, props.partition, props.apiKey)
             .then(_ => history.push('/index.html'))
             .catch(_ => {
                 setDisabled(false);
