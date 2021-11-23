@@ -583,24 +583,7 @@ step "Deploy Lambda" {
                               "",
                               [
                                 "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":apigateway:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":lambda:path/2015-03-31/functions/",
-                                "arn:aws:lambda:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -722,24 +705,7 @@ step "Deploy Lambda" {
                               "",
                               [
                                 "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":apigateway:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":lambda:path/2015-03-31/functions/",
-                                "arn:aws:lambda:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -766,24 +732,7 @@ step "Deploy Lambda" {
                               "",
                               [
                                 "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":apigateway:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":lambda:path/2015-03-31/functions/",
-                                "arn:aws:lambda:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -810,24 +759,7 @@ step "Deploy Lambda" {
                               "",
                               [
                                 "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":apigateway:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":lambda:path/2015-03-31/functions/",
-                                "arn:aws:lambda:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -854,24 +786,7 @@ step "Deploy Lambda" {
                               "",
                               [
                                 "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":apigateway:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":lambda:path/2015-03-31/functions/",
-                                "arn:aws:lambda:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -897,24 +812,7 @@ step "Deploy Lambda" {
                               "",
                               [
                                 "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":apigateway:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":lambda:path/2015-03-31/functions/",
-                                "arn:aws:lambda:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
@@ -940,24 +838,7 @@ step "Deploy Lambda" {
                               "",
                               [
                                 "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":apigateway:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":lambda:path/2015-03-31/functions/",
-                                "arn:aws:lambda:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":function:",
-                                { "Ref": "LambdaOne" },
+                                { "Ref": "LambdaVersion#{DeploymentId}" },
                                 "/invocations"
                               ]
                             ]
