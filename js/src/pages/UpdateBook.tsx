@@ -62,7 +62,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 } else if (data?.data?.attributes?.dataPartition !== props.partition) {
                     setError("This book belongs to the "
                         + data?.data?.attributes?.dataPartition
-                        + " partition, and cannot be edited.");
+                        + " data partition, and cannot be edited.");
                 } else {
                     setDisabled(false);
                 }
