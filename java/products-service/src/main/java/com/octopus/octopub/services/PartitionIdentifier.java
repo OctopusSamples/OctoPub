@@ -36,6 +36,8 @@ public class PartitionIdentifier {
         .filter(a -> a.length == 2)
         .filter(a -> a[0].trim().equals(Constants.ACCEPT_PARTITION_INFO))
         .map(a -> a[1].trim())
+        // We don't accept blank values
+        .filter(a -> !StringUtils.isBlank(a))
         .findFirst()
         .orElse(Constants.DEFAULT_PARTITION);
   }
