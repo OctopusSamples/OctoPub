@@ -78,7 +78,7 @@ public class ProductsController {
         // the existing product must have the same partition as the current request to be updated
         if (partitionIdentifier.getPartition(acceptHeaders).equals(existingProduct.dataPartition)) {
           // update the product details
-          productRepository.update(product);
+          productRepository.update(product, intId);
 
           // Create an audit record noting the change
           auditRepository.save(
@@ -147,7 +147,14 @@ public class ProductsController {
   private Product getProductFromDocument(@NonNull final String document) {
     final JSONAPIDocument<Product> productDocument =
         resourceConverter.readDocument(document.getBytes(StandardCharsets.UTF_8), Product.class);
-    return productDocument.get();
+    final Product product = productDocument.get();
+    /*
+      The ID of a product is determined by the URL, while the partition comes froms
+      the headers. If either of these values was sent by the client, strip them out.
+     */
+    product.id = null;
+    product.dataPartition = null;
+    return product;
   }
 
   private String respondWithProduct(@NonNull final Product product)

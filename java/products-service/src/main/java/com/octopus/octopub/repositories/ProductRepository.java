@@ -30,11 +30,10 @@ public class ProductRepository {
     em.createQuery("delete from Product p where p.id=:id").setParameter("id", id).executeUpdate();
   }
 
-  public void update(@NonNull final Product product) {
-    final Product existingProduct = em.find(Product.class, product.id);
+  public void update(@NonNull final Product product, @NonNull Integer id) {
+    final Product existingProduct = em.find(Product.class, id);
     if (existingProduct != null) {
       existingProduct.name = product.name;
-      existingProduct.dataPartition = product.dataPartition;
       existingProduct.description = product.description;
       existingProduct.epub = product.epub;
       existingProduct.image = product.epub;
