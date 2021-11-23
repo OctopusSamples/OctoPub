@@ -21,7 +21,7 @@ interface Params {
 const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     props.setAllBookId(null);
 
-    const { bookId } = useParams<Params>();
+    const {bookId} = useParams<Params>();
     const history = useHistory();
     const context = useContext(AppContext);
     const classes = useStyles();
@@ -60,13 +60,15 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 if (!props.apiKey) {
                     setError("The API key must be defined in the settings page.");
                 } else if (data?.data?.attributes?.dataPartition !== props.partition) {
-                    setError("This book belongs to another data partition, and cannot be edited.");
+                    setError("This book belongs to the "
+                        + data?.data?.attributes?.dataPartition
+                        + " partition, and cannot be deleted.");
                 } else {
                     setDisabled(false);
                 }
             })
             .catch(() => setError("There was an error retrieving the resource."));
-    }, [setBook, setDisabled, props.apiKey, props.partition, context.settings.productEndpoint,bookId]);
+    }, [setBook, setDisabled, props.apiKey, props.partition, context.settings.productEndpoint, bookId]);
 
     return (
         <>
@@ -132,26 +134,26 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     function deleteBook() {
         setDisabled(true);
         fetch(context.settings.productEndpoint + "/" + bookId, {
-                method: 'DELETE',
-                headers: {
-                    'Accept': 'application/vnd.api+json; dataPartition=' + props.partition,
-                    'Content-Type': 'application/vnd.api+json',
-                    'X-API-Key': props.apiKey || ""
-                },
-                body: JSON.stringify(book, (key, value) => {
-                    if (value !== null) return value
-                })
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/vnd.api+json; dataPartition=' + props.partition,
+                'Content-Type': 'application/vnd.api+json',
+                'X-API-Key': props.apiKey || ""
+            },
+            body: JSON.stringify(book, (key, value) => {
+                if (value !== null) return value
             })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error('Something went wrong')
-                    }
-                })
-                .then(_ => history.push('/index.html'))
-                .catch(_ => {
-                    setDisabled(false);
-                    setError("An error occurred while deleting the book.");
-                });
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Something went wrong')
+                }
+            })
+            .then(_ => history.push('/index.html'))
+            .catch(_ => {
+                setDisabled(false);
+                setError("An error occurred while deleting the book.");
+            });
     }
 }
 
