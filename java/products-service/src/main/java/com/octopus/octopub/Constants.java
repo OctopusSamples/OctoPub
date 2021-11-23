@@ -13,7 +13,7 @@ public final class Constants {
   public static final String API_GATEWAY_API_KEY_HEADER = "X-API-Key";
   public static final String MICROSERVICE_NAME = "Products Service";
   public static final String ACCEPT_VERSION_INFO = "products-version";
-  public static final String ACCEPT_PARTITION_INFO = "partition";
+  public static final String ACCEPT_PARTITION_INFO = "dataPartition";
   public static final String GET_METHOD = "get";
   public static final String POST_METHOD = "post";
   public static final String PATCH_METHOD = "patch";
