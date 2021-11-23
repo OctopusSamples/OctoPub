@@ -37,7 +37,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 image: "",
                 epub: "",
                 pdf: "",
-                tenant: ""
+                partition: ""
             }
         }
     });

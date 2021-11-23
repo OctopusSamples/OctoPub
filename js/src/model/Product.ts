@@ -10,7 +10,7 @@ export interface ProductData {
     id: number | null,
     type: string | null,
     attributes: {
-        tenant: string | null,
+        partition: string | null,
         name: string | null,
         image: string | null,
         pdf: string | null,
