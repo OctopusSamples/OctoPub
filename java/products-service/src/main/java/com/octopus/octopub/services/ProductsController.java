@@ -70,8 +70,9 @@ public class ProductsController {
     }
 
     try {
+      final Integer intId = Integer.parseInt(id);
       // find the product we are updating
-      final Product existingProduct = productRepository.findOne(Integer.parseInt(id));
+      final Product existingProduct = productRepository.findOne(intId);
 
       if (existingProduct != null) {
         // the existing product must have the same partition as the current request to be updated
@@ -95,7 +96,7 @@ public class ProductsController {
               new Audit(
                   Constants.MICROSERVICE_NAME,
                   Constants.UPDATED_FAILED_PARTITION_MISMATCH_ACTION,
-                  "Product-" + product.getId().toString()),
+                  "Product-" + intId),
               acceptHeaders);
           // Throw an exception, which will be picked up by a Provider to create a custom response
           throw new InvalidInput("Failed to update a record created by another partition.");
