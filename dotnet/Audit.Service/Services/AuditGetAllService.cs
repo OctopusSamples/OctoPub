@@ -14,11 +14,10 @@ namespace Audit.Service.Services
             _context = context;
         }
 
-        public IReadOnlyCollection<Models.Audit> Get(RequestWrapper wrapper)
+        public IReadOnlyCollection<Models.Audit> Get(IList<string> partitions)
         {
-            var tenant = wrapper.DataPartition;
             IReadOnlyCollection<Models.Audit> list = _context.Audits
-                .Where(a => a.DataPartition == Constants.DefaultPartition || a.DataPartition == tenant)
+                .Where(a => partitions.Contains(a.DataPartition))
                 .ToList();
             return list;
         }

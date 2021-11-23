@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -46,9 +47,9 @@ namespace Audit.Service.Lambda
                 Id = SingleEntityRe.IsMatch(request.Path ?? string.Empty)
                     ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
                     : DefaultId,
-                DataPartition = GetTenant((request.Headers ?? new Dictionary<string, string>())
+                DataPartition = GetTenant((request.MultiValueHeaders ?? new Dictionary<string, IList<string>>())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
-                    .Select(h => h.Value))
+                    .SelectMany(h => h.Value))
             };
         }
 
@@ -73,8 +74,8 @@ namespace Audit.Service.Lambda
                 Id = Int32.TryParse(GetAttribute(message.MessageAttributes, "id"), out var id)
                     ? id
                     : DefaultId,
-                DataPartition = message.MessageAttributes?.ContainsKey("tenant") ?? false
-                    ? GetTenant(message.MessageAttributes["tenant"].StringValue.Split(","))
+                DataPartition = message.MessageAttributes?.ContainsKey("dataPartition") ?? false
+                    ? GetTenant(message.MessageAttributes["dataPartition"].StringValue.Split(","))
                     : Constants.DefaultPartition
             };
         }

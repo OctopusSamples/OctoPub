@@ -12,10 +12,9 @@ namespace Audit.Service.Services
             _context = context;
         }
 
-        public Models.Audit Create(Models.Audit resource, RequestWrapper wrapper)
+        public Models.Audit Create(Models.Audit resource)
         {
             resource.Id = null;
-            resource.DataPartition = wrapper.DataPartition;
             _context.Audits.Add(resource);
             _context.SaveChanges();
             return resource;
