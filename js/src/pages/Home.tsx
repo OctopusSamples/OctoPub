@@ -8,6 +8,7 @@ import {AppContext} from "../App";
 import {CommonProps} from "../model/RouteItem.model";
 import {Products} from "../model/Product";
 import {useHistory} from "react-router-dom";
+import {getJsonApi} from "../utils/network";
 
 // define css-in-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -47,18 +48,9 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch(context.settings.productEndpoint, {
-            headers: {
-                'Accept': 'application/vnd.api+json; dataPartition=' + props.partition
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(response);
-            })
-            .then(data => setBooks(data));
+        getJsonApi<Products>(context.settings.productEndpoint, props.partition)
+            .then(data => setBooks(data))
+            .catch(() => setError("Failed to retrieve the list of books."));
     }, [context.settings.productEndpoint, setBooks, setError, props.partition]);
 
     return (
