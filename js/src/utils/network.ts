@@ -4,7 +4,7 @@ export function getJsonApi<T>(url: string, partition: string | null, apiKey?: st
     return fetch(url, {
         method: 'GET',
         headers: {
-            'Accept': 'application/vnd.api+json; dataPartition=' + partition,
+            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition,
             'Content-Type': 'application/vnd.api+json',
             'X-API-Key': apiKey || ""
         }
@@ -28,7 +28,7 @@ export function patchJsonApi<T>(resource: string, url: string, partition: string
     return fetch(url, {
         method: 'PATCH',
         headers: {
-            'Accept': 'application/vnd.api+json; dataPartition=' + partition,
+            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition,
             'Content-Type': 'application/vnd.api+json',
             'X-API-Key': apiKey || ""
         },
@@ -53,7 +53,7 @@ export function postJsonApi<T>(resource: string, url: string, partition: string 
     return fetch(url, {
         method: 'POST',
         headers: {
-            'Accept': 'application/vnd.api+json; dataPartition=' + partition,
+            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition,
             'Content-Type': 'application/vnd.api+json',
             'X-API-Key': apiKey || ""
         },
@@ -71,7 +71,7 @@ export function deleteJsonApi(url: string, partition: string | null, apiKey?: st
     return fetch(url, {
         method: 'DELETE',
         headers: {
-            'Accept': 'application/vnd.api+json; dataPartition=' + partition,
+            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition,
             'Content-Type': 'application/vnd.api+json',
             'X-API-Key': apiKey || ""
         }
