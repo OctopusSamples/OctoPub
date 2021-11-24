@@ -50,7 +50,7 @@ public class ProductRepository {
         existingProduct.epub = product.epub;
       }
       if (product.image != null) {
-        existingProduct.image = product.epub;
+        existingProduct.image = product.image;
       }
       if (product.pdf != null) {
         existingProduct.pdf = product.pdf;

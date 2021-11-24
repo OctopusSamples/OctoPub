@@ -80,9 +80,9 @@ public class DatabaseTests {
     final Product product2 = new Product();
     product2.setName("test2");
     product2.setDescription("a test book updated");
-    product2.setEpub("http://example.org/updated");
-    product2.setPdf("http://example.org/updated");
-    product2.setImage("http://example.org/updated");
+    product2.setEpub("http://example.org/updatedEpub");
+    product2.setPdf("http://example.org/updatedPdf");
+    product2.setImage("http://example.org/updatedImage");
     final String getResult =
         productsController.update(
             resultObject.getId().toString(),
@@ -93,9 +93,9 @@ public class DatabaseTests {
     assertNotNull(getResultObject.getId());
     assertEquals("testing", getResultObject.getDataPartition());
     assertEquals("a test book updated", getResultObject.getDescription());
-    assertEquals("http://example.org/updated", getResultObject.getEpub());
-    assertEquals("http://example.org/updated", getResultObject.getPdf());
-    assertEquals("http://example.org/updated", getResultObject.getImage());
+    assertEquals("http://example.org/updatedEpub", getResultObject.getEpub());
+    assertEquals("http://example.org/updatedPdf", getResultObject.getPdf());
+    assertEquals("http://example.org/updatedImage", getResultObject.getImage());
   }
 
   /**
