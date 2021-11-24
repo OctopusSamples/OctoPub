@@ -11,8 +11,8 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const context = useContext(AppContext);
     const classes = styles();
     const history = useHistory();
-    const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem("apiKey"));
-    const [partition, setPartition] = useState<string | null>(localStorage.getItem("partition") || "main");
+    const [apiKey, setApiKey] = useState<string | null>(props.apiKey);
+    const [partition, setPartition] = useState<string | null>(props.partition);
 
     return (
         <>
