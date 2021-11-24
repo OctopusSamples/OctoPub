@@ -1,12 +1,7 @@
 import {ComponentType, FC} from "react";
 
 export interface CommonProps {
-    apiKey: string | null;
-    setApiKey: (key: string) => void;
-    partition: string | null;
-    setPartition: (id: string | null) => void;
-    setAllBookId: (id: string | null) => void;
-    allBookId: string | null;
+
 }
 
 // RouteItem is an interface for defining the application routes and navigation menu items

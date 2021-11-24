@@ -11,8 +11,8 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const context = useContext(AppContext);
     const classes = styles();
     const history = useHistory();
-    const [apiKey, setApiKey] = useState<string | null>(props.apiKey);
-    const [partition, setPartition] = useState<string | null>(props.partition);
+    const [apiKey, setApiKey] = useState<string | null>(context.apiKey);
+    const [partition, setPartition] = useState<string | null>(context.partition);
 
     return (
         <>
@@ -68,8 +68,8 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
         const fixedApiKey = apiKey ? apiKey.trim() : "";
         localStorage.setItem("partition", fixedPartition);
         localStorage.setItem("apiKey", fixedApiKey);
-        props.setPartition(fixedPartition);
-        props.setApiKey(fixedApiKey);
+        context.setPartition(fixedPartition);
+        context.setApiKey(fixedApiKey);
         history.push('/index.html');
     }
 }

@@ -61,9 +61,7 @@ interface HeaderProps extends CommonProps {
 
 const Header: FC<HeaderProps> = ({
                                      toggleTheme,
-                                     useDefaultTheme,
-                                     apiKey,
-                                     allBookId
+                                     useDefaultTheme
                                  }: HeaderProps) => {
     const classes = useStyles();
     const context = useContext(AppContext);
@@ -84,21 +82,21 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
-                {allBookId && apiKey &&
-                <IconButton onClick={() => history.push('/deleteBook/' + allBookId)}>
+                {context.allBookId && context.apiKey &&
+                <IconButton onClick={() => history.push('/deleteBook/' + context.allBookId)}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>
                     </Tooltip>
                 </IconButton>
                 }
-                {allBookId && apiKey &&
-                <IconButton onClick={() => history.push('/updateBook/' + allBookId)}>
+                {context.allBookId && context.apiKey &&
+                <IconButton onClick={() => history.push('/updateBook/' + context.allBookId)}>
                     <Tooltip title={"Update"} placement={"bottom"}>
                         <Edit/>
                     </Tooltip>
                 </IconButton>
                 }
-                {apiKey &&
+                {context.apiKey &&
                 <IconButton onClick={() => history.push('/addBook')}>
                     <Tooltip title={"Add Book"} placement={"bottom"}>
                         <AddCircleOutline/>

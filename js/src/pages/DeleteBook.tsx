@@ -13,7 +13,6 @@ interface Params {
 }
 
 const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
-    props.setAllBookId(null);
 
     const {bookId} = useParams<Params>();
     const history = useHistory();
@@ -36,14 +35,16 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
         }
     });
 
+    context.setAllBookId(null);
+
     useEffect(() => {
-        getJsonApi<Product>(context.settings.productEndpoint + "/" + bookId, props.partition)
+        getJsonApi<Product>(context.settings.productEndpoint + "/" + bookId, context.partition)
             .then(data => {
                 setBook(data);
 
-                if (!props.apiKey) {
+                if (!context.apiKey) {
                     setError("The API key must be defined in the settings page.");
-                } else if (data?.data?.attributes?.dataPartition !== props.partition) {
+                } else if (data?.data?.attributes?.dataPartition !== context.partition) {
                     setError("This book belongs to the "
                         + data?.data?.attributes?.dataPartition
                         + " data partition, and cannot be deleted.");
@@ -52,7 +53,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 }
             })
             .catch(() => setError("There was an error retrieving the resource."));
-    }, [setBook, setDisabled, props.apiKey, props.partition, context.settings.productEndpoint, bookId]);
+    }, [setBook, setDisabled, context.apiKey, context.partition, context.settings.productEndpoint, bookId]);
 
     return (
         <>
@@ -117,7 +118,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     function deleteBook() {
         setDisabled(true);
-        deleteJsonApi(context.settings.productEndpoint + "/" + bookId, props.partition, props.apiKey)
+        deleteJsonApi(context.settings.productEndpoint + "/" + bookId, context.partition, context.apiKey)
             .then(_ => history.push('/index.html'))
             .catch(_ => {
                 setDisabled(false);

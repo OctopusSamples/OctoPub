@@ -20,9 +20,10 @@ interface Audit {
 }
 
 const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
-    props.setAllBookId(null);
 
     const context = useContext(AppContext);
+
+    context.setAllBookId(null);
 
     const [audits, setAudits] = useState<AuditsCollection | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -35,10 +36,10 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
     ];
 
     useEffect(() => {
-        getJsonApi<AuditsCollection>(context.settings.auditEndpoint, props.partition)
+        getJsonApi<AuditsCollection>(context.settings.auditEndpoint, context.partition)
             .then(data => setAudits(data))
             .catch(() => setError("Failed to retrieve audit resources."))
-    }, [setAudits, context.settings.auditEndpoint, props.partition]);
+    }, [setAudits, context.settings.auditEndpoint, context.partition]);
 
     return (
         <>

@@ -36,14 +36,14 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     const { bookId } = useParams<Params>();
 
-    props.setAllBookId(bookId);
+    context.setAllBookId(bookId);
 
     const [book, setBook] = useState<Product | null>(null);
 
     useEffect(() => {
-        getJsonApi<Product>(context.settings.productEndpoint + "/" + bookId, props.partition)
+        getJsonApi<Product>(context.settings.productEndpoint + "/" + bookId, context.partition)
             .then(data => setBook(data));
-    }, [bookId, setBook, context.settings.productEndpoint, props.partition]);
+    }, [bookId, setBook, context.settings.productEndpoint, context.partition]);
 
     return (
         <>

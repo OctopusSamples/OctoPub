@@ -41,12 +41,6 @@ const Layout: FC<LayoutProps> = ({
                                      toggleTheme,
                                      useDefaultTheme,
                                      children,
-                                     apiKey,
-                                     setApiKey,
-                                     partition,
-                                     setPartition,
-                                     setAllBookId,
-                                     allBookId
                                  }: LayoutProps) => {
     const classes = useStyles();
     return (
@@ -54,13 +48,7 @@ const Layout: FC<LayoutProps> = ({
             <CssBaseline/>
             <Header
                 toggleTheme={toggleTheme}
-                useDefaultTheme={useDefaultTheme}
-                apiKey={apiKey}
-                setApiKey={setApiKey}
-                partition={partition}
-                setPartition={setPartition}
-                setAllBookId={setAllBookId}
-                allBookId={allBookId}/>
+                useDefaultTheme={useDefaultTheme}/>
             <main
                 className={clsx(classes.content)}
             >

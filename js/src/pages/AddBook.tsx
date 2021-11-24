@@ -9,7 +9,7 @@ import {styles} from "../utils/styles";
 import {postJsonApi} from "../utils/network";
 
 const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
-    props.setAllBookId(null);
+
 
     const history = useHistory();
     const context = useContext(AppContext);
@@ -31,13 +31,15 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
         }
     });
 
+    context.setAllBookId(null);
+
     useEffect(() => {
-        if (!props.apiKey) {
+        if (!context.apiKey) {
             setError("The API key must be defined in the settings page.");
         } else {
             setDisabled(false);
         }
-    }, [setDisabled, setError, props.apiKey]);
+    }, [setDisabled, setError, context.apiKey]);
 
     return (
         <>
@@ -121,8 +123,8 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 if (value !== null) return value
             }),
             context.settings.productEndpoint,
-            props.partition,
-            props.apiKey)
+            context.partition,
+            context.apiKey)
             .then(_ => history.push('/index.html'))
             .catch(_ => {
                 setDisabled(false);

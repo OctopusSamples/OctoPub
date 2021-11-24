@@ -18,7 +18,13 @@ import {DynamicConfig} from "./config/dynamicConfig";
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
     settings: {basename: "", title: "", productEndpoint: "", auditEndpoint: "", editorFormat: "", google: {tag: ""}},
-    useDefaultTheme: true
+    useDefaultTheme: true,
+    apiKey: null,
+    setPartition: () => {},
+    partition: null,
+    allBookId: null,
+    setAllBookId: () => {},
+    setApiKey: () => {}
 });
 
 // default component
@@ -46,14 +52,11 @@ function App(config: DynamicConfig) {
             <Helmet>
                 <title>{config.settings.title}</title>
             </Helmet>
-            <AppContext.Provider value={{...config, useDefaultTheme}}>
+            <AppContext.Provider value={{...config, useDefaultTheme, allBookId, setAllBookId, apiKey, setApiKey, partition, setPartition}}>
                 <ThemeProvider theme={theme}>
                     <Router basename={config.settings.basename}>
                         <Switch>
-                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme} apiKey={apiKey}
-                                    setApiKey={setApiKey} partition={partition} setPartition={setPartition}
-                                    setAllBookId={setAllBookId}
-                                    allBookId={allBookId}>
+                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
                                 {/* for each route config, a react route is created */}
                                 {routes.map((route: RouteItem) =>
                                     route.subRoutes ? (
@@ -61,14 +64,7 @@ function App(config: DynamicConfig) {
                                             <Route
                                                 key={`${item.key}`}
                                                 path={`${item.path}`}
-                                                component={(item.component && item.component({
-                                                    apiKey,
-                                                    setApiKey,
-                                                    partition,
-                                                    setPartition,
-                                                    setAllBookId,
-                                                    allBookId
-                                                })) || DefaultComponent}
+                                                component={(item.component && item.component({})) || DefaultComponent}
                                                 exact
                                             />
                                         ))
@@ -76,14 +72,7 @@ function App(config: DynamicConfig) {
                                         <Route
                                             key={`${route.key}`}
                                             path={`${route.path}`}
-                                            component={(route.component && route.component({
-                                                apiKey,
-                                                setApiKey,
-                                                partition,
-                                                setPartition,
-                                                setAllBookId,
-                                                allBookId
-                                            })) || DefaultComponent}
+                                            component={(route.component && route.component({})) || DefaultComponent}
                                             exact
                                         />
                                     )

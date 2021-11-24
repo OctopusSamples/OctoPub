@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
-    props.setAllBookId(null);
+
 
     const classes = useStyles();
 
@@ -48,11 +48,13 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const [books, setBooks] = useState<Products | null>(null);
     const [error, setError] = useState<string | null>(null);
 
+    context.setAllBookId(null);
+
     useEffect(() => {
-        getJsonApi<Products>(context.settings.productEndpoint, props.partition)
+        getJsonApi<Products>(context.settings.productEndpoint, context.partition)
             .then(data => setBooks(data))
             .catch(() => setError("Failed to retrieve the list of books."));
-    }, [context.settings.productEndpoint, setBooks, setError, props.partition]);
+    }, [context.settings.productEndpoint, setBooks, setError, context.partition]);
 
     return (
         <>

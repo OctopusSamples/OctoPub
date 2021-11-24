@@ -4,14 +4,20 @@
  */
 export interface DynamicConfig {
     settings: {
-        basename: string,
-        productEndpoint: string,
-        auditEndpoint: string,
-        title: string,
-        editorFormat: string
+        basename: string;
+        productEndpoint: string;
+        auditEndpoint: string;
+        title: string;
+        editorFormat: string;
         google: {
-            tag: string
+            tag: string;
         }
     },
-    useDefaultTheme?: boolean
+    useDefaultTheme?: boolean;
+    apiKey: string | null;
+    setApiKey: (key: string) => void;
+    partition: string | null;
+    setPartition: (id: string | null) => void;
+    setAllBookId: (id: string | null) => void;
+    allBookId: string | null;
 }
