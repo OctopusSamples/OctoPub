@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.exceptions.EntityNotFound;
@@ -14,13 +13,11 @@ import com.octopus.octopub.models.Product;
 import com.octopus.octopub.services.LiquidbaseUpdater;
 import com.octopus.octopub.handlers.ProductsHandler;
 import io.quarkus.test.junit.QuarkusTest;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import liquibase.exception.LiquibaseException;
-import lombok.NonNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -29,12 +26,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class DatabaseTests {
+public class DatabaseTests extends BaseTest {
 
   @Inject LiquidbaseUpdater liquidbaseUpdater;
 
   @Inject
-  ProductsHandler productsController;
+  ProductsHandler productsHandler;
 
   @Inject ResourceConverter resourceConverter;
 
@@ -45,19 +42,8 @@ public class DatabaseTests {
 
   @Test
   @Transactional
-  public void createProduct() throws DocumentSerializationException {
-    final Product product = new Product();
-    product.setName("test");
-    product.setDataPartition("main");
-    product.setDescription("a test book");
-    product.setEpub("http://example.org/epub");
-    product.setPdf("http://example.org/pdf");
-    product.setImage("http://example.org/image");
-    final String result =
-        productsController.create(
-            productToResourceDocument(product),
-            List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product resultObject = getProductFromDocument(result);
+  public void testCreateProduct() throws DocumentSerializationException {
+    final Product resultObject = createProduct(productsHandler, resourceConverter, "testing");
     assertNotNull(resultObject.getId());
     assertEquals("testing", resultObject.getDataPartition());
     assertEquals("test", resultObject.getName());
@@ -77,10 +63,10 @@ public class DatabaseTests {
     product.setPdf("http://example.org");
     product.setImage("http://example.org");
     final String result =
-        productsController.create(
-            productToResourceDocument(product),
+        productsHandler.create(
+            productToResourceDocument(resourceConverter, product),
             List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product resultObject = getProductFromDocument(result);
+    final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final Product product2 = new Product();
     product2.setName("test2");
@@ -89,11 +75,11 @@ public class DatabaseTests {
     product2.setPdf("http://example.org/updatedPdf");
     product2.setImage("http://example.org/updatedImage");
     final String getResult =
-        productsController.update(
+        productsHandler.update(
             resultObject.getId().toString(),
-            productToResourceDocument(product2),
+            productToResourceDocument(resourceConverter, product2),
             List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product getResultObject = getProductFromDocument(getResult);
+    final Product getResultObject = getProductFromDocument(resourceConverter, getResult);
 
     assertNotNull(getResultObject.getId());
     assertEquals("testing", getResultObject.getDataPartition());
@@ -116,27 +102,27 @@ public class DatabaseTests {
     final Product product = new Product();
     product.setName("test");
     final String result =
-        productsController.create(
-            productToResourceDocument(product),
+        productsHandler.create(
+            productToResourceDocument(resourceConverter, product),
             List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product resultObject = getProductFromDocument(result);
+    final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final Product product2 = new Product();
     product2.setName("test2");
     assertThrows(
         EntityNotFound.class,
         () ->
-            productsController.update(
+            productsHandler.update(
                 resultObject.getId().toString(),
-                productToResourceDocument(product2),
+                productToResourceDocument(resourceConverter, product2),
                 List.of("application/vnd.api+json; dataPartition=" + partition)));
 
     // verify the same exceptions occur when no header is set
     assertThrows(
         EntityNotFound.class,
         () ->
-            productsController.update(
-                resultObject.getId().toString(), productToResourceDocument(product2), List.of()));
+            productsHandler.update(
+                resultObject.getId().toString(), productToResourceDocument(resourceConverter, product2), List.of()));
   }
 
   @Test
@@ -145,13 +131,13 @@ public class DatabaseTests {
     final Product product = new Product();
     product.setName("test");
     final String result =
-        productsController.create(
-            productToResourceDocument(product),
+        productsHandler.create(
+            productToResourceDocument(resourceConverter, product),
             List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product resultObject = getProductFromDocument(result);
+    final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final boolean success =
-        productsController.delete(
+        productsHandler.delete(
             resultObject.getId().toString(),
             List.of("application/vnd.api+json; dataPartition=testing"));
 
@@ -171,17 +157,17 @@ public class DatabaseTests {
     final Product product = new Product();
     product.setName("test");
     final String result =
-        productsController.create(
-            productToResourceDocument(product),
+        productsHandler.create(
+            productToResourceDocument(resourceConverter, product),
             List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product resultObject = getProductFromDocument(result);
+    final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     assertFalse(
-        productsController.delete(
+        productsHandler.delete(
             resultObject.getId().toString(),
             List.of("application/vnd.api+json; dataPartition=" + partition)));
 
-    assertFalse(productsController.delete(resultObject.getId().toString(), List.of()));
+    assertFalse(productsHandler.delete(resultObject.getId().toString(), List.of()));
   }
 
   @Test
@@ -191,16 +177,16 @@ public class DatabaseTests {
     product.setName("test");
     product.setDataPartition("main");
     final String result =
-        productsController.create(
-            productToResourceDocument(product),
+        productsHandler.create(
+            productToResourceDocument(resourceConverter, product),
             List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product resultObject = getProductFromDocument(result);
+    final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final String getResult =
-        productsController.getOne(
+        productsHandler.getOne(
             resultObject.getId().toString(),
             List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product getResultObject = getProductFromDocument(getResult);
+    final Product getResultObject = getProductFromDocument(resourceConverter, getResult);
 
     assertEquals(resultObject.getId(), getResultObject.getId());
     assertEquals(resultObject.getName(), getResultObject.getName());
@@ -220,21 +206,21 @@ public class DatabaseTests {
     final Product product = new Product();
     product.setName("test");
     final String result =
-        productsController.create(
-            productToResourceDocument(product),
+        productsHandler.create(
+            productToResourceDocument(resourceConverter, product),
             List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product resultObject = getProductFromDocument(result);
+    final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     assertThrows(
         EntityNotFound.class,
         () ->
-            productsController.getOne(
+            productsHandler.getOne(
                 resultObject.getId().toString(),
                 List.of("application/vnd.api+json; dataPartition=" + partition)));
 
     assertThrows(
         EntityNotFound.class,
-        () -> productsController.getOne(resultObject.getId().toString(), List.of()));
+        () -> productsHandler.getOne(resultObject.getId().toString(), List.of()));
   }
 
   @Test
@@ -244,16 +230,16 @@ public class DatabaseTests {
     product.setName("test");
     product.setDataPartition("main");
     final String result =
-        productsController.create(
-            productToResourceDocument(product),
+        productsHandler.create(
+            productToResourceDocument(resourceConverter, product),
             List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product resultObject = getProductFromDocument(result);
+    final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final String getResult =
-        productsController.getAll(
+        productsHandler.getAll(
             List.of("application/vnd.api+json; dataPartition=testing"),
             "id==" + resultObject.getId());
-    final List<Product> getResultObjects = getProductsFromDocument(getResult);
+    final List<Product> getResultObjects = getProductsFromDocument(resourceConverter, getResult);
 
     assertEquals(1, getResultObjects.size());
     assertEquals(resultObject.getId(), getResultObjects.get(0).getId());
@@ -274,42 +260,23 @@ public class DatabaseTests {
     final Product product = new Product();
     product.setName("test");
     final String result =
-        productsController.create(
-            productToResourceDocument(product),
+        productsHandler.create(
+            productToResourceDocument(resourceConverter, product),
             List.of("application/vnd.api+json; dataPartition=testing"));
-    final Product resultObject = getProductFromDocument(result);
+    final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final String getResult =
-        productsController.getAll(
+        productsHandler.getAll(
             List.of("application/vnd.api+json; dataPartition=" + partition), "");
-    final List<Product> getResultObjects = getProductsFromDocument(getResult);
+    final List<Product> getResultObjects = getProductsFromDocument(resourceConverter, getResult);
 
     assertFalse(getResultObjects.stream().anyMatch(p -> p.getId() == resultObject.getId()));
 
-    final String getResult2 = productsController.getAll(List.of(), "");
-    final List<Product> getResultObjects2 = getProductsFromDocument(getResult2);
+    final String getResult2 = productsHandler.getAll(List.of(), "");
+    final List<Product> getResultObjects2 = getProductsFromDocument(resourceConverter, getResult2);
 
     assertFalse(getResultObjects2.stream().anyMatch(p -> p.getId() == resultObject.getId()));
   }
 
-  private Product getProductFromDocument(@NonNull final String document) {
-    final JSONAPIDocument<Product> productDocument =
-        resourceConverter.readDocument(document.getBytes(StandardCharsets.UTF_8), Product.class);
-    final Product product = productDocument.get();
-    return product;
-  }
 
-  private List<Product> getProductsFromDocument(@NonNull final String document) {
-    final JSONAPIDocument<List<Product>> productDocument =
-        resourceConverter.readDocumentCollection(
-            document.getBytes(StandardCharsets.UTF_8), Product.class);
-    final List<Product> products = productDocument.get();
-    return products;
-  }
-
-  private String productToResourceDocument(@NonNull final Product product)
-      throws DocumentSerializationException {
-    final JSONAPIDocument<Product> document = new JSONAPIDocument<Product>(product);
-    return new String(resourceConverter.writeDocument(document));
-  }
 }

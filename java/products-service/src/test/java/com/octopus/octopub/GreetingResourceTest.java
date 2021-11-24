@@ -1,20 +1,65 @@
 package com.octopus.octopub;
 
-import com.octopus.octopub.models.Audit;
-import com.octopus.octopub.repositories.AuditRepository;
+import static io.restassured.RestAssured.given;
+
+import com.github.jasminb.jsonapi.ResourceConverter;
+import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
+import com.octopus.octopub.services.LiquidbaseUpdater;
 import io.quarkus.test.junit.QuarkusTest;
-import java.util.List;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import java.sql.SQLException;
 import javax.inject.Inject;
+import liquibase.exception.LiquibaseException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 @QuarkusTest
-public class GreetingResourceTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class GreetingResourceTest extends BaseTest {
 
-  @Inject AuditRepository auditRepository;
+  @Inject LiquidbaseUpdater liquidbaseUpdater;
 
-  public void testHelloEndpoint() {
-    auditRepository.save(
-        new Audit(Constants.MICROSERVICE_NAME, Constants.CREATED_ACTION, "Test"),
-        List.of(Constants.JSON_CONTENT_TYPE + "; dataPartition=integration-tests"));
+  @Inject ResourceConverter resourceConverter;
+
+  @BeforeAll
+  public void setup() throws SQLException, LiquibaseException {
+    liquidbaseUpdater.update();
+  }
+
+  @Test
+  public void testCreateAndGetProduct() throws DocumentSerializationException {
+    given()
+        .headers(
+            new Headers(
+                new Header("Accept", "application/vnd.api+json"),
+                new Header("Accept", "application/vnd.api+json; dataPartition=main")))
+        .when()
+        .body(
+            productToResourceDocument(resourceConverter, createProduct("testCreateAndGetProduct")))
+        .post("/api/products")
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a -> getProductFromDocument(resourceConverter, a.toString()) != null,
+                "Resource should be returned"));
+
+    given()
+        .headers(
+            new Headers(
+                new Header("Accept", "application/vnd.api+json"),
+                new Header("Accept", "application/vnd.api+json; dataPartition=main")))
+        .when()
+        .get("/api/products")
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a ->
+                    getProductsFromDocument(resourceConverter, a.toString()).stream()
+                        .anyMatch(p -> "testCreateAndGetProduct".equals(p.getName())),
+                "Resource should be returned"));
   }
 }

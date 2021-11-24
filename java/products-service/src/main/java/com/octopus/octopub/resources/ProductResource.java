@@ -32,6 +32,7 @@ public class ProductResource {
   ProductsHandler productsController;
 
   @GET
+  @Transactional
   public Response getAll(
       @Context final SecurityContext ctx,
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader,
@@ -74,6 +75,7 @@ public class ProductResource {
 
   @GET
   @Path("{id}")
+  @Transactional
   public Response getOne(
       @Context final SecurityContext ctx,
       @PathParam("id") final String id,
