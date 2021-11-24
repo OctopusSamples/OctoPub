@@ -428,7 +428,8 @@ public class HttpApiTest extends BaseTest {
     given()
         .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
         .when()
-        .get("/api/products?filter=id=="+created.getId())
+        .queryParam("filter", "id=="+created.getId())
+        .get("/api/products")
         .then()
         .statusCode(200)
         .body(
@@ -441,7 +442,8 @@ public class HttpApiTest extends BaseTest {
     given()
         .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
         .when()
-        .get("/api/products?filter=name==testCreateAndGetProduct")
+        .queryParam("filter", "name==testCreateAndGetProduct")
+        .get("/api/products")
         .then()
         .statusCode(200)
         .body(
@@ -454,7 +456,8 @@ public class HttpApiTest extends BaseTest {
     given()
         .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
         .when()
-        .get("/api/products?filter=name!=blah")
+        .queryParam("filter", "name!=blah")
+        .get("/api/products")
         .then()
         .statusCode(200)
         .body(
@@ -467,7 +470,8 @@ public class HttpApiTest extends BaseTest {
     given()
         .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
         .when()
-        .get("/api/products?filter=name==test*")
+        .queryParam("filter", "name==test*")
+        .get("/api/products")
         .then()
         .statusCode(200)
         .body(
@@ -480,7 +484,8 @@ public class HttpApiTest extends BaseTest {
     given()
         .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
         .when()
-        .get("/api/products?filter=name=in=(testCreateAndGetProduct)")
+        .queryParam("filter", "name=in=(testCreateAndGetProduct)")
+        .get("/api/products")
         .then()
         .statusCode(200)
         .body(
@@ -493,7 +498,8 @@ public class HttpApiTest extends BaseTest {
     given()
         .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
         .when()
-        .get("/api/products?filter=id<" + (created.getId() + 1))
+        .queryParam("filter", "id<" + (created.getId() + 1))
+        .get("/api/products")
         .then()
         .statusCode(200)
         .body(
@@ -502,5 +508,42 @@ public class HttpApiTest extends BaseTest {
                     getProductsFromDocument(resourceConverter, a.toString()).stream()
                         .anyMatch(p -> Objects.equals(created.getId(), p.getId())),
                 "Resource should be returned"));
+  }
+
+  @Test
+  public void testBadFilterResults() {
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .queryParam("filter", "&^$*^%#$")
+        .get("/api/products")
+        .then()
+        .statusCode(400);
+    }
+
+  @Test
+  public void testCreateWithoutBody() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body("{}")
+            .post("/api/products")
+            .then()
+            .statusCode(400);
+    }
+
+  @Test
+  public void testUpdateWithoutBody() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body("{}")
+            .patch("/api/products/1")
+            .then()
+            .statusCode(400);
   }
 }

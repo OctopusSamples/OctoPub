@@ -5,8 +5,6 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
-import com.octopus.octopub.exceptions.InvalidInput;
-import com.octopus.octopub.exceptions.MissingData;
 import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.repositories.AuditRepository;
@@ -53,10 +51,6 @@ public class ProductsHandler {
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
 
-    if (product == null) {
-      throw new MissingData();
-    }
-
     product.dataPartition = partitionIdentifier.getPartition(acceptHeaders);
     productRepository.save(product);
     auditRepository.save(
@@ -75,11 +69,6 @@ public class ProductsHandler {
       @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
-
-    // The input was missing the required data
-    if (product == null) {
-      throw new MissingData();
-    }
 
     try {
       final Integer intId = Integer.parseInt(id);
