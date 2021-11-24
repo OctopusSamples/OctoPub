@@ -28,13 +28,6 @@ namespace Audit.Service.Tests
             var response =
                 Audits.AuditsApi(new APIGatewayProxyRequest { HttpMethod = "get", Path = "/api/audits" }, null);
             Assert.IsNotNull(response);
-
-            var serializeOptions = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            };
-            Console.Out.WriteLineAsync(JsonSerializer.Serialize(response, serializeOptions));
         }
 
         [Test]
