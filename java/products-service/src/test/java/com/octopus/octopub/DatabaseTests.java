@@ -46,7 +46,7 @@ public class DatabaseTests extends BaseTest {
     final Product resultObject = createProduct(productsHandler, resourceConverter, "testing");
     assertNotNull(resultObject.getId());
     assertEquals("testing", resultObject.getDataPartition());
-    assertEquals("test", resultObject.getName());
+    assertEquals("name", resultObject.getName());
     assertEquals("a test book", resultObject.getDescription());
     assertEquals("http://example.org/epub", resultObject.getEpub());
     assertEquals("http://example.org/pdf", resultObject.getPdf());
