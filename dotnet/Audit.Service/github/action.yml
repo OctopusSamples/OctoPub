@@ -103,7 +103,7 @@ runs:
         -DartifactId=audits-service
         -Dversion=${{ steps.determine_version.outputs.semVer }}.${{ github.run_number }}
         -Dpackaging=zip
-        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
       working-directory: dotnet/Audit.Service
 
@@ -129,7 +129,7 @@ runs:
         -DartifactId=audits-service-sbom
         -Dversion=${{ steps.determine_version.outputs.semVer }}.${{ github.run_number }}
         -Dpackaging=zip
-        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
       working-directory: dotnet
 

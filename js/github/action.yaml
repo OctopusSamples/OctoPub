@@ -69,7 +69,7 @@ runs:
         -DartifactId=octopub-frontend
         -Dversion=0.0.1.${{ github.run_number }}
         -Dpackaging=zip
-        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
       working-directory: js
 
@@ -80,7 +80,7 @@ runs:
         -DartifactId=octopub-frontend-sbom
         -Dversion=0.0.1.${{ github.run_number }}
         -Dpackaging=zip
-        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
       working-directory: js
 

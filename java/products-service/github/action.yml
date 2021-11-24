@@ -77,7 +77,7 @@ runs:
         -DartifactId=products-service
         -Dversion=0.0.1.${{ github.run_number }}
         -Dpackaging=zip
-        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
       working-directory: java/products-service
 
@@ -99,7 +99,7 @@ runs:
     - run: >
         ./mvnw deploy:deploy-file
         -Dfile=products-service-sbom.0.0.1.${{ inputs.run_number }}.zip
-        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/mcasperson/OctoPub"
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
         -DgroupId=com.octopus.octopub
         -DartifactId=products-service-sbom
         -Dversion=0.0.1.${{ github.run_number }}
