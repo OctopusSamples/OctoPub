@@ -47,9 +47,12 @@ namespace Audit.Service.Lambda
                 Id = SingleEntityRe.IsMatch(request.Path ?? string.Empty)
                     ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
                     : DefaultId,
-                DataPartition = GetTenant((request.MultiValueHeaders ?? new Dictionary<string, IList<string>>())
+                DataPartition = GetDataPartition((request.MultiValueHeaders ?? new Dictionary<string, IList<string>>())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
-                    .SelectMany(h => h.Value))
+                    .SelectMany(h => h.Value)
+                    .Union(request.Headers
+                        .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
+                        .Select(h => h.Value)))
             };
         }
 
@@ -75,7 +78,7 @@ namespace Audit.Service.Lambda
                     ? id
                     : DefaultId,
                 DataPartition = message.MessageAttributes?.ContainsKey("dataPartition") ?? false
-                    ? GetTenant(message.MessageAttributes["dataPartition"].StringValue.Split(","))
+                    ? GetDataPartition(message.MessageAttributes["dataPartition"].StringValue.Split(","))
                     : Constants.DefaultPartition
             };
         }
@@ -125,7 +128,7 @@ namespace Audit.Service.Lambda
         /// </summary>
         /// <param name="acceptHeader">The Http request accept header</param>
         /// <returns>The custom tenant name, or the default tenant if no specific value was provided.</returns>
-        static string GetTenant(IEnumerable<string> acceptHeader)
+        public static string GetDataPartition(IEnumerable<string> acceptHeader)
         {
             return (acceptHeader ?? Enumerable.Empty<string>())
                 // Ignore null values
