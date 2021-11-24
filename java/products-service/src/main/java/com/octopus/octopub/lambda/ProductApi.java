@@ -6,6 +6,9 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
 import com.octopus.octopub.handlers.ProductsHandler;
+import cz.jirutka.rsql.parser.ParseException;
+import cz.jirutka.rsql.parser.RSQLParserException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +34,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   private static final Pattern HEALTH_RE =
       Pattern.compile("/health/products/(GET|POST|\\d+/(GET|DELETE|PATCH))");
 
-  @Inject
-  ProductsHandler productsController;
+  @Inject ProductsHandler productsController;
 
   /**
    * See https://github.com/quarkusio/quarkus/issues/5811 for why we need @Transactional.
@@ -112,13 +114,16 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                 productsController.getAll(
                     getAllHeaders(
                         input.getMultiValueHeaders(), input.getHeaders(), Constants.ACCEPT_HEADER),
-                    getQueryParam(
+                    getAllQueryParams(
                             input.getMultiValueQueryStringParameters(),
+                            input.getQueryStringParameters(),
                             Constants.FILTER_QUERY_PARAM)
                         .stream()
                         .findFirst()
                         .orElse(null))));
       }
+    } catch (final RSQLParserException e) {
+      return Optional.of(buildBadRequest(e));
     } catch (final Exception e) {
       e.printStackTrace();
       return Optional.of(buildError(e));
@@ -284,27 +289,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   }
 
   /**
-   * Headers are case insensitive, but the maps we get from Lambda are case sensitive, so we need to
-   * have some additional logic to get the available headers.
-   *
-   * @param params The list of query params
-   * @param query The name of the query to return
-   * @return The list of header values
-   */
-  private List<String> getQueryParam(
-      final Map<String, List<String>> params, @NonNull final String query) {
-    if (params == null) {
-      return List.of();
-    }
-
-    return params.entrySet().stream()
-        .filter(e -> query.equalsIgnoreCase(e.getKey()))
-        .flatMap(e -> e.getValue().stream())
-        .collect(Collectors.toList());
-  }
-
-  /**
    * Gets headers from every collection they might be in.
+   *
    * @param multiHeaders The map containing headers with multiple values.
    * @param headers The map containing headers with one value.
    * @param header The name of the header.
@@ -314,7 +300,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
       final Map<String, List<String>> multiHeaders,
       final Map<String, String> headers,
       @NonNull final String header) {
-    final List<String> values = getMultiHeaders(multiHeaders, header);
+    final List<String> values = new ArrayList<String>(getMultiHeaders(multiHeaders, header));
     values.addAll(getHeaders(headers, header));
     return values;
   }
@@ -353,6 +339,62 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
     }
 
     return headers.entrySet().stream()
+        .filter(e -> header.equalsIgnoreCase(e.getKey()))
+        .map(e -> e.getValue())
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Gets headers from every collection they might be in.
+   *
+   * @param multiQuery The map containing paarms with multiple values.
+   * @param query The map containing query params with one value.
+   * @param header The name of the header.
+   * @return The list of header values.
+   */
+  private List<String> getAllQueryParams(
+      final Map<String, List<String>> multiQuery,
+      final Map<String, String> query,
+      @NonNull final String header) {
+    final List<String> values = new ArrayList<String>(getMultiQuery(multiQuery, header));
+    values.addAll(getQuery(query, header));
+    return values;
+  }
+
+  /**
+   * Headers are case insensitive, but the maps we get from Lambda are case sensitive, so we need to
+   * have some additional logic to get the available headers.
+   *
+   * @param query The list of query params
+   * @param header The name of the query param to return
+   * @return The list of query params
+   */
+  private List<String> getMultiQuery(
+      final Map<String, List<String>> query, @NonNull final String header) {
+    if (query == null) {
+      return List.of();
+    }
+
+    return query.entrySet().stream()
+        .filter(e -> header.equalsIgnoreCase(e.getKey()))
+        .flatMap(e -> e.getValue().stream())
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Headers are case insensitive, but the maps we get from Lambda are case sensitive, so we need to
+   * have some additional logic to get the available headers.
+   *
+   * @param query The list of query params
+   * @param header The name of the header to return
+   * @return The list of header values
+   */
+  private List<String> getQuery(final Map<String, String> query, @NonNull final String header) {
+    if (query == null) {
+      return List.of();
+    }
+
+    return query.entrySet().stream()
         .filter(e -> header.equalsIgnoreCase(e.getKey()))
         .map(e -> e.getValue())
         .collect(Collectors.toList());
@@ -429,5 +471,16 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   private ProxyResponse buildError(@NonNull final Exception ex) {
     return new ProxyResponse(
         "500", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\"}]}");
+  }
+
+  /**
+   * Build an error object including the exception name. https://jsonapi.org/format/#error-objects
+   *
+   * @param ex The exception
+   * @return The ProxyResponse representing the error.
+   */
+  private ProxyResponse buildBadRequest(@NonNull final Exception ex) {
+    return new ProxyResponse(
+        "400", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\"}]}");
   }
 }
