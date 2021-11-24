@@ -3,7 +3,6 @@ package com.octopus.octopub.lambda;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
 import com.octopus.octopub.services.ProductsController;
@@ -20,23 +19,15 @@ import javax.transaction.Transactional;
 import lombok.NonNull;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.h2.util.StringUtils;
-import org.jose4j.json.internal.json_simple.JSONValue;
 
 @Named("Products")
 public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, ProxyResponse> {
 
-  /**
-   * A regular expression matching the collection of entities.
-   */
+  /** A regular expression matching the collection of entities. */
   private static final Pattern ROOT_RE = Pattern.compile("/api/products/?");
-  /**
-   * A regular expression matching a single entity.
-   */
+  /** A regular expression matching a single entity. */
   private static final Pattern INDIVIDUAL_RE = Pattern.compile("/api/products/(?<id>\\d+)");
-  /**
-   * A regular expression matching a health endpoint.
-   */
+  /** A regular expression matching a health endpoint. */
   private static final Pattern HEALTH_RE =
       Pattern.compile("/health/products/(GET|POST|\\d+/(GET|DELETE|PATCH))");
 
@@ -55,18 +46,17 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
       @NonNull final APIGatewayProxyRequestEvent input, @NonNull final Context context) {
 
     /*
-      Lambdas don't enjoy the same middleware and framework support as web servers, so we are
-      on our own with functionality such as routing requests to handlers. This code simply calls
-      each handler to find the first one that responds to the request.
-     */
+     Lambdas don't enjoy the same middleware and framework support as web servers, so we are
+     on our own with functionality such as routing requests to handlers. This code simply calls
+     each handler to find the first one that responds to the request.
+    */
     return getAll(input)
         .or(() -> getOne(input))
         .or(() -> createOne(input))
         .or(() -> deleteOne(input))
         .or(() -> updateOne(input))
         .or(() -> checkHealth(input))
-        .orElse(new ProxyResponse(
-        "404", "{\"errors\": [{\"title\": \"Path not found\"}]}"));
+        .orElse(new ProxyResponse("404", "{\"errors\": [{\"title\": \"Path not found\"}]}"));
   }
 
   /**
@@ -76,23 +66,24 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
    * to service a GET request, and a GET request to /health/products/1/DELETE will return 200 OK if
    * the service responding to /api/products/1 is available to service a DELETE request.
    *
-   * This approach was taken to support the fact that Lambdas may well have unique services responding
-   * to each individual endpoint. For example, you may have a dedicated lambda fetching resource collections
-   * (i.e. /api/products), and a dedicated lambda fetching individual resources (i.e. /api/products/1).
-   * The health of these lambdas may be independent of one another.
+   * <p>This approach was taken to support the fact that Lambdas may well have unique services
+   * responding to each individual endpoint. For example, you may have a dedicated lambda fetching
+   * resource collections (i.e. /api/products), and a dedicated lambda fetching individual resources
+   * (i.e. /api/products/1). The health of these lambdas may be independent of one another.
    *
-   * This is unlike a traditional web service, where it is usually taken for granted that a single application
-   * responds to all these requests, and therefore a single health endpoint can represent the status
-   * of all endpoints.
+   * <p>This is unlike a traditional web service, where it is usually taken for granted that a
+   * single application responds to all these requests, and therefore a single health endpoint can
+   * represent the status of all endpoints.
    *
-   * By ensuring every path has a matching health endpoint, we allow clients to verify the status of
-   * the service without having to know which lambdas respond to which requests. This does mean that
-   * a client may need to verify the health of half a dozen endpoints to fully determine the state of
-   * the client's dependencies, but this is a more accurate representation of the health of the system.
+   * <p>By ensuring every path has a matching health endpoint, we allow clients to verify the status
+   * of the service without having to know which lambdas respond to which requests. This does mean
+   * that a client may need to verify the health of half a dozen endpoints to fully determine the
+   * state of the client's dependencies, but this is a more accurate representation of the health of
+   * the system.
    *
-   * This particular service will typically be deployed with one lambda responding to many endpoints,
-   * but clients can not assume this is always the case, and must check the health of each endpoint
-   * to accurately evaluate the health of the service.
+   * <p>This particular service will typically be deployed with one lambda responding to many
+   * endpoints, but clients can not assume this is always the case, and must check the health of
+   * each endpoint to accurately evaluate the health of the service.
    *
    * @param input The request details
    * @return The optional proxy response
@@ -107,6 +98,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   /**
    * Update a collection of products.
+   *
    * @param input The Lambda request.
    * @return The Lambda response.
    */
@@ -117,7 +109,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
             new ProxyResponse(
                 "200",
                 productsController.getAll(
-                    getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER),
+                    getAllHeaders(
+                        input.getMultiValueHeaders(), input.getHeaders(), Constants.ACCEPT_HEADER),
                     getQueryParam(
                             input.getMultiValueQueryStringParameters(),
                             Constants.FILTER_QUERY_PARAM)
@@ -135,6 +128,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   /**
    * Return a product.
+   *
    * @param input The Lambda request.
    * @return The Lambda response.
    */
@@ -147,7 +141,9 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         if (id.isPresent()) {
           final String entity =
               productsController.getOne(
-                  id.get(), getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER));
+                  id.get(),
+                  getAllHeaders(
+                      input.getMultiValueHeaders(), input.getHeaders(), Constants.ACCEPT_HEADER));
 
           return Optional.of(new ProxyResponse("200", entity));
         }
@@ -165,6 +161,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   /**
    * Delete a product.
+   *
    * @param input The Lambda request.
    * @return The Lambda response.
    */
@@ -177,7 +174,9 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         if (id.isPresent()) {
           final boolean result =
               productsController.delete(
-                  id.get(), getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER));
+                  id.get(),
+                  getAllHeaders(
+                      input.getMultiValueHeaders(), input.getHeaders(), Constants.ACCEPT_HEADER));
 
           if (result) {
             return Optional.of(new ProxyResponse("204"));
@@ -197,6 +196,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   /**
    * Create a product.
+   *
    * @param input The Lambda request.
    * @return The Lambda response.
    */
@@ -208,7 +208,10 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                 "200",
                 productsController.create(
                     getBody(input),
-                    getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
+                    getAllHeaders(
+                        input.getMultiValueHeaders(),
+                        input.getHeaders(),
+                        Constants.ACCEPT_HEADER))));
       }
     } catch (final Exception e) {
       e.printStackTrace();
@@ -220,6 +223,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   /**
    * Update a product.
+   *
    * @param input The Lambda request.
    * @return The Lambda response.
    */
@@ -236,7 +240,10 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                   productsController.update(
                       id.get(),
                       getBody(input),
-                      getHeaders(input.getMultiValueHeaders(), Constants.ACCEPT_HEADER))));
+                      getAllHeaders(
+                          input.getMultiValueHeaders(),
+                          input.getHeaders(),
+                          Constants.ACCEPT_HEADER))));
         }
         // If the id was not found in the path, return a 404
         return Optional.of(buildNotFound());
@@ -256,6 +263,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   /**
    * Get the regex group from the pattern for the input.
+   *
    * @param pattern The regex pattern.
    * @param input The input to apply the pattern to.
    * @param group The group name to return.
@@ -295,6 +303,22 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   }
 
   /**
+   * Gets headers from every collection they might be in.
+   * @param multiHeaders The map containing headers with multiple values.
+   * @param headers The map containing headers with one value.
+   * @param header The name of the header.
+   * @return The list of header values.
+   */
+  private List<String> getAllHeaders(
+      final Map<String, List<String>> multiHeaders,
+      final Map<String, String> headers,
+      @NonNull final String header) {
+    final List<String> values = getMultiHeaders(multiHeaders, header);
+    values.addAll(getHeaders(headers, header));
+    return values;
+  }
+
+  /**
    * Headers are case insensitive, but the maps we get from Lambda are case sensitive, so we need to
    * have some additional logic to get the available headers.
    *
@@ -302,7 +326,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
    * @param header The name of the header to return
    * @return The list of header values
    */
-  private List<String> getHeaders(
+  private List<String> getMultiHeaders(
       final Map<String, List<String>> headers, @NonNull final String header) {
     if (headers == null) {
       return List.of();
@@ -315,7 +339,27 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   }
 
   /**
+   * Headers are case insensitive, but the maps we get from Lambda are case sensitive, so we need to
+   * have some additional logic to get the available headers.
+   *
+   * @param headers The list of headers
+   * @param header The name of the header to return
+   * @return The list of header values
+   */
+  private List<String> getHeaders(final Map<String, String> headers, @NonNull final String header) {
+    if (headers == null) {
+      return List.of();
+    }
+
+    return headers.entrySet().stream()
+        .filter(e -> header.equalsIgnoreCase(e.getKey()))
+        .map(e -> e.getValue())
+        .collect(Collectors.toList());
+  }
+
+  /**
    * Determine if the Lambda request matches path and method.
+   *
    * @param input The Lmabda request.
    * @param regex The path regex.
    * @param method The HTTP method.
@@ -332,6 +376,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
   /**
    * Get the request body, and deal with the fact that it may be base64 encoded.
+   *
    * @param input The Lambda request
    * @return The unencoded request body
    */
@@ -350,28 +395,33 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   /**
    * Build an error object including the exception name and the body of the request that was sent.
    * https://jsonapi.org/format/#error-objects
+   *
    * @param ex The exception
    * @param requestBody The request body
    * @return The ProxyResponse representing the error.
    */
   private ProxyResponse buildError(@NonNull final Exception ex, final String requestBody) {
-      return new ProxyResponse(
-          "500", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\", \"meta\": {\"requestBody\": \"" +  StringEscapeUtils.escapeJson(requestBody) + "\"}}]}");
+    return new ProxyResponse(
+        "500",
+        "{\"errors\": [{\"code\": \""
+            + ex.getClass().getCanonicalName()
+            + "\", \"meta\": {\"requestBody\": \""
+            + StringEscapeUtils.escapeJson(requestBody)
+            + "\"}}]}");
   }
 
   /**
-   * Build a error object for a 404 not found error.
-   * https://jsonapi.org/format/#error-objects
+   * Build a error object for a 404 not found error. https://jsonapi.org/format/#error-objects
+   *
    * @return The ProxyResponse representing the error.
    */
   private ProxyResponse buildNotFound() {
-    return new ProxyResponse(
-        "404", "{\"errors\": [{\"title\": \"Resource not found\"}]}");
+    return new ProxyResponse("404", "{\"errors\": [{\"title\": \"Resource not found\"}]}");
   }
 
   /**
-   * Build an error object including the exception name.
-   * https://jsonapi.org/format/#error-objects
+   * Build an error object including the exception name. https://jsonapi.org/format/#error-objects
+   *
    * @param ex The exception
    * @return The ProxyResponse representing the error.
    */
