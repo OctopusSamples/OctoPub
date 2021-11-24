@@ -20,7 +20,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 </title>
             </Helmet>
             <Grid container={true} className={classes.container}>
-                <Grid container={true} className={classes.cell} md={2} sm={12} xs={12}>
+                <Grid className={classes.cell} md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>API Key</FormLabel>
                 </Grid>
                 <Grid className={classes.cell} item md={10} sm={12} xs={12}>
@@ -30,7 +30,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                                    localStorage.setItem("apiKey", v.target.value);
                                }}/>
                 </Grid>
-                <Grid container={true} className={classes.cell} md={2} sm={12} xs={12}>
+                <Grid className={classes.cell} md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>Data Partition</FormLabel>
                 </Grid>
                 <Grid className={classes.cell} item md={10} sm={12} xs={12}>
@@ -39,6 +39,16 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                                    setPartition(v.target.value);
                                    localStorage.setItem("partition", v.target.value.trim());
                                }}/>
+                    <span className={classes.helpText}>
+                        <p>
+                            The data partition defines what resources the web app has access to. All resources under the
+                            default partition of "main" can be read, only resources in the current partition
+                            can be edited or deleted, and new resources will be placed into the current partition.
+                        </p>
+                        <p>
+                            Set the data partition to "main" to work in default partition.
+                        </p>
+                    </span>
                 </Grid>
             </Grid>
 

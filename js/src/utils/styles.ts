@@ -11,6 +11,9 @@ export const styles = makeStyles((theme) =>
         },
         label: {
             color: theme.palette.text.primary
+        },
+        helpText: {
+            color: theme.palette.text.hint
         }
     })
 );
