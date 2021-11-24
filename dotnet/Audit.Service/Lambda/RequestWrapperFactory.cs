@@ -50,7 +50,7 @@ namespace Audit.Service.Lambda
                 DataPartition = GetDataPartition((request.MultiValueHeaders ?? new Dictionary<string, IList<string>>())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
                     .SelectMany(h => h.Value)
-                    .Union(request.Headers
+                    .Union((request.Headers ?? new Dictionary<string, string>())
                         .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
                         .Select(h => h.Value)))
             };

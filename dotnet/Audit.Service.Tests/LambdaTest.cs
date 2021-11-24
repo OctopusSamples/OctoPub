@@ -46,19 +46,19 @@ namespace Audit.Service.Tests
                     {
                         HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Models.Audit
                         {
-                            Action = "test",
-                            Object = "test",
-                            Subject = "test"
+                            Action = "test1",
+                            Object = "test2",
+                            Subject = "test3"
                         }, new JsonApiSerializerSettings())
                     }, null);
             Assert.IsNotNull(response);
 
-            var serializeOptions = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            };
-            Console.Out.WriteLineAsync(JsonSerializer.Serialize(response, serializeOptions));
+            var entity = JsonConvert.DeserializeObject<Models.Audit>(response.Body,
+                new JsonApiSerializerSettings());
+
+            Assert.AreEqual("test1", entity.Action);
+            Assert.AreEqual("test2", entity.Object);
+            Assert.AreEqual("test3", entity.Subject);
         }
 
         /// <summary>
