@@ -50,9 +50,9 @@ public class DatabaseTests {
     product.setName("test");
     product.setDataPartition("main");
     product.setDescription("a test book");
-    product.setEpub("http://example.org");
-    product.setPdf("http://example.org");
-    product.setImage("http://example.org");
+    product.setEpub("http://example.org/epub");
+    product.setPdf("http://example.org/pdf");
+    product.setImage("http://example.org/image");
     final String result =
         productsController.create(
             productToResourceDocument(product),
@@ -60,6 +60,11 @@ public class DatabaseTests {
     final Product resultObject = getProductFromDocument(result);
     assertNotNull(resultObject.getId());
     assertEquals("testing", resultObject.getDataPartition());
+    assertEquals("test", resultObject.getName());
+    assertEquals("a test book", resultObject.getDescription());
+    assertEquals("http://example.org/epub", resultObject.getEpub());
+    assertEquals("http://example.org/pdf", resultObject.getPdf());
+    assertEquals("http://example.org/image", resultObject.getImage());
   }
 
   @Test
