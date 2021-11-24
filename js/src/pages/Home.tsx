@@ -30,7 +30,8 @@ const useStyles = makeStyles((theme: Theme) =>
         image: {
             objectFit: "contain",
             height: "100%",
-            cursor: "pointer"
+            cursor: "pointer",
+            overflow: "hidden"
         }
     })
 );
