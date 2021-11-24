@@ -8,6 +8,7 @@ import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PATCH;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import lombok.NonNull;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 /**
  * WHen this app is run as a web server, this class defines the REST API endpoints.
@@ -44,7 +46,6 @@ public class ProductResource {
   @POST
   @Transactional
   public Response create(
-      @Context final SecurityContext ctx,
       @NonNull final String document,
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
       throws DocumentSerializationException {
@@ -55,7 +56,6 @@ public class ProductResource {
   @Path("{id}")
   @Transactional
   public Response update(
-      @Context final SecurityContext ctx,
       @NonNull final String document,
       @PathParam("id") final String id,
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
@@ -63,21 +63,19 @@ public class ProductResource {
     return Response.ok(productsController.update(id, document, acceptHeader)).build();
   }
 
-  @POST
+  @DELETE
   @Path("{id}")
   @Transactional
   public Response delete(
-      @Context final SecurityContext ctx,
       @PathParam("id") final String id,
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader) {
-    return Response.ok(productsController.delete(id, acceptHeader)).build();
+    return Response.noContent().build();
   }
 
   @GET
   @Path("{id}")
   @Transactional
   public Response getOne(
-      @Context final SecurityContext ctx,
       @PathParam("id") final String id,
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
       throws DocumentSerializationException {
