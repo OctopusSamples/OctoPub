@@ -28,7 +28,10 @@ namespace Audit.Service
             {
                 if (Boolean.Parse((ReadOnlySpan<char>)Configuration.GetSection("Database:UseInMemory").Value))
                 {
-                    opt.UseInMemoryDatabase("audit");
+                    var folder = Environment.SpecialFolder.LocalApplicationData;
+                    var path = Environment.GetFolderPath(folder);
+                    var dbPath = $"{path}{System.IO.Path.DirectorySeparatorChar}blogging.db";
+                    opt.UseSqlite($"Data Source={dbPath}");
                 }
                 else
                 {
