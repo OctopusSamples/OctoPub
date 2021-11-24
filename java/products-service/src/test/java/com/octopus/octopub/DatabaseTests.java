@@ -12,7 +12,7 @@ import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.exceptions.EntityNotFound;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.services.LiquidbaseUpdater;
-import com.octopus.octopub.services.ProductsController;
+import com.octopus.octopub.handlers.ProductsHandler;
 import io.quarkus.test.junit.QuarkusTest;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -33,7 +33,8 @@ public class DatabaseTests {
 
   @Inject LiquidbaseUpdater liquidbaseUpdater;
 
-  @Inject ProductsController productsController;
+  @Inject
+  ProductsHandler productsController;
 
   @Inject ResourceConverter resourceConverter;
 

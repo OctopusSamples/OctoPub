@@ -2,7 +2,7 @@ package com.octopus.octopub.resources;
 
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
-import com.octopus.octopub.services.ProductsController;
+import com.octopus.octopub.handlers.ProductsHandler;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
@@ -28,7 +28,8 @@ import lombok.NonNull;
 @RequestScoped
 public class ProductResource {
 
-  @Inject ProductsController productsController;
+  @Inject
+  ProductsHandler productsController;
 
   @GET
   public Response getAll(

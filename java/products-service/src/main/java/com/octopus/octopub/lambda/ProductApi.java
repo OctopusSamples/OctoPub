@@ -5,7 +5,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
-import com.octopus.octopub.services.ProductsController;
+import com.octopus.octopub.handlers.ProductsHandler;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   private static final Pattern HEALTH_RE =
       Pattern.compile("/health/products/(GET|POST|\\d+/(GET|DELETE|PATCH))");
 
-  @Inject ProductsController productsController;
+  @Inject
+  ProductsHandler productsController;
 
   /**
    * See https://github.com/quarkusio/quarkus/issues/5811 for why we need @Transactional.

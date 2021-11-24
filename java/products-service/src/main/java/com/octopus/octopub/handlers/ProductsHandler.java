@@ -1,4 +1,4 @@
-package com.octopus.octopub.services;
+package com.octopus.octopub.handlers;
 
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
@@ -11,6 +11,7 @@ import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.repositories.AuditRepository;
 import com.octopus.octopub.repositories.ProductRepository;
+import com.octopus.octopub.services.PartitionIdentifier;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
@@ -18,12 +19,12 @@ import javax.inject.Inject;
 import lombok.NonNull;
 
 /**
- * Controllers take the raw input from the upstream service, like Lambda or a web server,
+ * Handlers take the raw input from the upstream service, like Lambda or a web server,
  * convert the inputs to POJOs, apply the security rules, create an audit trail, and then pass
  * the requests down to repositories.
  */
 @ApplicationScoped
-public class ProductsController {
+public class ProductsHandler {
 
   @Inject
   ProductRepository productRepository;
