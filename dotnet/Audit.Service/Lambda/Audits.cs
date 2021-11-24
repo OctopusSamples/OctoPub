@@ -17,6 +17,7 @@ namespace Audit.Service.Lambda
 {
     public class Audits
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private static readonly DependencyInjection DependencyInjection = new DependencyInjection();
 
         /// <summary>
@@ -72,8 +73,8 @@ namespace Audit.Service.Lambda
         /// <param name="context">The SQS context</param>
         public void HandleSqsEvent(SQSEvent sqsEvent, ILambdaContext context)
         {
-            Console.Out.WriteLine("Audits.HandleSqsEvent(SQSEvent, ILambdaContext)");
-            Console.Out.WriteLine(sqsEvent.Records.Count + " records to process");
+            Logger.Debug("Audits.HandleSqsEvent(SQSEvent, ILambdaContext)");
+            Logger.Debug(sqsEvent.Records.Count + " records to process");
 
             var serviceProvider = DependencyInjection.ConfigureServices();
             sqsEvent.Records
@@ -81,22 +82,22 @@ namespace Audit.Service.Lambda
                 {
                     try
                     {
-                        Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(m));
+                        Logger.Debug(System.Text.Json.JsonSerializer.Serialize(m));
 
                         var requestWrapper = RequestWrapperFactory.CreateFromSqsMessage(m);
 
-                        Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(requestWrapper));
-                        Console.Out.WriteLine(requestWrapper.Entity);
+                        Logger.Debug(System.Text.Json.JsonSerializer.Serialize(requestWrapper));
+                        Logger.Debug(requestWrapper.Entity);
 
                         var handler = serviceProvider.GetService<AuditHandler>();
                         var audit = ProcessRequest(handler, requestWrapper);
 
-                        Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(audit));
+                        Logger.Debug(System.Text.Json.JsonSerializer.Serialize(audit));
                     }
                     catch (Exception ex)
                     {
                         // need to do something here to allow sagas to roll themselves back
-                        Console.Out.WriteLine(ex);
+                        Logger.Error(ex);
                     }
                 }))
                 .Select(t =>
