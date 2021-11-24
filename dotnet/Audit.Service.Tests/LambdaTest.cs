@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.SQSEvents;
 using Audit.Service.Lambda;
 using JsonApiSerializer;
 using Newtonsoft.Json;
@@ -95,6 +96,50 @@ namespace Audit.Service.Tests
             Assert.AreEqual("test1", entity.Action);
             Assert.AreEqual("test2", entity.Object);
             Assert.AreEqual("test3", entity.Subject);
+        }
+
+        [Test]
+        public void CreateAuditFromMessage()
+        {
+            var subject = Guid.NewGuid();
+
+            Audits.HandleSqsEvent(
+                    new SQSEvent
+                    {
+                        Records = new List<SQSEvent.SQSMessage>()
+                        {
+                            {
+                                new SQSEvent.SQSMessage()
+                                {
+                                    Body = JsonConvert.SerializeObject(new Models.Audit
+                                    {
+                                        Action = "test1",
+                                        Object = "test2",
+                                        Subject = subject.ToString()
+                                    }, new JsonApiSerializerSettings()),
+                                    MessageAttributes = new Dictionary<string, SQSEvent.MessageAttribute>()
+                                    {
+                                        { "action", new SQSEvent.MessageAttribute() {StringValue = "Create" }},
+                                        { "entity", new SQSEvent.MessageAttribute() {StringValue = "Audit" }}
+                                    }
+                                }
+                            }
+                        }
+                    }, null);
+
+                var getResponse =
+                    Audits.AuditsApi(
+                        new APIGatewayProxyRequest
+                        {
+                            HttpMethod = "get", Path = "/api/audits",
+                            QueryStringParameters = new Dictionary<string, string>() { { "filter", "subject=='" + subject + "'" } }
+                        }, null);
+
+                var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
+                    new JsonApiSerializerSettings());
+
+                Assert.IsTrue(list.Count == 1);
+
         }
 
         /// <summary>
