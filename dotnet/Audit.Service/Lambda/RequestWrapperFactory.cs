@@ -52,7 +52,14 @@ namespace Audit.Service.Lambda
                     .SelectMany(h => h.Value)
                     .Union((request.Headers ?? new Dictionary<string, string>())
                         .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
-                        .Select(h => h.Value)))
+                        .Select(h => h.Value))),
+                Filter = (request.MultiValueQueryStringParameters ?? new Dictionary<string, IList<string>>())
+                    .Where(h => h.Key.ToLower() == Constants.FilterQuery)
+                    .SelectMany(h => h.Value)
+                    .Union((request.QueryStringParameters ?? new Dictionary<string, string>())
+                        .Where(h => h.Key.ToLower() == Constants.FilterQuery)
+                        .Select(h => h.Value))
+                    .FirstOrDefault()
             };
         }
 
@@ -79,7 +86,10 @@ namespace Audit.Service.Lambda
                     : DefaultId,
                 DataPartition = message.MessageAttributes?.ContainsKey("dataPartition") ?? false
                     ? GetDataPartition(message.MessageAttributes["dataPartition"].StringValue.Split(","))
-                    : Constants.DefaultPartition
+                    : Constants.DefaultPartition,
+                Filter = message.MessageAttributes?.ContainsKey(Constants.FilterQuery) ?? false
+                    ? message.MessageAttributes[Constants.FilterQuery].StringValue
+                    : string.Empty,
             };
         }
 

@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using Amazon.Lambda.APIGatewayEvents;
 using Audit.Service.Lambda;
 using JsonApiSerializer;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Audit.Service.Tests
 {
@@ -28,6 +25,52 @@ namespace Audit.Service.Tests
             var response =
                 Audits.AuditsApi(new APIGatewayProxyRequest { HttpMethod = "get", Path = "/api/audits" }, null);
             Assert.IsNotNull(response);
+        }
+
+        [Test]
+        public void GetAuditsFiltering()
+        {
+            var response =
+                Audits.AuditsApi(
+                    new APIGatewayProxyRequest
+                    {
+                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Models.Audit
+                        {
+                            Action = "test1",
+                            Object = "test2",
+                            Subject = "test3"
+                        }, new JsonApiSerializerSettings())
+                    }, null);
+            Assert.IsNotNull(response);
+
+            var entity = JsonConvert.DeserializeObject<Models.Audit>(response.Body,
+                new JsonApiSerializerSettings());
+
+            var getResponse =
+                Audits.AuditsApi(
+                    new APIGatewayProxyRequest
+                    {
+                        HttpMethod = "get", Path = "/api/audits",
+                        QueryStringParameters = new Dictionary<string, string>() { { "filter", "id==" + entity.Id } }
+                    }, null);
+
+            var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
+                new JsonApiSerializerSettings());
+
+            Assert.IsTrue(list.Any(p => p.Id == entity.Id));
+
+            var getResponse2 =
+                Audits.AuditsApi(
+                    new APIGatewayProxyRequest
+                    {
+                        HttpMethod = "get", Path = "/api/audits",
+                        QueryStringParameters = new Dictionary<string, string>() { { "filter", "subject==doesnotexist" } }
+                    }, null);
+
+            var list2 = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse2.Body,
+                new JsonApiSerializerSettings());
+
+            Assert.IsTrue(list2.Count == 0);
         }
 
         [Test]

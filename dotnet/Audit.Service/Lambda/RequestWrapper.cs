@@ -34,5 +34,7 @@
         public string Entity { get; set; }
         public int Id { get; set; }
         public string DataPartition { get; set; }
+
+        public string Filter { get; set; }
     }
 }

@@ -59,7 +59,8 @@ namespace Audit.Service.Handler
             return new APIGatewayProxyResponse
             {
                 Body = JsonConvert.SerializeObject(
-                    _auditGetAllService.Get(new List<string>() { wrapper.DataPartition, Constants.DefaultPartition }),
+                    _auditGetAllService.Get(new List<string>() { wrapper.DataPartition, Constants.DefaultPartition },
+                        wrapper.Filter),
                     new JsonApiSerializerSettings()),
                 StatusCode = 200
             };
@@ -79,7 +80,8 @@ namespace Audit.Service.Handler
 
             var result = _auditGetByIdService.Get(wrapper.Id, wrapper);
 
-            if (result != null && (result.DataPartition == wrapper.DataPartition || result.DataPartition == Constants.DefaultPartition))
+            if (result != null && (result.DataPartition == wrapper.DataPartition ||
+                                   result.DataPartition == Constants.DefaultPartition))
             {
                 return new APIGatewayProxyResponse
                 {
