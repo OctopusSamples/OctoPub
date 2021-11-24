@@ -75,6 +75,106 @@ namespace Audit.Service.Tests
         }
 
         [Test]
+        public void GetAuditsFilteringCross()
+        {
+            var response =
+                Audits.AuditsApi(
+                    new APIGatewayProxyRequest
+                    {
+                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Models.Audit
+                        {
+                            Action = "test1",
+                            Object = "test2",
+                            Subject = "test3"
+                        }, new JsonApiSerializerSettings()),
+                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        {
+                            {
+                                "Accept",
+                                new List<String>
+                                    { "application/vnd.api+json", "application/vnd.api+json; dataPartition=main" }
+                            },
+                        }
+                    }, null);
+            Assert.IsNotNull(response);
+
+            var entity = JsonConvert.DeserializeObject<Models.Audit>(response.Body,
+                new JsonApiSerializerSettings());
+
+            // Attempt to get the record in the context of another partition
+            var getResponse =
+                Audits.AuditsApi(
+                    new APIGatewayProxyRequest
+                    {
+                        HttpMethod = "get", Path = "/api/audits",
+                        QueryStringParameters = new Dictionary<string, string>() { { "filter", "id==" + entity.Id } },
+                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        {
+                            {
+                                "Accept",
+                                new List<String>
+                                    { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing2" }
+                            },
+                        }
+                    }, null);
+
+            var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
+                new JsonApiSerializerSettings());
+
+            Assert.IsTrue(list.Count == 1);
+        }
+
+        [Test]
+        public void FailGetAuditsFilteringCross()
+        {
+            var response =
+                Audits.AuditsApi(
+                    new APIGatewayProxyRequest
+                    {
+                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Models.Audit
+                        {
+                            Action = "test1",
+                            Object = "test2",
+                            Subject = "test3"
+                        }, new JsonApiSerializerSettings()),
+                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        {
+                            {
+                                "Accept",
+                                new List<String>
+                                    { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing1" }
+                            },
+                        }
+                    }, null);
+            Assert.IsNotNull(response);
+
+            var entity = JsonConvert.DeserializeObject<Models.Audit>(response.Body,
+                new JsonApiSerializerSettings());
+
+            // Attempt to get the record in the context of another partition
+            var getResponse =
+                Audits.AuditsApi(
+                    new APIGatewayProxyRequest
+                    {
+                        HttpMethod = "get", Path = "/api/audits",
+                        QueryStringParameters = new Dictionary<string, string>() { { "filter", "id==" + entity.Id } },
+                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        {
+                            {
+                                "Accept",
+                                new List<String>
+                                    { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing2" }
+                            },
+                        }
+                    }, null);
+
+            var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
+                new JsonApiSerializerSettings());
+
+            Assert.IsTrue(list.Count == 0);
+        }
+
+        [Test]
         public void CreateAudit()
         {
             var response =
