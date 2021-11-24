@@ -11,6 +11,7 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.response.ValidatableResponse;
 import java.sql.SQLException;
+import java.util.Objects;
 import javax.inject.Inject;
 import liquibase.exception.LiquibaseException;
 import org.junit.jupiter.api.BeforeAll;
@@ -61,7 +62,7 @@ public class HttpApiTest extends BaseTest {
             new LambdaMatcher(
                 a ->
                     getProductsFromDocument(resourceConverter, a.toString()).stream()
-                        .anyMatch(p -> created.getId() == p.getId()),
+                        .anyMatch(p -> Objects.equals(created.getId(), p.getId())),
                 "Resource should be returned"));
 
     given()
@@ -401,5 +402,105 @@ public class HttpApiTest extends BaseTest {
         .patch("/api/products/" + created.getId())
         .then()
         .statusCode(415);
+  }
+
+  @Test
+  public void testFilterResults() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndGetProduct")))
+            .post("/api/products")
+            .then()
+            .statusCode(200)
+            .body(
+                new LambdaMatcher(
+                    a -> getProductFromDocument(resourceConverter, a.toString()) != null,
+                    "Resource should be returned"));
+
+    final Product created =
+        getProductFromDocument(resourceConverter, response.extract().body().asString());
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .get("/api/products?filter=id=="+created.getId())
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a ->
+                    getProductsFromDocument(resourceConverter, a.toString()).stream()
+                        .anyMatch(p -> Objects.equals(created.getId(), p.getId())),
+                "Resource should be returned"));
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .get("/api/products?filter=name==testCreateAndGetProduct")
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a ->
+                    getProductsFromDocument(resourceConverter, a.toString()).stream()
+                        .anyMatch(p -> Objects.equals(created.getId(), p.getId())),
+                "Resource should be returned"));
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .get("/api/products?filter=name!=blah")
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a ->
+                    getProductsFromDocument(resourceConverter, a.toString()).stream()
+                        .anyMatch(p -> Objects.equals(created.getId(), p.getId())),
+                "Resource should be returned"));
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .get("/api/products?filter=name==test*")
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a ->
+                    getProductsFromDocument(resourceConverter, a.toString()).stream()
+                        .anyMatch(p -> Objects.equals(created.getId(), p.getId())),
+                "Resource should be returned"));
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .get("/api/products?filter=name=in=(testCreateAndGetProduct)")
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a ->
+                    getProductsFromDocument(resourceConverter, a.toString()).stream()
+                        .anyMatch(p -> Objects.equals(created.getId(), p.getId())),
+                "Resource should be returned"));
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .get("/api/products?filter=id<" + (created.getId() + 1))
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a ->
+                    getProductsFromDocument(resourceConverter, a.toString()).stream()
+                        .anyMatch(p -> Objects.equals(created.getId(), p.getId())),
+                "Resource should be returned"));
   }
 }

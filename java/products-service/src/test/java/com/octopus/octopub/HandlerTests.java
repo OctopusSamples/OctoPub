@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class DatabaseTests extends BaseTest {
+public class HandlerTests extends BaseTest {
 
   @Inject LiquidbaseUpdater liquidbaseUpdater;
 
