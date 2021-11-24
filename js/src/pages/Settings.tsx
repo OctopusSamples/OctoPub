@@ -1,14 +1,16 @@
 import {FC, ReactElement, useContext, useState} from "react";
 import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
-import {FormLabel, Grid, TextField} from "@material-ui/core";
+import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {styles} from "../utils/styles";
+import {useHistory} from "react-router-dom";
 
 const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     const context = useContext(AppContext);
     const classes = styles();
+    const history = useHistory();
     const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem("apiKey"));
     const [partition, setPartition] = useState<string | null>(localStorage.getItem("partition") || "main");
 
@@ -37,7 +39,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     <TextField id="partition" fullWidth={true} variant="outlined" value={partition}
                                onChange={v => {
                                    setPartition(v.target.value);
-                                   localStorage.setItem("partition", v.target.value.trim());
+
                                }}/>
                     <span className={classes.helpText}>
                         <p>
@@ -50,10 +52,26 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                         </p>
                     </span>
                 </Grid>
+                <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
+
+                </Grid>
+                <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
+                    <Button variant={"outlined"} onClick={_ => saveSettings()}>Save Settings</Button>
+                </Grid>
             </Grid>
 
         </>
     );
+
+    function saveSettings() {
+        const fixedPartition = partition ? partition.trim() : "";
+        const fixedApiKey = apiKey ? apiKey.trim() : "";
+        localStorage.setItem("partition", fixedPartition);
+        localStorage.setItem("apiKey", fixedApiKey);
+        props.setPartition(fixedPartition);
+        props.setApiKey(fixedApiKey);
+        history.push('/index.html');
+    }
 }
 
 

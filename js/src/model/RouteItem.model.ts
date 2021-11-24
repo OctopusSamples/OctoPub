@@ -2,7 +2,9 @@ import {ComponentType, FC} from "react";
 
 export interface CommonProps {
     apiKey: string | null;
+    setApiKey: (key: string) => void;
     partition: string | null;
+    setPartition: (id: string | null) => void;
     setAllBookId: (id: string | null) => void;
     allBookId: string | null;
 }
