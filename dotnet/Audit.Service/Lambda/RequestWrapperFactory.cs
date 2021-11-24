@@ -133,6 +133,8 @@ namespace Audit.Service.Lambda
             return (acceptHeader ?? Enumerable.Empty<string>())
                 // Ignore null values
                 .Where(v => v != null)
+                // Split the headers on the comma for multi value headers
+                .SelectMany(v => v.Split(","))
                 // Split the headers on the semi colon
                 .SelectMany(v => v.Split(";"))
                 // trim the results and make them lowercase

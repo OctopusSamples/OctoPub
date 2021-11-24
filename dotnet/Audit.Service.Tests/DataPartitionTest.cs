@@ -7,10 +7,13 @@ namespace Audit.Service.Tests
     {
         [Test]
         [TestCase(new [] {"application/vnd.api+json", "application/vnd.api+json; dataPartition=test"}, "test")]
+        [TestCase(new [] {"application/vnd.api+json, application/vnd.api+json; dataPartition=test"}, "test")]
         [TestCase(new [] {"application/vnd.api+json", "application/vnd.api+json; dataPartition= test"}, "test")]
+        [TestCase(new [] {"application/vnd.api+json, application/vnd.api+json; dataPartition= test"}, "test")]
         [TestCase(new [] {"application/vnd.api+json", "application/vnd.api+json; dataPartition= test "}, "test")]
         [TestCase(new [] {"application/vnd.api+json", "application/vnd.api+json; dataPartition=test "}, "test")]
         [TestCase(new [] {"application/vnd.api+json", "application/vnd.api+json; dataPartition=main"}, "main")]
+        [TestCase(new [] {"application/vnd.api+json, application/vnd.api+json; dataPartition=main"}, "main")]
         [TestCase(new [] {"application/vnd.api+json", "application/vnd.api+json"}, "main")]
         [TestCase(new [] {"application/vnd.api+json"}, "main")]
         public void ExtractDataPartition(string[] headerValues, string expected)
