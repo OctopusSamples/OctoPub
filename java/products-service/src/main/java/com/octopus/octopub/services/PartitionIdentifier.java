@@ -28,6 +28,8 @@ public class PartitionIdentifier {
     return header.stream()
         // make sure we aren't processing null values
         .filter(Objects::nonNull)
+        // split on commas for headers sent as a comma separated list
+        .flatMap(h -> Stream.of(h.split(",")))
         // split on semi colons
         .flatMap(h -> Stream.of(h.split(";")))
         // remove any blank strings

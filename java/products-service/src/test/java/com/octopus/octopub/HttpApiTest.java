@@ -25,7 +25,6 @@ public class HttpApiTest extends BaseTest {
 
   @Inject ResourceConverter resourceConverter;
 
-
   @BeforeAll
   public void setup() throws SQLException, LiquibaseException {
     liquidbaseUpdater.update();
@@ -33,29 +32,27 @@ public class HttpApiTest extends BaseTest {
 
   @Test
   public void testCreateAndGetProduct() throws DocumentSerializationException {
-    final ValidatableResponse response = given()
-        .headers(
-            new Headers(
-                new Header("Accept", "application/vnd.api+json"),
-                new Header("Accept", "application/vnd.api+json; dataPartition=main")))
-        .when()
-        .body(
-            productToResourceDocument(resourceConverter, createProduct("testCreateAndGetProduct")))
-        .post("/api/products")
-        .then()
-        .statusCode(200)
-        .body(
-            new LambdaMatcher(
-                a -> getProductFromDocument(resourceConverter, a.toString()) != null,
-                "Resource should be returned"));
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndGetProduct")))
+            .post("/api/products")
+            .then()
+            .statusCode(200)
+            .body(
+                new LambdaMatcher(
+                    a -> getProductFromDocument(resourceConverter, a.toString()) != null,
+                    "Resource should be returned"));
 
-    final Product created = getProductFromDocument(resourceConverter, response.extract().body().asString());
+    final Product created =
+        getProductFromDocument(resourceConverter, response.extract().body().asString());
 
     given()
-        .headers(
-            new Headers(
-                new Header("Accept", "application/vnd.api+json"),
-                new Header("Accept", "application/vnd.api+json; dataPartition=main")))
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
         .when()
         .get("/api/products")
         .then()
@@ -66,74 +63,343 @@ public class HttpApiTest extends BaseTest {
                     getProductsFromDocument(resourceConverter, a.toString()).stream()
                         .anyMatch(p -> created.getId() == p.getId()),
                 "Resource should be returned"));
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .get("/api/products/" + created.getId())
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a ->
+                    getProductFromDocument(resourceConverter, a.toString())
+                        .getName()
+                        .equals(created.getName()),
+                "Resource should be returned"));
   }
 
   @Test
   public void testCreateAndDeleteProduct() throws DocumentSerializationException {
-    final ValidatableResponse response = given()
-        .headers(
-            new Headers(
-                new Header("Accept", "application/vnd.api+json"),
-                new Header("Accept", "application/vnd.api+json; dataPartition=main")))
-        .when()
-        .body(
-            productToResourceDocument(resourceConverter, createProduct("testCreateAndDeleteProduct")))
-        .post("/api/products")
-        .then()
-        .statusCode(200)
-        .body(
-            new LambdaMatcher(
-                a -> getProductFromDocument(resourceConverter, a.toString()) != null,
-                "Resource should be returned"));
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndDeleteProduct")))
+            .post("/api/products")
+            .then()
+            .statusCode(200)
+            .body(
+                new LambdaMatcher(
+                    a -> getProductFromDocument(resourceConverter, a.toString()) != null,
+                    "Resource should be returned"));
 
-    final Product created = getProductFromDocument(resourceConverter, response.extract().body().asString());
+    final Product created =
+        getProductFromDocument(resourceConverter, response.extract().body().asString());
 
     given()
-        .headers(
-            new Headers(
-                new Header("Accept", "application/vnd.api+json"),
-                new Header("Accept", "application/vnd.api+json; dataPartition=main")))
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
         .when()
         .delete("/api/products/" + created.getId())
         .then()
         .statusCode(204);
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .get("/api/products/" + created.getId())
+        .then()
+        .statusCode(404);
   }
 
   @Test
   public void testCreateAndUpdateProduct() throws DocumentSerializationException {
-    final ValidatableResponse response = given()
-        .headers(
-            new Headers(
-                new Header("Accept", "application/vnd.api+json"),
-                new Header("Accept", "application/vnd.api+json; dataPartition=main")))
-        .when()
-        .body(
-            productToResourceDocument(resourceConverter, createProduct("testCreateAndUpdateProduct")))
-        .post("/api/products")
-        .then()
-        .statusCode(200)
-        .body(
-            new LambdaMatcher(
-                a -> getProductFromDocument(resourceConverter, a.toString()) != null,
-                "Resource should be returned"));
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndUpdateProduct")))
+            .post("/api/products")
+            .then()
+            .statusCode(200)
+            .body(
+                new LambdaMatcher(
+                    a -> getProductFromDocument(resourceConverter, a.toString()) != null,
+                    "Resource should be returned"));
 
-    final Product created = getProductFromDocument(resourceConverter, response.extract().body().asString());
+    final Product created =
+        getProductFromDocument(resourceConverter, response.extract().body().asString());
 
     given()
-        .headers(
-            new Headers(
-                new Header("Accept", "application/vnd.api+json"),
-                new Header("Accept", "application/vnd.api+json; dataPartition=main")))
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .contentType("application/vnd.api+json")
         .when()
         .body(
-            productToResourceDocument(resourceConverter, createProduct("testCreateAndUpdateProductUpdated")))
+            productToResourceDocument(
+                resourceConverter, createProduct("testCreateAndUpdateProductUpdated")))
         .patch("/api/products/" + created.getId())
         .then()
         .statusCode(200)
         .body(
             new LambdaMatcher(
                 a ->
-                    getProductFromDocument(resourceConverter, a.toString()).getName().equals("testCreateAndUpdateProductUpdated"),
+                    getProductFromDocument(resourceConverter, a.toString())
+                        .getName()
+                        .equals("testCreateAndUpdateProductUpdated"),
                 "Resource should be returned"));
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .get("/api/products/" + created.getId())
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a ->
+                    getProductFromDocument(resourceConverter, a.toString())
+                        .getName()
+                        .equals("testCreateAndUpdateProductUpdated"),
+                "Resource should be returned"));
+  }
+
+  @Test
+  public void partitionFromHeader() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=header")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndGetProduct", "body")))
+            .post("/api/products")
+            .then()
+            .statusCode(200)
+            .body(
+                new LambdaMatcher(
+                    a ->
+                        getProductFromDocument(resourceConverter, a.toString())
+                            .getDataPartition()
+                            .equals("header"),
+                    "Resource partition should have come from header"));
+
+    final Product created =
+        getProductFromDocument(resourceConverter, response.extract().body().asString());
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=header")
+        .contentType("application/vnd.api+json")
+        .when()
+        .body(
+            productToResourceDocument(
+                resourceConverter, createProduct("testCreateAndUpdateProductUpdated", "body")))
+        .patch("/api/products/" + created.getId())
+        .then()
+        .statusCode(200)
+        .body(
+            new LambdaMatcher(
+                a ->
+                    getProductFromDocument(resourceConverter, a.toString())
+                        .getDataPartition()
+                        .equals("header"),
+                "Resource partition should not be updated"));
+  }
+
+  @Test
+  public void failToUpdateResourceInDifferentPartition() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndGetProduct")))
+            .post("/api/products")
+            .then()
+            .statusCode(200);
+
+    final Product created =
+        getProductFromDocument(resourceConverter, response.extract().body().asString());
+
+    given()
+        .headers(
+            new Headers(
+                new Header("Content-Type", "application/vnd.api+json"),
+                new Header(
+                    "Accept",
+                    "application/vnd.api+json, application/vnd.api+json; dataPartition=testing")))
+        .when()
+        .body(
+            productToResourceDocument(
+                resourceConverter, createProduct("testCreateAndUpdateProductUpdated", "body")))
+        .patch("/api/products/" + created.getId())
+        .then()
+        .statusCode(404);
+  }
+
+  @Test
+  public void failToDeleteResourceInDifferentPartition() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndGetProduct")))
+            .post("/api/products")
+            .then()
+            .statusCode(200);
+
+    final Product created =
+        getProductFromDocument(resourceConverter, response.extract().body().asString());
+
+    given()
+        .accept("application/vnd.api+json, application/vnd.api+json; dataPartition=testing")
+        .when()
+        .body(
+            productToResourceDocument(
+                resourceConverter, createProduct("testCreateAndUpdateProductUpdated", "body")))
+        .delete("/api/products/" + created.getId())
+        .then()
+        .statusCode(404);
+  }
+
+  @Test
+  public void failToGetResourceInDifferentPartition() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=testing2")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndGetProduct")))
+            .post("/api/products")
+            .then()
+            .statusCode(200);
+
+    final Product created =
+        getProductFromDocument(resourceConverter, response.extract().body().asString());
+
+    given()
+        .accept("application/vnd.api+json, application/vnd.api+json; dataPartition=testing")
+        .when()
+        .get("/api/products/" + created.getId())
+        .then()
+        .statusCode(404);
+  }
+
+  @Test
+  public void failWithMissingContentTypeForPost() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndGetProduct")))
+            .post("/api/products")
+            .then()
+            .statusCode(415);
+  }
+
+  @Test
+  public void failWithoutPlainAcceptForPost() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json; dataPartition=main")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndGetProduct")))
+            .post("/api/products")
+            .then()
+            .statusCode(406);
+  }
+
+  @Test
+  public void failWithoutPlainAcceptForPatch() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json; dataPartition=main")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndGetProduct")))
+            .patch("/api/products/1")
+            .then()
+            .statusCode(406);
+  }
+
+  @Test
+  public void failWithoutPlainAcceptForDelete() {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json; dataPartition=main")
+            .when()
+            .delete("/api/products/1")
+            .then()
+            .statusCode(406);
+  }
+
+  @Test
+  public void failWithoutPlainAcceptForGet() {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json; dataPartition=main")
+            .when()
+            .get("/api/products/1")
+            .then()
+            .statusCode(406);
+  }
+
+  @Test
+  public void failWithoutPlainAcceptForGetAll() {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json; dataPartition=main")
+            .when()
+            .get("/api/products")
+            .then()
+            .statusCode(406);
+  }
+
+  @Test
+  public void failWithMissingContentTypeForPatch() throws DocumentSerializationException {
+    final ValidatableResponse response =
+        given()
+            .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=testing2")
+            .contentType("application/vnd.api+json")
+            .when()
+            .body(
+                productToResourceDocument(
+                    resourceConverter, createProduct("testCreateAndGetProduct")))
+            .post("/api/products")
+            .then()
+            .statusCode(200);
+
+    final Product created =
+        getProductFromDocument(resourceConverter, response.extract().body().asString());
+
+    given()
+        .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
+        .when()
+        .body(
+            productToResourceDocument(
+                resourceConverter, createProduct("testCreateAndUpdateProductUpdated", "body")))
+        .patch("/api/products/" + created.getId())
+        .then()
+        .statusCode(415);
   }
 }

@@ -12,9 +12,13 @@ import lombok.NonNull;
 
 public class BaseTest {
   protected Product createProduct(@NonNull final String name) {
+    return createProduct(name, null);
+  }
+
+  protected Product createProduct(@NonNull final String name, final String partition) {
     final Product product = new Product();
     product.setName(name);
-    product.setDataPartition("main");
+    product.setDataPartition(partition);
     product.setDescription("a test book");
     product.setEpub("http://example.org/epub");
     product.setPdf("http://example.org/pdf");
