@@ -37,38 +37,36 @@ namespace Audit.Service.Tests
 
             var guid = Guid.NewGuid();
 
-            await using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
+            // create a stream for the post request
+            await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
                 new Models.Audit
                 {
                     Action = "test1",
                     Object = "test2",
                     Subject = guid.ToString()
-                }, new JsonApiSerializerSettings()))))
-            {
-                // mock a POST request
-                httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
-                httpContext.Request.Path = "/api/audits";
-                httpContext.Request.Method = "POST";
-                httpContext.Request.Body = stream;
-                var createResponse = await controller.Entry();
-                var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                    (createResponse as ActionResultConverter).Content,
-                    new JsonApiSerializerSettings());
+                }, new JsonApiSerializerSettings())));
 
-                // mock a GET request
-                httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
-                httpContext.Request.Path = "/api/audits/" + createEntity.Id;
-                httpContext.Request.Method = "GET";
-                httpContext.Request.Body = null;
-                var getResponse = await controller.Entry();
-                var getEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                    (getResponse as ActionResultConverter).Content,
-                    new JsonApiSerializerSettings());
+            // mock a POST request
+            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
+            httpContext.Request.Path = "/api/audits";
+            httpContext.Request.Method = "POST";
+            httpContext.Request.Body = stream;
+            var createResponse = await controller.Entry();
+            var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
+                (createResponse as ActionResultConverter).Content,
+                new JsonApiSerializerSettings());
 
-                Assert.AreEqual(createEntity.Subject, getEntity.Subject);
-            }
+            // mock a GET request
+            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
+            httpContext.Request.Path = "/api/audits/" + createEntity.Id;
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Body = null;
+            var getResponse = await controller.Entry();
+            var getEntity = JsonConvert.DeserializeObject<Models.Audit>(
+                (getResponse as ActionResultConverter).Content,
+                new JsonApiSerializerSettings());
 
-
+            Assert.AreEqual(createEntity.Subject, getEntity.Subject);
         }
     }
 }
