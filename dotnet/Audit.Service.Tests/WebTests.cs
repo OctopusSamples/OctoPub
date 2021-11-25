@@ -48,6 +48,22 @@ namespace Audit.Service.Tests
             controller.HttpContext.Request.Body = body;
         }
 
+        private async Task<Models.Audit> CallControllerAndGetAudit(AuditController controller)
+        {
+            var createResponse = await controller.Entry();
+            return JsonConvert.DeserializeObject<Models.Audit>(
+                (createResponse as ContentResult).Content,
+                new JsonApiSerializerSettings());
+        }
+        
+        private async Task<(List<Models.Audit>, ContentResult)> CallControllerAndGetAudits(AuditController controller)
+        {
+            var createResponse = await controller.Entry() as ContentResult;
+            return (JsonConvert.DeserializeObject<List<Models.Audit>>(
+                createResponse.Content,
+                new JsonApiSerializerSettings()), createResponse);
+        }
+
         [Test]
         public async Task TestHealth()
         {
@@ -89,19 +105,13 @@ namespace Audit.Service.Tests
 
             // mock a POST request
             PopulateHttpContext(controller, "/api/audits", "POST", stream);
-            var createResponse = await controller.Entry();
-            var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                (createResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var createEntity = await CallControllerAndGetAudit(controller);
 
             Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
             PopulateHttpContext(controller, "/api/audits/" + createEntity.Id, "GET");
-            var getResponse = await controller.Entry();
-            var getEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                (getResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var getEntity = await CallControllerAndGetAudit(controller);
 
             Assert.AreEqual(createEntity.Subject, getEntity.Subject);
         }
@@ -124,19 +134,13 @@ namespace Audit.Service.Tests
 
             // mock a POST request
             PopulateHttpContext(controller, "/api/audits", "POST", stream);
-            var createResponse = await controller.Entry();
-            var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                (createResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var createEntity = await CallControllerAndGetAudit(controller);
 
             Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
             PopulateHttpContext(controller, "/api/audits", "GET");
-            var getResponse = await controller.Entry();
-            var getEntity = JsonConvert.DeserializeObject<List<Models.Audit>>(
-                (getResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var (getEntity, _) = await CallControllerAndGetAudits(controller);
 
             Assert.IsTrue(getEntity.Any(a => a.Subject == createEntity.Subject));
         }
@@ -159,10 +163,7 @@ namespace Audit.Service.Tests
 
             // mock a POST request
             PopulateHttpContext(controller, "/api/audits", "POST", stream);
-            var createResponse = await controller.Entry();
-            var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                (createResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var createEntity = await CallControllerAndGetAudit(controller);
 
             Assert.AreEqual("main", createEntity.DataPartition);
 
@@ -170,11 +171,7 @@ namespace Audit.Service.Tests
             PopulateHttpContext(controller, "/api/audits", "GET");
             controller.HttpContext.Request.Query = new QueryCollection(new Dictionary<string, StringValues>()
                 {{"filter", "subject=='" + createEntity.Subject + "'"}});
-            
-            var getResponse = await controller.Entry();
-            var getEntity = JsonConvert.DeserializeObject<List<Models.Audit>>(
-                (getResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var (getEntity, _) = await CallControllerAndGetAudits(controller);
 
             Assert.IsTrue(getEntity.All(a => a.Subject == createEntity.Subject));
 
@@ -198,10 +195,7 @@ namespace Audit.Service.Tests
 
             // mock a POST request
             PopulateHttpContext(controller, "/api/audits", "POST", stream);
-            var createResponse = await controller.Entry();
-            var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                (createResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var createEntity = await CallControllerAndGetAudit(controller);
 
             Assert.AreEqual("main", createEntity.DataPartition);
 
@@ -210,10 +204,7 @@ namespace Audit.Service.Tests
             controller.HttpContext.Request.Query = new QueryCollection(new Dictionary<string, StringValues>()
                 {{"filter", "subject!='" + createEntity.Subject + "'"}});
             
-            var getResponse = await controller.Entry();
-            var getEntity = JsonConvert.DeserializeObject<List<Models.Audit>>(
-                (getResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var (getEntity, _) = await CallControllerAndGetAudits(controller);
 
             Assert.IsFalse(getEntity.Any(a => a.Subject == createEntity.Subject));
         }
@@ -238,10 +229,7 @@ namespace Audit.Service.Tests
             PopulateHttpContext(controller, "/api/audits", "POST", stream);
             controller.HttpContext.Request.Headers["Accept"] += 
                 "," + Constants.JsonApiMimeType + "; dataPartition=testing1";
-            var createResponse = await controller.Entry();
-            var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                (createResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var createEntity = await CallControllerAndGetAudit(controller);
 
             Assert.AreEqual("testing1", createEntity.DataPartition);
 
@@ -273,19 +261,13 @@ namespace Audit.Service.Tests
 
             // mock a POST request
             PopulateHttpContext(controller, "/api/audits", "POST", stream);
-            var createResponse = await controller.Entry();
-            var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                (createResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var createEntity = await CallControllerAndGetAudit(controller);
 
             Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
             PopulateHttpContext(controller, "/api/audits/" + createEntity.Id, "GET");
-            var getResponse = await controller.Entry();
-            var getEntity = JsonConvert.DeserializeObject<List<Models.Audit>>(
-                (getResponse as ContentResult).Content,
-                new JsonApiSerializerSettings());
+            var (getEntity, getResponse) = await CallControllerAndGetAudits(controller);
 
             Assert.IsTrue(getEntity.Any(a => a.Subject == createEntity.Subject));
             Assert.AreEqual(200,  (getResponse as ContentResult).StatusCode);
