@@ -20,6 +20,30 @@ namespace Audit.Service.Tests
         private static readonly DependencyInjection DependencyInjection = new DependencyInjection();
 
         [Test]
+        public async Task TestHealth()
+        {
+            var serviceProvider = DependencyInjection.ConfigureServices();
+            var auditHandler = serviceProvider.GetService<AuditHandler>();
+
+            // mock the HTTP context
+            var httpContext = new DefaultHttpContext();
+            var controller = new HealthController(auditHandler)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = httpContext
+                }
+            };
+
+            // mock a GET request
+            httpContext.Request.Path = "/health/audits/GET";
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Body = null;
+            var getResponse = await controller.GetHealth();
+            Assert.AreEqual(200, (getResponse as ContentResult).StatusCode);
+        }
+
+        [Test]
         public async Task TestCreateAndGet()
         {
             var serviceProvider = DependencyInjection.ConfigureServices();
@@ -53,7 +77,7 @@ namespace Audit.Service.Tests
             httpContext.Request.Body = stream;
             var createResponse = await controller.Entry();
             var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                (createResponse as ActionResultConverter).Content,
+                (createResponse as ContentResult).Content,
                 new JsonApiSerializerSettings());
 
             // mock a GET request
@@ -63,7 +87,7 @@ namespace Audit.Service.Tests
             httpContext.Request.Body = null;
             var getResponse = await controller.Entry();
             var getEntity = JsonConvert.DeserializeObject<Models.Audit>(
-                (getResponse as ActionResultConverter).Content,
+                (getResponse as ContentResult).Content,
                 new JsonApiSerializerSettings());
 
             Assert.AreEqual(createEntity.Subject, getEntity.Subject);
