@@ -35,7 +35,7 @@ namespace Audit.Service.Lambda
         {
             return new RequestWrapper
             {
-                Entity = await new StreamReader(request.Body).ReadToEndAsync(),
+                Entity = request.Body != null ? await new StreamReader(request.Body).ReadToEndAsync() : string.Empty,
                 ActionType = ActionTypeFromHttpMethod(request.Method, request.Path),
                 EntityType = HealthEndpointRe.IsMatch(request.Path)
                     ? EntityType.Health

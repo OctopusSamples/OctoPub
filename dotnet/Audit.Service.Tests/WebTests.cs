@@ -59,6 +59,7 @@ namespace Audit.Service.Tests
                 httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
                 httpContext.Request.Path = "/api/audits/" + createEntity.Id;
                 httpContext.Request.Method = "GET";
+                httpContext.Request.Body = null;
                 var getResponse = await controller.Entry();
                 var getEntity = JsonConvert.DeserializeObject<Models.Audit>(
                     (getResponse as ActionResultConverter).Content,
