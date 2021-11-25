@@ -20,7 +20,11 @@ namespace Audit.Service.Controllers
         {
             var requestWrapper = await RequestWrapperFactory.CreateFromHttpRequest(Request);
             var response = _auditHandler.GetAll(requestWrapper);
-            return new ActionResultConverter(response);
+            if (response != null)
+            {
+                return new ActionResultConverter(response);
+            }
+            return NotFound();
         }
 
         [HttpGet("{id}")]
@@ -28,7 +32,11 @@ namespace Audit.Service.Controllers
         {
             var requestWrapper = await RequestWrapperFactory.CreateFromHttpRequest(Request);
             var response = _auditHandler.GetOne(requestWrapper);
-            return new ActionResultConverter(response);
+            if (response != null)
+            {
+                return new ActionResultConverter(response);
+            }
+            return NotFound();
         }
 
         [HttpPost]
@@ -36,7 +44,11 @@ namespace Audit.Service.Controllers
         {
             var requestWrapper = await RequestWrapperFactory.CreateFromHttpRequest(Request);
             var response = _auditHandler.CreateOne(requestWrapper);
-            return new ActionResultConverter(response);
+            if (response != null)
+            {
+                return new ActionResultConverter(response);
+            }
+            return NotFound();
         }
     }
 }
