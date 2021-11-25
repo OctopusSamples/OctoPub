@@ -15,7 +15,8 @@ namespace Audit.Service.Services
         public Models.Audit Get(int id, RequestWrapper wrapper)
         {
             var audit = _context.Audits.Find(id);
-            return audit != null && (audit.DataPartition == Constants.DefaultPartition || audit.DataPartition == wrapper.DataPartition)
+            return audit != null && (audit.DataPartition == Constants.DefaultPartition ||
+                                     audit.DataPartition == wrapper.DataPartition)
                 ? audit
                 : null;
         }

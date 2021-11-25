@@ -58,7 +58,6 @@ namespace Audit.Service.Lambda
                 var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
                 var handler = serviceProvider.GetService<AuditHandler>();
                 return AddCors(ProcessRequest(handler, requestWrapper));
-
             }
             catch (Exception ex)
             {
@@ -124,6 +123,7 @@ namespace Audit.Service.Lambda
             {
                 response.Headers = new Dictionary<string, string>();
             }
+
             response.Headers.Add("Access-Control-Allow-Origin", "*");
             return response;
         }
@@ -136,7 +136,7 @@ namespace Audit.Service.Lambda
                 {
                     errors = new[]
                     {
-                        new {code = ex.GetType().Name}
+                        new { code = ex.GetType().Name }
                     }
                 }),
                 StatusCode = 500
@@ -151,7 +151,7 @@ namespace Audit.Service.Lambda
                 {
                     errors = new[]
                     {
-                        new {title = "Resource was not found"}
+                        new { title = "Resource was not found" }
                     }
                 }),
                 StatusCode = 404

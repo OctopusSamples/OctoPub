@@ -23,10 +23,7 @@ namespace Audit.Service.Migrations
                     Subject = table.Column<string>(nullable: true),
                     Object = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Authors", x => x.Id);
-                });
+                constraints: table => { table.PrimaryKey("PK_Authors", x => x.Id); });
         }
     }
 }

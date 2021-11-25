@@ -7,7 +7,6 @@ namespace Audit.Service.Repositories
         public Db(DbContextOptions<Db> options)
             : base(options)
         {
-
         }
 
         public DbSet<Models.Audit> Audits { get; set; }

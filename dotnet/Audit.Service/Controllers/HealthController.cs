@@ -27,6 +27,7 @@ namespace Audit.Service.Controllers
             {
                 return new ActionResultConverter(response);
             }
+
             return NotFound();
         }
     }

@@ -18,7 +18,7 @@ namespace Audit.Service.Controllers
         [HttpGet]
         [HttpGet("{id}")]
         [HttpPost]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> Entry()
         {
             var requestWrapper = await RequestWrapperFactory.CreateFromHttpRequest(Request);
             var response = _auditHandler.GetAll(requestWrapper)
@@ -28,6 +28,7 @@ namespace Audit.Service.Controllers
             {
                 return new ActionResultConverter(response);
             }
+
             return NotFound();
         }
     }

@@ -65,7 +65,8 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "get", Path = "/api/audits",
-                        QueryStringParameters = new Dictionary<string, string>() { { "filter", "subject==doesnotexist" } }
+                        QueryStringParameters = new Dictionary<string, string>()
+                            { { "filter", "subject==doesnotexist" } }
                     }, null);
 
             var list2 = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse2.Body,
@@ -204,42 +205,42 @@ namespace Audit.Service.Tests
             var subject = Guid.NewGuid();
 
             Audits.HandleSqsEvent(
-                    new SQSEvent
+                new SQSEvent
+                {
+                    Records = new List<SQSEvent.SQSMessage>()
                     {
-                        Records = new List<SQSEvent.SQSMessage>()
                         {
+                            new SQSEvent.SQSMessage()
                             {
-                                new SQSEvent.SQSMessage()
+                                Body = JsonConvert.SerializeObject(new Models.Audit
                                 {
-                                    Body = JsonConvert.SerializeObject(new Models.Audit
-                                    {
-                                        Action = "test1",
-                                        Object = "test2",
-                                        Subject = subject.ToString()
-                                    }, new JsonApiSerializerSettings()),
-                                    MessageAttributes = new Dictionary<string, SQSEvent.MessageAttribute>()
-                                    {
-                                        { "action", new SQSEvent.MessageAttribute() {StringValue = "Create" }},
-                                        { "entity", new SQSEvent.MessageAttribute() {StringValue = "Audit" }}
-                                    }
+                                    Action = "test1",
+                                    Object = "test2",
+                                    Subject = subject.ToString()
+                                }, new JsonApiSerializerSettings()),
+                                MessageAttributes = new Dictionary<string, SQSEvent.MessageAttribute>()
+                                {
+                                    { "action", new SQSEvent.MessageAttribute() { StringValue = "Create" } },
+                                    { "entity", new SQSEvent.MessageAttribute() { StringValue = "Audit" } }
                                 }
                             }
                         }
+                    }
+                }, null);
+
+            var getResponse =
+                Audits.AuditsApi(
+                    new APIGatewayProxyRequest
+                    {
+                        HttpMethod = "get", Path = "/api/audits",
+                        QueryStringParameters = new Dictionary<string, string>()
+                            { { "filter", "subject=='" + subject + "'" } }
                     }, null);
 
-                var getResponse =
-                    Audits.AuditsApi(
-                        new APIGatewayProxyRequest
-                        {
-                            HttpMethod = "get", Path = "/api/audits",
-                            QueryStringParameters = new Dictionary<string, string>() { { "filter", "subject=='" + subject + "'" } }
-                        }, null);
+            var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
+                new JsonApiSerializerSettings());
 
-                var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
-                    new JsonApiSerializerSettings());
-
-                Assert.IsTrue(list.Count == 1);
-
+            Assert.IsTrue(list.Count == 1);
         }
 
         /// <summary>

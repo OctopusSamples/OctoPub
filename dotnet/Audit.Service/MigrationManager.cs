@@ -19,6 +19,7 @@ namespace Audit.Service
                     }
                 }
             }
+
             return host;
         }
     }
