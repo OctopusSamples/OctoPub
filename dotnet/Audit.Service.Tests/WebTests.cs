@@ -84,6 +84,8 @@ namespace Audit.Service.Tests
                 (createResponse as ContentResult).Content,
                 new JsonApiSerializerSettings());
 
+            Assert.AreEqual("main", createEntity.DataPartition);
+
             // mock a GET request
             httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
             httpContext.Request.Path = "/api/audits/" + createEntity.Id;
@@ -133,6 +135,8 @@ namespace Audit.Service.Tests
             var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
                 (createResponse as ContentResult).Content,
                 new JsonApiSerializerSettings());
+
+            Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
             httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
@@ -184,6 +188,8 @@ namespace Audit.Service.Tests
                 (createResponse as ContentResult).Content,
                 new JsonApiSerializerSettings());
 
+            Assert.AreEqual("main", createEntity.DataPartition);
+
             // mock a GET request
             httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
             httpContext.Request.Path = "/api/audits";
@@ -196,6 +202,7 @@ namespace Audit.Service.Tests
                 new JsonApiSerializerSettings());
 
             Assert.IsTrue(getEntity.All(a => a.Subject == createEntity.Subject));
+
         }
 
         [Test]
@@ -234,6 +241,8 @@ namespace Audit.Service.Tests
             var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
                 (createResponse as ContentResult).Content,
                 new JsonApiSerializerSettings());
+
+            Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
             httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
@@ -286,6 +295,8 @@ namespace Audit.Service.Tests
                 (createResponse as ContentResult).Content,
                 new JsonApiSerializerSettings());
 
+            Assert.AreEqual("testing1", createEntity.DataPartition);
+
             // mock a GET request
             httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType + "," + Constants.JsonApiMimeType + "; dataPartition=testing2";
             httpContext.Request.Path = "/api/audits/" + createEntity.Id;
@@ -332,6 +343,8 @@ namespace Audit.Service.Tests
             var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
                 (createResponse as ContentResult).Content,
                 new JsonApiSerializerSettings());
+
+            Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
             httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType + "," + Constants.JsonApiMimeType + "; dataPartition=testing2";
