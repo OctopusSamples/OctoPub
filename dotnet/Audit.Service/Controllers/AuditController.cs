@@ -16,34 +16,14 @@ namespace Audit.Service.Controllers
         }
 
         [HttpGet]
+        [HttpGet("{id}")]
+        [HttpPost]
         public async Task<IActionResult> GetAll()
         {
             var requestWrapper = await RequestWrapperFactory.CreateFromHttpRequest(Request);
-            var response = _auditHandler.GetAll(requestWrapper);
-            if (response != null)
-            {
-                return new ActionResultConverter(response);
-            }
-            return NotFound();
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOne()
-        {
-            var requestWrapper = await RequestWrapperFactory.CreateFromHttpRequest(Request);
-            var response = _auditHandler.GetOne(requestWrapper);
-            if (response != null)
-            {
-                return new ActionResultConverter(response);
-            }
-            return NotFound();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateOne()
-        {
-            var requestWrapper = await RequestWrapperFactory.CreateFromHttpRequest(Request);
-            var response = _auditHandler.CreateOne(requestWrapper);
+            var response = _auditHandler.GetAll(requestWrapper)
+                           ?? _auditHandler.GetOne(requestWrapper)
+                           ?? _auditHandler.CreateOne(requestWrapper);
             if (response != null)
             {
                 return new ActionResultConverter(response);
