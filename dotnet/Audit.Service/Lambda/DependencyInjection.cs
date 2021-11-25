@@ -14,8 +14,6 @@ namespace Audit.Service.Lambda
     /// </summary>
     public class DependencyInjection
     {
-        private static bool _initializedDatabase;
-
         /// <summary>
         /// Builds a dependency injection context.
         /// </summary>
@@ -42,8 +40,9 @@ namespace Audit.Service.Lambda
                 {
                     var folder = Environment.SpecialFolder.LocalApplicationData;
                     var path = Environment.GetFolderPath(folder);
-                    var dbPath = $"{path}{System.IO.Path.DirectorySeparatorChar}blogging.db";
-                    optionsBuilder.UseSqlite($"Data Source={dbPath}");
+                    var dbPath = $"{path}{System.IO.Path.DirectorySeparatorChar}audits.db";
+                    optionsBuilder.UseSqlite($"Data Source={dbPath}",
+                        x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
                 else
                 {
@@ -56,13 +55,6 @@ namespace Audit.Service.Lambda
                 var context = new Db(optionsBuilder.Options);
 
                 InitializeDatabase(context, configuration);
-
-                /*
-                 * The in memory database lives as long as the Lambda is hot. But it will eventually be reset
-                 * back to a blank state.
-                 * To be able to test queries, we add a sample record so requests are not always empty.
-                 */
-                PopulateDatabase(context);
 
                 return context;
             });
@@ -77,7 +69,7 @@ namespace Audit.Service.Lambda
 
         private void InitializeDatabase(Db context, IConfigurationRoot configuration)
         {
-            if (context.Database.IsInMemory())
+            if (context.Database.IsSqlite())
             {
                 context.Database.EnsureCreated();
             }
@@ -87,20 +79,6 @@ namespace Audit.Service.Lambda
                     Int32.TryParse(configuration.GetSection("Database:MySqlTimeout").Value, out var timeout)
                         ? timeout
                         : Constants.DefaultMySqlTimeout);
-            }
-        }
-
-        private void PopulateDatabase(Db context)
-        {
-            if (context.Database.IsInMemory() && !_initializedDatabase)
-            {
-                context.Audits.Add(new Models.Audit
-                {
-                    Id = 0, Action = "Created a sample audit record for the ephemeral inmemory database",
-                    Object = "Test", Subject = "Test", DataPartition = Constants.DefaultPartition
-                });
-                context.SaveChanges();
-                _initializedDatabase = true;
             }
         }
     }

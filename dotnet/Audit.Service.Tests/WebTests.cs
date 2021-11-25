@@ -8,9 +8,11 @@ using Antlr4.Runtime.Tree;
 using Audit.Service.Controllers;
 using Audit.Service.Handler;
 using Audit.Service.Lambda;
+using Audit.Service.Repositories;
 using JsonApiSerializer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
@@ -21,13 +23,35 @@ namespace Audit.Service.Tests
     [TestFixture]
     public class WebTests
     {
-        private static readonly DependencyInjection DependencyInjection = new DependencyInjection();
+        private static readonly ServiceProvider ServiceProvider = new DependencyInjection().ConfigureServices();
+
+        private AuditController CreateAuditController()
+        {
+            var auditHandler = ServiceProvider.GetService<AuditHandler>();
+
+            // mock the HTTP context
+            var httpContext = new DefaultHttpContext();
+            return new AuditController(auditHandler)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = httpContext
+                }
+            };
+        }
+
+        private void PopulateHttpContext(ControllerBase controller, String path, String method, Stream? body = null)
+        {
+            controller.HttpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
+            controller.HttpContext.Request.Path = path;
+            controller.HttpContext.Request.Method = method;
+            controller.HttpContext.Request.Body = body;
+        }
 
         [Test]
         public async Task TestHealth()
         {
-            var serviceProvider = DependencyInjection.ConfigureServices();
-            var auditHandler = serviceProvider.GetService<AuditHandler>();
+            var auditHandler = ServiceProvider.GetService<AuditHandler>();
 
             // mock the HTTP context
             var httpContext = new DefaultHttpContext();
@@ -50,18 +74,7 @@ namespace Audit.Service.Tests
         [Test]
         public async Task TestCreateAndGet()
         {
-            var serviceProvider = DependencyInjection.ConfigureServices();
-            var auditHandler = serviceProvider.GetService<AuditHandler>();
-
-            // mock the HTTP context
-            var httpContext = new DefaultHttpContext();
-            var controller = new AuditController(auditHandler)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = httpContext
-                }
-            };
+            var controller = CreateAuditController();
 
             var guid = Guid.NewGuid();
 
@@ -75,10 +88,7 @@ namespace Audit.Service.Tests
                 }, new JsonApiSerializerSettings())));
 
             // mock a POST request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
-            httpContext.Request.Path = "/api/audits";
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Body = stream;
+            PopulateHttpContext(controller, "/api/audits", "POST", stream);
             var createResponse = await controller.Entry();
             var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
                 (createResponse as ContentResult).Content,
@@ -87,10 +97,7 @@ namespace Audit.Service.Tests
             Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
-            httpContext.Request.Path = "/api/audits/" + createEntity.Id;
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Body = null;
+            PopulateHttpContext(controller, "/api/audits/" + createEntity.Id, "GET");
             var getResponse = await controller.Entry();
             var getEntity = JsonConvert.DeserializeObject<Models.Audit>(
                 (getResponse as ContentResult).Content,
@@ -102,18 +109,7 @@ namespace Audit.Service.Tests
         [Test]
         public async Task TestCreateAndGetAll()
         {
-            var serviceProvider = DependencyInjection.ConfigureServices();
-            var auditHandler = serviceProvider.GetService<AuditHandler>();
-
-            // mock the HTTP context
-            var httpContext = new DefaultHttpContext();
-            var controller = new AuditController(auditHandler)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = httpContext
-                }
-            };
+            var controller = CreateAuditController();
 
             var guid = Guid.NewGuid();
 
@@ -127,10 +123,7 @@ namespace Audit.Service.Tests
                 }, new JsonApiSerializerSettings())));
 
             // mock a POST request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
-            httpContext.Request.Path = "/api/audits";
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Body = stream;
+            PopulateHttpContext(controller, "/api/audits", "POST", stream);
             var createResponse = await controller.Entry();
             var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
                 (createResponse as ContentResult).Content,
@@ -139,10 +132,7 @@ namespace Audit.Service.Tests
             Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
-            httpContext.Request.Path = "/api/audits";
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Body = null;
+            PopulateHttpContext(controller, "/api/audits", "GET");
             var getResponse = await controller.Entry();
             var getEntity = JsonConvert.DeserializeObject<List<Models.Audit>>(
                 (getResponse as ContentResult).Content,
@@ -154,18 +144,7 @@ namespace Audit.Service.Tests
          [Test]
         public async Task TestCreateAndGetAllFilter()
         {
-            var serviceProvider = DependencyInjection.ConfigureServices();
-            var auditHandler = serviceProvider.GetService<AuditHandler>();
-
-            // mock the HTTP context
-            var httpContext = new DefaultHttpContext();
-            var controller = new AuditController(auditHandler)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = httpContext
-                }
-            };
+            var controller = CreateAuditController();
 
             var guid = Guid.NewGuid();
 
@@ -179,10 +158,7 @@ namespace Audit.Service.Tests
                 }, new JsonApiSerializerSettings())));
 
             // mock a POST request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
-            httpContext.Request.Path = "/api/audits";
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Body = stream;
+            PopulateHttpContext(controller, "/api/audits", "POST", stream);
             var createResponse = await controller.Entry();
             var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
                 (createResponse as ContentResult).Content,
@@ -191,11 +167,10 @@ namespace Audit.Service.Tests
             Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
-            httpContext.Request.Path = "/api/audits";
-            httpContext.Request.Query = new QueryCollection(new Dictionary<string, StringValues>() {{"filter", "subject=='" + createEntity.Subject + "'"}});
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Body = null;
+            PopulateHttpContext(controller, "/api/audits", "GET");
+            controller.HttpContext.Request.Query = new QueryCollection(new Dictionary<string, StringValues>()
+                {{"filter", "subject=='" + createEntity.Subject + "'"}});
+            
             var getResponse = await controller.Entry();
             var getEntity = JsonConvert.DeserializeObject<List<Models.Audit>>(
                 (getResponse as ContentResult).Content,
@@ -208,18 +183,7 @@ namespace Audit.Service.Tests
         [Test]
         public async Task TestCreateAndGetAllNotFilter()
         {
-            var serviceProvider = DependencyInjection.ConfigureServices();
-            var auditHandler = serviceProvider.GetService<AuditHandler>();
-
-            // mock the HTTP context
-            var httpContext = new DefaultHttpContext();
-            var controller = new AuditController(auditHandler)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = httpContext
-                }
-            };
+            var controller = CreateAuditController();
 
             var guid = Guid.NewGuid();
 
@@ -233,10 +197,7 @@ namespace Audit.Service.Tests
                 }, new JsonApiSerializerSettings())));
 
             // mock a POST request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
-            httpContext.Request.Path = "/api/audits";
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Body = stream;
+            PopulateHttpContext(controller, "/api/audits", "POST", stream);
             var createResponse = await controller.Entry();
             var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
                 (createResponse as ContentResult).Content,
@@ -245,11 +206,10 @@ namespace Audit.Service.Tests
             Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType;
-            httpContext.Request.Path = "/api/audits";
-            httpContext.Request.Query = new QueryCollection(new Dictionary<string, StringValues>() {{"filter", "subject!='" + createEntity.Subject + "'"}});
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Body = null;
+            PopulateHttpContext(controller, "/api/audits", "GET");
+            controller.HttpContext.Request.Query = new QueryCollection(new Dictionary<string, StringValues>()
+                {{"filter", "subject!='" + createEntity.Subject + "'"}});
+            
             var getResponse = await controller.Entry();
             var getEntity = JsonConvert.DeserializeObject<List<Models.Audit>>(
                 (getResponse as ContentResult).Content,
@@ -261,18 +221,7 @@ namespace Audit.Service.Tests
         [Test]
         public async Task TestCreateAndGetAcrossPartitions()
         {
-            var serviceProvider = DependencyInjection.ConfigureServices();
-            var auditHandler = serviceProvider.GetService<AuditHandler>();
-
-            // mock the HTTP context
-            var httpContext = new DefaultHttpContext();
-            var controller = new AuditController(auditHandler)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = httpContext
-                }
-            };
+            var controller = CreateAuditController();
 
             var guid = Guid.NewGuid();
 
@@ -286,10 +235,9 @@ namespace Audit.Service.Tests
                 }, new JsonApiSerializerSettings())));
 
             // mock a POST request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType + "," + Constants.JsonApiMimeType + "; dataPartition=testing1";
-            httpContext.Request.Path = "/api/audits";
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Body = stream;
+            PopulateHttpContext(controller, "/api/audits", "POST", stream);
+            controller.HttpContext.Request.Headers["Accept"] += 
+                "," + Constants.JsonApiMimeType + "; dataPartition=testing1";
             var createResponse = await controller.Entry();
             var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
                 (createResponse as ContentResult).Content,
@@ -298,10 +246,10 @@ namespace Audit.Service.Tests
             Assert.AreEqual("testing1", createEntity.DataPartition);
 
             // mock a GET request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType + "," + Constants.JsonApiMimeType + "; dataPartition=testing2";
-            httpContext.Request.Path = "/api/audits/" + createEntity.Id;
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Body = null;
+            PopulateHttpContext(controller, "/api/audits/" + createEntity.Id, "GET");
+            controller.HttpContext.Request.Headers["Accept"] += 
+                "," + Constants.JsonApiMimeType + "; dataPartition=testing2";
+            
             var getResponse = await controller.Entry();
 
             Assert.AreEqual(404,  (getResponse as ContentResult).StatusCode);
@@ -310,18 +258,7 @@ namespace Audit.Service.Tests
         [Test]
         public async Task TestCreateAndGetFromMainPartition()
         {
-            var serviceProvider = DependencyInjection.ConfigureServices();
-            var auditHandler = serviceProvider.GetService<AuditHandler>();
-
-            // mock the HTTP context
-            var httpContext = new DefaultHttpContext();
-            var controller = new AuditController(auditHandler)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = httpContext
-                }
-            };
+            var controller = CreateAuditController();
 
             var guid = Guid.NewGuid();
 
@@ -335,10 +272,7 @@ namespace Audit.Service.Tests
                 }, new JsonApiSerializerSettings())));
 
             // mock a POST request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType + "," + Constants.JsonApiMimeType + "; dataPartition=main";
-            httpContext.Request.Path = "/api/audits";
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Body = stream;
+            PopulateHttpContext(controller, "/api/audits", "POST", stream);
             var createResponse = await controller.Entry();
             var createEntity = JsonConvert.DeserializeObject<Models.Audit>(
                 (createResponse as ContentResult).Content,
@@ -347,10 +281,7 @@ namespace Audit.Service.Tests
             Assert.AreEqual("main", createEntity.DataPartition);
 
             // mock a GET request
-            httpContext.Request.Headers["Accept"] = Constants.JsonApiMimeType + "," + Constants.JsonApiMimeType + "; dataPartition=testing2";
-            httpContext.Request.Path = "/api/audits/" + createEntity.Id;
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Body = null;
+            PopulateHttpContext(controller, "/api/audits/" + createEntity.Id, "GET");
             var getResponse = await controller.Entry();
             var getEntity = JsonConvert.DeserializeObject<List<Models.Audit>>(
                 (getResponse as ContentResult).Content,
