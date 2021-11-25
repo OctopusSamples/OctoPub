@@ -111,6 +111,13 @@ namespace Audit.Service.Handler
                 var entity = JsonConvert.DeserializeObject<Models.Audit>(wrapper.Entity,
                     new JsonApiSerializerSettings());
 
+                if (string.IsNullOrWhiteSpace(entity.Action) ||
+                    string.IsNullOrWhiteSpace(entity.Object) ||
+                    string.IsNullOrWhiteSpace(entity.Subject))
+                {
+                    return BuildRequestError("One or more required fields were not supplied");
+                }
+
                 entity.Id = null;
                 entity.DataPartition = wrapper.DataPartition;
                 var newEntity = _auditCreateService.Create(entity);
@@ -133,6 +140,16 @@ namespace Audit.Service.Handler
                 Body =
                     $"{{\"errors\": [{{\"code\": \"{ex.GetType().Name}\"}}]}}",
                 StatusCode = 500
+            };
+        }
+        
+        private APIGatewayProxyResponse BuildRequestError(string message)
+        {
+            return new APIGatewayProxyResponse
+            {
+                Body =
+                    $"{{\"errors\": [{{\"title\": \"{message}\"}}]}}",
+                StatusCode = 401
             };
         }
 

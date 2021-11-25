@@ -343,5 +343,38 @@ namespace Audit.Service.Tests
 
             Assert.False(list.Any(a => a.Id == entity.Id));
         }
+        
+        [Test]
+        [TestCase("", "test", "test")]
+        [TestCase(" ", "test", "test")]
+        [TestCase("test", "", "test")]
+        [TestCase("test", " ", "test")]
+        [TestCase("test", "test", "")]
+        [TestCase("test", "test", " ")]
+        public void FailWithMissingFields(string action, string objectField, string subject)
+        {
+            var response =
+                Audits.AuditsApi(
+                    new APIGatewayProxyRequest
+                    {
+                        HttpMethod = "POST", Path = "/api/audits",
+                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        {
+                            {
+                                "Accept",
+                                new List<String>
+                                    { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing" }
+                            },
+                        },
+                        Body = JsonConvert.SerializeObject(new Models.Audit
+                        {
+                            Action = action,
+                            Object = objectField,
+                            Subject = subject
+                        }, new JsonApiSerializerSettings())
+                    }, null);
+            Assert.IsNotNull(response);
+            Assert.AreEqual(401, response.StatusCode);
+        }
     }
 }
