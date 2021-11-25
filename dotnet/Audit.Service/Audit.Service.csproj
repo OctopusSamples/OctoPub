@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <PublishReadyToRun>true</PublishReadyToRun>
+        <Nullable>enable</Nullable>
         
     </PropertyGroup>
     

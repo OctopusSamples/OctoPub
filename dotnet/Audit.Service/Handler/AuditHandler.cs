@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Amazon.Lambda.APIGatewayEvents;
 using Audit.Service.Lambda;
 using Audit.Service.Services;
@@ -29,7 +30,7 @@ namespace Audit.Service.Handler
         /// Returns the health check details
         /// </summary>
         /// <returns>The health check details if the path and method are a match, or null otherwise</returns>
-        public APIGatewayProxyResponse GetHealth(RequestWrapper wrapper)
+        public APIGatewayProxyResponse? GetHealth(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Read &&
                   wrapper.EntityType == EntityType.Health))
@@ -48,7 +49,7 @@ namespace Audit.Service.Handler
         /// Returns all the audit records
         /// </summary>
         /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
-        public APIGatewayProxyResponse GetAll(RequestWrapper wrapper)
+        public APIGatewayProxyResponse? GetAll(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.ReadAll &&
                   wrapper.EntityType == EntityType.Audit))
@@ -70,7 +71,7 @@ namespace Audit.Service.Handler
         /// Returns one audit record
         /// </summary>
         /// <returns>The audit record if the path and method are a match, or null otherwise</returns>
-        public APIGatewayProxyResponse GetOne(RequestWrapper wrapper)
+        public APIGatewayProxyResponse? GetOne(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Read &&
                   wrapper.EntityType == EntityType.Audit))
@@ -97,7 +98,7 @@ namespace Audit.Service.Handler
         /// Returns all the audit records
         /// </summary>
         /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
-        public APIGatewayProxyResponse CreateOne(RequestWrapper wrapper)
+        public APIGatewayProxyResponse? CreateOne(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Create &&
                   wrapper.EntityType == EntityType.Audit))

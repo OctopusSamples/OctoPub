@@ -27,7 +27,8 @@ namespace Audit.Service.Tests
 
         private AuditController CreateAuditController()
         {
-            var auditHandler = ServiceProvider.GetService<AuditHandler>();
+            var auditHandler = ServiceProvider.GetRequiredService<AuditHandler>();
+            
 
             // mock the HTTP context
             var httpContext = new DefaultHttpContext();
@@ -50,15 +51,25 @@ namespace Audit.Service.Tests
 
         private async Task<Models.Audit> CallControllerAndGetAudit(AuditController controller)
         {
-            var createResponse = await controller.Entry();
+            var createResponse = await controller.Entry() as ContentResult;
+            if (createResponse == null)
+            {
+                throw new Exception();
+            }
+            
             return JsonConvert.DeserializeObject<Models.Audit>(
-                (createResponse as ContentResult).Content,
+                createResponse.Content,
                 new JsonApiSerializerSettings());
         }
         
         private async Task<(List<Models.Audit>, ContentResult)> CallControllerAndGetAudits(AuditController controller)
         {
             var createResponse = await controller.Entry() as ContentResult;
+            if (createResponse == null)
+            {
+                throw new Exception();
+            }
+            
             return (JsonConvert.DeserializeObject<List<Models.Audit>>(
                 createResponse.Content,
                 new JsonApiSerializerSettings()), createResponse);
@@ -67,7 +78,7 @@ namespace Audit.Service.Tests
         [Test]
         public async Task TestHealth()
         {
-            var auditHandler = ServiceProvider.GetService<AuditHandler>();
+            var auditHandler = ServiceProvider.GetRequiredService<AuditHandler>();
 
             // mock the HTTP context
             var httpContext = new DefaultHttpContext();
@@ -84,7 +95,7 @@ namespace Audit.Service.Tests
             httpContext.Request.Method = "GET";
             httpContext.Request.Body = null;
             var getResponse = await controller.GetHealth();
-            Assert.AreEqual(200, (getResponse as ContentResult).StatusCode);
+            Assert.AreEqual(200, (getResponse as ContentResult)?.StatusCode);
         }
 
         [Test]
@@ -240,7 +251,7 @@ namespace Audit.Service.Tests
             
             var getResponse = await controller.Entry();
 
-            Assert.AreEqual(404,  (getResponse as ContentResult).StatusCode);
+            Assert.AreEqual(404,  (getResponse as ContentResult)?.StatusCode);
         }
 
         [Test]

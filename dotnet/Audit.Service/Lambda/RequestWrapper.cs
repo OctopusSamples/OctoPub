@@ -31,10 +31,10 @@
     {
         public ActionType ActionType { get; set; }
         public EntityType EntityType { get; set; }
-        public string Entity { get; set; }
+        public string Entity { get; set; } = "";
         public int Id { get; set; }
-        public string DataPartition { get; set; }
+        public string DataPartition { get; set; } = "";
 
-        public string Filter { get; set; }
+        public string Filter { get; set; } = "";
     }
 }
