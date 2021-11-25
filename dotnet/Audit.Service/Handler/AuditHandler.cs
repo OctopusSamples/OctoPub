@@ -32,7 +32,7 @@ namespace Audit.Service.Handler
         public APIGatewayProxyResponse GetHealth(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Read &&
-                  wrapper.EntityType != EntityType.Health))
+                  wrapper.EntityType == EntityType.Health))
             {
                 return null;
             }

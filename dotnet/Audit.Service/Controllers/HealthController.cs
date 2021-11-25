@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using Audit.Service.Handler;
+using Audit.Service.Lambda;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Audit.Service.Controllers
 {
@@ -8,10 +11,24 @@ namespace Audit.Service.Controllers
     [Route("/health/{*path}")]
     public class HealthController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult GetHealth()
+        private readonly AuditHandler _auditHandler;
+
+        public HealthController(AuditHandler auditHandler)
         {
-            return Ok("{\"message\": \"OK\"}");
+            _auditHandler = auditHandler;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetHealth()
+        {
+            var requestWrapper = await RequestWrapperFactory.CreateFromHttpRequest(Request);
+            var response = _auditHandler.GetHealth(requestWrapper);
+            if (response != null)
+            {
+                return new ActionResultConverter(response);
+            }
+
+            return NotFound();
         }
     }
 }
