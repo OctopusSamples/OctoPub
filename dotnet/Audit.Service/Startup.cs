@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Audit.Service.Handler;
 using Audit.Service.Repositories;
 using Audit.Service.Services;
 using Microsoft.AspNetCore.Builder;
@@ -41,9 +42,10 @@ namespace Audit.Service
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
             });
+            services.AddScoped<AuditHandler>();
             services.AddScoped<AuditCreateService>();
-            services.AddScoped<AuditCreateService>();
-            services.AddScoped<AuditCreateService>();
+            services.AddScoped<AuditGetAllService>();
+            services.AddScoped<AuditGetByIdService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

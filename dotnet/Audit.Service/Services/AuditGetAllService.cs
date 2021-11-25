@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Audit.Service.Lambda;
 using Audit.Service.Repositories;
 using Microsoft.EntityFrameworkCore;
 using RestSQL.SqlKata;

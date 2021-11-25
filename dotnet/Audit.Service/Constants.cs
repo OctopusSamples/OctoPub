@@ -10,5 +10,6 @@
         public static readonly string AcceptPartitionInfo = "dataPartition";
         public static readonly int DefaultMySqlTimeout = 180;
         public static readonly string MySqlVersion = "8.0";
+        public static readonly string JsonApiMimeType = "application/vnd.api+json";
     }
 }

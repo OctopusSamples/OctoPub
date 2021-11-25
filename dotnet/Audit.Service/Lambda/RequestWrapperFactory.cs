@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.SQSEvents;
+using Microsoft.AspNetCore.Http;
 
 namespace Audit.Service.Lambda
 {
@@ -27,6 +30,30 @@ namespace Audit.Service.Lambda
         private static readonly string AuditEndpoint = "/api/audits";
         private static readonly Regex EntityCollectionRe = new Regex("^/api/audits/?$");
         private static readonly Regex SingleEntityRe = new Regex("^/api/audits/(?<id>\\d+)/?$");
+
+        public static async Task<RequestWrapper> CreateFromHttpRequest(HttpRequest request)
+        {
+            return new RequestWrapper
+            {
+                Entity = await new StreamReader(request.Body).ReadToEndAsync(),
+                ActionType = ActionTypeFromHttpMethod(request.Method, request.Path),
+                EntityType = HealthEndpointRe.IsMatch(request.Path)
+                    ? EntityType.Health
+                    : request.Path.Value?.StartsWith(AuditEndpoint) ?? false
+                        ? EntityType.Audit
+                        : EntityType.None,
+                Id = SingleEntityRe.IsMatch(request.Path.Value ?? string.Empty)
+                    ? Int32.Parse(SingleEntityRe.Match(request.Path.Value ?? "").Groups["id"].Value)
+                    : DefaultId,
+                DataPartition = GetDataPartition((request.Headers ?? new HeaderDictionary())
+                    .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
+                    .SelectMany(h => h.Value)),
+                Filter = (request.Query ?? new QueryCollection())
+                    .Where(h => h.Key.ToLower() == Constants.FilterQuery)
+                    .SelectMany(h => h.Value)
+                    .FirstOrDefault()
+            };
+        }
 
         /// <summary>
         /// Convert an API Gateway proxy request to a RequestWrapper.
