@@ -5,6 +5,7 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
+import com.octopus.octopub.exceptions.InvalidInput;
 import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.repositories.AuditRepository;
@@ -12,8 +13,12 @@ import com.octopus.octopub.repositories.ProductRepository;
 import com.octopus.octopub.services.PartitionIdentifier;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import lombok.NonNull;
 
 /**
@@ -36,6 +41,10 @@ public class ProductsHandler {
   @Inject
   PartitionIdentifier partitionIdentifier;
 
+  @Inject
+  Validator validator;
+
+
   public String getAll(@NonNull final List<String> acceptHeaders, final String filterParam)
       throws DocumentSerializationException {
     final List<Product> products =
@@ -50,6 +59,7 @@ public class ProductsHandler {
   public String create(@NonNull final String document, @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
+    validateProduct(product);
 
     product.dataPartition = partitionIdentifier.getPartition(acceptHeaders);
     productRepository.save(product);
@@ -69,6 +79,7 @@ public class ProductsHandler {
       @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
+    validateProduct(product);
 
     try {
       final Integer intId = Integer.parseInt(id);
@@ -143,6 +154,17 @@ public class ProductsHandler {
     }
 
     return false;
+  }
+
+  private void validateProduct(@NonNull final Product product) {
+    final Set<ConstraintViolation<Product>> violations = validator.validate(product);
+    if (violations.isEmpty()) {
+      return;
+    }
+
+    throw new InvalidInput(violations.stream()
+        .map(cv -> cv.getMessage())
+        .collect(Collectors.joining(", ")));
   }
 
   private Product getProductFromDocument(@NonNull final String document) {

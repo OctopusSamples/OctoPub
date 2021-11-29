@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import org.hibernate.envers.Audited;
 
@@ -24,9 +25,11 @@ public class Product {
   public Integer id;
 
   @Audited
+  @NotBlank
   public String dataPartition;
 
   @Audited
+  @NotBlank
   public String name;
 
   @Audited

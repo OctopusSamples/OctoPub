@@ -1,5 +1,7 @@
 package com.octopus.octopub.exceptions;
 
+import lombok.NonNull;
+
 /**
  * The exception thrown when a request includes accept headers contain the JSON API content type,
  * and also all include media type parameters. From the spec https://jsonapi.org/format/#content-negotiation-servers:
@@ -12,7 +14,7 @@ public class InvalidAcceptHeaders extends RuntimeException {
     super();
   }
 
-  public InvalidAcceptHeaders(final Exception ex) {
+  public InvalidAcceptHeaders(@NonNull final Exception ex) {
     super(ex);
   }
 }

@@ -1,5 +1,7 @@
 package com.octopus.octopub.exceptions;
 
+import lombok.NonNull;
+
 /**
  * The exception thrown when a requested entity can not be found (or will not be found due to
  * security or data partitioning rules).
@@ -9,7 +11,7 @@ public class EntityNotFound extends RuntimeException {
     super();
   }
 
-  public EntityNotFound(final Exception ex) {
+  public EntityNotFound(@NonNull final Exception ex) {
     super(ex);
   }
 }
