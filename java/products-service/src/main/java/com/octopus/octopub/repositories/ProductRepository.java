@@ -2,11 +2,13 @@ package com.octopus.octopub.repositories;
 
 import com.github.tennaito.rsql.jpa.JpaPredicateVisitor;
 import com.octopus.octopub.Constants;
+import com.octopus.octopub.exceptions.InvalidInput;
 import com.octopus.octopub.models.Product;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLVisitor;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,6 +17,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import lombok.NonNull;
 import org.h2.util.StringUtils;
 
@@ -28,6 +32,9 @@ public class ProductRepository {
 
   @Inject
   EntityManager em;
+
+  @Inject
+  Validator validator;
 
   public Product findOne(final int id) {
     return em.find(Product.class, id);
@@ -55,6 +62,9 @@ public class ProductRepository {
       if (product.pdf != null) {
         existingProduct.pdf = product.pdf;
       }
+
+      validateProduct(existingProduct);
+
       em.merge(existingProduct);
       return existingProduct;
     }
@@ -97,8 +107,22 @@ public class ProductRepository {
 
   public Product save(@NonNull final Product product) {
     product.id = null;
+
+    validateProduct(product);
+
     em.persist(product);
     em.flush();
     return product;
+  }
+
+  private void validateProduct(@NonNull final Product product) {
+    final Set<ConstraintViolation<Product>> violations = validator.validate(product);
+    if (violations.isEmpty()) {
+      return;
+    }
+
+    throw new InvalidInput(violations.stream()
+        .map(cv -> cv.getMessage())
+        .collect(Collectors.joining(", ")));
   }
 }

@@ -41,9 +41,6 @@ public class ProductsHandler {
   @Inject
   PartitionIdentifier partitionIdentifier;
 
-  @Inject
-  Validator validator;
-
 
   public String getAll(@NonNull final List<String> acceptHeaders, final String filterParam)
       throws DocumentSerializationException {
@@ -59,9 +56,9 @@ public class ProductsHandler {
   public String create(@NonNull final String document, @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
-    validateProduct(product);
 
     product.dataPartition = partitionIdentifier.getPartition(acceptHeaders);
+
     productRepository.save(product);
     auditRepository.save(
         new Audit(
@@ -79,7 +76,6 @@ public class ProductsHandler {
       @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
-    validateProduct(product);
 
     try {
       final Integer intId = Integer.parseInt(id);
@@ -154,17 +150,6 @@ public class ProductsHandler {
     }
 
     return false;
-  }
-
-  private void validateProduct(@NonNull final Product product) {
-    final Set<ConstraintViolation<Product>> violations = validator.validate(product);
-    if (violations.isEmpty()) {
-      return;
-    }
-
-    throw new InvalidInput(violations.stream()
-        .map(cv -> cv.getMessage())
-        .collect(Collectors.joining(", ")));
   }
 
   private Product getProductFromDocument(@NonNull final String document) {
