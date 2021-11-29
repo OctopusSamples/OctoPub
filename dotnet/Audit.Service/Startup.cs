@@ -31,7 +31,7 @@ namespace Audit.Service
                 {
                     var folder = Environment.SpecialFolder.LocalApplicationData;
                     var path = Environment.GetFolderPath(folder);
-                    var dbPath = $"{path}{System.IO.Path.DirectorySeparatorChar}blogging.db";
+                    var dbPath = $"{path}{System.IO.Path.DirectorySeparatorChar}audits.db";
                     opt.UseSqlite($"Data Source={dbPath}");
                 }
                 else

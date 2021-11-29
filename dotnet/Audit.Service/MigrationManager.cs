@@ -17,6 +17,10 @@ namespace Audit.Service
                     {
                         appContext.Database.Migrate();
                     }
+                    else if (appContext.Database.IsSqlite())
+                    {
+                        appContext.Database.EnsureCreated();
+                    }
                 }
             }
 

@@ -26,12 +26,12 @@ namespace Audit.Service.Lambda
         /// <param name="request">The request details in proxy format</param>
         /// <param name="context">The lambda context</param>
         /// <returns>201 if the migration succeeded, or 500 if it failed</returns>
-        public APIGatewayProxyResponse AuditsDbMigration(APIGatewayProxyRequest request, ILambdaContext context)
+        public APIGatewayProxyResponse AuditsDbMigration(APIGatewayProxyRequest request, ILambdaContext? context)
         {
             try
             {
                 var servideProvider = DependencyInjection.ConfigureServices();
-                var db = servideProvider.GetService<Db>();
+                var db = servideProvider.GetRequiredService<Db>();
                 db.Database.Migrate();
                 return new APIGatewayProxyResponse
                 {
@@ -50,13 +50,13 @@ namespace Audit.Service.Lambda
         /// <param name="request">The request details in proxy format</param>
         /// <param name="context">The lambda context</param>
         /// <returns>The API content</returns>
-        public APIGatewayProxyResponse AuditsApi(APIGatewayProxyRequest request, ILambdaContext context)
+        public APIGatewayProxyResponse AuditsApi(APIGatewayProxyRequest request, ILambdaContext? context)
         {
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
                 var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
-                var handler = serviceProvider.GetService<AuditHandler>();
+                var handler = serviceProvider.GetRequiredService<AuditHandler>();
                 return AddCors(ProcessRequest(handler, requestWrapper));
             }
             catch (Exception ex)
@@ -70,7 +70,7 @@ namespace Audit.Service.Lambda
         /// </summary>
         /// <param name="sqsEvent">The SQS event details</param>
         /// <param name="context">The SQS context</param>
-        public void HandleSqsEvent(SQSEvent sqsEvent, ILambdaContext context)
+        public void HandleSqsEvent(SQSEvent sqsEvent, ILambdaContext? context)
         {
             Logger.Debug("Audits.HandleSqsEvent(SQSEvent, ILambdaContext)");
             Logger.Debug(sqsEvent.Records.Count + " records to process");
@@ -88,7 +88,7 @@ namespace Audit.Service.Lambda
                         Logger.Debug(System.Text.Json.JsonSerializer.Serialize(requestWrapper));
                         Logger.Debug(requestWrapper.Entity);
 
-                        var handler = serviceProvider.GetService<AuditHandler>();
+                        var handler = serviceProvider.GetRequiredService<AuditHandler>();
                         var audit = ProcessRequest(handler, requestWrapper);
 
                         Logger.Debug(System.Text.Json.JsonSerializer.Serialize(audit));

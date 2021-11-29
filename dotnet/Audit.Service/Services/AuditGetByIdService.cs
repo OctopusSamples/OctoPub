@@ -12,7 +12,7 @@ namespace Audit.Service.Services
             _context = context;
         }
 
-        public Models.Audit Get(int id, RequestWrapper wrapper)
+        public Models.Audit? Get(int id, RequestWrapper wrapper)
         {
             var audit = _context.Audits.Find(id);
             return audit != null && (audit.DataPartition == Constants.DefaultPartition ||
