@@ -29,9 +29,6 @@ export const AppContext = React.createContext<DynamicConfig>({
     }
 });
 
-// default component
-const DefaultComponent = () => <div>No Component Defined.</div>;
-
 function App(config: DynamicConfig) {
 
     const [useDefaultTheme, toggle] = useReducer(
