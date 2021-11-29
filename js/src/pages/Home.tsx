@@ -7,7 +7,7 @@ import {Grid, Theme} from "@material-ui/core";
 import {AppContext} from "../App";
 import {CommonProps} from "../model/RouteItem.model";
 import {Products} from "../model/Product";
-import {useHistory} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {getJsonApi} from "../utils/network";
 
 // define css-in-js
@@ -43,7 +43,7 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     const context = useContext(AppContext);
 
-    const history = useHistory();
+    const history = useNavigate();
 
     const [books, setBooks] = useState<Products | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -75,7 +75,7 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
                           className={classes.book}
                           container={true}
                           onClick={() => {
-                              history.push('/book/' + b.id);
+                              history('/book/' + b.id);
                           }}>
                         <img className={classes.image}
                              src={b.attributes.image || "https://via.placeholder.com/300x400"}

@@ -14,7 +14,7 @@ import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness3Icon from "@material-ui/icons/Brightness3";
 import {FC, useContext} from "react";
 import {AppContext} from "../App";
-import {useHistory} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {AddCircleOutline, Delete, Edit, History, SettingsApplications} from "@material-ui/icons";
 import {CommonProps} from "../model/RouteItem.model";
 
@@ -65,7 +65,7 @@ const Header: FC<HeaderProps> = ({
                                  }: HeaderProps) => {
     const classes = useStyles();
     const context = useContext(AppContext);
-    const history = useHistory();
+    const history = useNavigate();
     return (
         <AppBar
             position="relative"
@@ -75,7 +75,7 @@ const Header: FC<HeaderProps> = ({
             <Toolbar className={classes.toolbar}>
                 <div className={classes.title}>
                     <Link className={classes.heading} onClick={() => {
-                        history.push('/index.html');
+                        history('/index.html');
                     }}>
                         <Typography variant="h6" noWrap>
                             {context.settings.title}
@@ -83,32 +83,32 @@ const Header: FC<HeaderProps> = ({
                     </Link>
                 </div>
                 {context.allBookId && context.apiKey &&
-                <IconButton onClick={() => history.push('/deleteBook/' + context.allBookId)}>
+                <IconButton onClick={() => history('/deleteBook/' + context.allBookId)}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>
                     </Tooltip>
                 </IconButton>
                 }
                 {context.allBookId && context.apiKey &&
-                <IconButton onClick={() => history.push('/updateBook/' + context.allBookId)}>
+                <IconButton onClick={() => history('/updateBook/' + context.allBookId)}>
                     <Tooltip title={"Update"} placement={"bottom"}>
                         <Edit/>
                     </Tooltip>
                 </IconButton>
                 }
                 {context.apiKey &&
-                <IconButton onClick={() => history.push('/addBook')}>
+                <IconButton onClick={() => history('/addBook')}>
                     <Tooltip title={"Add Book"} placement={"bottom"}>
                         <AddCircleOutline/>
                     </Tooltip>
                 </IconButton>
                 }
-                <IconButton onClick={() => history.push('/audits')}>
+                <IconButton onClick={() => history('/audits')}>
                     <Tooltip title={"Audits"} placement={"bottom"}>
                         <History/>
                     </Tooltip>
                 </IconButton>
-                <IconButton onClick={() => history.push('/settings')}>
+                <IconButton onClick={() => history('/settings')}>
                     <Tooltip title={"Settings"} placement={"bottom"}>
                         <SettingsApplications/>
                     </Tooltip>

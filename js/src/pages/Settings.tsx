@@ -4,13 +4,13 @@ import {Helmet} from "react-helmet";
 import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {styles} from "../utils/styles";
-import {useHistory} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     const context = useContext(AppContext);
     const classes = styles();
-    const history = useHistory();
+    const history = useNavigate();
     const [apiKey, setApiKey] = useState<string | null>(context.apiKey);
     const [partition, setPartition] = useState<string | null>(context.partition);
 
@@ -70,7 +70,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
         localStorage.setItem("apiKey", fixedApiKey);
         context.setPartition(fixedPartition);
         context.setApiKey(fixedApiKey);
-        history.push('/index.html');
+        history('/index.html');
     }
 }
 

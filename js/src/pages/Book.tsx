@@ -8,10 +8,6 @@ import {useParams} from "react-router-dom";
 import {createStyles, makeStyles} from "@material-ui/core/styles";
 import {getJsonApi} from "../utils/network";
 
-interface Params {
-    bookId: string
-}
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         image: {
@@ -34,9 +30,9 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     const context = useContext(AppContext);
 
-    const { bookId } = useParams<Params>();
+    const { bookId } = useParams();
 
-    context.setAllBookId(bookId);
+    context.setAllBookId(bookId || null);
 
     const [book, setBook] = useState<Product | null>(null);
 

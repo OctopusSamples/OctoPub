@@ -21,7 +21,7 @@ export const routes: Array<RouteItem> = [
         tooltip: "Home",
         path: "/",
         enabled: true,
-        component: (props: CommonProps) => () => <Home {...props}/>,
+        component: () => (props: CommonProps) => <Home {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     },
@@ -31,7 +31,7 @@ export const routes: Array<RouteItem> = [
         tooltip: "Home",
         path: "/index.html",
         enabled: true,
-        component: (props: CommonProps) => () => <Home {...props}/>,
+        component: () => (props: CommonProps) => <Home {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     },
@@ -41,7 +41,7 @@ export const routes: Array<RouteItem> = [
         tooltip: "Home",
         path: "/book/:bookId",
         enabled: true,
-        component: (props: CommonProps) => () => <Book {...props}/>,
+        component: () => (props: CommonProps) => <Book {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     },
@@ -51,7 +51,7 @@ export const routes: Array<RouteItem> = [
         tooltip: "Audits",
         path: "/audits",
         enabled: true,
-        component: (props: CommonProps) => () => <Audits {...props}/>,
+        component: () => (props: CommonProps) => <Audits {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     },
@@ -61,7 +61,7 @@ export const routes: Array<RouteItem> = [
         tooltip: "Add Book",
         path: "/addBook",
         enabled: true,
-        component: (props: CommonProps) => () => <AddBook {...props}/>,
+        component: () => (props: CommonProps) => <AddBook {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     },
@@ -71,7 +71,7 @@ export const routes: Array<RouteItem> = [
         tooltip: "Delete Book",
         path: "/deleteBook/:bookId",
         enabled: true,
-        component: (props: CommonProps) => () => <DeleteBook {...props}/>,
+        component: () => (props: CommonProps) => <DeleteBook {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     },
@@ -81,7 +81,7 @@ export const routes: Array<RouteItem> = [
         tooltip: "Update Book",
         path: "/updateBook/:bookId",
         enabled: true,
-        component: (props: CommonProps) => () => <UpdateBook {...props}/>,
+        component: () => (props: CommonProps) => <UpdateBook {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     },
@@ -91,7 +91,7 @@ export const routes: Array<RouteItem> = [
         tooltip: "Settings",
         path: "/settings",
         enabled: true,
-        component: (props: CommonProps) => () => <Settings {...props}/>,
+        component: () => (props: CommonProps) => <Settings {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     }

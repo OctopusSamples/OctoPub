@@ -10,7 +10,7 @@ interface RouteItem {
     title: string;
     tooltip?: string;
     path?: string;
-    component?: (props: CommonProps) => FC<CommonProps>;
+    component: () => FC<CommonProps>;
     enabled: boolean;
     icon?: ComponentType;
     subRoutes?: Array<RouteItem>;

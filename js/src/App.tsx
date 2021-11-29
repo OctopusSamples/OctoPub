@@ -1,10 +1,8 @@
 import React, {useReducer, useState} from "react";
 import {createTheme, responsiveFontSizes, Theme, ThemeProvider,} from "@material-ui/core/styles";
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import {Helmet} from "react-helmet";
 // app routes
-import {routes} from "./config";
-
 // components
 import Layout from "./components/Layout";
 
@@ -14,17 +12,21 @@ import {darkTheme, lightTheme} from "./theme/appTheme";
 // interfaces
 import RouteItem from "./model/RouteItem.model";
 import {DynamicConfig} from "./config/dynamicConfig";
+import {routes} from "./config";
 
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
     settings: {basename: "", title: "", productEndpoint: "", auditEndpoint: "", editorFormat: "", google: {tag: ""}},
     useDefaultTheme: true,
     apiKey: null,
-    setPartition: () => {},
+    setPartition: () => {
+    },
     partition: null,
     allBookId: null,
-    setAllBookId: () => {},
-    setApiKey: () => {}
+    setAllBookId: () => {
+    },
+    setApiKey: () => {
+    }
 });
 
 // default component
@@ -52,33 +54,40 @@ function App(config: DynamicConfig) {
             <Helmet>
                 <title>{config.settings.title}</title>
             </Helmet>
-            <AppContext.Provider value={{...config, useDefaultTheme, allBookId, setAllBookId, apiKey, setApiKey, partition, setPartition}}>
+            <AppContext.Provider value={{
+                ...config,
+                useDefaultTheme,
+                allBookId,
+                setAllBookId,
+                apiKey,
+                setApiKey,
+                partition,
+                setPartition
+            }}>
                 <ThemeProvider theme={theme}>
                     <Router basename={config.settings.basename}>
-                        <Switch>
-                            <Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
-                                {/* for each route config, a react route is created */}
-                                {routes.map((route: RouteItem) =>
-                                    route.subRoutes ? (
-                                        route.subRoutes.map((item: RouteItem) => (
-                                            <Route
-                                                key={`${item.key}`}
-                                                path={`${item.path}`}
-                                                component={(item.component && item.component({})) || DefaultComponent}
-                                                exact
-                                            />
-                                        ))
-                                    ) : (
+                        <Routes>
+                            {routes.map((route: RouteItem) =>
+                                route.subRoutes ? (
+                                    route.subRoutes.map((item: RouteItem) => (
                                         <Route
-                                            key={`${route.key}`}
-                                            path={`${route.path}`}
-                                            component={(route.component && route.component({})) || DefaultComponent}
-                                            exact
+                                            key={`${item.key}`}
+                                            path={`${item.path}`}
+                                            element={<Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
+                                                {item.component()({})}</Layout>}
                                         />
-                                    )
-                                )}
-                            </Layout>
-                        </Switch>
+                                    ))
+                                ) : (
+                                    <Route
+                                        key={`${route.key}`}
+                                        path={`${route.path}`}
+                                        element={<Layout toggleTheme={toggle}
+                                                         useDefaultTheme={useDefaultTheme}>{route.component()({})}</Layout>}
+                                    />
+                                )
+                            )
+                            }
+                        </Routes>
                     </Router>
                 </ThemeProvider>
             </AppContext.Provider>

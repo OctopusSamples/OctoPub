@@ -4,14 +4,14 @@ import {Helmet} from "react-helmet";
 import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {Product} from "../model/Product";
-import {useHistory} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {styles} from "../utils/styles";
 import {postJsonApi} from "../utils/network";
 
 const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
 
-    const history = useHistory();
+    const history = useNavigate();
     const context = useContext(AppContext);
     const classes = styles();
     const [disabled, setDisabled] = useState<boolean>(true);
@@ -125,7 +125,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             context.settings.productEndpoint,
             context.partition,
             context.apiKey)
-            .then(_ => history.push('/index.html'))
+            .then(_ => history('/index.html'))
             .catch(_ => {
                 setDisabled(false);
                 setError("An error occurred and the book was not saved.");
