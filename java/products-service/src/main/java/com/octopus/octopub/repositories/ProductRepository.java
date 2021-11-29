@@ -1,7 +1,6 @@
 package com.octopus.octopub.repositories;
 
 import com.github.tennaito.rsql.jpa.JpaPredicateVisitor;
-import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.InvalidInput;
 import com.octopus.octopub.models.Product;
 import cz.jirutka.rsql.parser.RSQLParser;

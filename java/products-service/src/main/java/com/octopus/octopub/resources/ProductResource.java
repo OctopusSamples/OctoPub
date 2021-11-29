@@ -26,7 +26,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import lombok.NonNull;
-import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 /**
  * WHen this app is run as a web server, this class defines the REST API endpoints.

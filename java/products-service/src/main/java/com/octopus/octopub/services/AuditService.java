@@ -1,7 +1,6 @@
 package com.octopus.octopub.services;
 
 import com.octopus.octopub.Constants;
-import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;

@@ -5,7 +5,6 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
-import com.octopus.octopub.exceptions.InvalidInput;
 import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.repositories.AuditRepository;
@@ -13,12 +12,8 @@ import com.octopus.octopub.repositories.ProductRepository;
 import com.octopus.octopub.services.PartitionIdentifier;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import lombok.NonNull;
 
 /**

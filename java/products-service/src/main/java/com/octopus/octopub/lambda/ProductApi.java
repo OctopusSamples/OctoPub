@@ -7,7 +7,6 @@ import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
 import com.octopus.octopub.exceptions.InvalidInput;
 import com.octopus.octopub.handlers.ProductsHandler;
-import cz.jirutka.rsql.parser.ParseException;
 import cz.jirutka.rsql.parser.RSQLParserException;
 import java.util.ArrayList;
 import java.util.Base64;
