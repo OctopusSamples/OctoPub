@@ -9,11 +9,11 @@ namespace Audit.Service.Services
 {
     public class AuditGetAllService
     {
-        private readonly Db _context;
+        private readonly Db context;
 
         public AuditGetAllService(Db context)
         {
-            _context = context;
+            this.context = context;
         }
 
         public IReadOnlyCollection<Models.Audit> Get(IList<string> partitions, string filter)
@@ -26,22 +26,19 @@ namespace Audit.Service.Services
                 var testExpressionBuilder = new SqlKataBuilder();
                 var q = testExpressionBuilder.Build(filter);
                 var sql = compiler.Compile(q.From("audits"));
-                return _context.Audits.FromSqlRaw(sql.Sql, sql.Bindings.ToArray())
+                return context.Audits.FromSqlRaw(sql.Sql, sql.Bindings.ToArray())
                     .Where(a => filteredPartitions.Contains(a.DataPartition)).ToList();
             }
 
-            IReadOnlyCollection<Models.Audit> list = _context.Audits
+            IReadOnlyCollection<Models.Audit> list = context.Audits
                 .Where(a => filteredPartitions.Contains(a.DataPartition))
                 .ToList();
             return list;
         }
 
-        IList<string> GetFilteredPartitions(IList<string> partitions)
+        private IList<string> GetFilteredPartitions(IList<string> partitions)
         {
-            if (partitions == null)
-            {
-                return new List<string>();
-            }
+            if (partitions == null) return new List<string>();
 
             return partitions
                 .Where(p => !string.IsNullOrWhiteSpace(p))

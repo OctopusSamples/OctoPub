@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using Audit.Service.Handler;
 using Audit.Service.Repositories;
@@ -27,11 +28,11 @@ namespace Audit.Service
             services.AddControllers();
             services.AddDbContext<Db>(opt =>
             {
-                if (Boolean.Parse((ReadOnlySpan<char>)Configuration.GetSection("Database:UseInMemory").Value))
+                if (bool.Parse((ReadOnlySpan<char>)Configuration.GetSection("Database:UseInMemory").Value))
                 {
                     var folder = Environment.SpecialFolder.LocalApplicationData;
                     var path = Environment.GetFolderPath(folder);
-                    var dbPath = $"{path}{System.IO.Path.DirectorySeparatorChar}audits.db";
+                    var dbPath = $"{path}{Path.DirectorySeparatorChar}audits.db";
                     opt.UseSqlite($"Data Source={dbPath}");
                 }
                 else
@@ -51,10 +52,7 @@ namespace Audit.Service
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             app.UseHttpsRedirection();
 

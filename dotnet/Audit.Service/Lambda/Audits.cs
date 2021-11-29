@@ -10,6 +10,7 @@ using Audit.Service.Handler;
 using Audit.Service.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NLog;
 
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 
@@ -17,11 +18,11 @@ namespace Audit.Service.Lambda
 {
     public class Audits
     {
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static readonly DependencyInjection DependencyInjection = new DependencyInjection();
 
         /// <summary>
-        /// This is the entry point to the Lambda to run database migrations.
+        ///     This is the entry point to the Lambda to run database migrations.
         /// </summary>
         /// <param name="request">The request details in proxy format</param>
         /// <param name="context">The lambda context</param>
@@ -45,7 +46,7 @@ namespace Audit.Service.Lambda
         }
 
         /// <summary>
-        /// This is the HTTP entry point to the Lambda.
+        ///     This is the HTTP entry point to the Lambda.
         /// </summary>
         /// <param name="request">The request details in proxy format</param>
         /// <param name="context">The lambda context</param>
@@ -66,7 +67,7 @@ namespace Audit.Service.Lambda
         }
 
         /// <summary>
-        /// The Message bus entry point to the Lambda.
+        ///     The Message bus entry point to the Lambda.
         /// </summary>
         /// <param name="sqsEvent">The SQS event details</param>
         /// <param name="context">The SQS context</param>
@@ -119,10 +120,7 @@ namespace Audit.Service.Lambda
 
         private APIGatewayProxyResponse AddCors(APIGatewayProxyResponse response)
         {
-            if (response.Headers == null)
-            {
-                response.Headers = new Dictionary<string, string>();
-            }
+            if (response.Headers == null) response.Headers = new Dictionary<string, string>();
 
             response.Headers.Add("Access-Control-Allow-Origin", "*");
             return response;

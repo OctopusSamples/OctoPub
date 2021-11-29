@@ -52,7 +52,7 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "get", Path = "/api/audits",
-                        QueryStringParameters = new Dictionary<string, string>() { { "filter", "id==" + entity.Id } }
+                        QueryStringParameters = new Dictionary<string, string> { { "filter", "id==" + entity.Id } }
                     }, null);
 
             var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
@@ -65,8 +65,7 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "get", Path = "/api/audits",
-                        QueryStringParameters = new Dictionary<string, string>()
-                            { { "filter", "subject==doesnotexist" } }
+                        QueryStringParameters = new Dictionary<string, string> { { "filter", "subject==doesnotexist" } }
                     }, null);
 
             var list2 = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse2.Body,
@@ -88,13 +87,13 @@ namespace Audit.Service.Tests
                             Object = "test2",
                             Subject = "test3"
                         }, new JsonApiSerializerSettings()),
-                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        MultiValueHeaders = new Dictionary<string, IList<string>>
                         {
                             {
                                 "Accept",
-                                new List<String>
+                                new List<string>
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=main" }
-                            },
+                            }
                         }
                     }, null);
             Assert.IsNotNull(response);
@@ -108,14 +107,14 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "get", Path = "/api/audits",
-                        QueryStringParameters = new Dictionary<string, string>() { { "filter", "id==" + entity.Id } },
-                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        QueryStringParameters = new Dictionary<string, string> { { "filter", "id==" + entity.Id } },
+                        MultiValueHeaders = new Dictionary<string, IList<string>>
                         {
                             {
                                 "Accept",
-                                new List<String>
+                                new List<string>
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing2" }
-                            },
+                            }
                         }
                     }, null);
 
@@ -138,13 +137,13 @@ namespace Audit.Service.Tests
                             Object = "test2",
                             Subject = "test3"
                         }, new JsonApiSerializerSettings()),
-                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        MultiValueHeaders = new Dictionary<string, IList<string>>
                         {
                             {
                                 "Accept",
-                                new List<String>
+                                new List<string>
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing1" }
-                            },
+                            }
                         }
                     }, null);
             Assert.IsNotNull(response);
@@ -158,14 +157,14 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "get", Path = "/api/audits",
-                        QueryStringParameters = new Dictionary<string, string>() { { "filter", "id==" + entity.Id } },
-                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        QueryStringParameters = new Dictionary<string, string> { { "filter", "id==" + entity.Id } },
+                        MultiValueHeaders = new Dictionary<string, IList<string>>
                         {
                             {
                                 "Accept",
-                                new List<String>
+                                new List<string>
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing2" }
-                            },
+                            }
                         }
                     }, null);
 
@@ -207,22 +206,20 @@ namespace Audit.Service.Tests
             Audits.HandleSqsEvent(
                 new SQSEvent
                 {
-                    Records = new List<SQSEvent.SQSMessage>()
+                    Records = new List<SQSEvent.SQSMessage>
                     {
+                        new SQSEvent.SQSMessage
                         {
-                            new SQSEvent.SQSMessage()
+                            Body = JsonConvert.SerializeObject(new Models.Audit
                             {
-                                Body = JsonConvert.SerializeObject(new Models.Audit
-                                {
-                                    Action = "test1",
-                                    Object = "test2",
-                                    Subject = subject.ToString()
-                                }, new JsonApiSerializerSettings()),
-                                MessageAttributes = new Dictionary<string, SQSEvent.MessageAttribute>()
-                                {
-                                    { "action", new SQSEvent.MessageAttribute() { StringValue = "Create" } },
-                                    { "entity", new SQSEvent.MessageAttribute() { StringValue = "Audit" } }
-                                }
+                                Action = "test1",
+                                Object = "test2",
+                                Subject = subject.ToString()
+                            }, new JsonApiSerializerSettings()),
+                            MessageAttributes = new Dictionary<string, SQSEvent.MessageAttribute>
+                            {
+                                { "action", new SQSEvent.MessageAttribute { StringValue = "Create" } },
+                                { "entity", new SQSEvent.MessageAttribute { StringValue = "Audit" } }
                             }
                         }
                     }
@@ -233,7 +230,7 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "get", Path = "/api/audits",
-                        QueryStringParameters = new Dictionary<string, string>()
+                        QueryStringParameters = new Dictionary<string, string>
                             { { "filter", "subject=='" + subject + "'" } }
                     }, null);
 
@@ -244,7 +241,7 @@ namespace Audit.Service.Tests
         }
 
         /// <summary>
-        /// Test to ensure that you can not request an audit resource from another tenant
+        ///     Test to ensure that you can not request an audit resource from another tenant
         /// </summary>
         [Test]
         public void FailGetAudit()
@@ -254,13 +251,13 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "POST", Path = "/api/audits",
-                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        MultiValueHeaders = new Dictionary<string, IList<string>>
                         {
                             {
                                 "Accept",
-                                new List<String>
+                                new List<string>
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing" }
-                            },
+                            }
                         },
                         Body = JsonConvert.SerializeObject(new Models.Audit
                         {
@@ -279,21 +276,21 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "GET", Path = "/api/audits/" + entity.Id,
-                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        MultiValueHeaders = new Dictionary<string, IList<string>>
                         {
                             {
                                 "Accept",
-                                new List<String>
+                                new List<string>
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=main" }
                             }
-                        },
+                        }
                     }, null);
 
             Assert.AreEqual(404, getResponse.StatusCode);
         }
 
         /// <summary>
-        /// Test to ensure that you can not request an audit resource from another tenant
+        ///     Test to ensure that you can not request an audit resource from another tenant
         /// </summary>
         [Test]
         public void FailGetAudits()
@@ -303,13 +300,13 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "POST", Path = "/api/audits",
-                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        MultiValueHeaders = new Dictionary<string, IList<string>>
                         {
                             {
                                 "Accept",
-                                new List<String>
+                                new List<string>
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing" }
-                            },
+                            }
                         },
                         Body = JsonConvert.SerializeObject(new Models.Audit
                         {
@@ -328,14 +325,14 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "GET", Path = "/api/audits",
-                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        MultiValueHeaders = new Dictionary<string, IList<string>>
                         {
                             {
                                 "Accept",
-                                new List<String>
+                                new List<string>
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=main" }
                             }
-                        },
+                        }
                     }, null);
 
             var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
@@ -343,7 +340,7 @@ namespace Audit.Service.Tests
 
             Assert.False(list.Any(a => a.Id == entity.Id));
         }
-        
+
         [Test]
         [TestCase("", "test", "test")]
         [TestCase(" ", "test", "test")]
@@ -358,13 +355,13 @@ namespace Audit.Service.Tests
                     new APIGatewayProxyRequest
                     {
                         HttpMethod = "POST", Path = "/api/audits",
-                        MultiValueHeaders = new Dictionary<string, IList<string>>()
+                        MultiValueHeaders = new Dictionary<string, IList<string>>
                         {
                             {
                                 "Accept",
-                                new List<String>
+                                new List<string>
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing" }
-                            },
+                            }
                         },
                         Body = JsonConvert.SerializeObject(new Models.Audit
                         {

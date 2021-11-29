@@ -14,13 +14,8 @@ namespace Audit.Service
                 using (var appContext = scope.ServiceProvider.GetRequiredService<Db>())
                 {
                     if (appContext.Database.IsMySql())
-                    {
                         appContext.Database.Migrate();
-                    }
-                    else if (appContext.Database.IsSqlite())
-                    {
-                        appContext.Database.EnsureCreated();
-                    }
+                    else if (appContext.Database.IsSqlite()) appContext.Database.EnsureCreated();
                 }
             }
 

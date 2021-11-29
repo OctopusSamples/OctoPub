@@ -8,11 +8,11 @@ namespace Audit.Service.Controllers
     [Route("/api/audits")]
     public class AuditController : ControllerBase
     {
-        private readonly AuditHandler _auditHandler;
+        private readonly AuditHandler auditHandler;
 
         public AuditController(AuditHandler auditHandler)
         {
-            _auditHandler = auditHandler;
+            this.auditHandler = auditHandler;
         }
 
         [HttpGet]
@@ -21,13 +21,10 @@ namespace Audit.Service.Controllers
         public async Task<IActionResult> Entry()
         {
             var requestWrapper = await RequestWrapperFactory.CreateFromHttpRequest(Request);
-            var response = _auditHandler.GetAll(requestWrapper)
-                           ?? _auditHandler.GetOne(requestWrapper)
-                           ?? _auditHandler.CreateOne(requestWrapper);
-            if (response != null)
-            {
-                return new ActionResultConverter(response);
-            }
+            var response = auditHandler.GetAll(requestWrapper)
+                           ?? auditHandler.GetOne(requestWrapper)
+                           ?? auditHandler.CreateOne(requestWrapper);
+            if (response != null) return new ActionResultConverter(response);
 
             return NotFound();
         }

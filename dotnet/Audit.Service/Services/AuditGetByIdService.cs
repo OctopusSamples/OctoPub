@@ -5,16 +5,16 @@ namespace Audit.Service.Services
 {
     public class AuditGetByIdService
     {
-        private readonly Db _context;
+        private readonly Db context;
 
         public AuditGetByIdService(Db context)
         {
-            _context = context;
+            this.context = context;
         }
 
         public Models.Audit? Get(int id, RequestWrapper wrapper)
         {
-            var audit = _context.Audits.Find(id);
+            var audit = context.Audits.Find(id);
             return audit != null && (audit.DataPartition == Constants.DefaultPartition ||
                                      audit.DataPartition == wrapper.DataPartition)
                 ? audit

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Audit.Service.Models
 {
@@ -11,12 +10,12 @@ namespace Audit.Service.Models
 
         public string? Branch { get; set; }
 
-        public string DataPartition { get; set; } = "";
+        public string DataPartition { get; set; } = string.Empty;
 
-        public string Action { get; set; } = "";
+        public string Action { get; set; } = string.Empty;
 
-        public string Subject { get; set; } = "";
+        public string Subject { get; set; } = string.Empty;
 
-        public string Object { get; set; } = "";
+        public string Object { get; set; } = string.Empty;
     }
 }

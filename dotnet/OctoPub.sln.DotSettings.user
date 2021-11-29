@@ -2,6 +2,7 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\matth\.nuget\packages\mysql.entityframeworkcore\5.0.8\lib\netstandard2.1\MySql.EntityFrameworkCore.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\matth\AppData\Local\JetBrains\Rider2021.2\resharper-host\temp\Rider\vAny\CoverageData\_OctoPub.248381624\Snapshot\snapshot.utdcvr</s:String>
 	
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=345f666f_002Dd628_002D4da2_002D9dbc_002D0a92bb4d1c6e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from WebTests.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="C:\Code\OctoPub\dotnet\Audit.Service.Tests" Presentation="&amp;lt;Audit.Service.Tests&amp;gt;" /&gt;&#xD;

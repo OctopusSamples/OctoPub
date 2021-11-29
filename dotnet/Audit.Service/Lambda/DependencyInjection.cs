@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using Audit.Service.Handler;
 using Audit.Service.Repositories;
@@ -10,20 +11,21 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Audit.Service.Lambda
 {
     /// <summary>
-    /// Manages the dependency injection context.
+    ///     Manages the dependency injection context.
     /// </summary>
     public class DependencyInjection
     {
         /// <summary>
-        /// Builds a dependency injection context.
+        ///     Builds a dependency injection context.
         /// </summary>
         /// <returns>The DI service provider</returns>
         public ServiceProvider ConfigureServices()
         {
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("LAMBDA_ENVIRONMENT")}.json",
-                    optional: true)
+                .AddJsonFile(
+                    $"appsettings.{Environment.GetEnvironmentVariable("LAMBDA_ENVIRONMENT")}.json",
+                    true)
                 .AddEnvironmentVariables()
                 .Build();
 
@@ -40,8 +42,9 @@ namespace Audit.Service.Lambda
                 {
                     var folder = Environment.SpecialFolder.LocalApplicationData;
                     var path = Environment.GetFolderPath(folder);
-                    var dbPath = $"{path}{System.IO.Path.DirectorySeparatorChar}audits.db";
-                    optionsBuilder.UseSqlite($"Data Source={dbPath}",
+                    var dbPath = $"{path}{Path.DirectorySeparatorChar}audits.db";
+                    optionsBuilder.UseSqlite(
+                        $"Data Source={dbPath}",
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
                 else
@@ -70,16 +73,12 @@ namespace Audit.Service.Lambda
         private void InitializeDatabase(Db context, IConfigurationRoot configuration)
         {
             if (context.Database.IsSqlite())
-            {
                 context.Database.EnsureCreated();
-            }
             else if (context.Database.IsMySql())
-            {
                 context.Database.SetCommandTimeout(
-                    Int32.TryParse(configuration.GetSection("Database:MySqlTimeout").Value, out var timeout)
+                    int.TryParse(configuration.GetSection("Database:MySqlTimeout").Value, out var timeout)
                         ? timeout
                         : Constants.DefaultMySqlTimeout);
-            }
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,15 +12,13 @@ using Microsoft.AspNetCore.Http;
 namespace Audit.Service.Lambda
 {
     /// <summary>
-    /// This service supports access via HTTP and async messages. Regardless of the access type, all requests
-    /// are processed as if they were RESTful JSONAPI requests.
-    ///
-    /// The RequestWrapper class is used to describe the intent of a request, without being tied to any particular
-    /// protocol. Incoming requests are converted to a RequestWrapper, and the RequestWrapper is then used to
-    /// satisfy the request.
-    ///
-    /// This factory class provides methods for creating RequestWrapper instances from the various inputs available
-    /// from HTTP or async message requests.
+    ///     This service supports access via HTTP and async messages. Regardless of the access type, all requests
+    ///     are processed as if they were RESTful JSONAPI requests.
+    ///     The RequestWrapper class is used to describe the intent of a request, without being tied to any particular
+    ///     protocol. Incoming requests are converted to a RequestWrapper, and the RequestWrapper is then used to
+    ///     satisfy the request.
+    ///     This factory class provides methods for creating RequestWrapper instances from the various inputs available
+    ///     from HTTP or async message requests.
     /// </summary>
     public static class RequestWrapperFactory
     {
@@ -43,7 +40,7 @@ namespace Audit.Service.Lambda
                         ? EntityType.Audit
                         : EntityType.None,
                 Id = SingleEntityRe.IsMatch(request.Path.Value ?? string.Empty)
-                    ? Int32.Parse(SingleEntityRe.Match(request.Path.Value ?? "").Groups["id"].Value)
+                    ? int.Parse(SingleEntityRe.Match(request.Path.Value ?? string.Empty).Groups["id"].Value)
                     : DefaultId,
                 DataPartition = GetDataPartition((request.Headers ?? new HeaderDictionary())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
@@ -56,7 +53,7 @@ namespace Audit.Service.Lambda
         }
 
         /// <summary>
-        /// Convert an API Gateway proxy request to a RequestWrapper.
+        ///     Convert an API Gateway proxy request to a RequestWrapper.
         /// </summary>
         /// <param name="request">The standard API Gateway proxy input.</param>
         /// <returns>The equivalent RequestWrapper</returns>
@@ -72,7 +69,7 @@ namespace Audit.Service.Lambda
                         ? EntityType.Audit
                         : EntityType.None,
                 Id = SingleEntityRe.IsMatch(request.Path ?? string.Empty)
-                    ? Int32.Parse(SingleEntityRe.Match(request.Path ?? "").Groups["id"].Value)
+                    ? int.Parse(SingleEntityRe.Match(request.Path ?? string.Empty).Groups["id"].Value)
                     : DefaultId,
                 DataPartition = GetDataPartition((request.MultiValueHeaders ?? new Dictionary<string, IList<string>>())
                     .Where(h => h.Key.ToLower() == Constants.AcceptHeader)
@@ -91,7 +88,7 @@ namespace Audit.Service.Lambda
         }
 
         /// <summary>
-        /// Convert an SQS message request to a RequestWrapper.
+        ///     Convert an SQS message request to a RequestWrapper.
         /// </summary>
         /// <param name="message">The SQS message</param>
         /// <returns>The equivalent RequestWrapper</returns>
@@ -108,7 +105,7 @@ namespace Audit.Service.Lambda
                     Enum.TryParse<EntityType>(GetAttribute(message.MessageAttributes, "entity"), out var entity)
                         ? entity
                         : EntityType.None,
-                Id = Int32.TryParse(GetAttribute(message.MessageAttributes, "id"), out var id)
+                Id = int.TryParse(GetAttribute(message.MessageAttributes, "id"), out var id)
                     ? id
                     : DefaultId,
                 DataPartition = message.MessageAttributes?.ContainsKey("dataPartition") ?? false
@@ -116,27 +113,52 @@ namespace Audit.Service.Lambda
                     : Constants.DefaultPartition,
                 Filter = message.MessageAttributes?.ContainsKey(Constants.FilterQuery) ?? false
                     ? message.MessageAttributes[Constants.FilterQuery].StringValue
-                    : string.Empty,
+                    : string.Empty
             };
         }
 
-        static string GetAttribute(Dictionary<string, SQSEvent.MessageAttribute> attributes, string key)
+        /// <summary>
+        ///     Extract the tenant from the request.
+        /// </summary>
+        /// <param name="acceptHeader">The Http request accept header</param>
+        /// <returns>The custom tenant name, or the default tenant if no specific value was provided.</returns>
+        public static string GetDataPartition(IEnumerable<string> acceptHeader)
+        {
+            return (acceptHeader ?? Enumerable.Empty<string>())
+                /** Ignore null values */
+                .Where(v => v != null)
+                /** Split the headers on the comma for multi value headers */
+                .SelectMany(v => v.Split(","))
+                /** Split the headers on the semi colon */
+                .SelectMany(v => v.Split(";"))
+                /** trim the results and make them lowercase */
+                .Select(v => v.Trim().ToLower())
+                /** split those values on the equals */
+                .Select(v => v.Split("="))
+                /** validate that the results have 2 elements */
+                .Where(v => v.Length == 2)
+                /** We are interested in results that match the data partition setting */
+                .Where(v => v[0].Trim().Equals(Constants.AcceptPartitionInfo, StringComparison.OrdinalIgnoreCase))
+                /** get the second element */
+                .Select(v => v[1].Trim())
+                /** if nothing was found, we assume we are the default tenant */
+                .FirstOrDefault() ?? Constants.DefaultPartition;
+        }
+
+        private static string GetAttribute(Dictionary<string, SQSEvent.MessageAttribute> attributes, string key)
         {
             return attributes?.ContainsKey(key) ?? false ? attributes[key].StringValue ?? string.Empty : string.Empty;
         }
 
         /// <summary>
-        /// Convert HTTP methods to their CRUD actions.
+        ///     Convert HTTP methods to their CRUD actions.
         /// </summary>
         /// <param name="method">The HTTP method</param>
         /// <returns>The equivalent CRUD action</returns>
-        static ActionType ActionTypeFromHttpMethod(string method, string path)
+        private static ActionType ActionTypeFromHttpMethod(string method, string path)
         {
             var fixedMethod = method?.ToLower() ?? string.Empty;
-            if (fixedMethod == "get" && EntityCollectionRe.IsMatch(path))
-            {
-                return ActionType.ReadAll;
-            }
+            if (fixedMethod == "get" && EntityCollectionRe.IsMatch(path)) return ActionType.ReadAll;
 
             return fixedMethod switch
             {
@@ -149,43 +171,15 @@ namespace Audit.Service.Lambda
         }
 
         /// <summary>
-        /// Extract the body of a HTTP request.
+        ///     Extract the body of a HTTP request.
         /// </summary>
         /// <param name="request">The API Gateway proxy request.</param>
         /// <returns>The unencoded request body</returns>
-        static string GetBody(APIGatewayProxyRequest request)
+        private static string GetBody(APIGatewayProxyRequest request)
         {
             return request.IsBase64Encoded
                 ? Encoding.UTF8.GetString(Convert.FromBase64String(request.Body))
                 : request.Body;
-        }
-
-        /// <summary>
-        /// Extract the tenant from the request.
-        /// </summary>
-        /// <param name="acceptHeader">The Http request accept header</param>
-        /// <returns>The custom tenant name, or the default tenant if no specific value was provided.</returns>
-        public static string GetDataPartition(IEnumerable<string> acceptHeader)
-        {
-            return (acceptHeader ?? Enumerable.Empty<string>())
-                // Ignore null values
-                .Where(v => v != null)
-                // Split the headers on the comma for multi value headers
-                .SelectMany(v => v.Split(","))
-                // Split the headers on the semi colon
-                .SelectMany(v => v.Split(";"))
-                // trim the results and make them lowercase
-                .Select(v => v.Trim().ToLower())
-                // split those values on the equals
-                .Select(v => v.Split("="))
-                // validate that the results have 2 elements
-                .Where(v => v.Length == 2)
-                // We are interested in results that match the data partition setting
-                .Where(v => v[0].Trim().Equals(Constants.AcceptPartitionInfo, StringComparison.OrdinalIgnoreCase))
-                // get the second element
-                .Select(v => v[1].Trim())
-                // if nothing was found, we assume we are the default tenant
-                .FirstOrDefault() ?? Constants.DefaultPartition;
         }
     }
 }

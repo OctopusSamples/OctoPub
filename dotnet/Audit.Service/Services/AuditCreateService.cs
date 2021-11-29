@@ -1,22 +1,21 @@
-﻿using Audit.Service.Lambda;
-using Audit.Service.Repositories;
+﻿using Audit.Service.Repositories;
 
 namespace Audit.Service.Services
 {
     public class AuditCreateService
     {
-        private readonly Db _context;
+        private readonly Db context;
 
         public AuditCreateService(Db context)
         {
-            _context = context;
+            this.context = context;
         }
 
         public Models.Audit Create(Models.Audit resource)
         {
             resource.Id = null;
-            _context.Audits.Add(resource);
-            _context.SaveChanges();
+            context.Audits.Add(resource);
+            context.SaveChanges();
             return resource;
         }
     }
