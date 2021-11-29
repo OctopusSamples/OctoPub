@@ -7,6 +7,9 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import lombok.NonNull;
 
+/**
+ * Converts a InvalidAcceptHeaders exception to a HTTP response.
+ */
 @Provider
 public class InvalidAcceptHeadersMapper implements ExceptionMapper<InvalidAcceptHeaders> {
 

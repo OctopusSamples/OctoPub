@@ -30,8 +30,7 @@ public class HandlerTests extends BaseTest {
 
   @Inject LiquidbaseUpdater liquidbaseUpdater;
 
-  @Inject
-  ProductsHandler productsHandler;
+  @Inject ProductsHandler productsHandler;
 
   @Inject ResourceConverter resourceConverter;
 
@@ -122,7 +121,9 @@ public class HandlerTests extends BaseTest {
         EntityNotFound.class,
         () ->
             productsHandler.update(
-                resultObject.getId().toString(), productToResourceDocument(resourceConverter, product2), List.of()));
+                resultObject.getId().toString(),
+                productToResourceDocument(resourceConverter, product2),
+                List.of()));
   }
 
   @Test
@@ -266,8 +267,7 @@ public class HandlerTests extends BaseTest {
     final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final String getResult =
-        productsHandler.getAll(
-            List.of("application/vnd.api+json; dataPartition=" + partition), "");
+        productsHandler.getAll(List.of("application/vnd.api+json; dataPartition=" + partition), "");
     final List<Product> getResultObjects = getProductsFromDocument(resourceConverter, getResult);
 
     assertFalse(getResultObjects.stream().anyMatch(p -> p.getId() == resultObject.getId()));
@@ -277,6 +277,4 @@ public class HandlerTests extends BaseTest {
 
     assertFalse(getResultObjects2.stream().anyMatch(p -> p.getId() == resultObject.getId()));
   }
-
-
 }

@@ -9,22 +9,23 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import liquibase.exception.LiquibaseException;
 
+/**
+ * The Lambda entry point used to execute database migrations.
+ */
 @Named("DatabaseInit")
 public class DatabaseInit implements RequestHandler<Map<String, Object>, ProxyResponse> {
 
-  @Inject
-  LiquidbaseUpdater liquidbaseUpdater;
+  @Inject LiquidbaseUpdater liquidbaseUpdater;
 
   @Override
-  public ProxyResponse handleRequest(final Map<String, Object> stringObjectMap,
-      final Context context) {
+  public ProxyResponse handleRequest(
+      final Map<String, Object> stringObjectMap, final Context context) {
 
-      try {
-        liquidbaseUpdater.update();
-        return new ProxyResponse("200", "ok");
-      } catch (final LiquibaseException | SQLException ex) {
-        return new ProxyResponse("500", ex.toString());
-      }
-
+    try {
+      liquidbaseUpdater.update();
+      return new ProxyResponse("200", "ok");
+    } catch (final LiquibaseException | SQLException ex) {
+      return new ProxyResponse("500", ex.toString());
+    }
   }
 }

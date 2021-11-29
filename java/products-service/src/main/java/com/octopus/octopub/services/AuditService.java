@@ -7,9 +7,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-/**
- * A REST client to access the audits service.
- */
+/** A REST client to access the audits service. */
 @Path("api")
 @RegisterRestClient
 public interface AuditService {

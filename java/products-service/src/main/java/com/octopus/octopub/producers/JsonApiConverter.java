@@ -6,8 +6,14 @@ import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.models.Product;
 import javax.enterprise.inject.Produces;
 
-
+/** Produces a JSONAPI resource converter. */
 public class JsonApiConverter {
+
+  /**
+   * Produces a ResourceConverter.
+   *
+   * @return The configured ResourceConverter.
+   */
   @Produces
   public ResourceConverter buildResourceConverter() {
     final ResourceConverter resourceConverter = new ResourceConverter(Product.class, Audit.class);

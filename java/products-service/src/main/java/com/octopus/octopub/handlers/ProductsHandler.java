@@ -17,26 +17,29 @@ import javax.inject.Inject;
 import lombok.NonNull;
 
 /**
- * Handlers take the raw input from the upstream service, like Lambda or a web server,
- * convert the inputs to POJOs, apply the security rules, create an audit trail, and then pass
- * the requests down to repositories.
+ * Handlers take the raw input from the upstream service, like Lambda or a web server, convert the
+ * inputs to POJOs, apply the security rules, create an audit trail, and then pass the requests down
+ * to repositories.
  */
 @ApplicationScoped
 public class ProductsHandler {
 
-  @Inject
-  ProductRepository productRepository;
+  @Inject ProductRepository productRepository;
 
-  @Inject
-  AuditRepository auditRepository;
+  @Inject AuditRepository auditRepository;
 
-  @Inject
-  ResourceConverter resourceConverter;
+  @Inject ResourceConverter resourceConverter;
 
-  @Inject
-  PartitionIdentifier partitionIdentifier;
+  @Inject PartitionIdentifier partitionIdentifier;
 
-
+  /**
+   * Returns all matching resources.
+   *
+   * @param acceptHeaders The "accept" headers.
+   * @param filterParam The filter query param.
+   * @return All matching resources
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI resource.
+   */
   public String getAll(@NonNull final List<String> acceptHeaders, final String filterParam)
       throws DocumentSerializationException {
     final List<Product> products =
@@ -48,6 +51,14 @@ public class ProductsHandler {
     return new String(content);
   }
 
+  /**
+   * Creates a new resource.
+   *
+   * @param document The JSONAPI resource to create.
+   * @param acceptHeaders The "accept" headers.
+   * @return The newly created resource
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI resource.
+   */
   public String create(@NonNull final String document, @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     final Product product = getProductFromDocument(document);
@@ -65,6 +76,15 @@ public class ProductsHandler {
     return respondWithProduct(product);
   }
 
+  /**
+   * Updates an existing resource.
+   *
+   * @param id The ID of the resource to update.
+   * @param document The JSONAPI resource document with the updates.
+   * @param acceptHeaders The "accept" headers.
+   * @return The updated resource
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI resource.
+   */
   public String update(
       @NonNull final String id,
       @NonNull final String document,
@@ -85,10 +105,7 @@ public class ProductsHandler {
 
           // Create an audit record noting the change
           auditRepository.save(
-              new Audit(
-                  Constants.MICROSERVICE_NAME,
-                  Constants.UPDATED_ACTION,
-                  "Product-" + intId),
+              new Audit(Constants.MICROSERVICE_NAME, Constants.UPDATED_ACTION, "Product-" + intId),
               acceptHeaders);
 
           return respondWithProduct(updated);
@@ -112,13 +129,23 @@ public class ProductsHandler {
     throw new EntityNotFound();
   }
 
+  /**
+   * Returns the one resource that matches the supplied ID.
+   *
+   * @param id The ID of the resource to return.
+   * @param acceptHeaders The "accept" headers.
+   * @return The matching resource.
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI resource.
+   */
   public String getOne(@NonNull final String id, @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
     try {
       final Product product = productRepository.findOne(Integer.parseInt(id));
       if (product != null
           && (Constants.DEFAULT_PARTITION.equals(product.getDataPartition())
-          || partitionIdentifier.getPartition(acceptHeaders).equals(product.getDataPartition()))) {
+              || partitionIdentifier
+                  .getPartition(acceptHeaders)
+                  .equals(product.getDataPartition()))) {
         return respondWithProduct(product);
       }
     } catch (final NumberFormatException ex) {
@@ -127,6 +154,13 @@ public class ProductsHandler {
     throw new EntityNotFound();
   }
 
+  /**
+   * Deletes the selected resource.
+   *
+   * @param id The ID of the resource to delete.
+   * @param acceptHeaders The "accept" headers.
+   * @return true if the resource was deleted, and false if it was not found.
+   */
   public boolean delete(@NonNull final String id, @NonNull final List<String> acceptHeaders) {
     try {
       final Integer intId = Integer.parseInt(id);
@@ -152,9 +186,9 @@ public class ProductsHandler {
         resourceConverter.readDocument(document.getBytes(StandardCharsets.UTF_8), Product.class);
     final Product product = productDocument.get();
     /*
-      The ID of a product is determined by the URL, while the partition comes froms
-      the headers. If either of these values was sent by the client, strip them out.
-     */
+     The ID of a product is determined by the URL, while the partition comes froms
+     the headers. If either of these values was sent by the client, strip them out.
+    */
     product.id = null;
     product.dataPartition = null;
     return product;

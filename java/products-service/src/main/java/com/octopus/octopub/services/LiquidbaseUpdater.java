@@ -14,18 +14,16 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
-/**
- * A class that exposes a method to manually apply Liquidbase migrations.
- */
+/** A class that exposes a method to manually apply Liquidbase migrations. */
 @ApplicationScoped
 public class LiquidbaseUpdater {
-  @Inject
-  DataSource defaultDataSource;
+  @Inject DataSource defaultDataSource;
 
   /**
    * Apply any pending Liquidbase migrations.
-   * @throws SQLException
-   * @throws LiquibaseException
+   *
+   * @throws SQLException Thrown by liquidbase.
+   * @throws LiquibaseException Thrown by liquidbase.
    */
   public void update() throws SQLException, LiquibaseException {
     try (Connection connection = defaultDataSource.getConnection()) {

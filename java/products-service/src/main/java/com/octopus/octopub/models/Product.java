@@ -12,6 +12,9 @@ import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import org.hibernate.envers.Audited;
 
+/**
+ * Represents a product JSONAPI resource and database entity.
+ */
 @Entity
 @Data
 @Table(name = "product")
@@ -20,27 +23,19 @@ public class Product {
 
   @Id
   @com.github.jasminb.jsonapi.annotations.Id(IntegerIdHandler.class)
-  @GeneratedValue(strategy= GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   public Integer id;
 
-  @Audited
-  @NotBlank
-  public String dataPartition;
+  @Audited @NotBlank public String dataPartition;
 
-  @Audited
-  @NotBlank
-  public String name;
+  @Audited @NotBlank public String name;
 
-  @Audited
-  public String pdf;
+  @Audited public String pdf;
 
-  @Audited
-  public String epub;
+  @Audited public String epub;
 
-  @Audited
-  public String image;
+  @Audited public String image;
 
-  @Audited
-  public String description;
+  @Audited public String description;
 }

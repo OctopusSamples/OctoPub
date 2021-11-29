@@ -38,6 +38,10 @@ runs:
       run: gu install native-image
       shell: bash
 
+    - name: Checkstyle
+      run: ./mvnw --batch-mode checkstyle:check
+      shell: bash
+
     - name: Install modules
       run: ./mvnw --batch-mode install
       shell: bash
@@ -58,10 +62,10 @@ runs:
       shell: bash
       working-directory: java/products-service
 
-#    - name: Test Backend
-#      run: mvn --batch-mode test
-#      shell: bash
-#      working-directory: java/products-service
+    #    - name: Test Backend
+    #      run: mvn --batch-mode test
+    #      shell: bash
+    #      working-directory: java/products-service
 
     - name: Rename zip
       run: >

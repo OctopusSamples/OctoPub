@@ -3,9 +3,7 @@ package com.octopus.octopub.lambda;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Represents the AWS Lambda proxy response.
- */
+/** Represents the AWS Lambda proxy response. */
 public class ProxyResponse {
 
   public final String statusCode;
@@ -16,13 +14,11 @@ public class ProxyResponse {
    * Constructor taking headers.
    *
    * @param statusCode The response HTTP status code.
-   * @param body       The response body.
-   * @param headers    The response headers.
+   * @param body The response body.
+   * @param headers The response headers.
    */
   public ProxyResponse(
-      final String statusCode,
-      final String body,
-      final Map<String, String> headers) {
+      final String statusCode, final String body, final Map<String, String> headers) {
     this.headers = new HashMap<>();
     if (headers != null) {
       this.headers.putAll(headers);
@@ -36,11 +32,9 @@ public class ProxyResponse {
    * Constructor.
    *
    * @param statusCode The response HTTP status code.
-   * @param body       The response body.
+   * @param body The response body.
    */
-  public ProxyResponse(
-      final String statusCode,
-      final String body) {
+  public ProxyResponse(final String statusCode, final String body) {
     this.headers = new HashMap<>();
     this.body = body;
     this.statusCode = statusCode;
@@ -52,8 +46,7 @@ public class ProxyResponse {
    *
    * @param statusCode The response HTTP status code.
    */
-  public ProxyResponse(
-      final String statusCode) {
+  public ProxyResponse(final String statusCode) {
     this.headers = new HashMap<>();
     this.body = null;
     this.statusCode = statusCode;

@@ -7,15 +7,13 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * A utility class with methods to extract data partition information from headers.
- */
+/** A utility class with methods to extract data partition information from headers. */
 @ApplicationScoped
 public class PartitionIdentifier {
 
   /**
-   * The "Accept" header contains the version and partition information. For more information see the
-   * discussion at https://github.com/json-api/json-api/issues/406.
+   * The "Accept" header contains the version and partition information. For more information see
+   * the discussion at https://github.com/json-api/json-api/issues/406.
    *
    * @param header The "Accept" header
    * @return The partition that the request is made under, defaulting to main.

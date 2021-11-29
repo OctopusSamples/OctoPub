@@ -14,35 +14,39 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-
+/** This repository is used to create new audit records in another microservice. */
 @ApplicationScoped
 public class AuditRepository {
 
-  @Inject
-  Logger log;
+  @Inject Logger log;
 
-  @RestClient
-  AuditService auditResource;
+  @RestClient AuditService auditResource;
 
-  @Inject
-  JsonApiConverter jsonApiConverter;
+  @Inject JsonApiConverter jsonApiConverter;
 
   @ConfigProperty(name = "infrastructure.api-key")
   Optional<String> apiKey;
 
+  /**
+   * Creates an audit record.
+   *
+   * @param audit The audit record to create.
+   * @param acceptHeaders The "Accept" headers.
+   */
   public void save(@NonNull final Audit audit, @NonNull final List<String> acceptHeaders) {
     try {
       if (!apiKey.isPresent() || StringUtils.isBlank(apiKey.get())) {
-        log.error("The audits service API key is missing. Aborting attempt to create audit record.");
+        log.error(
+            "The audits service API key is missing. Aborting attempt to create audit record.");
         return;
       }
 
       final JSONAPIDocument<Audit> document = new JSONAPIDocument<Audit>(audit);
 
       /*
-        AWS API Gateway should use the Event invocation type.
-        Azure API Gateway should use send-one-way-request for the audit endpoints.
-       */
+       AWS API Gateway should use the Event invocation type.
+       Azure API Gateway should use send-one-way-request for the audit endpoints.
+      */
       auditResource.createAudit(
           new String(jsonApiConverter.buildResourceConverter().writeDocument(document)),
           String.join(",", acceptHeaders),
@@ -50,10 +54,10 @@ public class AuditRepository {
     } catch (final Exception ex) {
       log.error("Failed to call the audits service", ex);
       /*
-        Audits are a best effort creation, explicitly performed asynchronously to maintain
-        the performance of the service. Sagas should be used if the failure of an audit event
-        reverses the changes to a product.
-       */
+       Audits are a best effort creation, explicitly performed asynchronously to maintain
+       the performance of the service. Sagas should be used if the failure of an audit event
+       reverses the changes to a product.
+      */
     }
   }
 }

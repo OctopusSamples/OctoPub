@@ -7,8 +7,11 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import lombok.NonNull;
 
+/**
+ * Converts a RSQLParserException exception to a HTTP response.
+ */
 @Provider
-public class RSQLParserExceptionMapper implements ExceptionMapper<RSQLParserException> {
+public class RsqlParserExceptionMapper implements ExceptionMapper<RSQLParserException> {
 
   @Override
   public Response toResponse(@NonNull final RSQLParserException exception) {

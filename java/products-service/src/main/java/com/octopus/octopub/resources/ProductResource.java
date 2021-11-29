@@ -21,27 +21,30 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
 import lombok.NonNull;
 
-/**
- * WHen this app is run as a web server, this class defines the REST API endpoints.
- */
+/** WHen this app is run as a web server, this class defines the REST API endpoints. */
 @Path("/api/products")
 @RequestScoped
 public class ProductResource {
 
-  @Inject
-  ProductsHandler productsController;
+  @Inject ProductsHandler productsController;
 
+  /**
+   * The resource collection endpoint.
+   *
+   * @param acceptHeader The "Accept" headers.
+   * @param filter The RSQ query string.
+   * @return a HTTP response object.
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI
+   *     resource.
+   */
   @GET
   @Produces(Constants.JSONAPI_CONTENT_TYPE)
   @Transactional
   public Response getAll(
-      @Context final SecurityContext ctx,
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader,
       @QueryParam(Constants.FILTER_QUERY_PARAM) final String filter)
       throws DocumentSerializationException {
@@ -49,6 +52,15 @@ public class ProductResource {
     return Response.ok(productsController.getAll(acceptHeader, filter)).build();
   }
 
+  /**
+   * The resource creation endpoint.
+   *
+   * @param document The JSONAPI resource to create.
+   * @param acceptHeader The "Accept" headers.
+   * @return An HTTP response object with the created resource.
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI
+   *     resource.
+   */
   @POST
   @Consumes(Constants.JSONAPI_CONTENT_TYPE)
   @Produces(Constants.JSONAPI_CONTENT_TYPE)
@@ -61,6 +73,16 @@ public class ProductResource {
     return Response.ok(productsController.create(document, acceptHeader)).build();
   }
 
+  /**
+   * The resource update endpoint.
+   *
+   * @param document The JSONAPI resource with fields to update.
+   * @param id The ID of the resource to update
+   * @param acceptHeader The "Accept" headers.
+   * @return An HTTP response object with the updated resource.
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI
+   *     resource.
+   */
   @PATCH
   @Consumes(Constants.JSONAPI_CONTENT_TYPE)
   @Produces(Constants.JSONAPI_CONTENT_TYPE)
@@ -75,6 +97,13 @@ public class ProductResource {
     return Response.ok(productsController.update(id, document, acceptHeader)).build();
   }
 
+  /**
+   * The delete endpoint.
+   *
+   * @param id The ID of the record to delete.
+   * @param acceptHeader The "Accept" headers.
+   * @return a HTTP response object.
+   */
   @DELETE
   @Produces(Constants.JSONAPI_CONTENT_TYPE)
   @Path("{id}")
@@ -89,6 +118,15 @@ public class ProductResource {
     return Response.status(Status.NOT_FOUND).build();
   }
 
+  /**
+   * The individual resource endpoint.
+   *
+   * @param id The ID of the resource to return.
+   * @param acceptHeader The "Accept" headers.
+   * @return An HTTP response object with the matching resource.
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI
+   *     resource.
+   */
   @GET
   @Produces(Constants.JSONAPI_CONTENT_TYPE)
   @Path("{id}")
@@ -104,14 +142,17 @@ public class ProductResource {
   }
 
   private void checkAcceptHeader(final List<String> acceptHeader) {
-    if (acceptHeader == null || acceptHeader.isEmpty()) return;
+    if (acceptHeader == null || acceptHeader.isEmpty()) {
+      return;
+    }
 
-    final boolean allAcceptHeadersHaveMediaTypes = acceptHeader.stream()
-        .filter(Objects::nonNull)
-        .flatMap(h -> Arrays.stream(h.split(",")))
-        .map(String::trim)
-        .filter(h -> h.startsWith(Constants.JSONAPI_CONTENT_TYPE))
-        .noneMatch(Constants.JSONAPI_CONTENT_TYPE::equals);
+    final boolean allAcceptHeadersHaveMediaTypes =
+        acceptHeader.stream()
+            .filter(Objects::nonNull)
+            .flatMap(h -> Arrays.stream(h.split(",")))
+            .map(String::trim)
+            .filter(h -> h.startsWith(Constants.JSONAPI_CONTENT_TYPE))
+            .noneMatch(Constants.JSONAPI_CONTENT_TYPE::equals);
 
     if (allAcceptHeadersHaveMediaTypes) {
       throw new InvalidAcceptHeaders();

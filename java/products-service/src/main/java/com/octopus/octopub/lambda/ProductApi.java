@@ -23,6 +23,9 @@ import lombok.NonNull;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
+/**
+ * The Lambda entry point used to return product resources.
+ */
 @Named("Products")
 public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, ProxyResponse> {
 
@@ -281,7 +284,9 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
    */
   private Optional<String> getGroup(
       @NonNull final Pattern pattern, final Object input, @NonNull final String group) {
-    if (input == null) return Optional.empty();
+    if (input == null) {
+      return Optional.empty();
+    }
 
     final Matcher matcher = pattern.matcher(input.toString());
 
@@ -458,15 +463,6 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   }
 
   /**
-   * Build a error object for a 404 not found error. https://jsonapi.org/format/#error-objects
-   *
-   * @return The ProxyResponse representing the error.
-   */
-  private ProxyResponse buildNotFound() {
-    return new ProxyResponse("404", "{\"errors\": [{\"title\": \"Resource not found\"}]}");
-  }
-
-  /**
    * Build an error object including the exception name. https://jsonapi.org/format/#error-objects
    *
    * @param ex The exception
@@ -475,6 +471,15 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   private ProxyResponse buildError(@NonNull final Exception ex) {
     return new ProxyResponse(
         "500", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\"}]}");
+  }
+
+  /**
+   * Build a error object for a 404 not found error. https://jsonapi.org/format/#error-objects
+   *
+   * @return The ProxyResponse representing the error.
+   */
+  private ProxyResponse buildNotFound() {
+    return new ProxyResponse("404", "{\"errors\": [{\"title\": \"Resource not found\"}]}");
   }
 
   /**

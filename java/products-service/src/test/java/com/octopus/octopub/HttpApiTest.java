@@ -428,7 +428,7 @@ public class HttpApiTest extends BaseTest {
     given()
         .accept("application/vnd.api+json,application/vnd.api+json; dataPartition=main")
         .when()
-        .queryParam("filter", "id=="+created.getId())
+        .queryParam("filter", "id==" + created.getId())
         .get("/api/products")
         .then()
         .statusCode(200)
@@ -519,7 +519,7 @@ public class HttpApiTest extends BaseTest {
         .get("/api/products")
         .then()
         .statusCode(400);
-    }
+  }
 
   @Test
   public void testCreateWithoutBody() throws DocumentSerializationException {
@@ -532,7 +532,7 @@ public class HttpApiTest extends BaseTest {
             .post("/api/products")
             .then()
             .statusCode(400);
-    }
+  }
 
   @Test
   public void testUpdateWithoutBody() throws DocumentSerializationException {

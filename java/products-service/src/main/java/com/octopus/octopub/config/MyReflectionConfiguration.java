@@ -11,7 +11,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  * Otherwise the native compilation will strip out unreferenced methods, which can cause issues with
  * reflection.
  */
-@RegisterForReflection(targets={ StringIdHandler.class, Product.class, Audit.class, IntegerIdHandler.class })
-public class MyReflectionConfiguration {
-
-}
+@RegisterForReflection(
+    targets = {StringIdHandler.class, Product.class, Audit.class, IntegerIdHandler.class})
+public class MyReflectionConfiguration {}

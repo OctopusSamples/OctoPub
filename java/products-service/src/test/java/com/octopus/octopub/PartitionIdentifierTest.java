@@ -11,21 +11,44 @@ public class PartitionIdentifierTest {
 
   @ParameterizedTest
   @CsvSource({
-      "main,application/vnd.api+json; dataPartition=main",
-      "main,application/vnd.api+json; dataPartition=main ",
-      "main,application/vnd.api+json; dataPartition= main ",
-      "testing,application/vnd.api+json; dataPartition=testing",
-      "testing,application/vnd.api+json; dataPartition=testing ",
-      "testing,application/vnd.api+json; dataPartition= testing ",
-      "main,application/vnd.api+json; dataPartition=",
-      "main,application/vnd.api+json; dataPartition= ",
-      "main,application/vnd.api+json; ",
-      "main,application/vnd.api+json",
-      "main, ",
-      "main,"})
+    "main,application/vnd.api+json; dataPartition=main",
+    "main,application/vnd.api+json; dataPartition=main ",
+    "main,application/vnd.api+json; dataPartition= main ",
+    "testing,application/vnd.api+json; dataPartition=testing",
+    "testing,application/vnd.api+json; dataPartition=testing ",
+    "testing,application/vnd.api+json; dataPartition= testing ",
+    "main,application/vnd.api+json; dataPartition=",
+    "main,application/vnd.api+json; dataPartition= ",
+    "main,application/vnd.api+json; ",
+    "main,application/vnd.api+json",
+    "main, ",
+    "main,"
+  })
   public void testPartitions(final String expected, final String acceptHeader) {
-    Assert.equals(expected, PARTITION_IDENTIFIER.getPartition(new ArrayList<>(){{add(acceptHeader);}}));
-    Assert.equals(expected, PARTITION_IDENTIFIER.getPartition(new ArrayList<>(){{add("application/vnd.api+json," + acceptHeader);}}));
-    Assert.equals(expected, PARTITION_IDENTIFIER.getPartition(new ArrayList<>(){{add(acceptHeader); add("application/vnd.api+json");}}));
+    Assert.equals(
+        expected,
+        PARTITION_IDENTIFIER.getPartition(
+            new ArrayList<>() {
+              {
+                add(acceptHeader);
+              }
+            }));
+    Assert.equals(
+        expected,
+        PARTITION_IDENTIFIER.getPartition(
+            new ArrayList<>() {
+              {
+                add("application/vnd.api+json," + acceptHeader);
+              }
+            }));
+    Assert.equals(
+        expected,
+        PARTITION_IDENTIFIER.getPartition(
+            new ArrayList<>() {
+              {
+                add(acceptHeader);
+                add("application/vnd.api+json");
+              }
+            }));
   }
 }
