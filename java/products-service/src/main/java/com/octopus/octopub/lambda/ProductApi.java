@@ -5,6 +5,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
+import com.octopus.octopub.exceptions.InvalidInput;
 import com.octopus.octopub.handlers.ProductsHandler;
 import cz.jirutka.rsql.parser.ParseException;
 import cz.jirutka.rsql.parser.RSQLParserException;
@@ -219,6 +220,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                         input.getHeaders(),
                         Constants.ACCEPT_HEADER))));
       }
+    } catch (final InvalidInput e) {
+      return Optional.of(buildBadRequest(e));
     } catch (final Exception e) {
       e.printStackTrace();
       return Optional.of(buildError(e, getBody(input)));
@@ -254,6 +257,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         // If the id was not found in the path, return a 404
         return Optional.of(buildNotFound());
       }
+    } catch (final InvalidInput e) {
+      return Optional.of(buildBadRequest(e));
     } catch (final EntityNotFound ex) {
       // If the resource didn't exist in the system to be updated, return a 404
       return Optional.of(buildNotFound());
