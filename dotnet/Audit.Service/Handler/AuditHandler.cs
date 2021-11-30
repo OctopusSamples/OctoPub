@@ -36,6 +36,7 @@ namespace Audit.Service.Handler
         /// <summary>
         ///     Returns the health check details.
         /// </summary>
+        /// <param name="wrapper">The details of the request.</param>
         /// <returns>The health check details if the path and method are a match, or null otherwise.</returns>
         public APIGatewayProxyResponse? GetHealth(RequestWrapper wrapper)
         {
@@ -53,6 +54,7 @@ namespace Audit.Service.Handler
         /// <summary>
         ///     Returns all the audit records.
         /// </summary>
+        /// <param name="wrapper">The details of the request.</param>
         /// <returns>The audit records if the path and method are a match, or null otherwise.</returns>
         public APIGatewayProxyResponse? GetAll(RequestWrapper wrapper)
         {
@@ -74,6 +76,7 @@ namespace Audit.Service.Handler
         /// <summary>
         ///     Returns one audit record.
         /// </summary>
+        /// <param name="wrapper">The details of the request.</param>
         /// <returns>The audit record if the path and method are a match, or null otherwise.</returns>
         public APIGatewayProxyResponse? GetOne(RequestWrapper wrapper)
         {
@@ -97,6 +100,7 @@ namespace Audit.Service.Handler
         /// <summary>
         ///     Returns all the audit records.
         /// </summary>
+        /// <param name="wrapper">The details of the request.</param>
         /// <returns>The audit records if the path and method are a match, or null otherwise.</returns>
         public APIGatewayProxyResponse? CreateOne(RequestWrapper wrapper)
         {

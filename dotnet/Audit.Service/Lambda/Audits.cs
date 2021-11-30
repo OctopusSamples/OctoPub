@@ -16,6 +16,9 @@ using NLog;
 
 namespace Audit.Service.Lambda
 {
+    /// <summary>
+    /// The entrypoint to the Audits Lambda.
+    /// </summary>
     public class Audits
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -31,8 +34,8 @@ namespace Audit.Service.Lambda
         {
             try
             {
-                var servideProvider = DependencyInjection.ConfigureServices();
-                var db = servideProvider.GetRequiredService<Db>();
+                var serviceProvider = DependencyInjection.ConfigureServices();
+                var db = serviceProvider.GetRequiredService<Db>();
                 db.Database.Migrate();
                 return new APIGatewayProxyResponse
                 {

@@ -5,10 +5,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Audit.Service.Migrations
 {
+    /// <summary>
+    /// A database migration that creates the initial Audits table.
+    /// </summary>
     [DbContext(typeof(Db))]
     [Migration("00001-AddInitialTable")]
     public class AddAuditsTable : Migration
     {
+        /// <summary>
+        /// Create the audits table.
+        /// </summary>
+        /// <param name="migrationBuilder">The migration builder interface.</param>
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(

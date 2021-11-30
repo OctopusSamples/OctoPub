@@ -28,6 +28,11 @@ namespace Audit.Service.Lambda
         private static readonly Regex EntityCollectionRe = new Regex("^/api/audits/?$");
         private static readonly Regex SingleEntityRe = new Regex("^/api/audits/(?<id>\\d+)/?$");
 
+        /// <summary>
+        /// Create a request wrapper from a JSONAPI HTTP request.
+        /// </summary>
+        /// <param name="request">The HTTP request.</param>
+        /// <returns>The wrapper that contains the request context.</returns>
         public static async Task<RequestWrapper> CreateFromHttpRequest(HttpRequest request)
         {
             return new RequestWrapper
@@ -48,7 +53,7 @@ namespace Audit.Service.Lambda
                 Filter = (request.Query ?? new QueryCollection())
                     .Where(h => h.Key.ToLower() == Constants.FilterQuery)
                     .SelectMany(h => h.Value)
-                    .FirstOrDefault()
+                    .FirstOrDefault() ?? string.Empty
             };
         }
 
@@ -56,7 +61,7 @@ namespace Audit.Service.Lambda
         ///     Convert an API Gateway proxy request to a RequestWrapper.
         /// </summary>
         /// <param name="request">The standard API Gateway proxy input.</param>
-        /// <returns>The equivalent RequestWrapper</returns>
+        /// <returns>The equivalent RequestWrapper.</returns>
         public static RequestWrapper CreateFromHttpRequest(APIGatewayProxyRequest request)
         {
             return new RequestWrapper
@@ -83,7 +88,7 @@ namespace Audit.Service.Lambda
                     .Union((request.QueryStringParameters ?? new Dictionary<string, string>())
                         .Where(h => h.Key.ToLower() == Constants.FilterQuery)
                         .Select(h => h.Value))
-                    .FirstOrDefault()
+                    .FirstOrDefault() ?? string.Empty
             };
         }
 
@@ -125,23 +130,23 @@ namespace Audit.Service.Lambda
         public static string GetDataPartition(IEnumerable<string> acceptHeader)
         {
             return (acceptHeader ?? Enumerable.Empty<string>())
-                /** Ignore null values */
+                /* Ignore null values */
                 .Where(v => v != null)
-                /** Split the headers on the comma for multi value headers */
+                /* Split the headers on the comma for multi value headers */
                 .SelectMany(v => v.Split(","))
-                /** Split the headers on the semi colon */
+                /* Split the headers on the semi colon */
                 .SelectMany(v => v.Split(";"))
-                /** trim the results and make them lowercase */
+                /* trim the results and make them lowercase */
                 .Select(v => v.Trim().ToLower())
-                /** split those values on the equals */
+                /* split those values on the equals */
                 .Select(v => v.Split("="))
-                /** validate that the results have 2 elements */
+                /* validate that the results have 2 elements */
                 .Where(v => v.Length == 2)
-                /** We are interested in results that match the data partition setting */
+                /* We are interested in results that match the data partition setting */
                 .Where(v => v[0].Trim().Equals(Constants.AcceptPartitionInfo, StringComparison.OrdinalIgnoreCase))
-                /** get the second element */
+                /* get the second element */
                 .Select(v => v[1].Trim())
-                /** if nothing was found, we assume we are the default tenant */
+                /* if nothing was found, we assume we are the default tenant */
                 .FirstOrDefault() ?? Constants.DefaultPartition;
         }
 
@@ -154,6 +159,7 @@ namespace Audit.Service.Lambda
         ///     Convert HTTP methods to their CRUD actions.
         /// </summary>
         /// <param name="method">The HTTP method.</param>
+        /// <param name="path">The HTTP path.</param>
         /// <returns>The equivalent CRUD action.</returns>
         private static ActionType ActionTypeFromHttpMethod(string method, string path)
         {
