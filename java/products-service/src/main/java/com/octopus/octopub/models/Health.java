@@ -4,6 +4,9 @@ import com.github.jasminb.jsonapi.annotations.Type;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Represents a health check response.
+ */
 @Data
 @Builder
 @Type("healths")
