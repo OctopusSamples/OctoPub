@@ -62,7 +62,7 @@ function App(config: DynamicConfig) {
                 setPartition
             }}>
                 <ThemeProvider theme={theme}>
-                    <HashRouter basename={config.settings.basename}>
+                    <HashRouter>
                         <Routes>
                             {routes.map((route: RouteItem) =>
                                 route.subRoutes ? (
