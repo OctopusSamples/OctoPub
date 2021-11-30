@@ -60,7 +60,9 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 </title>
             </Helmet>
             <table className={classes.table}>
-            {Object.entries(health).map(([key, value]) =>
+            {Object.entries(health)
+                .sort()
+                .map(([key, value]) =>
                 <tr>
                     <td className={classes.cell}>{key.substring(key.lastIndexOf("/health"))}</td>
                     <td className={classes.cell}>{value ? <Done/> : <Clear/>}</td>
