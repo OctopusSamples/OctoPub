@@ -273,5 +273,53 @@ namespace Audit.Service.Tests
             Assert.IsTrue(getEntity.Any(a => a.Subject == createEntity.Subject));
             Assert.AreEqual(200, getResponse.StatusCode);
         }
+
+        [Test]
+        public async Task TestMissingAcceptHeaders()
+        {
+            var controller = CreateAuditController();
+
+            var guid = Guid.NewGuid();
+
+            // create a stream for the post request
+            await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
+                new Models.Audit
+                {
+                    Action = "test1",
+                    Object = "test2",
+                    Subject = guid.ToString()
+                }, new JsonApiSerializerSettings())));
+
+            // mock a POST request
+            PopulateHttpContext(controller, "/api/audits", "POST", stream);
+            controller.HttpContext.Request.Headers["Accept"] = "";
+            var createResponse = await controller.Entry() as ContentResult;
+
+            Assert.AreEqual(406, createResponse.StatusCode);
+        }
+
+        [Test]
+        public async Task TestInvalidAcceptHeaders()
+        {
+            var controller = CreateAuditController();
+
+            var guid = Guid.NewGuid();
+
+            // create a stream for the post request
+            await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
+                new Models.Audit
+                {
+                    Action = "test1",
+                    Object = "test2",
+                    Subject = guid.ToString()
+                }, new JsonApiSerializerSettings())));
+
+            // mock a POST request
+            PopulateHttpContext(controller, "/api/audits", "POST", stream);
+            controller.HttpContext.Request.Headers["Accept"] = "application/json";
+            var createResponse = await controller.Entry() as ContentResult;
+
+            Assert.AreEqual(406, createResponse.StatusCode);
+        }
     }
 }
