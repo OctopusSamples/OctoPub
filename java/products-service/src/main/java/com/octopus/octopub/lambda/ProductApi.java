@@ -32,11 +32,10 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   /** A regular expression matching the collection of entities. */
   private static final Pattern ROOT_RE = Pattern.compile("/api/products/?");
   /** A regular expression matching a single entity. */
-  private static final Pattern INDIVIDUAL_RE =
-      Pattern.compile("/api/products/(?<id>\\[A-Za-z0-9]+)");
+  private static final Pattern INDIVIDUAL_RE = Pattern.compile("/api/products/(?<id>\\d+)");
   /** A regular expression matching a health endpoint. */
   private static final Pattern HEALTH_RE =
-      Pattern.compile("/health/products/(GET|POST|\\d+/(GET|DELETE|PATCH))");
+      Pattern.compile("/health/products/(GET|POST|[A-Za-z0-9]+/(GET|DELETE|PATCH))");
 
   @Inject ProductsHandler productsHandler;
 
