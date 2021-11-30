@@ -1,5 +1,27 @@
 import {GET_RETRIES} from "./constants";
 
+export function getJson<T>(url: string, retryCount?: number): Promise<T> {
+    return fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            if (response.status === 504 && (retryCount || 0) <= GET_RETRIES) {
+                /*
+                 Some lambdas are slow, and initial requests timeout with a 504 response.
+                 We automatically retry these requests.
+                 */
+                return getJson<T>(url, (retryCount || 0) + 1);
+            }
+            return Promise.reject(response);
+        });
+}
+
 export function getJsonApi<T>(url: string, partition: string | null, apiKey?: string | null, retryCount?: number): Promise<T> {
     return fetch(url, {
         method: 'GET',

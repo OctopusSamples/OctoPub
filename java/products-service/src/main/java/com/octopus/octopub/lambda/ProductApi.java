@@ -3,9 +3,11 @@ package com.octopus.octopub.lambda;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
 import com.octopus.octopub.exceptions.InvalidInput;
+import com.octopus.octopub.handlers.HealthHandler;
 import com.octopus.octopub.handlers.ProductsHandler;
 import cz.jirutka.rsql.parser.RSQLParserException;
 import java.util.ArrayList;
@@ -23,21 +25,22 @@ import lombok.NonNull;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
-/**
- * The Lambda entry point used to return product resources.
- */
+/** The Lambda entry point used to return product resources. */
 @Named("Products")
 public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, ProxyResponse> {
 
   /** A regular expression matching the collection of entities. */
   private static final Pattern ROOT_RE = Pattern.compile("/api/products/?");
   /** A regular expression matching a single entity. */
-  private static final Pattern INDIVIDUAL_RE = Pattern.compile("/api/products/(?<id>\\[A-Za-z0-9]+)");
+  private static final Pattern INDIVIDUAL_RE =
+      Pattern.compile("/api/products/(?<id>\\[A-Za-z0-9]+)");
   /** A regular expression matching a health endpoint. */
   private static final Pattern HEALTH_RE =
       Pattern.compile("/health/products/(GET|POST|\\d+/(GET|DELETE|PATCH))");
 
-  @Inject ProductsHandler productsController;
+  @Inject ProductsHandler productsHandler;
+
+  @Inject HealthHandler healthHandler;
 
   /**
    * See https://github.com/quarkusio/quarkus/issues/5811 for why we need @Transactional.
@@ -95,8 +98,19 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
    * @return The optional proxy response
    */
   private Optional<ProxyResponse> checkHealth(@NonNull final APIGatewayProxyRequestEvent input) {
+
     if (requestIsMatch(input, HEALTH_RE, Constants.GET_METHOD)) {
-      return Optional.of(new ProxyResponse("200", "{\"message\": \"OK\"}"));
+      try {
+        return Optional.of(
+            new ProxyResponse(
+                "200",
+                healthHandler.getHealth(
+                    input.getPath().substring(0, input.getPath().lastIndexOf("/")),
+                    input.getPath().substring(input.getPath().lastIndexOf("/")))));
+      } catch (final Exception e) {
+        e.printStackTrace();
+        return Optional.of(buildError(e));
+      }
     }
 
     return Optional.empty();
@@ -114,7 +128,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         return Optional.of(
             new ProxyResponse(
                 "200",
-                productsController.getAll(
+                productsHandler.getAll(
                     getAllHeaders(
                         input.getMultiValueHeaders(), input.getHeaders(), Constants.ACCEPT_HEADER),
                     getAllQueryParams(
@@ -149,7 +163,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
         if (id.isPresent()) {
           final String entity =
-              productsController.getOne(
+              productsHandler.getOne(
                   id.get(),
                   getAllHeaders(
                       input.getMultiValueHeaders(), input.getHeaders(), Constants.ACCEPT_HEADER));
@@ -182,7 +196,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
 
         if (id.isPresent()) {
           final boolean result =
-              productsController.delete(
+              productsHandler.delete(
                   id.get(),
                   getAllHeaders(
                       input.getMultiValueHeaders(), input.getHeaders(), Constants.ACCEPT_HEADER));
@@ -215,7 +229,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         return Optional.of(
             new ProxyResponse(
                 "200",
-                productsController.create(
+                productsHandler.create(
                     getBody(input),
                     getAllHeaders(
                         input.getMultiValueHeaders(),
@@ -248,7 +262,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
           return Optional.of(
               new ProxyResponse(
                   "200",
-                  productsController.update(
+                  productsHandler.update(
                       id.get(),
                       getBody(input),
                       getAllHeaders(
