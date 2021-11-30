@@ -1,6 +1,6 @@
 import React, {useReducer, useState} from "react";
 import {createTheme, responsiveFontSizes, Theme, ThemeProvider,} from "@material-ui/core/styles";
-import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import {HashRouter, Route, Routes} from "react-router-dom";
 import {Helmet} from "react-helmet";
 // app routes
 // components
@@ -62,7 +62,7 @@ function App(config: DynamicConfig) {
                 setPartition
             }}>
                 <ThemeProvider theme={theme}>
-                    <Router basename={config.settings.basename}>
+                    <HashRouter basename={config.settings.basename}>
                         <Routes>
                             {routes.map((route: RouteItem) =>
                                 route.subRoutes ? (
@@ -85,7 +85,7 @@ function App(config: DynamicConfig) {
                             )
                             }
                         </Routes>
-                    </Router>
+                    </HashRouter>
                 </ThemeProvider>
             </AppContext.Provider>
         </>
