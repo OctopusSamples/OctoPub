@@ -1,5 +1,6 @@
 package com.octopus.octopub.models;
 
+import com.github.jasminb.jsonapi.StringIdHandler;
 import com.github.jasminb.jsonapi.annotations.Id;
 import com.github.jasminb.jsonapi.annotations.Type;
 import lombok.Builder;
@@ -13,9 +14,9 @@ import lombok.Data;
 @Type("healths")
 public class Health {
   @Id
-  private String endpoint;
+  public String endpoint;
 
-  private String path;
-  private String method;
-  private String status;
+  public String path;
+  public String method;
+  public String status;
 }
