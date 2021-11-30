@@ -18,7 +18,7 @@ namespace Audit.Service.Lambda
         /// <summary>
         ///     Builds a dependency injection context.
         /// </summary>
-        /// <returns>The DI service provider</returns>
+        /// <returns>The DI service provider.</returns>
         public ServiceProvider ConfigureServices()
         {
             var configuration = new ConfigurationBuilder()

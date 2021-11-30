@@ -24,9 +24,9 @@ namespace Audit.Service.Lambda
         /// <summary>
         ///     This is the entry point to the Lambda to run database migrations.
         /// </summary>
-        /// <param name="request">The request details in proxy format</param>
-        /// <param name="context">The lambda context</param>
-        /// <returns>201 if the migration succeeded, or 500 if it failed</returns>
+        /// <param name="request">The request details in proxy format.</param>
+        /// <param name="context">The lambda context.</param>
+        /// <returns>201 if the migration succeeded, or 500 if it failed.</returns>
         public APIGatewayProxyResponse AuditsDbMigration(APIGatewayProxyRequest request, ILambdaContext? context)
         {
             try
@@ -48,9 +48,9 @@ namespace Audit.Service.Lambda
         /// <summary>
         ///     This is the HTTP entry point to the Lambda.
         /// </summary>
-        /// <param name="request">The request details in proxy format</param>
-        /// <param name="context">The lambda context</param>
-        /// <returns>The API content</returns>
+        /// <param name="request">The request details in proxy format.</param>
+        /// <param name="context">The lambda context.</param>
+        /// <returns>The API content.</returns>
         public APIGatewayProxyResponse AuditsApi(APIGatewayProxyRequest request, ILambdaContext? context)
         {
             try
@@ -69,8 +69,8 @@ namespace Audit.Service.Lambda
         /// <summary>
         ///     The Message bus entry point to the Lambda.
         /// </summary>
-        /// <param name="sqsEvent">The SQS event details</param>
-        /// <param name="context">The SQS context</param>
+        /// <param name="sqsEvent">The SQS event details.</param>
+        /// <param name="context">The SQS context.</param>
         public void HandleSqsEvent(SQSEvent sqsEvent, ILambdaContext? context)
         {
             Logger.Debug("Audits.HandleSqsEvent(SQSEvent, ILambdaContext)");

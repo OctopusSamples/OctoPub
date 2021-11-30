@@ -17,6 +17,12 @@ namespace Audit.Service.Handler
         private readonly AuditGetAllService auditGetAllService;
         private readonly AuditGetByIdService auditGetByIdService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuditHandler"/> class.
+        /// </summary>
+        /// <param name="auditCreateService">The service used to create new resources.</param>
+        /// <param name="auditGetAllService">The service used to return resource collections.</param>
+        /// <param name="auditGetByIdService">The service used to return single resources.</param>
         public AuditHandler(
             AuditCreateService auditCreateService,
             AuditGetAllService auditGetAllService,
@@ -28,9 +34,9 @@ namespace Audit.Service.Handler
         }
 
         /// <summary>
-        ///     Returns the health check details
+        ///     Returns the health check details.
         /// </summary>
-        /// <returns>The health check details if the path and method are a match, or null otherwise</returns>
+        /// <returns>The health check details if the path and method are a match, or null otherwise.</returns>
         public APIGatewayProxyResponse? GetHealth(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Read &&
@@ -45,9 +51,9 @@ namespace Audit.Service.Handler
         }
 
         /// <summary>
-        ///     Returns all the audit records
+        ///     Returns all the audit records.
         /// </summary>
-        /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
+        /// <returns>The audit records if the path and method are a match, or null otherwise.</returns>
         public APIGatewayProxyResponse? GetAll(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.ReadAll &&
@@ -66,9 +72,9 @@ namespace Audit.Service.Handler
         }
 
         /// <summary>
-        ///     Returns one audit record
+        ///     Returns one audit record.
         /// </summary>
-        /// <returns>The audit record if the path and method are a match, or null otherwise</returns>
+        /// <returns>The audit record if the path and method are a match, or null otherwise.</returns>
         public APIGatewayProxyResponse? GetOne(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Read &&
@@ -89,9 +95,9 @@ namespace Audit.Service.Handler
         }
 
         /// <summary>
-        ///     Returns all the audit records
+        ///     Returns all the audit records.
         /// </summary>
-        /// <returns>The audit records if the path and method are a match, or null otherwise</returns>
+        /// <returns>The audit records if the path and method are a match, or null otherwise.</returns>
         public APIGatewayProxyResponse? CreateOne(RequestWrapper wrapper)
         {
             if (!(wrapper.ActionType == ActionType.Create &&

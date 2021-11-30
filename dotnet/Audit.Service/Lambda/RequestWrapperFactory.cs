@@ -90,8 +90,8 @@ namespace Audit.Service.Lambda
         /// <summary>
         ///     Convert an SQS message request to a RequestWrapper.
         /// </summary>
-        /// <param name="message">The SQS message</param>
-        /// <returns>The equivalent RequestWrapper</returns>
+        /// <param name="message">The SQS message.</param>
+        /// <returns>The equivalent RequestWrapper.</returns>
         public static RequestWrapper CreateFromSqsMessage(SQSEvent.SQSMessage message)
         {
             return new RequestWrapper
@@ -120,7 +120,7 @@ namespace Audit.Service.Lambda
         /// <summary>
         ///     Extract the tenant from the request.
         /// </summary>
-        /// <param name="acceptHeader">The Http request accept header</param>
+        /// <param name="acceptHeader">The Http request accept header.</param>
         /// <returns>The custom tenant name, or the default tenant if no specific value was provided.</returns>
         public static string GetDataPartition(IEnumerable<string> acceptHeader)
         {
@@ -153,8 +153,8 @@ namespace Audit.Service.Lambda
         /// <summary>
         ///     Convert HTTP methods to their CRUD actions.
         /// </summary>
-        /// <param name="method">The HTTP method</param>
-        /// <returns>The equivalent CRUD action</returns>
+        /// <param name="method">The HTTP method.</param>
+        /// <returns>The equivalent CRUD action.</returns>
         private static ActionType ActionTypeFromHttpMethod(string method, string path)
         {
             var fixedMethod = method?.ToLower() ?? string.Empty;
@@ -174,7 +174,7 @@ namespace Audit.Service.Lambda
         ///     Extract the body of a HTTP request.
         /// </summary>
         /// <param name="request">The API Gateway proxy request.</param>
-        /// <returns>The unencoded request body</returns>
+        /// <returns>The unencoded request body.</returns>
         private static string GetBody(APIGatewayProxyRequest request)
         {
             return request.IsBase64Encoded
