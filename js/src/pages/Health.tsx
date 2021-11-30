@@ -1,58 +1,56 @@
-import {FC, ReactElement, useContext, useEffect, useState} from "react";
+import {FC, ReactElement, useContext, useEffect, useMemo, useState} from "react";
 import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
-import {Theme} from "@material-ui/core";
 import {AppContext} from "../App";
-import {createStyles, makeStyles} from "@material-ui/core/styles";
 import {getJson} from "../utils/network";
+import { Clear, Done } from "@material-ui/icons";
+import {createStyles, makeStyles} from "@material-ui/core/styles";
+import {Theme} from "@material-ui/core";
+
+const newHealth: {[key: string]: boolean} = {};
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        image: {
-            objectFit: "contain",
-            padding: "64px",
-            width: "100%"
+        table: {
+            height: "fit-content",
+            marginRight: "auto",
+            marginLeft: "auto"
         },
-        content: {
-
-            "& a": {
-                color: theme.palette.text.primary
-            }
+        cell: {
+            padding: "8px"
         }
     })
 );
 
 const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
-    const classes = useStyles();
-
     const context = useContext(AppContext);
+
+    const classes = useStyles();
 
     context.setAllBookId(null);
 
-    const endpoints = [context.settings.productEndpoint + "/GET",
-        context.settings.productEndpoint + "/POST",
-        context.settings.productEndpoint + "/x/GET",
-        context.settings.productEndpoint + "/x/PATCH",
-        context.settings.productEndpoint + "/x/DELETE",
-        context.settings.auditEndpoint + "/GET",
-        context.settings.auditEndpoint + "/POST",
-        context.settings.auditEndpoint + "/x/GET"];
+    const endpoints = useMemo(() => [
+        context.settings.healthEndpoint + "/products/GET",
+        context.settings.healthEndpoint + "/products/POST",
+        context.settings.healthEndpoint + "/products/x/GET",
+        context.settings.healthEndpoint + "/products/x/PATCH",
+        context.settings.healthEndpoint + "/products/x/DELETE",
+        context.settings.healthEndpoint + "/audits/GET",
+        context.settings.healthEndpoint + "/audits/POST",
+        context.settings.healthEndpoint + "/audits/x/GET"],
+        [context]);
 
-    const [health, setHealth] = useState<{}>(endpoints.reduce((previousValue: any, currentValue) => {
-        previousValue[currentValue] = false;
-        return previousValue;
-    }, {}));
+    const [health, setHealth] = useState<{[key: string]: boolean}>({});
 
     useEffect(() => {
-
-        for (const endpoint in endpoints) {
-            getJson(endpoint)
-                .then(() => setHealth({}));
+        for (const endpoint of endpoints) {
+            ((myEndpoint) => getJson(myEndpoint)
+                .then(() => newHealth[myEndpoint] = true)
+                .catch(() => newHealth[myEndpoint] = false)
+                .finally(() => setHealth({...newHealth})))(endpoint);
         }
-
-
-    }, [endpoints, health, setHealth, endpoints]);
+    }, [endpoints, setHealth]);
 
     return (
         <>
@@ -61,8 +59,14 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     {context.settings.title} - Health
                 </title>
             </Helmet>
-
-
+            <table className={classes.table}>
+            {Object.entries(health).map(([key, value]) =>
+                <tr>
+                    <td className={classes.cell}>{key.substring(key.lastIndexOf("/health"))}</td>
+                    <td className={classes.cell}>{value ? <Done/> : <Clear/>}</td>
+                </tr>
+            )}
+            </table>
         </>
     );
 }

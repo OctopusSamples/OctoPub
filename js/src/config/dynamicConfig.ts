@@ -7,6 +7,7 @@ export interface DynamicConfig {
         basename: string;
         productEndpoint: string;
         auditEndpoint: string;
+        healthEndpoint: string;
         title: string;
         editorFormat: string;
         google: {

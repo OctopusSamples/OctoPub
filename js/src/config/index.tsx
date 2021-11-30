@@ -12,6 +12,7 @@ import AddBook from "../pages/AddBook";
 import Settings from "../pages/Settings";
 import DeleteBook from "../pages/DeleteBook";
 import UpdateBook from "../pages/UpdateBook";
+import Health from "../pages/Health";
 
 // define app routes
 export const routes: Array<RouteItem> = [
@@ -92,6 +93,16 @@ export const routes: Array<RouteItem> = [
         path: "/settings",
         enabled: true,
         component: () => (props: CommonProps) => <Settings {...props}/>,
+        icon: HomeIcon,
+        appendDivider: true
+    },
+    {
+        key: "router-health",
+        title: "Health",
+        tooltip: "Health",
+        path: "/health",
+        enabled: true,
+        component: () => (props: CommonProps) => <Health {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     }
