@@ -24,12 +24,18 @@ public class HealthHandler {
    */
   public String getHealth(@NonNull final String path, @NonNull final String method)
       throws DocumentSerializationException {
-    return respondWithHealth(Health.builder().status("OK").path(path).method(method).build());
+    return respondWithHealth(
+        Health.builder()
+            .status("OK")
+            .path(path)
+            .method(method)
+            .endpoint(path + "/" + method)
+            .build());
   }
 
   private String respondWithHealth(@NonNull final Health health)
       throws DocumentSerializationException {
-    final JSONAPIDocument<Health> document = new JSONAPIDocument<Health>(health);
+    final JSONAPIDocument<Health> document = new JSONAPIDocument<>(health);
     return new String(resourceConverter.writeDocument(document));
   }
 }
