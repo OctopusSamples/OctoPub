@@ -41,6 +41,7 @@ runs:
     - name: Checkstyle
       run: ./mvnw --batch-mode checkstyle:check
       shell: bash
+      working-directory: java/products-service
 
     - name: Install modules
       run: ./mvnw --batch-mode install
