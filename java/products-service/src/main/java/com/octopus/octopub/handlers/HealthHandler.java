@@ -8,10 +8,20 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import lombok.NonNull;
 
+/**
+ * Handles the health check requests.
+ */
 @ApplicationScoped
 public class HealthHandler {
   @Inject ResourceConverter resourceConverter;
 
+  /**
+   * Get the health check response content.
+   * @param path The path that was checked.
+   * @param method The method that was checked.
+   * @return The JSONAPI response representing the health check.
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI resource.
+   */
   public String getHealth(@NonNull final String path, @NonNull final String method)
       throws DocumentSerializationException {
     return respondWithHealth(Health.builder().status("OK").path(path).method(method).build());
