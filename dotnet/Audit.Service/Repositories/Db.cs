@@ -9,6 +9,6 @@ namespace Audit.Service.Repositories
         {
         }
 
-        public DbSet<Models.Audit> Audits { get; set; }
+        public DbSet<Models.Audit> Audits => Set<Models.Audit>();
     }
 }
