@@ -23,7 +23,7 @@ namespace Audit.Service.Lambda
     public static class RequestWrapperFactory
     {
         private static readonly int DefaultId = -1;
-        private static readonly Regex HealthEndpointRe = new Regex("^/health/audits/(GET|POST|\\d+/GET)/?$");
+        private static readonly Regex HealthEndpointRe = new Regex("^/health/audits/(GET|POST|[A-Za-z0-9]+/GET)/?$");
         private static readonly string AuditEndpoint = "/api/audits";
         private static readonly Regex EntityCollectionRe = new Regex("^/api/audits/?$");
         private static readonly Regex SingleEntityRe = new Regex("^/api/audits/(?<id>\\d+)/?$");
