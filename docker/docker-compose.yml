@@ -8,8 +8,8 @@ services:
     image: "octopussamples/octopub-products"
     ports:
       - "8083:8083"
-   environment:
-     AUDIT_SERVICE: "http://localhost:9080"
+    environment:
+      AUDIT_SERVICE: "http://localhost:9080"
   audits:
     image: "octopussamples/octopub-audits"
     ports:
