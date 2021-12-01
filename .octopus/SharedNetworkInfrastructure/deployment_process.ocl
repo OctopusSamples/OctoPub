@@ -87,7 +87,7 @@ step "Create API Gateway" {
                 				"PathPart": "health"
                 			}
                 		},
-                		"LambdaResourceCollectionOptions": {
+                		"RootOptions": {
                 			"Type": "AWS::ApiGateway::Method",
                 			"Properties": {
                 				"AuthorizationType": "NONE",
