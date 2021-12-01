@@ -173,6 +173,14 @@ step "Deploy Lambda" {
                 		"UseInMemeoryDB": {
                 			"Type": "String",
                 			"Default": "true"
+                		},
+                		"AZ1": {
+                			"Type": "String",
+                			"Default": "us-west-1a"
+                		},
+                		"AZ2": {
+                			"Type": "String",
+                			"Default": "us-west-1b"
                 		}
                 	},
                 	"Resources": {
@@ -206,7 +214,7 @@ step "Deploy Lambda" {
                 		"SubnetA": {
                 			"Type": "AWS::EC2::Subnet",
                 			"Properties": {
-                				"AvailabilityZone": "us-west-1a",
+                				"AvailabilityZone": {"Ref": "AZ1"},
                 				"VpcId": {
                 					"Ref": "VPC"
                 				},
@@ -217,7 +225,7 @@ step "Deploy Lambda" {
                 		"SubnetB": {
                 			"Type": "AWS::EC2::Subnet",
                 			"Properties": {
-                				"AvailabilityZone": "us-west-1b",
+                				"AvailabilityZone": {"Ref": "AZ2"},
                 				"VpcId": {
                 					"Ref": "VPC"
                 				},
@@ -1102,8 +1110,8 @@ step "Deploy Lambda" {
                 	}
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"},{\"ParameterKey\":\"UseInMemeoryDB\",\"ParameterValue\":\"false\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"},{\"ParameterKey\":\"UseInMemeoryDB\",\"ParameterValue\":\"false\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"},{\"ParameterKey\":\"UseInMemeoryDB\",\"ParameterValue\":\"false\"},{\"ParameterKey\":\"AZ1\",\"ParameterValue\":\"us-west-1a\"},{\"ParameterKey\":\"AZ2\",\"ParameterValue\":\"us-west-1b\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"},{\"ParameterKey\":\"UseInMemeoryDB\",\"ParameterValue\":\"false\"},{\"ParameterKey\":\"AZ1\",\"ParameterValue\":\"us-west-1a\"},{\"ParameterKey\":\"AZ2\",\"ParameterValue\":\"us-west-1b\"}]"
             Octopus.Action.Aws.IamCapabilities = "[\"CAPABILITY_NAMED_IAM\"]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
