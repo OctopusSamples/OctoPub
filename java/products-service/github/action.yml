@@ -6,6 +6,10 @@ inputs:
     required: true
   github_user:
     required: true
+  dockerhub_username:
+    required: true
+  dockerhub_password:
+    required: true
   octopus_server_url:
     required: true
   octopus_api_token:
@@ -44,8 +48,8 @@ runs:
     - name: Login to Docker Hub
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        username: ${{ inputs.dockerhub_username }}
+        password: ${{ inputs.dockerhub_password }}
 
     - name: Checkstyle
       run: ./mvnw --batch-mode checkstyle:check
