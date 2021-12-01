@@ -40,9 +40,7 @@ namespace Audit.Service.Lambda
                 var optionsBuilder = new DbContextOptionsBuilder<Db>();
                 if (useInMemoryDb)
                 {
-                    var folder = Environment.SpecialFolder.LocalApplicationData;
-                    var path = Environment.GetFolderPath(folder);
-                    var dbPath = $"{path}{Path.DirectorySeparatorChar}audits.db";
+                    var dbPath = $"{Path.GetTempPath()}{Path.DirectorySeparatorChar}audits.db";
                     optionsBuilder.UseSqlite(
                         $"Data Source={dbPath}",
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
