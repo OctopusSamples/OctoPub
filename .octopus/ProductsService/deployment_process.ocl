@@ -2,6 +2,7 @@ step "Create Bucket" {
 
     action {
         action_type = "Octopus.AwsRunCloudFormation"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ProductsBucket}"
@@ -37,6 +38,7 @@ step "Upload Lambda" {
 
     action {
         action_type = "Octopus.AwsUploadS3"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -67,6 +69,7 @@ step "Get Stack Outputs" {
 
     action {
         action_type = "Octopus.AwsRunScript"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -127,6 +130,7 @@ step "Deploy Lambda" {
 
     action {
         action_type = "Octopus.AwsRunCloudFormation"
+        environments = ["Production", "Development"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ProductService}"
@@ -971,6 +975,7 @@ step "Database Migration" {
 
     action {
         action_type = "Octopus.AwsRunScript"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -1000,6 +1005,7 @@ step "Update Stage" {
 
     action {
         action_type = "Octopus.AwsRunCloudFormation"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.Stage}"
@@ -1070,6 +1076,7 @@ step "Get Stage URL" {
 
     action {
         action_type = "Octopus.AwsRunScript"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -1105,6 +1112,7 @@ step "Check for vulnerabilities" {
 
     action {
         action_type = "Octopus.Script"
+        environments = ["Development (Security)", "Production (Security)"]
         is_disabled = true
         properties = {
             Octopus.Action.RunOnServer = "true"
@@ -1147,6 +1155,7 @@ step "Send Notification" {
     }
 
     action {
+        environments = ["Development (Security)", "Production (Security)"]
         is_disabled = true
         properties = {
             Octopus.Action.RunOnServer = "true"
