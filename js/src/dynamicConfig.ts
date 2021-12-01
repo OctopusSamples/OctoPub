@@ -16,7 +16,7 @@ export async function loadConfig(): Promise<DynamicConfig> {
     config.settings.basename = baseUrl;
     config.settings.title = config.settings.title || "OctoPub";
     config.settings.productEndpoint = config.settings.productEndpoint || "http://localhost:8083/api/products";
-    config.settings.auditEndpoint = config.settings.auditEndpoint || "http://localhost:808/api/audits";
+    config.settings.auditEndpoint = config.settings.auditEndpoint || "http://localhost:9080/api/audits";
     config.settings.healthEndpoint = config.settings.healthEndpoint || "https://localhost/health";
     return config;
 }
