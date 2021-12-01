@@ -91,8 +91,18 @@ runs:
       shell: bash
       working-directory: js
 
+    # See https://stackoverflow.com/questions/68770567/containerizing-angular-application-with-paketo-buildpacks-empty-reply
+    # for details on building a static web hosting image.
     - run: |
-        pack build --builder paketobuildpacks/builder:full octopussamples/octopub-frontend
+        pack build octopussamples/octopub-frontend \
+          --env "BP_NODE_RUN_SCRIPTS=build" \
+          --env "NODE_ENV=development" \
+          --env "BPE_PORT=8080" \
+          --builder paketobuildpacks/builder:full \
+          --buildpack paketo-buildpacks/nodejs \
+          --buildpack paketo-buildpacks/nginx \
+          --buildpack paketo-community/staticfile \
+          --buildpack gcr.io/paketo-buildpacks/environment-variables
         docker push octopussamples/octopub-frontend
       shell: bash
       working-directory: js
