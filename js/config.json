@@ -3,6 +3,8 @@
     "basename": "",
     "title": "OctoPub",
     "productEndpoint": "",
+    "auditEndpoint": "",
+    "healthEndpoint": "",
     "editorFormat": "",
     "google": {
       "tag": ""
