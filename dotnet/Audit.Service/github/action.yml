@@ -152,7 +152,7 @@ runs:
         pack build --builder paketobuildpacks/builder:full octopussamples/octopub-audits
         docker push octopussamples/octopub-audits
       shell: bash
-      working-directory: dotnet/Audits.Service
+      working-directory: dotnet/Audit.Service
 
     - name: Trigger deployment
       run: >
