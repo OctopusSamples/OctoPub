@@ -97,7 +97,7 @@ runs:
         pack build octopussamples/octopub-frontend \
           --env "BP_NODE_RUN_SCRIPTS=build" \
           --env "NODE_ENV=development" \
-          --env "BPE_PORT=8080" \
+          --env "BPE_PORT=7080" \
           --builder paketobuildpacks/builder:full \
           --buildpack paketo-buildpacks/nodejs \
           --buildpack paketo-buildpacks/nginx \
