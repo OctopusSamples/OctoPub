@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  frontend:
+    image: "octopussamples/octopub-frontend"
+    ports:
+      - "7080:7080"
+  products:
+    image: "octopussamples/octopub-products"
+    ports:
+      - "8083:8083"
+   environment:
+     AUDIT_SERVICE: "http://localhost:9080"
+  audits:
+    image: "octopussamples/octopub-audits"
+    ports:
+      - "9080:9080"

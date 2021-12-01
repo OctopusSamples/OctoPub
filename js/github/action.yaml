@@ -34,6 +34,12 @@ runs:
       with:
         version: 7.4.3124
 
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ inputs.dockerhub_username }}
+        password: ${{ inputs.dockerhub_password }}
+
     - name: Packages
       run: yarn install
       shell: bash
