@@ -6,6 +6,10 @@ inputs:
     required: true
   github_user:
     required: true
+  dockerhub_username:
+    required: true
+  dockerhub_password:
+    required: true
   octopus_server_url:
     required: true
   octopus_api_token:
