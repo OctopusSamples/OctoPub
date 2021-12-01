@@ -131,11 +131,18 @@ step "Create Stage" {
                     }
                   },
                   "Resources": {
+                    "Deployment#{DeploymentId}": {
+                          "Type": "AWS::ApiGateway::Deployment",
+                          "Properties": {
+                            "RestApiId": {"Ref": "ApiGatewayId"}
+                          }
+                    },
                     "Stage": {
                       "Type": "AWS::ApiGateway::Stage",
                       "Properties": {
                         "RestApiId": {"Fn::Sub": "${ApiGatewayId}"},
-                        "StageName": {"Fn::Sub": "${EnvironmentName}"}
+                        "StageName": {"Fn::Sub": "${EnvironmentName}"},
+                        "DeploymentId": {"Ref": "Deployment#{DeploymentId}"}
                       }
                     }
                   },
