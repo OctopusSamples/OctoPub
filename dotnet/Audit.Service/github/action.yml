@@ -9,6 +9,12 @@ inputs:
   github_user:
     description: The github username
     required: true
+  dockerhub_username:
+    description: The dockerhub username
+    required: true
+  dockerhub_password:
+    description: The github password
+    required: true
   octopus_server_url:
     description: The octopus URL
     required: true
