@@ -1,3 +1,26 @@
+step "Get Stack Outputs" {
+
+    action {
+        action_type = "Octopus.AwsRunScript"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.RunOnServer = "true"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                TIMESTAMP=$(date '+%Y%m%d%H%M%S')
+                
+                set_octopusvariable "DeploymentId" ${TIMESTAMP}
+            EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = "WorkerPool"
+    }
+}
+
 step "Create API Gateway" {
 
     action {
