@@ -5,6 +5,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <artifactId>products-service</artifactId>
   <build>
+    <finalName>products-service</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-checkstyle-plugin</artifactId>

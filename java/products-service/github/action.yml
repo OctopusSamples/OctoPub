@@ -38,6 +38,9 @@ runs:
       run: gu install native-image
       shell: bash
 
+    - id: setup-pack
+      uses: buildpacks/github-actions/setup-pack@v4.4.0
+
     - name: Checkstyle
       run: ./mvnw --batch-mode checkstyle:check
       shell: bash
@@ -109,6 +112,10 @@ runs:
         -DartifactId=products-service-sbom
         -Dversion=0.0.1.${{ github.run_number }}
         -Dpackaging=zip
+      shell: bash
+      working-directory: java/products-service
+
+    - run: pack build --env "MAVEN_CUSTOM_OPTS=-DskipTests -Dquarkus-profile=dist" octopub-products
       shell: bash
       working-directory: java/products-service
 
