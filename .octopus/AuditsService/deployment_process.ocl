@@ -2,6 +2,7 @@ step "Create Bucket" {
 
     action {
         action_type = "Octopus.AwsRunCloudFormation"
+        environments = ["Production", "Development"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.AuditsBucket}"
@@ -37,6 +38,7 @@ step "Upload Lambda" {
 
     action {
         action_type = "Octopus.AwsUploadS3"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -67,6 +69,7 @@ step "Get Stack Outputs" {
 
     action {
         action_type = "Octopus.AwsRunScript"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -127,6 +130,7 @@ step "Deploy Lambda" {
 
     action {
         action_type = "Octopus.AwsRunCloudFormation"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.AuditsService}"
@@ -206,7 +210,7 @@ step "Deploy Lambda" {
                 		"SubnetA": {
                 			"Type": "AWS::EC2::Subnet",
                 			"Properties": {
-                				"AvailabilityZone": "us-west-1a",
+                				"AvailabilityZone": { "Fn::Select" : [ "0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
                 				"VpcId": {
                 					"Ref": "VPC"
                 				},
@@ -217,7 +221,7 @@ step "Deploy Lambda" {
                 		"SubnetB": {
                 			"Type": "AWS::EC2::Subnet",
                 			"Properties": {
-                				"AvailabilityZone": "us-west-1b",
+                				"AvailabilityZone": { "Fn::Select" : [ "1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
                 				"VpcId": {
                 					"Ref": "VPC"
                 				},
@@ -1120,6 +1124,7 @@ step "Database Migration" {
 
     action {
         action_type = "Octopus.AwsRunScript"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -1155,6 +1160,7 @@ step "Update Stage" {
 
     action {
         action_type = "Octopus.AwsRunCloudFormation"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.Stage}"
@@ -1225,6 +1231,7 @@ step "Get Stage URL" {
 
     action {
         action_type = "Octopus.AwsRunScript"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -1260,7 +1267,7 @@ step "Check for vulnerabilities" {
 
     action {
         action_type = "Octopus.Script"
-        is_disabled = true
+        environments = ["Development (Security)", "Production (Security)"]
         properties = {
             Octopus.Action.RunOnServer = "true"
             Octopus.Action.Script.ScriptBody = <<-EOT
@@ -1302,13 +1309,13 @@ step "Send Notification" {
     }
 
     action {
-        is_disabled = true
+        environments = ["Development (Security)", "Production (Security)"]
         properties = {
             Octopus.Action.RunOnServer = "true"
             Octopus.Action.Template.Id = "ActionTemplates-441"
             Octopus.Action.Template.Version = "1"
             ssn_Color = "danger"
-            ssn_HookUrl = "https://hooks.slack.com/services/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"
+            ssn_HookUrl = "#{Slack.Hook}"
             ssn_IconUrl = "https://octopus.com/content/resources/favicon.png"
             ssn_Message = "Open #{Octopus.Web.ServerUri}#{Octopus.Web.DeploymentLink} to review the logs."
             ssn_Title = "Vulnerabilities found in Products Service"
