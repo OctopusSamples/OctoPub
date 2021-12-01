@@ -26,6 +26,9 @@ runs:
 
     - uses: nelonoel/branch-name@v1.0.1
 
+    - id: setup-pack
+      uses: buildpacks/github-actions/setup-pack@v4.4.0
+
     - name: Install Octopus Deploy CLI
       uses: OctopusDeploy/install-octocli@v1
       with:
@@ -85,6 +88,12 @@ runs:
         -Dversion=0.0.1.${{ github.run_number }}
         -Dpackaging=zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
+      shell: bash
+      working-directory: js
+
+    - run: |
+        pack build --builder paketobuildpacks/builder:full octopussamples/octopub-frontend
+        docker push octopussamples/octopub-frontend
       shell: bash
       working-directory: js
 
