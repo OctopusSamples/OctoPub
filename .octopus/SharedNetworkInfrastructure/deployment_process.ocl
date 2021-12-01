@@ -30,19 +30,19 @@ step "Create API Gateway" {
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ApiGateway}"
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
-                  	"Parameters" : {
-                    	"EnvironmentName" : {
-                    		"Type" : "String",
-                    		"Default" : "#{Octopus.Environment.Name}"
-                    	}
-                    },
-                	"Resources": {		
+                	"Parameters": {
+                		"EnvironmentName": {
+                			"Type": "String",
+                			"Default": "#{Octopus.Environment.Name}"
+                		}
+                	},
+                	"Resources": {
                 		"RestApi": {
                 			"Type": "AWS::ApiGateway::RestApi",
                 			"Properties": {
                 				"Description": "My API Gateway",
                 				"Name": "Octopub Pipeline API",
-                                "BinaryMediaTypes": ["*/*"],
+                				"BinaryMediaTypes": ["*/*"],
                 				"EndpointConfiguration": {
                 					"Types": [
                 						"REGIONAL"
@@ -75,7 +75,7 @@ step "Create API Gateway" {
                 				"PathPart": "api"
                 			}
                 		},
-                        "Health": {
+                		"Health": {
                 			"Type": "AWS::ApiGateway::Resource",
                 			"Properties": {
                 				"RestApiId": {
@@ -85,6 +85,50 @@ step "Create API Gateway" {
                 					"Fn::GetAtt": ["RestApi", "RootResourceId"]
                 				},
                 				"PathPart": "health"
+                			}
+                		},
+                		"LambdaResourceCollectionOptions": {
+                			"Type": "AWS::ApiGateway::Method",
+                			"Properties": {
+                				"AuthorizationType": "NONE",
+                				"RestApiId": {
+                					"Ref": "RestApi"
+                				},
+                				"ResourceId": {
+                					"Fn::GetAtt": ["RestApi", "RootResourceId"]
+                				},
+                				"HttpMethod": "OPTIONS",
+                				"Integration": {
+                					"IntegrationResponses": [{
+                						"StatusCode": 200,
+                						"ContentHandling": "CONVERT_TO_TEXT",
+                						"ResponseParameters": {
+                							"method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                							"method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                							"method.response.header.Access-Control-Allow-Origin": "'*'"
+                						},
+                						"ResponseTemplates": {
+                							"application/json": ""
+                						}
+                					}],
+                					"PassthroughBehavior": "WHEN_NO_MATCH",
+                					"RequestTemplates": {
+                						"application/json": "{\"statusCode\": 200}"
+                					},
+                					"Type": "MOCK",
+                					"ContentHandling": "CONVERT_TO_TEXT"
+                				},
+                				"MethodResponses": [{
+                					"StatusCode": 200,
+                					"ResponseModels": {
+                						"application/json": "Empty"
+                					},
+                					"ResponseParameters": {
+                						"method.response.header.Access-Control-Allow-Headers": false,
+                						"method.response.header.Access-Control-Allow-Methods": false,
+                						"method.response.header.Access-Control-Allow-Origin": false
+                					}
+                				}]
                 			}
                 		}
                 	},
