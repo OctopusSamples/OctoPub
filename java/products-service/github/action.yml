@@ -115,7 +115,9 @@ runs:
       shell: bash
       working-directory: java/products-service
 
-    - run: pack build --env "MAVEN_CUSTOM_OPTS=-DskipTests -Dquarkus-profile=dist" octopub-products
+    - run: |
+        pack config default-builder heroku/buildpacks:20
+        pack build --env "MAVEN_CUSTOM_OPTS=-DskipTests -Dquarkus-profile=dist" octopub-products
       shell: bash
       working-directory: java/products-service
 
