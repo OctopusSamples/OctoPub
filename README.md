@@ -40,3 +40,5 @@ To run the application locally, execute the following command:
 ```bash
 curl -fsS https://raw.githubusercontent.com/OctopusSamples/OctoPub/master/docker/docker-compose.yml | docker-compose -f - up -d
 ```
+
+Then open [http://localhost:7080](http://localhost:7080).
