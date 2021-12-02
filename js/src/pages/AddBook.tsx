@@ -34,7 +34,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     context.setAllBookId(null);
 
     useEffect(() => {
-        if (!context.apiKey) {
+        if (context.settings.requireApiKey !== "false" && !context.apiKey) {
             setError("The API key must be defined in the settings page.");
         } else {
             setDisabled(false);

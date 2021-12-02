@@ -38,7 +38,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             .then(data => {
                 setBook(data);
 
-                if (!context.apiKey) {
+                if (context.settings.requireApiKey !== "false" && !context.apiKey) {
                     setError("The API key must be defined in the settings page.");
                 } else if (data?.data?.attributes?.dataPartition !== context.partition) {
                     setError("This book belongs to the "
