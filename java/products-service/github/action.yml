@@ -72,16 +72,16 @@ runs:
       working-directory: java/products-service
 
     - uses: uraimo/run-on-arch-action@v2.0.5
-        name: Build on ARM
-        with:
-          arch: armv7
-          distro: ubuntu18.04
+      name: Build on ARM
+      with:
+        arch: armv7
+        distro: ubuntu18.04
 
-          # Not required, but speeds up builds by storing container images in
-          # a GitHub package registry.
-          githubToken: ${{ inputs.github_token }}
+        # Not required, but speeds up builds by storing container images in
+        # a GitHub package registry.
+        githubToken: ${{ inputs.github_token }}
 
-          run: ./mvnw --batch-mode package --file pom.xml -Pnative -DskipTests -Dquarkus.profile=prod
+        run: ./mvnw --batch-mode package --file pom.xml -Pnative -DskipTests -Dquarkus.profile=prod
 
     - name: Build with Maven
       run: ./mvnw --batch-mode package --file pom.xml -Pnative -DskipTests -Dquarkus.profile=prod
