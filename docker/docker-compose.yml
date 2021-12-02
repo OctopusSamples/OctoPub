@@ -18,3 +18,8 @@ services:
     pull_policy: always
     ports:
       - "9080:9080"
+  health:
+    image: "octopussamples/octopub-health-proxy"
+    pull_policy: always
+    ports:
+      - "6080:80"
