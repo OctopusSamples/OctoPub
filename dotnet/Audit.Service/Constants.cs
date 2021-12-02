@@ -6,6 +6,11 @@
     public static class Constants
     {
         /// <summary>
+        /// The name of the service.
+        /// </summary>
+        public static readonly string ServiceName = "AuditsService";
+
+        /// <summary>
         /// The name of the default data partition.
         /// </summary>
         public static readonly string DefaultPartition = "main";
