@@ -28,7 +28,6 @@ public class HealthResource {
    */
   @GET()
   @Path("GET")
-  @Produces(Constants.JSONAPI_CONTENT_TYPE)
   @Transactional
   public Response healthCollectionGet() throws DocumentSerializationException {
     return Response.ok(healthHandler.getHealth("/health/products", "GET")).build();
@@ -43,7 +42,6 @@ public class HealthResource {
    */
   @GET()
   @Path("POST")
-  @Produces(Constants.JSONAPI_CONTENT_TYPE)
   @Transactional
   public Response healthCollectionPost() throws DocumentSerializationException {
     return Response.ok(healthHandler.getHealth("/health/products", "POST")).build();
@@ -58,7 +56,6 @@ public class HealthResource {
    */
   @GET()
   @Path("{id}/GET")
-  @Produces(Constants.JSONAPI_CONTENT_TYPE)
   @Transactional
   public Response healthIndividualGet(@PathParam("id") final String id) throws DocumentSerializationException {
     return Response.ok(healthHandler.getHealth("/health/products/" + id, "GET")).build();
@@ -73,7 +70,6 @@ public class HealthResource {
    */
   @GET()
   @Path("{id}/DELETE")
-  @Produces(Constants.JSONAPI_CONTENT_TYPE)
   @Transactional
   public Response healthIndividualDelete(@PathParam("id") final String id) throws DocumentSerializationException {
     return Response.ok(healthHandler.getHealth("/health/products/" + id, "DELETE")).build();
@@ -88,7 +84,6 @@ public class HealthResource {
    */
   @GET()
   @Path("{id}/PATCH")
-  @Produces(Constants.JSONAPI_CONTENT_TYPE)
   @Transactional
   public Response healthIndividualPatch(@PathParam("id") final String id) throws DocumentSerializationException {
     return Response.ok(healthHandler.getHealth("/health/products/" + id, "PATCH")).build();
