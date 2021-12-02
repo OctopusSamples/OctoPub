@@ -4,6 +4,7 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <PublishReadyToRun>true</PublishReadyToRun>
+        <TieredCompilation>false</TieredCompilation>
         <Nullable>enable</Nullable>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
