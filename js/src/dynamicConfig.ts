@@ -17,7 +17,7 @@ export async function loadConfig(): Promise<DynamicConfig> {
     config.settings.title = config.settings.title || "OctoPub";
     config.settings.productEndpoint = config.settings.productEndpoint || "http://localhost:8083/api/products";
     config.settings.auditEndpoint = config.settings.auditEndpoint || "http://localhost:9080/api/audits";
-    config.settings.healthEndpoint = config.settings.healthEndpoint || "https://localhost:6080/health";
+    config.settings.healthEndpoint = config.settings.healthEndpoint || "http://localhost:6080/health";
     config.settings.requireApiKey = config.settings.requireApiKey || "false";
     return config;
 }
