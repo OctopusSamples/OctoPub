@@ -476,7 +476,7 @@ step "Deploy Lambda" {
                 					"Fn::Sub": "${EnvironmentName}-Web-${LambdaName}"
                 				},
                 				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsApi",
-                				"MemorySize": 256,
+                				"MemorySize": 1024,
                 				"PackageType": "Zip",
                 				"Role": {
                 					"Fn::GetAtt": [
