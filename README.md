@@ -22,16 +22,15 @@ check the health of the system?
 
 Traditional approaches like [Spring Actuator](https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html) provide a single health
 endpoint that is assumed to represent the health of the other endpoints served by the web application. This one-to-many approach for reporting
-health doesn't scale to Functions-as-a-Service though, as there is no guarantee that multiple endpoints will be based by one single application.
+health doesn't scale to Functions-as-a-Service (FaaS) though, as there is no guarantee that multiple endpoints will be served by one single application.
 
-To support health checks on FaaS platforms, this application exposes a `/health` endpoint, which mirrors the `/api` endpoint. Each path under `/api` has a matching
+To support health checks on FaaS platforms, OctoPub exposes a `/health` endpoint which mirrors the `/api` endpoint. Each path under `/api` has a matching
 path in under `/health`, and the HTTP method used to access the API is then appended to the health endpoint.
 
 So, to check the health of the service responding to GET requests to `/api/products`, you would perform a GET request to `/health/products/GET`. And to check the 
 health of the service responding to POST requests to `/api/products`. you would perform a GET request to `/health/products/POST`.
 
-Behind the scenes it makes sense for the same service that responds to GET requests to `/api/products` to also respond to GET requests to `/health/products/GET`. Having
-the a service report its own health removes many potential incorrect health reports.
+Behind the scenes it makes sense for the same service that responds to GET requests to `/api/products` to also respond to GET requests to `/health/products/GET`. Having the a service report its own health removes many potential incorrect health reports, so this is the approach OctoPub has taken.
 
 ## Docker Compose
 
