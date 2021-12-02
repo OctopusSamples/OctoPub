@@ -35,12 +35,6 @@ public class AuditRepository {
    */
   public void save(@NonNull final Audit audit, @NonNull final List<String> acceptHeaders) {
     try {
-      if (!apiKey.isPresent() || StringUtils.isBlank(apiKey.get())) {
-        log.error(
-            "The audits service API key is missing. Aborting attempt to create audit record.");
-        return;
-      }
-
       final JSONAPIDocument<Audit> document = new JSONAPIDocument<Audit>(audit);
 
       /*
