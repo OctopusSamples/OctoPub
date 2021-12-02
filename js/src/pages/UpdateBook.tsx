@@ -49,7 +49,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 }
             })
             .catch(() => setError("There was an error retrieving the resource."));
-    }, [setBook, setDisabled, context.apiKey, context.partition, context.settings.productEndpoint, bookId]);
+    }, [setBook, setDisabled, context.apiKey, context.partition, context.settings.productEndpoint, context.settings.requireApiKey, bookId]);
 
     return (
         <>

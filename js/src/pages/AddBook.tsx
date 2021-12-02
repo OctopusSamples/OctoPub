@@ -39,7 +39,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
         } else {
             setDisabled(false);
         }
-    }, [setDisabled, setError, context.apiKey]);
+    }, [setDisabled, setError, context.apiKey, context.settings.requireApiKey]);
 
     return (
         <>

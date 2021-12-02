@@ -49,7 +49,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 }
             })
             .catch(() => setError("There was an error retrieving the resource."));
-    }, [setBook, setDisabled, context.apiKey, context.partition, context.settings.productEndpoint, bookId]);
+    }, [setBook, setDisabled, context.apiKey, context.settings.requireApiKey, context.partition, context.settings.productEndpoint, bookId]);
 
     return (
         <>
