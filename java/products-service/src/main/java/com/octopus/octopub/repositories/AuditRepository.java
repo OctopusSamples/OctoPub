@@ -1,6 +1,7 @@
 package com.octopus.octopub.repositories;
 
 import com.github.jasminb.jsonapi.JSONAPIDocument;
+import com.octopus.octopub.Constants;
 import com.octopus.octopub.models.Audit;
 import com.octopus.octopub.producers.JsonApiConverter;
 import com.octopus.octopub.services.AuditService;
@@ -46,7 +47,7 @@ public class AuditRepository {
           String.join(",", acceptHeaders),
           apiKey.orElse(""));
     } catch (final Exception ex) {
-      log.error("Failed to call the audits service", ex);
+      log.error(Constants.MICROSERVICE_NAME + "-Network-AuditCreateFailed", ex);
       /*
        Audits are a best effort creation, explicitly performed asynchronously to maintain
        the performance of the service. Sagas should be used if the failure of an audit event
