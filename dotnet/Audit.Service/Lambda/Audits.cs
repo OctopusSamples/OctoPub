@@ -100,7 +100,7 @@ namespace Audit.Service.Lambda
                     catch (Exception ex)
                     {
                         // need to do something here to allow sagas to roll themselves back
-                        Logger.Error(Constants.ServiceName + "-Persistence-GeneralFailure", ex);
+                        Logger.Error(Constants.ServiceName + "-SQS-GeneralFailure", ex);
                     }
                 }))
                 .Select(t =>
