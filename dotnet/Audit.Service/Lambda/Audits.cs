@@ -22,6 +22,7 @@ namespace Audit.Service.Lambda
     public class Audits
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly DependencyInjection DependencyInjection = new DependencyInjection();
 
         /// <summary>
         ///     This is the entry point to the Lambda to run database migrations.
@@ -33,7 +34,7 @@ namespace Audit.Service.Lambda
         {
             try
             {
-                var serviceProvider = new DependencyInjection().ConfigureServices();
+                var serviceProvider = DependencyInjection.ConfigureServices();
                 var db = serviceProvider.GetRequiredService<Db>();
                 db.Database.Migrate();
                 return new APIGatewayProxyResponse
@@ -57,7 +58,7 @@ namespace Audit.Service.Lambda
         {
             try
             {
-                var serviceProvider = new DependencyInjection().ConfigureServices();
+                var serviceProvider = DependencyInjection.ConfigureServices();
                 var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
                 var handler = serviceProvider.GetRequiredService<AuditHandler>();
                 return AddCors(ProcessRequest(handler, requestWrapper));
@@ -78,7 +79,7 @@ namespace Audit.Service.Lambda
             Logger.Debug("Audits.HandleSqsEvent(SQSEvent, ILambdaContext)");
             Logger.Debug(sqsEvent.Records.Count + " records to process");
 
-            var serviceProvider = new DependencyInjection().ConfigureServices();
+            var serviceProvider = DependencyInjection.ConfigureServices();
             sqsEvent.Records
                 .Select(m => new Thread(() =>
                 {
