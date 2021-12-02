@@ -11,7 +11,7 @@ export function getJson<T>(url: string, retryCount?: number): Promise<T> {
             if (response.ok) {
                 return response.json();
             }
-            if (response.status === 504 && (retryCount || 0) <= GET_RETRIES) {
+            if ((retryCount || 0) <= GET_RETRIES) {
                 /*
                  Some lambdas are slow, and initial requests timeout with a 504 response.
                  We automatically retry these requests.
@@ -35,7 +35,7 @@ export function getJsonApi<T>(url: string, partition: string | null, apiKey?: st
             if (response.ok) {
                 return response.json();
             }
-            if (response.status === 504 && (retryCount || 0) <= GET_RETRIES) {
+            if ((retryCount || 0) <= GET_RETRIES) {
                 /*
                  Some lambdas are slow, and initial requests timeout with a 504 response.
                  We automatically retry these requests.
@@ -60,7 +60,7 @@ export function patchJsonApi<T>(resource: string, url: string, partition: string
             if (response.ok) {
                 return response.json();
             }
-            if (response.status === 504 && (retryCount || 0) <= GET_RETRIES) {
+            if ((retryCount || 0) <= GET_RETRIES) {
                 /*
                  Some lambdas are slow, and initial requests timeout with a 504 response.
                  We automatically retry these requests.
@@ -102,7 +102,7 @@ export function deleteJsonApi(url: string, partition: string | null, apiKey?: st
             if (!response.ok) {
                 return Promise.reject(response);
             }
-            if (response.status === 504 && (retryCount || 0) <= GET_RETRIES) {
+            if ((retryCount || 0) <= GET_RETRIES) {
                 /*
                  Some lambdas are slow, and initial requests timeout with a 504 response.
                  We automatically retry these requests.
