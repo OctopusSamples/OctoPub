@@ -126,7 +126,7 @@ runs:
       working-directory: java/products-service
 
     - run: |
-        pack build --builder heroku/buildpacks:20 --env "MAVEN_CUSTOM_OPTS=-DskipTests -Dquarkus-profile=dist" octopussamples/octopub-products
+        pack build --builder heroku/buildpacks:20 --env "MAVEN_CUSTOM_OPTS=-DskipTests -Dquarkus.profile=dist" octopussamples/octopub-products
         docker push octopussamples/octopub-products
       shell: bash
       working-directory: java/products-service
