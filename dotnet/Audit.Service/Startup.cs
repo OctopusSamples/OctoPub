@@ -47,8 +47,9 @@ namespace Audit.Service
                     CorsPolicy,
                     builder =>
                     {
-                        builder.WithOrigins("*");
-                        builder.WithHeaders("*");
+                        builder.AllowAnyOrigin();
+                        builder.AllowAnyHeader();
+                        builder.AllowAnyMethod();
                     });
             });
             services.AddDbContext<Db>(opt =>
