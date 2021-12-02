@@ -18,6 +18,8 @@ namespace Audit.Service
     /// </summary>
     public class Startup
     {
+        private static readonly string CorsPolicy = "Cors";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup"/> class.
         /// </summary>
@@ -39,6 +41,12 @@ namespace Audit.Service
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    CorsPolicy,
+                    builder => { builder.WithOrigins("*"); });
+            });
             services.AddDbContext<Db>(opt =>
             {
                 if (bool.Parse((ReadOnlySpan<char>)Configuration.GetSection("Database:UseInMemory").Value))
@@ -72,6 +80,8 @@ namespace Audit.Service
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(CorsPolicy);
 
             app.UseAuthorization();
 
