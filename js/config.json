@@ -6,6 +6,7 @@
     "auditEndpoint": "",
     "healthEndpoint": "",
     "editorFormat": "",
+    "requireApiKey": "",
     "google": {
       "tag": ""
     }

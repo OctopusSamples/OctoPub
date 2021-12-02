@@ -8,6 +8,7 @@ export interface DynamicConfig {
         productEndpoint: string;
         auditEndpoint: string;
         healthEndpoint: string;
+        requireApiKey: string;
         title: string;
         editorFormat: string;
         google: {

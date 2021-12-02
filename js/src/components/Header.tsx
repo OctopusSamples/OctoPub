@@ -82,21 +82,21 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
-                {context.allBookId && context.apiKey &&
+                {context.allBookId && (context.settings.requireApiKey === "false" || context.apiKey) &&
                 <IconButton onClick={() => history('/deleteBook/' + context.allBookId)}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>
                     </Tooltip>
                 </IconButton>
                 }
-                {context.allBookId && context.apiKey &&
+                {context.allBookId && (context.settings.requireApiKey === "false" || context.apiKey) &&
                 <IconButton onClick={() => history('/updateBook/' + context.allBookId)}>
                     <Tooltip title={"Update"} placement={"bottom"}>
                         <Edit/>
                     </Tooltip>
                 </IconButton>
                 }
-                {context.apiKey &&
+                {(context.settings.requireApiKey === "false" || context.apiKey) &&
                 <IconButton onClick={() => history('/addBook')}>
                     <Tooltip title={"Add Book"} placement={"bottom"}>
                         <AddCircleOutline/>
