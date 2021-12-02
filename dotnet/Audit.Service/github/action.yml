@@ -107,7 +107,7 @@ runs:
         fail-on-error: 'false'
 
     - name: Package
-      run: dotnet lambda package
+      run: dotnet lambda package --msbuild-parameters "/p:PublishReadyToRun=true --self-contained false"
       shell: bash
       working-directory: dotnet/Audit.Service
 
