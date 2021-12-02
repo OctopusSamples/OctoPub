@@ -491,7 +491,7 @@ step "Deploy Lambda" {
                          	 "FunctionName": {"Ref": "LambdaOne"},
                           	"Description": {"Ref": "LambdaDescription"},
                           "ProvisionedConcurrencyConfig": {
-                            "ProvisionedConcurrentExecutions": 1
+                            "ProvisionedConcurrentExecutions": 20
                           }
                         }
                     },
