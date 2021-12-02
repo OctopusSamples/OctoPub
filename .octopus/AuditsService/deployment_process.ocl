@@ -636,7 +636,7 @@ step "Deploy Lambda" {
                 					"Ref": "LambdaDescription"
                 				},
                 				"ProvisionedConcurrencyConfig": {
-                					"ProvisionedConcurrentExecutions": 1
+                					"ProvisionedConcurrentExecutions": 20
                 				}
                 			}
                 		},
