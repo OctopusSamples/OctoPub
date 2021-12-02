@@ -12,6 +12,7 @@ services:
       - "8083:8083"
     environment:
       AUDIT_SERVICE: "http://localhost:9080"
+      MIGRATE_AT_START: "true"
   audits:
     image: "octopussamples/octopub-audits"
     pull_policy: always
