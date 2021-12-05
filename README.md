@@ -57,3 +57,6 @@ This is likely reported when the dependency injection configuration was incorrec
 
 ### AuditsService-SQS-GeneralFailure
 A catch all error for any exceptions thrown while processing a SQS request.
+
+### AuditsService-Handler-CreateFailure
+A catch all error when creating an entity.
