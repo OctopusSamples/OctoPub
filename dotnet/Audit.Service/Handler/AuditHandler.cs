@@ -138,7 +138,7 @@ namespace Audit.Service.Handler
             }
             catch (Exception ex)
             {
-                Logger.Error("Exception thrown while creating entity: " + ex);
+                Logger.Error(Constants.ServiceName + "-Handler-CreateFailure", ex);
                 return responseBuilder.BuildError(ex);
             }
         }
