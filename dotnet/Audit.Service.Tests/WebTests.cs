@@ -295,7 +295,7 @@ namespace Audit.Service.Tests
             controller.HttpContext.Request.Headers["Accept"] = "";
             var createResponse = await controller.Entry() as ContentResult;
 
-            Assert.AreEqual(406, createResponse.StatusCode);
+            Assert.AreEqual(406, createResponse?.StatusCode);
         }
 
         [Test]
@@ -319,7 +319,7 @@ namespace Audit.Service.Tests
             controller.HttpContext.Request.Headers["Accept"] = "application/json";
             var createResponse = await controller.Entry() as ContentResult;
 
-            Assert.AreEqual(406, createResponse.StatusCode);
+            Assert.AreEqual(406, createResponse?.StatusCode);
         }
     }
 }

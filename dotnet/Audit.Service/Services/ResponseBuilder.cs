@@ -6,7 +6,7 @@ namespace Audit.Service.Services
     /// <summary>
     /// A service used to build responses.
     /// </summary>
-    public class ResponseBuilder
+    public class ResponseBuilder : IResponseBuilder
     {
         /// <summary>
         /// Builds a response for server side errors.
