@@ -20,7 +20,7 @@ namespace Audit.Service.Handler
         private readonly AuditCreateService auditCreateService;
         private readonly AuditGetAllService auditGetAllService;
         private readonly AuditGetByIdService auditGetByIdService;
-        private readonly ResponseBuilder responseBuilder;
+        private readonly IResponseBuilder responseBuilder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuditHandler"/> class.
@@ -33,7 +33,7 @@ namespace Audit.Service.Handler
             AuditCreateService auditCreateService,
             AuditGetAllService auditGetAllService,
             AuditGetByIdService auditGetByIdService,
-            ResponseBuilder responseBuilder)
+            IResponseBuilder responseBuilder)
         {
             this.auditCreateService = auditCreateService;
             this.auditGetAllService = auditGetAllService;

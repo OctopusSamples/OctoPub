@@ -67,11 +67,11 @@ namespace Audit.Service
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
                 }
             });
+            services.AddSingleton<IResponseBuilder, ResponseBuilder>();
             services.AddSingleton<AuditHandler>();
             services.AddSingleton<AuditCreateService>();
             services.AddSingleton<AuditGetAllService>();
             services.AddSingleton<AuditGetByIdService>();
-            services.AddSingleton<IResponseBuilder, ResponseBuilder>();
         }
 
         /// <summary>

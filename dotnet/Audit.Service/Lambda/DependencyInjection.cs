@@ -60,11 +60,11 @@ namespace Audit.Service.Lambda
                 return context;
             });
 
+            services.AddSingleton<IResponseBuilder, ResponseBuilder>();
             services.AddSingleton<AuditCreateService>();
             services.AddSingleton<AuditGetAllService>();
             services.AddSingleton<AuditGetByIdService>();
             services.AddSingleton<AuditHandler>();
-            services.AddSingleton<IResponseBuilder, ResponseBuilder>();
 
             return services.BuildServiceProvider();
         }
