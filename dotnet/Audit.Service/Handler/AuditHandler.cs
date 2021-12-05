@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Amazon.Lambda.APIGatewayEvents;
+using Audit.Service.Interceptor;
 using Audit.Service.Lambda;
 using Audit.Service.Services;
 using JsonApiSerializer;
@@ -11,6 +12,7 @@ namespace Audit.Service.Handler
     /// <summary>
     ///     This class is created by the DI provider, and does the work of mapping requests to responses.
     /// </summary>
+    [LogMethod]
     public class AuditHandler
     {
         private readonly AuditCreateService auditCreateService;

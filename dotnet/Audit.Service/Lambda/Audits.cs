@@ -7,6 +7,7 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.Json;
 using Amazon.Lambda.SQSEvents;
 using Audit.Service.Handler;
+using Audit.Service.Interceptor;
 using Audit.Service.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ namespace Audit.Service.Lambda
     /// <summary>
     /// The entrypoint to the Audits Lambda.
     /// </summary>
+    [LogMethod]
     public class Audits
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
