@@ -13,6 +13,9 @@ By default, all services run with an in memory database, which removes the need 
 ### Database Migrations
 Where possible, databases are configured automatically with migration tools like [Liquidbase](https://www.liquibase.org/) or the [Entity Framework Migrations ](https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli).
 
+### Logging
+All predictable errors have a unique error code assigned to them (see the **Errors** section below). This reaqdme will serve as a living document linking errors to issues and workarounds.
+
 ### JSONAPI
 The [JSONAPI](https://jsonapi.org/) specification has been implemented for the public microservice APIs.
 
