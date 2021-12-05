@@ -38,7 +38,7 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
-                var responseBuilder = serviceProvider.GetRequiredService<ResponseBuilder>();
+                var responseBuilder = serviceProvider.GetRequiredService<IResponseBuilder>();
 
                 try
                 {
@@ -73,7 +73,7 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
-                var responseBuilder = serviceProvider.GetRequiredService<ResponseBuilder>();
+                var responseBuilder = serviceProvider.GetRequiredService<IResponseBuilder>();
 
                 try
                 {
@@ -111,7 +111,7 @@ namespace Audit.Service.Lambda
                 {
                     try
                     {
-                        var responseBuilder = serviceProvider.GetRequiredService<ResponseBuilder>();
+                        var responseBuilder = serviceProvider.GetRequiredService<IResponseBuilder>();
 
                         Logger.Debug(System.Text.Json.JsonSerializer.Serialize(m));
 
@@ -141,7 +141,7 @@ namespace Audit.Service.Lambda
         }
 
         private APIGatewayProxyResponse ProcessRequest(AuditHandler handler, RequestWrapper wrapper,
-            ResponseBuilder responseBuilder)
+            IResponseBuilder responseBuilder)
         {
             return handler.GetAll(wrapper)
                    ?? handler.GetOne(wrapper)
