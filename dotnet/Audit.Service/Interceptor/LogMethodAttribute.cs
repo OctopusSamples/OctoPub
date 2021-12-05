@@ -32,7 +32,7 @@ namespace Audit.Service.Interceptor
         /// </summary>
         public void OnEntry()
         {
-            Logger.Trace("Entering into {0}", method?.DeclaringType?.Name + " " + method?.Name ?? "Unknown");
+            Logger.Trace("Entering into {0}", method?.DeclaringType?.Name + " " + method?.Name);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Audit.Service.Interceptor
         /// </summary>
         public void OnExit()
         {
-            Logger.Trace("Exiting into {0}", method?.DeclaringType?.Name + " " + method?.Name ?? "Unknown");
+            Logger.Trace("Exiting into {0}", method?.DeclaringType?.Name + " " + method?.Name);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Audit.Service.Interceptor
         /// <param name="exception">The exception that was thrown.</param>
         public void OnException(Exception exception)
         {
-            Logger.Trace(exception, "Exception {0}", method?.DeclaringType?.Name + " " + method?.Name ?? "Unknown");
+            Logger.Trace(exception, "Exception {0}", method?.DeclaringType?.Name + " " + method?.Name);
         }
     }
 }
