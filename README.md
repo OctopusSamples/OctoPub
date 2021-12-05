@@ -41,3 +41,10 @@ curl -fsS https://raw.githubusercontent.com/OctopusSamples/OctoPub/master/docker
 ```
 
 Then open [http://localhost:7080](http://localhost:7080).
+
+## Error Codes
+* `AuditsService-Lambda-GeneralFailure`: A catch all error for any exceptions thrown while processing a Lambda request.
+* `AuditsService-Lambda-DIFailure`: This is likely reported when the dependency injection configuration was incorrect.
+* `AuditsService-Migration-GeneralFailure`: A catch all error for any exceptions thrown while processing peforming a datbase migration.
+* `AuditsService-Migration-DIFailure`: This is likely reported when the dependency injection configuration was incorrect.
+* `AuditsService-SQS-GeneralFailure`: A catch all error for any exceptions thrown while processing a SQS request.
