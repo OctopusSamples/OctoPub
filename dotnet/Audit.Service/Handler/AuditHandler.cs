@@ -6,6 +6,7 @@ using Audit.Service.Lambda;
 using Audit.Service.Services;
 using JsonApiSerializer;
 using Newtonsoft.Json;
+using NLog;
 
 namespace Audit.Service.Handler
 {
@@ -15,6 +16,7 @@ namespace Audit.Service.Handler
     [LogMethod]
     public class AuditHandler
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly AuditCreateService auditCreateService;
         private readonly AuditGetAllService auditGetAllService;
         private readonly AuditGetByIdService auditGetByIdService;
@@ -132,6 +134,7 @@ namespace Audit.Service.Handler
             }
             catch (Exception ex)
             {
+                Logger.Error("Exception thrown while creating entity: " + ex);
                 return BuildServerError(ex);
             }
         }
