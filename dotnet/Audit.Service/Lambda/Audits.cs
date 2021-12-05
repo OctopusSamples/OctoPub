@@ -26,7 +26,6 @@ namespace Audit.Service.Lambda
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static readonly DependencyInjection DependencyInjection = new DependencyInjection();
-        private ResponseBuilder? responseBuilder;
 
         /// <summary>
         ///     This is the entry point to the Lambda to run database migrations.
@@ -39,19 +38,27 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
-                responseBuilder = serviceProvider.GetRequiredService<ResponseBuilder>();
+                var responseBuilder = serviceProvider.GetRequiredService<ResponseBuilder>();
 
-                var db = serviceProvider.GetRequiredService<Db>();
-                db.Database.Migrate();
-                return new APIGatewayProxyResponse
+                try
                 {
-                    StatusCode = 201
-                };
+                    var db = serviceProvider.GetRequiredService<Db>();
+                    db.Database.Migrate();
+                    return new APIGatewayProxyResponse
+                    {
+                        StatusCode = 201
+                    };
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(Constants.ServiceName + "-Migration-GeneralFailure:" + ex);
+                    return responseBuilder.BuildError(ex);
+                }
             }
             catch (Exception ex)
             {
-                Logger.Error(Constants.ServiceName + "-Migration-GeneralFailure:" + ex);
-                return responseBuilder?.BuildError(ex) ?? BuildGenericError();
+                Logger.Error(Constants.ServiceName + "-Migration-DIFailure:" + ex);
+                return BuildGenericError();
             }
         }
 
@@ -66,15 +73,24 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
-                responseBuilder = serviceProvider.GetRequiredService<ResponseBuilder>();
-                var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
-                var handler = serviceProvider.GetRequiredService<AuditHandler>();
-                return AddCors(ProcessRequest(handler, requestWrapper));
+                var responseBuilder = serviceProvider.GetRequiredService<ResponseBuilder>();
+
+                try
+                {
+                    var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
+                    var handler = serviceProvider.GetRequiredService<AuditHandler>();
+                    return AddCors(ProcessRequest(handler, requestWrapper, responseBuilder));
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(Constants.ServiceName + "-Lambda-GeneralFailure:" + ex);
+                    return responseBuilder.BuildError(ex);
+                }
             }
             catch (Exception ex)
             {
-                Logger.Error(Constants.ServiceName + "-Lambda-GeneralFailure:" + ex);
-                return responseBuilder?.BuildError(ex) ?? BuildGenericError();
+                Logger.Error(Constants.ServiceName + "-Lambda-DIFailure:" + ex);
+                return BuildGenericError();
             }
         }
 
@@ -89,11 +105,14 @@ namespace Audit.Service.Lambda
             Logger.Debug(sqsEvent.Records.Count + " records to process");
 
             var serviceProvider = DependencyInjection.ConfigureServices();
+
             sqsEvent.Records
                 .Select(m => new Thread(() =>
                 {
                     try
                     {
+                        var responseBuilder = serviceProvider.GetRequiredService<ResponseBuilder>();
+
                         Logger.Debug(System.Text.Json.JsonSerializer.Serialize(m));
 
                         var requestWrapper = RequestWrapperFactory.CreateFromSqsMessage(m);
@@ -102,7 +121,7 @@ namespace Audit.Service.Lambda
                         Logger.Debug(requestWrapper.Entity);
 
                         var handler = serviceProvider.GetRequiredService<AuditHandler>();
-                        var audit = ProcessRequest(handler, requestWrapper);
+                        var audit = ProcessRequest(handler, requestWrapper, responseBuilder);
 
                         Logger.Debug(System.Text.Json.JsonSerializer.Serialize(audit));
                     }
@@ -121,14 +140,14 @@ namespace Audit.Service.Lambda
                 .ForEach(t => t.Join());
         }
 
-        private APIGatewayProxyResponse ProcessRequest(AuditHandler handler, RequestWrapper wrapper)
+        private APIGatewayProxyResponse ProcessRequest(AuditHandler handler, RequestWrapper wrapper,
+            ResponseBuilder responseBuilder)
         {
             return handler.GetAll(wrapper)
                    ?? handler.GetOne(wrapper)
                    ?? handler.CreateOne(wrapper)
                    ?? handler.GetHealth(wrapper)
-                   ?? responseBuilder?.BuildNotFound()
-                   ?? BuildGenericError();
+                   ?? responseBuilder.BuildNotFound();
         }
 
         private APIGatewayProxyResponse AddCors(APIGatewayProxyResponse response)
