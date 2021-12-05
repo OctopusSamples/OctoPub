@@ -46,6 +46,7 @@ namespace Audit.Service.Lambda
             }
             catch (Exception ex)
             {
+                Logger.Error(Constants.ServiceName + "-Migration-GeneralFailure:" + ex);
                 return BuildError(ex);
             }
         }
@@ -67,6 +68,7 @@ namespace Audit.Service.Lambda
             }
             catch (Exception ex)
             {
+                Logger.Error(Constants.ServiceName + "-Lambda-GeneralFailure:" + ex);
                 return BuildError(ex);
             }
         }
