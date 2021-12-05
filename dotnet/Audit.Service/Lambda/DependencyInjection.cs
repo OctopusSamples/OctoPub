@@ -64,6 +64,7 @@ namespace Audit.Service.Lambda
             services.AddSingleton<AuditGetAllService>();
             services.AddSingleton<AuditGetByIdService>();
             services.AddSingleton<AuditHandler>();
+            services.AddSingleton<ResponseBuilder>();
 
             return services.BuildServiceProvider();
         }

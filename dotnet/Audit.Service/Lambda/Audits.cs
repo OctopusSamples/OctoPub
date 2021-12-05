@@ -9,6 +9,7 @@ using Amazon.Lambda.SQSEvents;
 using Audit.Service.Handler;
 using Audit.Service.Interceptor;
 using Audit.Service.Repositories;
+using Audit.Service.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
@@ -25,6 +26,7 @@ namespace Audit.Service.Lambda
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static readonly DependencyInjection DependencyInjection = new DependencyInjection();
+        private ResponseBuilder? responseBuilder;
 
         /// <summary>
         ///     This is the entry point to the Lambda to run database migrations.
@@ -37,6 +39,8 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
+                responseBuilder = serviceProvider.GetRequiredService<ResponseBuilder>();
+
                 var db = serviceProvider.GetRequiredService<Db>();
                 db.Database.Migrate();
                 return new APIGatewayProxyResponse
@@ -47,7 +51,7 @@ namespace Audit.Service.Lambda
             catch (Exception ex)
             {
                 Logger.Error(Constants.ServiceName + "-Migration-GeneralFailure:" + ex);
-                return BuildError(ex);
+                return responseBuilder?.BuildError(ex) ?? BuildGenericError();
             }
         }
 
@@ -62,6 +66,7 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
+                responseBuilder = serviceProvider.GetRequiredService<ResponseBuilder>();
                 var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
                 var handler = serviceProvider.GetRequiredService<AuditHandler>();
                 return AddCors(ProcessRequest(handler, requestWrapper));
@@ -69,7 +74,7 @@ namespace Audit.Service.Lambda
             catch (Exception ex)
             {
                 Logger.Error(Constants.ServiceName + "-Lambda-GeneralFailure:" + ex);
-                return BuildError(ex);
+                return responseBuilder?.BuildError(ex) ?? BuildGenericError();
             }
         }
 
@@ -122,7 +127,8 @@ namespace Audit.Service.Lambda
                    ?? handler.GetOne(wrapper)
                    ?? handler.CreateOne(wrapper)
                    ?? handler.GetHealth(wrapper)
-                   ?? BuildNotFound();
+                   ?? responseBuilder?.BuildNotFound()
+                   ?? BuildGenericError();
         }
 
         private APIGatewayProxyResponse AddCors(APIGatewayProxyResponse response)
@@ -133,7 +139,7 @@ namespace Audit.Service.Lambda
             return response;
         }
 
-        private APIGatewayProxyResponse BuildError(Exception ex)
+        private APIGatewayProxyResponse BuildGenericError()
         {
             return new APIGatewayProxyResponse
             {
@@ -141,25 +147,10 @@ namespace Audit.Service.Lambda
                 {
                     errors = new[]
                     {
-                        new { code = ex.GetType().Name }
+                        new { code = "A unspecified error occured" }
                     }
                 }),
                 StatusCode = 500
-            };
-        }
-
-        private APIGatewayProxyResponse BuildNotFound()
-        {
-            return new APIGatewayProxyResponse
-            {
-                Body = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    errors = new[]
-                    {
-                        new { title = "Resource was not found" }
-                    }
-                }),
-                StatusCode = 404
             };
         }
     }

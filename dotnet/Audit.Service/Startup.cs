@@ -71,6 +71,7 @@ namespace Audit.Service
             services.AddScoped<AuditCreateService>();
             services.AddScoped<AuditGetAllService>();
             services.AddScoped<AuditGetByIdService>();
+            services.AddScoped<ResponseBuilder>();
         }
 
         /// <summary>

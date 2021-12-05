@@ -20,6 +20,7 @@ namespace Audit.Service.Handler
         private readonly AuditCreateService auditCreateService;
         private readonly AuditGetAllService auditGetAllService;
         private readonly AuditGetByIdService auditGetByIdService;
+        private readonly ResponseBuilder responseBuilder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuditHandler"/> class.
@@ -27,14 +28,17 @@ namespace Audit.Service.Handler
         /// <param name="auditCreateService">The service used to create new resources.</param>
         /// <param name="auditGetAllService">The service used to return resource collections.</param>
         /// <param name="auditGetByIdService">The service used to return single resources.</param>
+        /// <param name="responseBuilder">The response builder.</param>
         public AuditHandler(
             AuditCreateService auditCreateService,
             AuditGetAllService auditGetAllService,
-            AuditGetByIdService auditGetByIdService)
+            AuditGetByIdService auditGetByIdService,
+            ResponseBuilder responseBuilder)
         {
             this.auditCreateService = auditCreateService;
             this.auditGetAllService = auditGetAllService;
             this.auditGetByIdService = auditGetByIdService;
+            this.responseBuilder = responseBuilder;
         }
 
         /// <summary>
@@ -98,7 +102,7 @@ namespace Audit.Service.Handler
                     StatusCode = 200
                 };
 
-            return BuildNotFound();
+            return responseBuilder.BuildNotFound();
         }
 
         /// <summary>
@@ -121,7 +125,7 @@ namespace Audit.Service.Handler
                 if (string.IsNullOrWhiteSpace(entity.Action) ||
                     string.IsNullOrWhiteSpace(entity.Object) ||
                     string.IsNullOrWhiteSpace(entity.Subject))
-                    return BuildRequestError("One or more required fields were not supplied");
+                    return responseBuilder.BuildClientError("One or more required fields were not supplied");
 
                 entity.Id = null;
                 entity.DataPartition = wrapper.DataPartition;
@@ -135,37 +139,8 @@ namespace Audit.Service.Handler
             catch (Exception ex)
             {
                 Logger.Error("Exception thrown while creating entity: " + ex);
-                return BuildServerError(ex);
+                return responseBuilder.BuildError(ex);
             }
-        }
-
-        private APIGatewayProxyResponse BuildServerError(Exception ex)
-        {
-            return new APIGatewayProxyResponse
-            {
-                Body =
-                    $"{{\"errors\": [{{\"code\": \"{ex.GetType().Name}\"}}]}}",
-                StatusCode = 500
-            };
-        }
-
-        private APIGatewayProxyResponse BuildRequestError(string message)
-        {
-            return new APIGatewayProxyResponse
-            {
-                Body =
-                    $"{{\"errors\": [{{\"title\": \"{message}\"}}]}}",
-                StatusCode = 401
-            };
-        }
-
-        private APIGatewayProxyResponse BuildNotFound()
-        {
-            return new APIGatewayProxyResponse
-            {
-                Body = "{\"errors\": [{\"title\": \"Resource not found\"}]}",
-                StatusCode = 404
-            };
         }
     }
 }
