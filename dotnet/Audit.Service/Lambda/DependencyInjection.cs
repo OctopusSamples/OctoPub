@@ -73,11 +73,6 @@ namespace Audit.Service.Lambda
         {
             if (context.Database.IsSqlite())
                 context.Database.EnsureCreated();
-            else if (context.Database.IsMySql())
-                context.Database.SetCommandTimeout(
-                    int.TryParse(configuration.GetSection("Database:MySqlTimeout").Value, out var timeout)
-                        ? timeout
-                        : Constants.DefaultMySqlTimeout);
         }
     }
 }
