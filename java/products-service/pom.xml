@@ -135,6 +135,12 @@
     <dependency>
       <artifactId>quarkus-liquibase</artifactId>
       <groupId>io.quarkus</groupId>
+      <exclusions>
+        <exclusion>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-awt</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <artifactId>quarkus-resteasy-reactive</artifactId>
