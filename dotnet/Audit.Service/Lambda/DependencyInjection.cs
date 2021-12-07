@@ -50,7 +50,11 @@ namespace Audit.Service.Lambda
                     optionsBuilder.UseMySql(
                         configuration.GetConnectionString("MySqlDatabase"),
                         new MySqlServerVersion(Constants.MySqlVersion),
-                        x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
+                        x =>
+                        {
+                            x.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
+                            x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                        });
                 }
 
                 var context = new Db(optionsBuilder.Options);
