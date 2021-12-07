@@ -411,7 +411,7 @@ step "Deploy Lambda" {
                         "Description" : {"Ref": "LambdaDescription"},
                         "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-InitDB" },
                         "Handler": "not.used.in.provided.runtime",
-                        "MemorySize": 128,
+                        "MemorySize": 256,
                         "PackageType": "Zip",
                         "Role": {
                           "Fn::GetAtt": [
