@@ -72,7 +72,7 @@ runs:
       working-directory: java/products-service
 
     - name: Build with Maven
-      run: ./mvnw --batch-mode package --file pom.xml -Pnative -DskipTests -Dquarkus.profile=prod
+      run: ./mvnw --batch-mode package --file pom.xml -Pnative -DskipTests -Dquarkus.profile=prod -Dquarkus.native.container-build=true
       shell: bash
       working-directory: java/products-service
 
