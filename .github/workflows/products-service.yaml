@@ -8,7 +8,8 @@ on:
 
 jobs:
   build:
-
+    # We can't run on ubuntu-latest, as that has updated GLIBC to a version that
+    # is incompatible with Lambdas.
     runs-on: ubuntu-18.04
 
     steps:
