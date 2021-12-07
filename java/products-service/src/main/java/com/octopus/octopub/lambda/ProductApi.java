@@ -22,7 +22,6 @@ import javax.inject.Named;
 import javax.transaction.Transactional;
 import lombok.NonNull;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.text.StringEscapeUtils;
 
 /** The Lambda entry point used to return product resources. */
 @Named("Products")
@@ -470,7 +469,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
         "{\"errors\": [{\"code\": \""
             + ex.getClass().getCanonicalName()
             + "\", \"meta\": {\"requestBody\": \""
-            + StringEscapeUtils.escapeJson(requestBody)
+            + requestBody
             + "\"}}]}");
   }
 
