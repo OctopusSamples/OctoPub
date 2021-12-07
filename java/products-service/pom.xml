@@ -159,14 +159,6 @@
       <groupId>io.quarkus</groupId>
     </dependency>
     <dependency>
-      <artifactId>quarkus-smallrye-jwt</artifactId>
-      <groupId>io.quarkus</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>quarkus-smallrye-jwt-build</artifactId>
-      <groupId>io.quarkus</groupId>
-    </dependency>
-    <dependency>
       <artifactId>quarkus-hibernate-envers</artifactId>
       <groupId>io.quarkus</groupId>
     </dependency>
