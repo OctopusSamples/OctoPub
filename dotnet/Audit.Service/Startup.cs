@@ -64,7 +64,11 @@ namespace Audit.Service
                     opt.UseMySql(
                         Configuration.GetConnectionString("MySqlDatabase"),
                         new MySqlServerVersion(Constants.MySqlVersion),
-                        x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
+                        x =>
+                        {
+                            x.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
+                            x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                        });
                 }
             });
             services.AddSingleton<IResponseBuilder, ResponseBuilder>();
