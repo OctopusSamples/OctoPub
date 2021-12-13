@@ -6,7 +6,7 @@ import {DataGrid, GridCellEditCommitParams, GridRowId} from "@material-ui/data-g
 import {styles} from "../utils/styles";
 import {Button, Grid} from "@material-ui/core";
 
-interface RedirectRule {
+export interface RedirectRule {
     id: number,
     path: string,
     destination: string

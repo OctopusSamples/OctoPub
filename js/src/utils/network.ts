@@ -1,4 +1,12 @@
 import {GET_RETRIES} from "./constants";
+import {RedirectRule} from "../pages/Branching";
+
+function getBranchingRules() {
+    const rules: RedirectRule[] = JSON.parse(localStorage.getItem("branching") || "[]")
+    return rules
+        .filter(r => r.path.trim() && r.destination.trim())
+        .map(r => "version[" + r.path + "]=" + r.destination).join(";")
+}
 
 export function getJson<T>(url: string, retryCount?: number): Promise<T> {
     return fetch(url, {
@@ -26,7 +34,7 @@ export function getJsonApi<T>(url: string, partition: string | null, apiKey?: st
     return fetch(url, {
         method: 'GET',
         headers: {
-            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition,
+            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
             'X-API-Key': apiKey || ""
         }
@@ -50,7 +58,7 @@ export function patchJsonApi<T>(resource: string, url: string, partition: string
     return fetch(url, {
         method: 'PATCH',
         headers: {
-            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition,
+            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
             'X-API-Key': apiKey || ""
         },
@@ -75,7 +83,7 @@ export function postJsonApi<T>(resource: string, url: string, partition: string 
     return fetch(url, {
         method: 'POST',
         headers: {
-            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition,
+            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
             'X-API-Key': apiKey || ""
         },
@@ -93,7 +101,7 @@ export function deleteJsonApi(url: string, partition: string | null, apiKey?: st
     return fetch(url, {
         method: 'DELETE',
         headers: {
-            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition,
+            'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
             'X-API-Key': apiKey || ""
         }
