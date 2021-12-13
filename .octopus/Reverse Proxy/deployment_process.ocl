@@ -5,7 +5,7 @@ step "Create Bucket" {
         environments = ["Production", "Development"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.AuditsBucket}"
+            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ReverseProxyBucket}"
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
                   "Resources": {
@@ -49,7 +49,7 @@ step "Upload Lambda" {
             Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.Package.DownloadOnTentacle = "False"
             Octopus.Action.Package.FeedId = "Octopub"
-            Octopus.Action.Package.PackageId = "com.octopus.octopub:audits-service"
+            Octopus.Action.Package.PackageId = "com.octopus.octopub:reverse-proxy"
             Octopus.Action.RunOnServer = "true"
         }
         worker_pool_variable = "WorkerPool"
@@ -57,7 +57,7 @@ step "Upload Lambda" {
         packages {
             acquisition_location = "Server"
             feed = "Octopub"
-            package_id = "com.octopus.octopub:audits-service"
+            package_id = "com.octopus.octopub:reverse-proxy"
             properties = {
                 SelectionMode = "immediate"
             }
@@ -133,22 +133,13 @@ step "Deploy Lambda" {
         environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.AuditsService}"
+            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ReverseProxy}"
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
                 	"Parameters": {
                 		"EnvironmentName": {
                 			"Type": "String",
                 			"Default": "#{Octopus.Environment.Name}"
-                		},
-                		"RestApi": {
-                			"Type": "String"
-                		},
-                		"ResourceId": {
-                			"Type": "String"
-                		},
-                		"HealthResourceId": {
-                			"Type": "String"
                 		},
                 		"LambdaS3Key": {
                 			"Type": "String"
@@ -162,21 +153,8 @@ step "Deploy Lambda" {
                 		"LambdaDescription": {
                 			"Type": "String"
                 		},
-                		"DBUsername": {
-                			"Type": "String"
-                		},
-                		"DBPassword": {
-                			"Type": "String"
-                		},
-                		"Path": {
-                			"Type": "String"
-                		},
                 		"Suffix": {
                 			"Type": "String"
-                		},
-                		"UseInMemeoryDB": {
-                			"Type": "String",
-                			"Default": "true"
                 		}
                 	},
                 	"Resources": {
@@ -276,7 +254,7 @@ step "Deploy Lambda" {
                 			"Type": "AWS::RDS::DBSubnetGroup",
                 			"Properties": {
                 				"DBSubnetGroupName": "auditdbsg",
-                				"DBSubnetGroupDescription": "Audits Subnet Group",
+                				"DBSubnetGroupDescription": "Reverse Proxy Subnet Group",
                 				"SubnetIds": [{
                 					"Ref": "SubnetA"
                 				}, {
@@ -310,32 +288,6 @@ step "Deploy Lambda" {
                 				"ToPort": "65535",
                 				"SourceSecurityGroupId": {
                 					"Ref": "InstanceSecurityGroup"
-                				}
-                			}
-                		},
-                		"RDSCluster": {
-                			"Type": "AWS::RDS::DBCluster",
-                			"Properties": {
-                				"DBSubnetGroupName": {
-                					"Ref": "SubnetGroup"
-                				},
-                				"MasterUsername": {
-                					"Ref": "DBUsername"
-                				},
-                				"MasterUserPassword": {
-                					"Ref": "DBPassword"
-                				},
-                				"DatabaseName": "audits",
-                				"Engine": "aurora",
-                				"EngineMode": "serverless",
-                				"VpcSecurityGroupIds": [{
-                					"Ref": "InstanceSecurityGroup"
-                				}],
-                				"ScalingConfiguration": {
-                					"AutoPause": true,
-                					"MaxCapacity": 16,
-                					"MinCapacity": 2,
-                					"SecondsUntilAutoPause": 300
                 				}
                 			}
                 		},
@@ -390,50 +342,6 @@ step "Deploy Lambda" {
                 				}
                 			}
                 		},
-                		"IamRoleLambdaSqsExecution": {
-                			"Type": "AWS::IAM::Role",
-                			"Properties": {
-                				"AssumeRolePolicyDocument": {
-                					"Version": "2012-10-17",
-                					"Statement": [{
-                						"Effect": "Allow",
-                						"Principal": {
-                							"Service": [
-                								"lambda.amazonaws.com"
-                							]
-                						},
-                						"Action": [
-                							"sts:AssumeRole"
-                						]
-                					}]
-                				},
-                				"ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"],
-                				"Policies": [{
-                					"PolicyName": {
-                						"Fn::Sub": "${EnvironmentName}-${LambdaName}-SQS-policy"
-                					},
-                					"PolicyDocument": {
-                						"Version": "2012-10-17",
-                						"Statement": [{
-                							"Effect": "Allow",
-                							"Action": [
-                								"sqs:ReceiveMessage",
-                								"sqs:DeleteMessage",
-                								"sqs:GetQueueAttributes",
-                								"sqs:ChangeMessageVisibility"
-                							],
-                							"Resource": [{
-                								"Fn::GetAtt": ["AuditsQueue", "Arn"]
-                							}]
-                						}]
-                					}
-                				}],
-                				"Path": "/",
-                				"RoleName": {
-                					"Fn::Sub": "${EnvironmentName}-${LambdaName}-SQS-role"
-                				}
-                			}
-                		},
                 		"LambdaHttp": {
                 			"Type": "AWS::Lambda::Function",
                 			"Properties": {
@@ -445,101 +353,13 @@ step "Deploy Lambda" {
                 						"Ref": "LambdaS3Key"
                 					}
                 				},
-                				"Environment": {
-                					"Variables": {
-                						"Database__UseInMemory": {"Ref": "UseInMemeoryDB"},
-                						"ConnectionStrings__MySqlDatabase": {
-                							"Fn::Join": [
-                							  "",
-                							  [
-                								"server=",
-                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
-                								";port=",
-                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
-                								";database=audits;user=",
-                								{
-                								  "Ref": "DBUsername"
-                								},
-                								";password=",
-                								{
-                								  "Ref": "DBPassword"
-                								}
-                							  ]
-                							]
-                						  }
-                					}
-                				},
                 				"Description": {
                 					"Ref": "LambdaDescription"
                 				},
                 				"FunctionName": {
                 					"Fn::Sub": "${EnvironmentName}-Web-${LambdaName}"
                 				},
-                				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsApi",
-                				"MemorySize": 1024,
-                				"PackageType": "Zip",
-                				"Role": {
-                					"Fn::GetAtt": [
-                						"IamRoleLambdaHttpExecution",
-                						"Arn"
-                					]
-                				},
-                				"Runtime": "dotnetcore3.1",
-                				"Timeout": 30,
-                				"VpcConfig": {
-                					"SecurityGroupIds": [{
-                						"Ref": "InstanceSecurityGroup"
-                					}],
-                					"SubnetIds": [{
-                						"Ref": "SubnetA"
-                					}, {
-                						"Ref": "SubnetB"
-                					}]
-                				}
-                			}
-                		},
-                		"LambdaDbMigrations": {
-                			"Type": "AWS::Lambda::Function",
-                			"Properties": {
-                				"Code": {
-                					"S3Bucket": {
-                						"Ref": "LambdaS3Bucket"
-                					},
-                					"S3Key": {
-                						"Ref": "LambdaS3Key"
-                					}
-                				},
-                				"Environment": {
-                					"Variables": {
-                						"Database__UseInMemory": {"Ref": "UseInMemeoryDB"},
-                						"ConnectionStrings__MySqlDatabase": {
-                							"Fn::Join": [
-                							  "",
-                							  [
-                								"server=",
-                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
-                								";port=",
-                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
-                								";database=audits;user=",
-                								{
-                								  "Ref": "DBUsername"
-                								},
-                								";password=",
-                								{
-                								  "Ref": "DBPassword"
-                								}
-                							  ]
-                							]
-                						  }
-                					}
-                				},
-                				"Description": {
-                					"Ref": "LambdaDescription"
-                				},
-                				"FunctionName": {
-                					"Fn::Sub": "${EnvironmentName}-InitDB-${LambdaName}"
-                				},
-                				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsDbMigration",
+                				"Handler": "lambdahandler",
                 				"MemorySize": 256,
                 				"PackageType": "Zip",
                 				"Role": {
@@ -548,71 +368,7 @@ step "Deploy Lambda" {
                 						"Arn"
                 					]
                 				},
-                				"Runtime": "dotnetcore3.1",
-                				"Timeout": 30,
-                				"VpcConfig": {
-                					"SecurityGroupIds": [{
-                						"Ref": "InstanceSecurityGroup"
-                					}],
-                					"SubnetIds": [{
-                						"Ref": "SubnetA"
-                					}, {
-                						"Ref": "SubnetB"
-                					}]
-                				}
-                			}
-                		},
-                		"LambdaSqs": {
-                			"Type": "AWS::Lambda::Function",
-                			"Properties": {
-                				"Code": {
-                					"S3Bucket": {
-                						"Ref": "LambdaS3Bucket"
-                					},
-                					"S3Key": {
-                						"Ref": "LambdaS3Key"
-                					}
-                				},
-                				"Environment": {
-                					"Variables": {
-                						"Database__UseInMemory": {"Ref": "UseInMemeoryDB"},
-                						"ConnectionStrings__MySqlDatabase": {
-                							"Fn::Join": [
-                							  "",
-                							  [
-                								"server=",
-                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
-                								";port=",
-                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
-                								";database=audits;user=",
-                								{
-                								  "Ref": "DBUsername"
-                								},
-                								";password=",
-                								{
-                								  "Ref": "DBPassword"
-                								}
-                							  ]
-                							]
-                						  }
-                					}
-                				},
-                				"Description": {
-                					"Ref": "LambdaDescription"
-                				},
-                				"FunctionName": {
-                					"Fn::Sub": "${EnvironmentName}-SQS-${LambdaName}"
-                				},
-                				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::HandleSqsEvent",
-                				"MemorySize": 128,
-                				"PackageType": "Zip",
-                				"Role": {
-                					"Fn::GetAtt": [
-                						"IamRoleLambdaSqsExecution",
-                						"Arn"
-                					]
-                				},
-                				"Runtime": "dotnetcore3.1",
+                				"Runtime": "go1.x",
                 				"Timeout": 30,
                 				"VpcConfig": {
                 					"SecurityGroupIds": [{
@@ -671,387 +427,6 @@ step "Deploy Lambda" {
                 					]
                 				}
                 			}
-                		},
-                		"EntityResource": {
-                			"Type": "AWS::ApiGateway::Resource",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				},
-                				"ParentId": {
-                					"Ref": "ResourceId"
-                				},
-                				"PathPart": {
-                					"Ref": "Path"
-                				}
-                			}
-                		},
-                		"HealthResource": {
-                			"Type": "AWS::ApiGateway::Resource",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				},
-                				"ParentId": {
-                					"Ref": "HealthResourceId"
-                				},
-                				"PathPart": {
-                					"Ref": "Path"
-                				}
-                			}
-                		},
-                		"EntityProxyResource": {
-                			"Type": "AWS::ApiGateway::Resource",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				},
-                				"ParentId": {
-                					"Ref": "EntityResource"
-                				},
-                				"PathPart": "{proxy+}"
-                			}
-                		},
-                		"HealthProxyResource": {
-                			"Type": "AWS::ApiGateway::Resource",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				},
-                				"ParentId": {
-                					"Ref": "HealthResource"
-                				},
-                				"PathPart": "{proxy+}"
-                			}
-                		},
-                		"LambdaResourceMethodOne": {
-                			"Type": "AWS::ApiGateway::Method",
-                			"Properties": {
-                				"AuthorizationType": "NONE",
-                				"HttpMethod": "GET",
-                				"Integration": {
-                					"IntegrationHttpMethod": "POST",
-                					"TimeoutInMillis": 20000,
-                					"Type": "AWS_PROXY",
-                					"Uri": {
-                						"Fn::Join": [
-                							"",
-                						  [
-                							"arn:",
-                							{
-                							  "Ref": "AWS::Partition"
-                							},
-                							":apigateway:",
-                							{
-                							  "Ref": "AWS::Region"
-                							},
-                							":lambda:path/2015-03-31/functions/",
-                							{ "Ref": "LambdaVersion#{DeploymentId}" },
-                							"/invocations"
-                						  ]
-                						]
-                					}
-                				},
-                				"ResourceId": {
-                					"Ref": "EntityResource"
-                				},
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				}
-                			}
-                		},
-                		"LambdaResourceMethodTwo": {
-                			"Type": "AWS::ApiGateway::Method",
-                			"Properties": {
-                				"AuthorizationType": "NONE",
-                				"HttpMethod": "GET",
-                				"Integration": {
-                					"IntegrationHttpMethod": "POST",
-                					"TimeoutInMillis": 20000,
-                					"Type": "AWS_PROXY",
-                					"Uri": {
-                						"Fn::Join": [
-                							"",
-                						  [
-                							"arn:",
-                							{
-                							  "Ref": "AWS::Partition"
-                							},
-                							":apigateway:",
-                							{
-                							  "Ref": "AWS::Region"
-                							},
-                							":lambda:path/2015-03-31/functions/",
-                							{ "Ref": "LambdaVersion#{DeploymentId}" },
-                							"/invocations"
-                						  ]
-                						]
-                					}
-                				},
-                				"ResourceId": {
-                					"Ref": "EntityProxyResource"
-                				},
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				}
-                			}
-                		},
-                		"LambdaHealthResourceMethodOne": {
-                			"Type": "AWS::ApiGateway::Method",
-                			"Properties": {
-                				"AuthorizationType": "NONE",
-                				"HttpMethod": "GET",
-                				"Integration": {
-                					"IntegrationHttpMethod": "POST",
-                					"TimeoutInMillis": 20000,
-                					"Type": "AWS_PROXY",
-                					"Uri": {
-                						"Fn::Join": [
-                							"",
-                						  [
-                							"arn:",
-                							{
-                							  "Ref": "AWS::Partition"
-                							},
-                							":apigateway:",
-                							{
-                							  "Ref": "AWS::Region"
-                							},
-                							":lambda:path/2015-03-31/functions/",
-                							{ "Ref": "LambdaVersion#{DeploymentId}" },
-                							"/invocations"
-                						  ]
-                						]
-                					}
-                				},
-                				"ResourceId": {
-                					"Ref": "HealthResource"
-                				},
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				}
-                			}
-                		},
-                		"LambdaHealthResourceMethodTwo": {
-                			"Type": "AWS::ApiGateway::Method",
-                			"Properties": {
-                				"AuthorizationType": "NONE",
-                				"HttpMethod": "GET",
-                				"Integration": {
-                					"IntegrationHttpMethod": "POST",
-                					"TimeoutInMillis": 20000,
-                					"Type": "AWS_PROXY",
-                					"Uri": {
-                						"Fn::Join": [
-                							"",
-                						  [
-                							"arn:",
-                							{
-                							  "Ref": "AWS::Partition"
-                							},
-                							":apigateway:",
-                							{
-                							  "Ref": "AWS::Region"
-                							},
-                							":lambda:path/2015-03-31/functions/",
-                							{ "Ref": "LambdaVersion#{DeploymentId}" },
-                							"/invocations"
-                						  ]
-                						]
-                					}
-                				},
-                				"ResourceId": {
-                					"Ref": "HealthProxyResource"
-                				},
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				}
-                			}
-                		},
-                		"Deployment#{DeploymentId}": {
-                			"Type": "AWS::ApiGateway::Deployment",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				}
-                			},
-                			"DependsOn": [
-                				"LambdaResourceMethodOne",
-                				"LambdaResourceMethodTwo",
-                				"LambdaHealthResourceMethodOne",
-                				"LambdaHealthResourceMethodTwo"
-                			]
-                		},
-                		"AuditsQueue": {
-                			"Type": "AWS::SQS::Queue",
-                			"Properties": {
-                				"QueueName": {
-                					"Fn::Join": ["", ["audits-", {
-                						"Ref": "EnvironmentName"
-                					}, {
-                						"Ref": "Suffix"
-                					}]]
-                				}
-                			}
-                		},
-                		"LambdaFunctionEventSourceMapping": {
-                			"Type": "AWS::Lambda::EventSourceMapping",
-                			"Properties": {
-                				"Enabled": true,
-                				"BatchSize": 1,
-                				"EventSourceArn": {
-                					"Fn::GetAtt": ["AuditsQueue", "Arn"]
-                				},
-                				"FunctionName": {
-                					"Fn::GetAtt": ["LambdaSqs", "Arn"]
-                				}
-                			}
-                		},
-                		"APIGatewayRole": {
-                			"Type": "AWS::IAM::Role",
-                			"Properties": {
-                				"AssumeRolePolicyDocument": {
-                					"Statement": [{
-                						"Action": [
-                							"sts:AssumeRole"
-                						],
-                						"Effect": "Allow",
-                						"Principal": {
-                							"Service": [
-                								"apigateway.amazonaws.com"
-                							]
-                						}
-                					}],
-                					"Version": "2012-10-17"
-                				},
-                				"Path": "/",
-                				"Policies": [{
-                					"PolicyName": "apig-sqs-send-msg-policy",
-                					"PolicyDocument": {
-                						"Statement": [{
-                								"Action": "sqs:SendMessage",
-                								"Effect": "Allow",
-                								"Resource": "*"
-                							},
-                							{
-                								"Action": [
-                									"logs:CreateLogGroup",
-                									"logs:CreateLogStream",
-                									"logs:PutLogEvents"
-                								],
-                								"Effect": "Allow",
-                								"Resource": "*"
-                							}
-                						],
-                						"Version": "2012-10-17"
-                					}
-                				}],
-                				"RoleName": "apig-sqs-send-msg-role"
-                			}
-                		},
-                		"SqsProxyMethod": {
-                			"Type": "AWS::ApiGateway::Method",
-                			"Properties": {
-                				"AuthorizationType": "NONE",
-                				"ApiKeyRequired": true,
-                				"HttpMethod": "POST",
-                				"RequestParameters": {
-                					"method.request.header.accept": true
-                				},
-                				"Integration": {
-                					"Credentials": {
-                						"Fn::GetAtt": ["APIGatewayRole", "Arn"]
-                					},
-                					"IntegrationHttpMethod": "POST",
-                					"IntegrationResponses": [{
-                						"StatusCode": "202"
-                					}],
-                					"PassthroughBehavior": "NEVER",
-                					"ContentHandling": "CONVERT_TO_TEXT",
-                					"RequestParameters": {
-                						"integration.request.header.Content-Type": "'application/x-www-form-urlencoded'"
-                					},
-                					"RequestTemplates": {
-                						"application/json": "Action=SendMessage&MessageBody=$util.base64Decode($input.body)&MessageAttribute.1.Name=action&MessageAttribute.1.Value.DataType=String&MessageAttribute.1.Value.StringValue=Create&MessageAttribute.2.Name=entity&MessageAttribute.2.Value.DataType=String&MessageAttribute.2.Value.StringValue=Audit&MessageAttribute.3.Name=tenant&MessageAttribute.3.Value.DataType=String&MessageAttribute.3.Value.StringValue=$util.urlEncode($input.params('accept'))"
-                					},
-                					"Type": "AWS",
-                					"Uri": {
-                						"Fn::Join": [
-                							"",
-                							[
-                								"arn:aws:apigateway:",
-                								{
-                									"Ref": "AWS::Region"
-                								},
-                								":sqs:path/",
-                								{
-                									"Ref": "AWS::AccountId"
-                								},
-                								"/",
-                								{
-                									"Fn::GetAtt": ["AuditsQueue", "QueueName"]
-                								}
-                							]
-                						]
-                					}
-                				},
-                				"MethodResponses": [{
-                					"ResponseModels": {
-                						"application/json": "Empty"
-                					},
-                					"StatusCode": "202"
-                				}],
-                				"ResourceId": {
-                					"Ref": "EntityResource"
-                				},
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				}
-                			}
-                		},
-                		"LambdaResourceOptions": {
-                			"Type": "AWS::ApiGateway::Method",
-                			"Properties": {
-                				"AuthorizationType": "NONE",
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				},
-                				"ResourceId": {
-                					"Ref": "EntityResource"
-                				},
-                				"HttpMethod": "OPTIONS",
-                				"Integration": {
-                					"IntegrationResponses": [{
-                						"StatusCode": 200,
-                						"ContentHandling": "CONVERT_TO_TEXT",
-                						"ResponseParameters": {
-                							"method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-                							"method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-                							"method.response.header.Access-Control-Allow-Origin": "'*'"
-                						},
-                						"ResponseTemplates": {
-                							"application/json": ""
-                						}
-                					}],
-                					"PassthroughBehavior": "WHEN_NO_MATCH",
-                					"RequestTemplates": {
-                						"application/json": "{\"statusCode\": 200}"
-                					},
-                					"Type": "MOCK",
-                					"ContentHandling": "CONVERT_TO_TEXT"
-                				},
-                				"MethodResponses": [{
-                					"StatusCode": 200,
-                					"ResponseModels": {
-                						"application/json": "Empty"
-                					},
-                					"ResponseParameters": {
-                						"method.response.header.Access-Control-Allow-Headers": false,
-                						"method.response.header.Access-Control-Allow-Methods": false,
-                						"method.response.header.Access-Control-Allow-Origin": false
-                					}
-                				}]
-                			}
                 		}
                 	},
                 	"Outputs": {
@@ -1084,30 +459,12 @@ step "Deploy Lambda" {
                 			"Value": {
                 				"Ref": "InstanceSecurityGroup"
                 			}
-                		},
-                		"AduitsQueue": {
-                			"Description": "Url of the audits queue",
-                			"Value": {
-                				"Ref": "AuditsQueue"
-                			}
-                		},
-                		"AduitsQueueArn": {
-                			"Description": "Arn of the audits queue",
-                			"Value": {
-                				"Fn::GetAtt": ["AuditsQueue", "Arn"]
-                			}
-                		},
-                		"AduitsQueueName": {
-                			"Description": "Name of the audits queue",
-                			"Value": {
-                				"Fn::GetAtt": ["AuditsQueue", "QueueName"]
-                			}
                 		}
                 	}
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"},{\"ParameterKey\":\"UseInMemeoryDB\",\"ParameterValue\":\"false\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"},{\"ParameterKey\":\"UseInMemeoryDB\",\"ParameterValue\":\"false\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ReverseProxy}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ReverseProxy}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"}]"
             Octopus.Action.Aws.IamCapabilities = "[\"CAPABILITY_NAMED_IAM\"]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
@@ -1120,149 +477,6 @@ step "Deploy Lambda" {
     }
 }
 
-step "Database Migration" {
-
-    action {
-        action_type = "Octopus.AwsRunScript"
-        environments = ["Development", "Production"]
-        properties = {
-            Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.Region = "#{AWS.Region}"
-            Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS.Account"
-            Octopus.Action.RunOnServer = "true"
-            Octopus.Action.Script.ScriptBody = <<-EOT
-                LAMBDA=#{Octopus.Environment.Name}-InitDB-#{Lambda.AuditsService}
-                
-                echo "Executing ${LAMBDA}"
-                
-                aws lambda invoke \
-                	--function-name ${LAMBDA} \
-                    --payload '{}' \
-                    response.json
-                    
-                cat response.json
-            EOT
-            Octopus.Action.Script.ScriptSource = "Inline"
-            Octopus.Action.Script.Syntax = "Bash"
-            OctopusUseBundledTooling = "False"
-        }
-        worker_pool_variable = "WorkerPool"
-
-        container {
-            feed = "Dockerhub"
-            image = "octopusdeploy/worker-tools:3.2.1-ubuntu.18.04"
-        }
-    }
-}
-
-step "Update Stage" {
-
-    action {
-        action_type = "Octopus.AwsRunCloudFormation"
-        environments = ["Development", "Production"]
-        properties = {
-            Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.Stage}"
-            Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
-                {
-                  "Parameters" : {
-                    "EnvironmentName" : {
-                      "Type" : "String",
-                      "Default" : "#{Octopus.Environment.Name}"
-                    },
-                    "DeploymentId" : {
-                      "Type" : "String",
-                      "Default" : "Deployment#{DeploymentId}"
-                    },
-                    "ApiGatewayId" : {
-                      "Type" : "String"
-                    }
-                  },
-                  "Resources": {
-                    "Stage": {
-                      "Type": "AWS::ApiGateway::Stage",
-                      "Properties": {
-                        "DeploymentId": {"Fn::Sub": "${DeploymentId}"},
-                        "RestApiId": {"Fn::Sub": "${ApiGatewayId}"},
-                        "StageName": {"Fn::Sub": "${EnvironmentName}"}
-                      }
-                    }
-                  },
-                  "Outputs": {
-                    "StageURL": {
-                      "Description": "The url of the stage",
-                      "Value": {
-                        "Fn::Join": [
-                          "",
-                          [
-                            "https://",
-                            {"Ref": "ApiGatewayId"},
-                            ".execute-api.",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            ".amazonaws.com/",
-                            {
-                              "Ref": "Stage"
-                            },
-                            "/"
-                          ]
-                        ]
-                      }
-                    }
-                  }
-                }
-            EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"#{Octopus.Action[Deploy Lambda].Output.AwsOutputs[DeploymentId]}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"#{Octopus.Action[Deploy Lambda].Output.AwsOutputs[DeploymentId]}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
-            Octopus.Action.Aws.Region = "#{AWS.Region}"
-            Octopus.Action.Aws.TemplateSource = "Inline"
-            Octopus.Action.Aws.WaitForCompletion = "True"
-            Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS.Account"
-            Octopus.Action.RunOnServer = "true"
-        }
-        worker_pool_variable = "WorkerPool"
-    }
-}
-
-step "Get Stage URL" {
-
-    action {
-        action_type = "Octopus.AwsRunScript"
-        environments = ["Development", "Production"]
-        properties = {
-            Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.Region = "#{AWS.Region}"
-            Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS.Account"
-            Octopus.Action.RunOnServer = "true"
-            Octopus.Action.Script.ScriptBody = <<-EOT
-                STARGE_URL=$(aws cloudformation \
-                	describe-stacks \
-                    --stack-name #{CloudFormation.Stage} \
-                    --query "Stacks[0].Outputs[?OutputKey=='StageURL'].OutputValue" \
-                    --output text)
-                    
-                set_octopusvariable "StageURL" ${STARGE_URL}
-                
-                echo "Stage URL: ${STARGE_URL}"
-                
-            EOT
-            Octopus.Action.Script.ScriptSource = "Inline"
-            Octopus.Action.Script.Syntax = "Bash"
-            OctopusUseBundledTooling = "False"
-        }
-        worker_pool_variable = "WorkerPool"
-
-        container {
-            feed = "Dockerhub"
-            image = "octopusdeploy/worker-tools:3.2.0-ubuntu.18.04"
-        }
-    }
-}
-
 step "Check for vulnerabilities" {
 
     action {
@@ -1271,7 +485,7 @@ step "Check for vulnerabilities" {
         properties = {
             Octopus.Action.RunOnServer = "true"
             Octopus.Action.Script.ScriptBody = <<-EOT
-                cd audits-service-sbom
+                cd reverse-proxy-sbom
                 SUCCESS=0
                 for x in **/bom.xml; do 
                 	docker run --rm -v "$PWD:/app" appthreat/dep-scan scan --bom "/app/$x" --type bom 2>&1
@@ -1289,10 +503,10 @@ step "Check for vulnerabilities" {
         }
         worker_pool_variable = "WorkerPool"
 
-        packages "audits-service-sbom" {
+        packages "reverse-proxy-sbom" {
             acquisition_location = "Server"
             feed = "Octopub"
-            package_id = "com.octopus.octopub:audits-service-sbom"
+            package_id = "com.octopus.octopub:reverse-proxy-sbom"
             properties = {
                 Extract = "True"
                 Purpose = ""
