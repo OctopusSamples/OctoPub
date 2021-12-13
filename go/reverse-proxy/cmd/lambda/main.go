@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/OctopusSamples/OctoPub/go/reverse-proxy/internal/pkg/lambdahandler"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/mcasperson/OctoPub/go/reverse-proxy/internal/pkg/lambdahandler"
 )
 
 func main() {
