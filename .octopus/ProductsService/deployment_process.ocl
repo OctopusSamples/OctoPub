@@ -593,7 +593,7 @@ step "Deploy Lambda" {
                     "ProxyLambdaPermissions": {
                       "Type": "AWS::Lambda::Permission",
                       "Properties": {
-                        "FunctionName": {"Ref": "ProxyLambda"},
+                        "FunctionName": {"Fn::GetAtt": ["ProxyLambda", "Arn"]},
                         "Action": "lambda:InvokeFunction",
                         "Principal": "apigateway.amazonaws.com",
                         "SourceArn": {
