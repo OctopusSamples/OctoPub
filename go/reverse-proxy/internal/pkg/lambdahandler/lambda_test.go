@@ -20,10 +20,10 @@ func TestHandler(t *testing.T) {
 			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
-					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com/post",
+					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com",
 					"Service-Name": "test",
 				},
-				Path:       "/",
+				Path:       "/post",
 				HTTPMethod: "POST",
 			},
 			expect: "My Request",
@@ -33,10 +33,10 @@ func TestHandler(t *testing.T) {
 			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
-					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com/put",
+					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com",
 					"Service-Name": "test",
 				},
-				Path:       "/",
+				Path:       "/put",
 				HTTPMethod: "PUT",
 			},
 			expect: "My Request",
@@ -45,13 +45,13 @@ func TestHandler(t *testing.T) {
 		{
 			request: events.APIGatewayProxyRequest{
 				Headers: map[string]string{
-					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com/get",
+					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com",
 					"Service-Name": "test",
 				},
-				Path:       "/",
+				Path:       "/get",
 				HTTPMethod: "GET",
 			},
-			expect: "https://postman-echo.com/get/",
+			expect: "https://postman-echo.com/",
 			err:    nil,
 		},
 	}
