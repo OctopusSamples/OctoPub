@@ -141,15 +141,6 @@ step "Deploy Lambda" {
                 			"Type": "String",
                 			"Default": "#{Octopus.Environment.Name}"
                 		},
-                		"RestApi": {
-                			"Type": "String"
-                		},
-                		"ResourceId": {
-                			"Type": "String"
-                		},
-                		"HealthResourceId": {
-                			"Type": "String"
-                		},
                 		"LambdaS3Key": {
                 			"Type": "String"
                 		},
@@ -162,21 +153,8 @@ step "Deploy Lambda" {
                 		"LambdaDescription": {
                 			"Type": "String"
                 		},
-                		"DBUsername": {
-                			"Type": "String"
-                		},
-                		"DBPassword": {
-                			"Type": "String"
-                		},
-                		"Path": {
-                			"Type": "String"
-                		},
                 		"Suffix": {
                 			"Type": "String"
-                		},
-                		"UseInMemeoryDB": {
-                			"Type": "String",
-                			"Default": "true"
                 		}
                 	},
                 	"Resources": {
@@ -276,7 +254,7 @@ step "Deploy Lambda" {
                 			"Type": "AWS::RDS::DBSubnetGroup",
                 			"Properties": {
                 				"DBSubnetGroupName": "auditdbsg",
-                				"DBSubnetGroupDescription": "Audits Subnet Group",
+                				"DBSubnetGroupDescription": "Reverse Proxy Subnet Group",
                 				"SubnetIds": [{
                 					"Ref": "SubnetA"
                 				}, {
@@ -375,38 +353,14 @@ step "Deploy Lambda" {
                 						"Ref": "LambdaS3Key"
                 					}
                 				},
-                				"Environment": {
-                					"Variables": {
-                						"Database__UseInMemory": {"Ref": "UseInMemeoryDB"},
-                						"ConnectionStrings__MySqlDatabase": {
-                							"Fn::Join": [
-                							  "",
-                							  [
-                								"server=",
-                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]},
-                								";port=",
-                								{"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]},
-                								";database=audits;user=",
-                								{
-                								  "Ref": "DBUsername"
-                								},
-                								";password=",
-                								{
-                								  "Ref": "DBPassword"
-                								}
-                							  ]
-                							]
-                						  }
-                					}
-                				},
                 				"Description": {
                 					"Ref": "LambdaDescription"
                 				},
                 				"FunctionName": {
                 					"Fn::Sub": "${EnvironmentName}-Web-${LambdaName}"
                 				},
-                				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsApi",
-                				"MemorySize": 1024,
+                				"Handler": "main",
+                				"MemorySize": 256,
                 				"PackageType": "Zip",
                 				"Role": {
                 					"Fn::GetAtt": [
@@ -414,7 +368,7 @@ step "Deploy Lambda" {
                 						"Arn"
                 					]
                 				},
-                				"Runtime": "dotnetcore3.1",
+                				"Runtime": "go1.x",
                 				"Timeout": 30,
                 				"VpcConfig": {
                 					"SecurityGroupIds": [{
@@ -473,20 +427,6 @@ step "Deploy Lambda" {
                 					]
                 				}
                 			}
-                		},
-                		"Deployment#{DeploymentId}": {
-                			"Type": "AWS::ApiGateway::Deployment",
-                			"Properties": {
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				}
-                			},
-                			"DependsOn": [
-                				"LambdaResourceMethodOne",
-                				"LambdaResourceMethodTwo",
-                				"LambdaHealthResourceMethodOne",
-                				"LambdaHealthResourceMethodTwo"
-                			]
                 		}
                 	},
                 	"Outputs": {
@@ -523,8 +463,8 @@ step "Deploy Lambda" {
                 	}
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"},{\"ParameterKey\":\"UseInMemeoryDB\",\"ParameterValue\":\"false\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"audits\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"},{\"ParameterKey\":\"UseInMemeoryDB\",\"ParameterValue\":\"false\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.AuditsService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"Suffix\",\"ParameterValue\":\"#{Suffix}\"}]"
             Octopus.Action.Aws.IamCapabilities = "[\"CAPABILITY_NAMED_IAM\"]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
