@@ -62,29 +62,11 @@ runs:
       shell: bash
       working-directory: go/reverse-proxy
 
-    - uses: whelk-io/maven-settings-xml-action@v20
-      with:
-        repositories: |
-          [
-            {
-              "id": "github",
-              "name": "GitHub Packages",
-              "url": "https://maven.pkg.github.com/${{ inputs.github_user }}/OctoPub",
-              "releases": {
-                "enabled": "true"
-              },
-              "snapshots": {
-                "enabled": "false"
-              }
-            }
-          ]
-        servers: '[{ "id": "github", "username": "${{ inputs.github_user }}", "password": "${{ inputs.github_token }}" }]'
-
     - run: >
         mvn deploy:deploy-file
         -DrepositoryId=github
         -Dfile=function-amd64.zip
-        -Durl=https://maven.pkg.github.com/${{ inputs.github_user }}/OctoPub
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
         -DgroupId=com.octopus.octopub
         -DartifactId=reverse-proxy
         -Dversion=0.0.1.${{ github.run_number }}
@@ -95,7 +77,7 @@ runs:
         mvn deploy:deploy-file
         -DrepositoryId=github
         -Dfile=function-arm64.zip
-        -Durl=https://maven.pkg.github.com/${{ inputs.github_user }}/OctoPub
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
         -DgroupId=com.octopus.octopub
         -DartifactId=reverse-proxy-arm
         -Dversion=0.0.1.${{ github.run_number }}
@@ -106,7 +88,7 @@ runs:
         mvn deploy:deploy-file
         -DrepositoryId=github
         -Dfile=function-sbom.zip
-        -Durl=https://maven.pkg.github.com/${{ inputs.github_user }}/OctoPub
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
         -DgroupId=com.octopus.octopub
         -DartifactId=reverse-proxy-sbom
         -Dversion=0.0.1.${{ github.run_number }}
