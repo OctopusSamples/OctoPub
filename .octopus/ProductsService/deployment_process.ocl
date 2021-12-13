@@ -634,7 +634,7 @@ step "Deploy Lambda" {
                         },
                         "Description" : {"Fn::Sub": "${LambdaDescription} Proxy"},
                         "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Proxy" },
-                        "Handler": "not.used.in.provided.runtime",
+                        "Handler": "main",
                         "MemorySize": 128,
                         "PackageType": "Zip",
                         "Role": {
@@ -643,7 +643,7 @@ step "Deploy Lambda" {
                             "Arn"
                           ]
                         },
-                        "Runtime": "provided",
+                        "Runtime": "go1.x",
                         "Timeout": 30,
                         "VpcConfig": {
                         	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
