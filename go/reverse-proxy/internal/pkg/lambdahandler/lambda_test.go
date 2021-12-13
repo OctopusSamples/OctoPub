@@ -18,8 +18,8 @@ func TestHandler(t *testing.T) {
 		{
 			request: events.APIGatewayProxyRequest{
 				Headers: map[string]string{
-					"Accept":       "application/vnd.api+json,application/vnd.api+json; version[/api/products*:GET]=Development-product-0",
-					"Service-Name": "test",
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/api/products*:GET]=Development-product-0",
+					"Host":   "localhost",
 				},
 				Path:       "/api/products",
 				HTTPMethod: "GET",
@@ -31,8 +31,8 @@ func TestHandler(t *testing.T) {
 			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
-					"Accept":       "application/vnd.api+json,application/vnd.api+json; version[/post*:POST]=https://postman-echo.com",
-					"Service-Name": "test",
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/post*:POST]=https://postman-echo.com",
+					"Host":   "localhost",
 				},
 				Path:       "/post",
 				HTTPMethod: "POST",
@@ -44,8 +44,8 @@ func TestHandler(t *testing.T) {
 			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
-					"Accept":       "application/vnd.api+json,application/vnd.api+json; version[/put*:PUT]=https://postman-echo.com",
-					"Service-Name": "test",
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/put*:PUT]=https://postman-echo.com",
+					"Host":   "localhost",
 				},
 				Path:       "/put",
 				HTTPMethod: "PUT",
@@ -56,8 +56,8 @@ func TestHandler(t *testing.T) {
 		{
 			request: events.APIGatewayProxyRequest{
 				Headers: map[string]string{
-					"Accept":       "application/vnd.api+json,application/vnd.api+json; version[/get*:GET]=https://postman-echo.com",
-					"Service-Name": "test",
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/get*:GET]=https://postman-echo.com",
+					"Host":   "localhost",
 				},
 				Path:       "/get",
 				HTTPMethod: "GET",
@@ -72,6 +72,7 @@ func TestHandler(t *testing.T) {
 		response, err := lambdahandler.HandleRequest(ctx, test.request)
 		assert.IsType(t, test.err, err)
 		assert.Contains(t, response.Body, test.expect)
+		assert.Contains(t, response.Headers["Host"], "localhost")
 	}
 
 }

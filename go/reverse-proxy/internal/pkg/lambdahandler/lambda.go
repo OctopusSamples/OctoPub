@@ -34,27 +34,47 @@ func HandleRequest(_ context.Context, req events.APIGatewayProxyRequest) (events
 			if err != nil {
 				return events.APIGatewayProxyResponse{}, err
 			}
-			return *resp, nil
+			return *fixHostHeader(&req, resp), nil
 		}
 
 		resp, err := callLambda(upstreamLambda, req)
 		if err != nil {
 			return events.APIGatewayProxyResponse{}, err
 		}
-		return *resp, nil
+		return *fixHostHeader(&req, resp), nil
 	}
 
 	resp, err := callLambda(os.Getenv("DEFAULT_LAMBDA"), req)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}
-	return *resp, nil
+	return *fixHostHeader(&req, resp), nil
 
+}
+
+func fixHostHeader(req *events.APIGatewayProxyRequest, resp *events.APIGatewayProxyResponse) *events.APIGatewayProxyResponse {
+	host, ok := req.Headers["Host"]
+	if !ok {
+		host = ""
+	}
+
+	if resp.Headers == nil {
+		resp.Headers = map[string]string{}
+	}
+	resp.Headers["Host"] = host
+
+	if resp.MultiValueHeaders == nil {
+		resp.MultiValueHeaders = map[string][]string{}
+	}
+	resp.MultiValueHeaders["Host"] = []string{host}
+
+	return resp
 }
 
 func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	handler := func(w http.ResponseWriter, httpReq *http.Request) {
-		httputil.NewSingleHostReverseProxy(upstreamUrl).ServeHTTP(w, httpReq)
+		proxy := httputil.NewSingleHostReverseProxy(upstreamUrl)
+		proxy.ServeHTTP(w, httpReq)
 	}
 
 	adapter := handlerfunc.New(handler)
