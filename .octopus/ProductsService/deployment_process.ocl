@@ -528,15 +528,6 @@ step "Deploy Lambda" {
                           }
                         }
                     },
-                    "LambdaOnePermissions": {
-                      "Type": "AWS::Lambda::Permission",
-                      "Properties": {
-                        "FunctionName": {"Ref": "LambdaVersion#{DeploymentId}"},
-                        "Action": "lambda:InvokeFunction",
-                        "Principal": "lambda.amazonaws.com",
-                        "SourceArn": {"Fn::GetAtt": ["ProxyLambda", "Arn"]}
-                      }
-                    },
                     "AppLogGroupProxyLambda": {
                       "Type": "AWS::Logs::LogGroup",
                       "Properties": {
@@ -580,6 +571,15 @@ step "Deploy Lambda" {
                                     {
                                       "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${EnvironmentName}-${LambdaName}-Proxy*:*"
                                     }
+                                  ]
+                                },
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "lambda:InvokeFunction"
+                                  ],
+                                  "Resource": [
+                                    "*"
                                   ]
                                 }
                               ]
