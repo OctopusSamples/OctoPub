@@ -534,7 +534,7 @@ step "Deploy Lambda" {
                         "FunctionName": {"Ref": "LambdaVersion#{DeploymentId}"},
                         "Action": "lambda:InvokeFunction",
                         "Principal": "lambda.amazonaws.com",
-                        "SourceArn": {"Ref": "ProxyLambda"}
+                        "SourceArn": {"Fn::GetAtt": ["ProxyLambda", "Arn"]}
                       }
                     },
                     "AppLogGroupProxyLambda": {
