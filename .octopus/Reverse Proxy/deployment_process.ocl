@@ -359,7 +359,7 @@ step "Deploy Lambda" {
                 				"FunctionName": {
                 					"Fn::Sub": "${EnvironmentName}-Web-${LambdaName}"
                 				},
-                				"Handler": "main",
+                				"Handler": "lambdahandler",
                 				"MemorySize": 256,
                 				"PackageType": "Zip",
                 				"Role": {
