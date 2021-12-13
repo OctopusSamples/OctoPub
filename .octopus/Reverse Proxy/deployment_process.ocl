@@ -161,139 +161,6 @@ step "Deploy Lambda" {
                 		}
                 	},
                 	"Resources": {
-                		"VPC": {
-                			"Type": "AWS::EC2::VPC",
-                			"Properties": {
-                				"CidrBlock": "10.0.0.0/16",
-                				"EnableDnsSupport": true,
-                				"EnableDnsHostnames": true,
-                				"InstanceTenancy": "default",
-                				"Tags": [{
-                					"Key": "Name",
-                					"Value": "Audits Microservice VPC"
-                				}]
-                			}
-                		},
-                		"InternetGateway": {
-                			"Type": "AWS::EC2::InternetGateway"
-                		},
-                		"VPCGatewayAttachment": {
-                			"Type": "AWS::EC2::VPCGatewayAttachment",
-                			"Properties": {
-                				"VpcId": {
-                					"Ref": "VPC"
-                				},
-                				"InternetGatewayId": {
-                					"Ref": "InternetGateway"
-                				}
-                			}
-                		},
-                		"SubnetA": {
-                			"Type": "AWS::EC2::Subnet",
-                			"Properties": {
-                				"AvailabilityZone": { "Fn::Select" : [ "0", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
-                				"VpcId": {
-                					"Ref": "VPC"
-                				},
-                				"CidrBlock": "10.0.0.0/24",
-                				"MapPublicIpOnLaunch": true
-                			}
-                		},
-                		"SubnetB": {
-                			"Type": "AWS::EC2::Subnet",
-                			"Properties": {
-                				"AvailabilityZone": { "Fn::Select" : [ "1", { "Fn::GetAZs" : { "Ref" : "AWS::Region" }}]},
-                				"VpcId": {
-                					"Ref": "VPC"
-                				},
-                				"CidrBlock": "10.0.1.0/24",
-                				"MapPublicIpOnLaunch": true
-                			}
-                		},
-                		"RouteTable": {
-                			"Type": "AWS::EC2::RouteTable",
-                			"Properties": {
-                				"VpcId": {
-                					"Ref": "VPC"
-                				}
-                			}
-                		},
-                		"InternetRoute": {
-                			"Type": "AWS::EC2::Route",
-                			"DependsOn": "InternetGateway",
-                			"Properties": {
-                				"DestinationCidrBlock": "0.0.0.0/0",
-                				"GatewayId": {
-                					"Ref": "InternetGateway"
-                				},
-                				"RouteTableId": {
-                					"Ref": "RouteTable"
-                				}
-                			}
-                		},
-                		"SubnetARouteTableAssociation": {
-                			"Type": "AWS::EC2::SubnetRouteTableAssociation",
-                			"Properties": {
-                				"RouteTableId": {
-                					"Ref": "RouteTable"
-                				},
-                				"SubnetId": {
-                					"Ref": "SubnetA"
-                				}
-                			}
-                		},
-                		"SubnetBRouteTableAssociation": {
-                			"Type": "AWS::EC2::SubnetRouteTableAssociation",
-                			"Properties": {
-                				"RouteTableId": {
-                					"Ref": "RouteTable"
-                				},
-                				"SubnetId": {
-                					"Ref": "SubnetB"
-                				}
-                			}
-                		},
-                		"SubnetGroup": {
-                			"Type": "AWS::RDS::DBSubnetGroup",
-                			"Properties": {
-                				"DBSubnetGroupName": "auditdbsg",
-                				"DBSubnetGroupDescription": "Reverse Proxy Subnet Group",
-                				"SubnetIds": [{
-                					"Ref": "SubnetA"
-                				}, {
-                					"Ref": "SubnetB"
-                				}]
-                			}
-                		},
-                		"InstanceSecurityGroup": {
-                			"Type": "AWS::EC2::SecurityGroup",
-                			"Properties": {
-                				"GroupName": "Octopus Target Group",
-                				"GroupDescription": "RDS traffic",
-                				"VpcId": {
-                					"Ref": "VPC"
-                				},
-                				"SecurityGroupEgress": [{
-                					"IpProtocol": "-1",
-                					"CidrIp": "0.0.0.0/0"
-                				}]
-                			}
-                		},
-                		"InstanceSecurityGroupIngress": {
-                			"Type": "AWS::EC2::SecurityGroupIngress",
-                			"DependsOn": "InstanceSecurityGroup",
-                			"Properties": {
-                				"GroupId": {
-                					"Ref": "InstanceSecurityGroup"
-                				},
-                				"IpProtocol": "tcp",
-                				"FromPort": "0",
-                				"ToPort": "65535",
-                				"SourceSecurityGroupId": {
-                					"Ref": "InstanceSecurityGroup"
-                				}
-                			}
-                		},
                 		"AppLogGroupOne": {
                 			"Type": "AWS::Logs::LogGroup",
                 			"Properties": {
@@ -372,17 +239,7 @@ step "Deploy Lambda" {
                 					]
                 				},
                 				"Runtime": "go1.x",
-                				"Timeout": 30,
-                				"VpcConfig": {
-                					"SecurityGroupIds": [{
-                						"Ref": "InstanceSecurityGroup"
-                					}],
-                					"SubnetIds": [{
-                						"Ref": "SubnetA"
-                					}, {
-                						"Ref": "SubnetB"
-                					}]
-                				}
+                				"Timeout": 30
                 			}
                 		},
                 		"LambdaVersion#{DeploymentId}": {
@@ -433,34 +290,10 @@ step "Deploy Lambda" {
                 		}
                 	},
                 	"Outputs": {
-                		"DeploymentId": {
-                			"Description": "The deployment id",
+                		"LambdaVersion": {
+                			"Description": "The Lambda Version",
                 			"Value": {
-                				"Ref": "Deployment#{DeploymentId}"
-                			}
-                		},
-                		"VpcId": {
-                			"Description": "The VPC id",
-                			"Value": {
-                				"Ref": "VPC"
-                			}
-                		},
-                		"SubnetAId": {
-                			"Description": "The Subnet A id",
-                			"Value": {
-                				"Ref": "SubnetA"
-                			}
-                		},
-                		"SubnetBId": {
-                			"Description": "The Subnet B id",
-                			"Value": {
-                				"Ref": "SubnetB"
-                			}
-                		},
-                		"SecurityGroupId": {
-                			"Description": "The security group id",
-                			"Value": {
-                				"Ref": "InstanceSecurityGroup"
+                				"Ref": "LambdaVersion#{DeploymentId}"
                 			}
                 		}
                 	}
