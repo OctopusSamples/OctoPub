@@ -565,7 +565,7 @@ step "Deploy Lambda" {
                         "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"],
                         "Policies": [
                           {
-                            "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-policy" },
+                            "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Proxy-policy" },
                             "PolicyDocument": {
                               "Version": "2012-10-17",
                               "Statement": [
