@@ -1254,7 +1254,7 @@ step "Database Migration" {
             Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.RunOnServer = "true"
             Octopus.Action.Script.ScriptBody = <<-EOT
-                LAMBDA=#{Octopus.Environment.Name}-InitDB-#{Lambda.AuditsService}
+                LAMBDA=#{Octopus.Environment.Name}-#{Lambda.AuditsService}-InitDB
                 
                 echo "Executing ${LAMBDA}"
                 
