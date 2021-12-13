@@ -644,11 +644,7 @@ step "Deploy Lambda" {
                           ]
                         },
                         "Runtime": "go1.x",
-                        "Timeout": 30,
-                        "VpcConfig": {
-                        	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
-                			"SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
-                        }
+                        "Timeout": 30
                       }
                     },
                 	"ProductsResource": {
