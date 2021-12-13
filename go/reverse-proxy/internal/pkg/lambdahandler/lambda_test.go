@@ -20,7 +20,7 @@ func TestHandler(t *testing.T) {
 			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
-					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com",
+					"Accept":       "application/vnd.api+json,application/vnd.api+json; /post*=https://postman-echo.com",
 					"Service-Name": "test",
 				},
 				Path:       "/post",
@@ -33,7 +33,7 @@ func TestHandler(t *testing.T) {
 			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
-					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com",
+					"Accept":       "application/vnd.api+json,application/vnd.api+json; /put*=https://postman-echo.com",
 					"Service-Name": "test",
 				},
 				Path:       "/put",
@@ -45,7 +45,7 @@ func TestHandler(t *testing.T) {
 		{
 			request: events.APIGatewayProxyRequest{
 				Headers: map[string]string{
-					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com",
+					"Accept":       "application/vnd.api+json,application/vnd.api+json; /get*=https://postman-echo.com",
 					"Service-Name": "test",
 				},
 				Path:       "/get",

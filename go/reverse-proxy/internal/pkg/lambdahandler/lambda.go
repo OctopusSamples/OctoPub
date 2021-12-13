@@ -3,51 +3,73 @@ package lambdahandler
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/handlerfunc"
+	"github.com/vibrantbyte/go-antpath/antpath"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"strings"
 )
+
+var matcher = antpath.New()
 
 // HandleRequest takes the incoming Lambda request and forwards it to the downstream service
 // defined in the "Accept" headers.
 func HandleRequest(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	handler := func(w http.ResponseWriter, req *http.Request) {
-		url, err := extractUpstreamService(req)
+	url, lambda, err := extractUpstreamService(&req)
 
-		if err != nil {
-			w.WriteHeader(400)
-			w.Write([]byte(err.Error()))
-			return
+	if err == nil {
+
+		if url != nil {
+			handler := func(w http.ResponseWriter, httpReq *http.Request) {
+				httputil.NewSingleHostReverseProxy(url).ServeHTTP(w, httpReq)
+			}
+
+			adapter := handlerfunc.New(handler)
+			resp, proxyErr := adapter.ProxyWithContext(context.Background(), req)
+
+			if proxyErr != nil {
+				return events.APIGatewayProxyResponse{}, proxyErr
+			}
+
+			return resp, nil
 		}
 
-		httputil.NewSingleHostReverseProxy(url).ServeHTTP(w, req)
+		callLambda(lambda, req)
 	}
 
-	adapter := handlerfunc.New(handler)
-	resp, err := adapter.ProxyWithContext(context.Background(), req)
+	return events.APIGatewayProxyResponse{}, err
 
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-
-	return resp, nil
 }
 
-func extractUpstreamService(req *http.Request) (*url.URL, error) {
-	serviceName := req.Header.Get("Service-Name")
+func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (*lambda.InvokeOutput, error) {
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
 
-	if serviceName == "" {
-		return nil, errors.New("service-name header is required")
+	region := os.Getenv("AWS_REGION")
+	client := lambda.New(sess, &aws.Config{Region: &region})
+	payload, err := json.Marshal(req)
+
+	if err != nil {
+		return nil, err
 	}
 
-	acceptAll := req.Header.Get("Accept")
+	return client.Invoke(&lambda.InvokeInput{FunctionName: aws.String(lambdaName), Payload: payload})
+}
 
-	if acceptAll == "" {
-		return nil, errors.New("accept header is required")
+func extractUpstreamService(req *events.APIGatewayProxyRequest) (*url.URL, string, error) {
+	acceptAll, err := getHeader(req.Headers, req.MultiValueHeaders, "Accept")
+
+	if err != nil {
+		return nil, "", errors.New("accept header is required")
 	}
 
 	acceptArr := strings.Split(acceptAll, ",")
@@ -55,18 +77,41 @@ func extractUpstreamService(req *http.Request) (*url.URL, error) {
 		acceptComponents := strings.Split(element, ";")
 		for _, acceptComponent := range acceptComponents {
 			trimmedAcceptComponent := strings.TrimSpace(acceptComponent)
-			if strings.HasPrefix(trimmedAcceptComponent, serviceName+"-version=") {
-				versionComponents := strings.Split(element, "=")
-				url, err := url.Parse(versionComponents[1])
+			if strings.Contains(trimmedAcceptComponent, "=") {
+				versionComponents := strings.Split(trimmedAcceptComponent, "=")
+				if len(versionComponents) == 2 && matcher.Match(versionComponents[0], req.Path) {
+					parsedUrl, err := url.Parse(versionComponents[1])
 
-				if err != nil {
-					return nil, err
+					// downstream service was not a url, so assume it is a lambda
+					if err != nil {
+
+						// the value can't be empty or blank
+						if len(strings.TrimSpace(versionComponents[1])) > 0 {
+							return nil, versionComponents[1], err
+						}
+					} else {
+						return parsedUrl, "", nil
+					}
 				}
-
-				return url, nil
 			}
 		}
 	}
 
-	return nil, errors.New("failed to find downstream service")
+	return nil, "", errors.New("failed to find downstream service")
+}
+
+func getHeader(singleHeaders map[string]string, multiHeaders map[string][]string, header string) (string, error) {
+	for key, element := range singleHeaders {
+		if strings.EqualFold(key, header) {
+			return element, nil
+		}
+	}
+
+	for key, element := range multiHeaders {
+		if strings.EqualFold(key, header) {
+			return strings.Join(element, ","), nil
+		}
+	}
+
+	return "", errors.New("key was not found")
 }
