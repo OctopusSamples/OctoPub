@@ -45,7 +45,7 @@ runs:
       working-directory: go/reverse-proxy
       env:
         GOOS: linux
-        GOARCH: amd64
+        GOARCH: arm64
 
     - run: zip function-arm64.zip main
       shell: bash
