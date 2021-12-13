@@ -15,6 +15,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -42,14 +43,14 @@ func HandleRequest(ctx context.Context, req events.APIGatewayProxyRequest) (even
 			return resp, nil
 		}
 
-		callLambda(lambda, req)
+		return callLambda(lambda, req)
 	}
 
 	return events.APIGatewayProxyResponse{}, err
 
 }
 
-func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (*lambda.InvokeOutput, error) {
+func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
@@ -59,10 +60,16 @@ func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (*lambda.I
 	payload, err := json.Marshal(req)
 
 	if err != nil {
-		return nil, err
+		return events.APIGatewayProxyResponse{}, err
 	}
 
-	return client.Invoke(&lambda.InvokeInput{FunctionName: aws.String(lambdaName), Payload: payload})
+	lambdaResponse, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String(lambdaName), Payload: payload})
+
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+
+	return convertLambdaProxyResponse(lambdaResponse)
 }
 
 func extractUpstreamService(req *events.APIGatewayProxyRequest) (*url.URL, string, error) {
@@ -83,8 +90,7 @@ func extractUpstreamService(req *events.APIGatewayProxyRequest) (*url.URL, strin
 					parsedUrl, err := url.Parse(versionComponents[1])
 
 					// downstream service was not a url, so assume it is a lambda
-					if err != nil {
-
+					if err != nil || !strings.HasPrefix(versionComponents[1], "http") {
 						// the value can't be empty or blank
 						if len(strings.TrimSpace(versionComponents[1])) > 0 {
 							return nil, versionComponents[1], err
@@ -114,4 +120,52 @@ func getHeader(singleHeaders map[string]string, multiHeaders map[string][]string
 	}
 
 	return "", errors.New("key was not found")
+}
+
+func convertLambdaProxyResponse(lambdaResponse *lambda.InvokeOutput) (events.APIGatewayProxyResponse, error) {
+	var data LenientAPIGatewayProxyResponse
+	jsonErr := json.Unmarshal(lambdaResponse.Payload, &data)
+
+	if jsonErr != nil {
+		var data2 events.APIGatewayProxyResponse
+		jsonErr2 := json.Unmarshal(lambdaResponse.Payload, &data2)
+
+		if jsonErr2 != nil {
+			return events.APIGatewayProxyResponse{}, jsonErr2
+		}
+
+		return data2, nil
+	}
+
+	apiGatewayProxyResponse, conErr := data.toAPIGatewayProxyResponse()
+
+	if conErr != nil {
+		return events.APIGatewayProxyResponse{}, conErr
+	}
+
+	return apiGatewayProxyResponse, nil
+}
+
+type LenientAPIGatewayProxyResponse struct {
+	StatusCode        string              `json:"statusCode"`
+	Headers           map[string]string   `json:"headers"`
+	MultiValueHeaders map[string][]string `json:"multiValueHeaders"`
+	Body              string              `json:"body"`
+	IsBase64Encoded   bool                `json:"isBase64Encoded,omitempty"`
+}
+
+func (r *LenientAPIGatewayProxyResponse) toAPIGatewayProxyResponse() (events.APIGatewayProxyResponse, error) {
+	statusCode, err := strconv.Atoi(r.StatusCode)
+
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+
+	return events.APIGatewayProxyResponse{
+		StatusCode:        statusCode,
+		Headers:           r.Headers,
+		MultiValueHeaders: r.MultiValueHeaders,
+		Body:              r.Body,
+		IsBase64Encoded:   r.IsBase64Encoded,
+	}, nil
 }

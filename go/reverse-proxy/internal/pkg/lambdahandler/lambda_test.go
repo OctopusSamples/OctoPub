@@ -18,6 +18,18 @@ func TestHandler(t *testing.T) {
 	}{
 		{
 			request: events.APIGatewayProxyRequest{
+				Headers: map[string]string{
+					"Accept":       "application/vnd.api+json,application/vnd.api+json; version[/api/products*]=Development-product-0",
+					"Service-Name": "test",
+				},
+				Path:       "/api/products",
+				HTTPMethod: "GET",
+			},
+			expect: "data",
+			err:    nil,
+		},
+		{
+			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
 					"Accept":       "application/vnd.api+json,application/vnd.api+json; version[/post*]=https://postman-echo.com",
