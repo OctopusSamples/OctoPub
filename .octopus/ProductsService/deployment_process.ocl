@@ -713,7 +713,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "ProxyLambda" },
+                                {"Fn::GetAtt": ["ProxyLambda", "Arn"]},
                                 "/invocations"
                               ]
                             ]
@@ -843,7 +843,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "ProxyLambda" },
+                                {"Fn::GetAtt": ["ProxyLambda", "Arn"]},
                                 "/invocations"
                               ]
                             ]
@@ -878,7 +878,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "ProxyLambda" },
+                                {"Fn::GetAtt": ["ProxyLambda", "Arn"]},
                                 "/invocations"
                               ]
                             ]
@@ -913,7 +913,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "ProxyLambda" },
+                                {"Fn::GetAtt": ["ProxyLambda", "Arn"]},
                                 "/invocations"
                               ]
                             ]
@@ -948,7 +948,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "ProxyLambda" },
+                                {"Fn::GetAtt": ["ProxyLambda", "Arn"]},
                                 "/invocations"
                               ]
                             ]
@@ -982,7 +982,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "ProxyLambda" },
+                                {"Fn::GetAtt": ["ProxyLambda", "Arn"]},
                                 "/invocations"
                               ]
                             ]
@@ -1016,7 +1016,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "ProxyLambda" },
+                                {"Fn::GetAtt": ["ProxyLambda", "Arn"]},
                                 "/invocations"
                               ]
                             ]
