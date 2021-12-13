@@ -49,7 +49,7 @@ step "Upload Lambda" {
             Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.Package.DownloadOnTentacle = "False"
             Octopus.Action.Package.FeedId = "Octopub"
-            Octopus.Action.Package.PackageId = "com.octopus.octopub:audits-service"
+            Octopus.Action.Package.PackageId = "com.octopus.octopub:reverse-proxy"
             Octopus.Action.RunOnServer = "true"
         }
         worker_pool_variable = "WorkerPool"
@@ -57,7 +57,7 @@ step "Upload Lambda" {
         packages {
             acquisition_location = "Server"
             feed = "Octopub"
-            package_id = "com.octopus.octopub:audits-service"
+            package_id = "com.octopus.octopub:reverse-proxy"
             properties = {
                 SelectionMode = "immediate"
             }
@@ -1120,149 +1120,6 @@ step "Deploy Lambda" {
     }
 }
 
-step "Database Migration" {
-
-    action {
-        action_type = "Octopus.AwsRunScript"
-        environments = ["Development", "Production"]
-        properties = {
-            Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.Region = "#{AWS.Region}"
-            Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS.Account"
-            Octopus.Action.RunOnServer = "true"
-            Octopus.Action.Script.ScriptBody = <<-EOT
-                LAMBDA=#{Octopus.Environment.Name}-InitDB-#{Lambda.AuditsService}
-                
-                echo "Executing ${LAMBDA}"
-                
-                aws lambda invoke \
-                	--function-name ${LAMBDA} \
-                    --payload '{}' \
-                    response.json
-                    
-                cat response.json
-            EOT
-            Octopus.Action.Script.ScriptSource = "Inline"
-            Octopus.Action.Script.Syntax = "Bash"
-            OctopusUseBundledTooling = "False"
-        }
-        worker_pool_variable = "WorkerPool"
-
-        container {
-            feed = "Dockerhub"
-            image = "octopusdeploy/worker-tools:3.2.1-ubuntu.18.04"
-        }
-    }
-}
-
-step "Update Stage" {
-
-    action {
-        action_type = "Octopus.AwsRunCloudFormation"
-        environments = ["Development", "Production"]
-        properties = {
-            Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.Stage}"
-            Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
-                {
-                  "Parameters" : {
-                    "EnvironmentName" : {
-                      "Type" : "String",
-                      "Default" : "#{Octopus.Environment.Name}"
-                    },
-                    "DeploymentId" : {
-                      "Type" : "String",
-                      "Default" : "Deployment#{DeploymentId}"
-                    },
-                    "ApiGatewayId" : {
-                      "Type" : "String"
-                    }
-                  },
-                  "Resources": {
-                    "Stage": {
-                      "Type": "AWS::ApiGateway::Stage",
-                      "Properties": {
-                        "DeploymentId": {"Fn::Sub": "${DeploymentId}"},
-                        "RestApiId": {"Fn::Sub": "${ApiGatewayId}"},
-                        "StageName": {"Fn::Sub": "${EnvironmentName}"}
-                      }
-                    }
-                  },
-                  "Outputs": {
-                    "StageURL": {
-                      "Description": "The url of the stage",
-                      "Value": {
-                        "Fn::Join": [
-                          "",
-                          [
-                            "https://",
-                            {"Ref": "ApiGatewayId"},
-                            ".execute-api.",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            ".amazonaws.com/",
-                            {
-                              "Ref": "Stage"
-                            },
-                            "/"
-                          ]
-                        ]
-                      }
-                    }
-                  }
-                }
-            EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"#{Octopus.Action[Deploy Lambda].Output.AwsOutputs[DeploymentId]}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"#{Octopus.Action[Deploy Lambda].Output.AwsOutputs[DeploymentId]}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
-            Octopus.Action.Aws.Region = "#{AWS.Region}"
-            Octopus.Action.Aws.TemplateSource = "Inline"
-            Octopus.Action.Aws.WaitForCompletion = "True"
-            Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS.Account"
-            Octopus.Action.RunOnServer = "true"
-        }
-        worker_pool_variable = "WorkerPool"
-    }
-}
-
-step "Get Stage URL" {
-
-    action {
-        action_type = "Octopus.AwsRunScript"
-        environments = ["Development", "Production"]
-        properties = {
-            Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.Region = "#{AWS.Region}"
-            Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS.Account"
-            Octopus.Action.RunOnServer = "true"
-            Octopus.Action.Script.ScriptBody = <<-EOT
-                STARGE_URL=$(aws cloudformation \
-                	describe-stacks \
-                    --stack-name #{CloudFormation.Stage} \
-                    --query "Stacks[0].Outputs[?OutputKey=='StageURL'].OutputValue" \
-                    --output text)
-                    
-                set_octopusvariable "StageURL" ${STARGE_URL}
-                
-                echo "Stage URL: ${STARGE_URL}"
-                
-            EOT
-            Octopus.Action.Script.ScriptSource = "Inline"
-            Octopus.Action.Script.Syntax = "Bash"
-            OctopusUseBundledTooling = "False"
-        }
-        worker_pool_variable = "WorkerPool"
-
-        container {
-            feed = "Dockerhub"
-            image = "octopusdeploy/worker-tools:3.2.0-ubuntu.18.04"
-        }
-    }
-}
-
 step "Check for vulnerabilities" {
 
     action {
@@ -1271,7 +1128,7 @@ step "Check for vulnerabilities" {
         properties = {
             Octopus.Action.RunOnServer = "true"
             Octopus.Action.Script.ScriptBody = <<-EOT
-                cd audits-service-sbom
+                cd reverse-proxy-sbom
                 SUCCESS=0
                 for x in **/bom.xml; do 
                 	docker run --rm -v "$PWD:/app" appthreat/dep-scan scan --bom "/app/$x" --type bom 2>&1
@@ -1289,10 +1146,10 @@ step "Check for vulnerabilities" {
         }
         worker_pool_variable = "WorkerPool"
 
-        packages "audits-service-sbom" {
+        packages "reverse-proxy-sbom" {
             acquisition_location = "Server"
             feed = "Octopub"
-            package_id = "com.octopus.octopub:audits-service-sbom"
+            package_id = "com.octopus.octopub:reverse-proxy-sbom"
             properties = {
                 Extract = "True"
                 Purpose = ""
