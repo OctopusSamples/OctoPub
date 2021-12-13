@@ -63,10 +63,10 @@ func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (events.AP
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	lambdaResponse, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String(lambdaName), Payload: payload})
+	lambdaResponse, lambdaErr := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String(lambdaName), Payload: payload})
 
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
+	if lambdaErr != nil {
+		return events.APIGatewayProxyResponse{}, lambdaErr
 	}
 
 	return convertLambdaProxyResponse(lambdaResponse)
