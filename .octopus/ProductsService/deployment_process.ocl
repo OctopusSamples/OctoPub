@@ -579,7 +579,9 @@ step "Deploy Lambda" {
                                     "lambda:InvokeFunction"
                                   ],
                                   "Resource": [
-                                    "*"
+                                  	{
+                                      "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${EnvironmentName}-${LambdaName}*:*"
+                                   }
                                   ]
                                 }
                               ]
