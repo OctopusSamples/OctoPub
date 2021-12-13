@@ -23,14 +23,14 @@ var matcher = antpath.New()
 
 // HandleRequest takes the incoming Lambda request and forwards it to the downstream service
 // defined in the "Accept" headers.
-func HandleRequest(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	url, lambda, err := extractUpstreamService(&req)
+func HandleRequest(_ context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	upstreamUrl, upstreamLambda, err := extractUpstreamService(&req)
 
 	if err == nil {
 
-		if url != nil {
+		if upstreamUrl != nil {
 			handler := func(w http.ResponseWriter, httpReq *http.Request) {
-				httputil.NewSingleHostReverseProxy(url).ServeHTTP(w, httpReq)
+				httputil.NewSingleHostReverseProxy(upstreamUrl).ServeHTTP(w, httpReq)
 			}
 
 			adapter := handlerfunc.New(handler)
@@ -43,7 +43,7 @@ func HandleRequest(ctx context.Context, req events.APIGatewayProxyRequest) (even
 			return resp, nil
 		}
 
-		return callLambda(lambda, req)
+		return callLambda(upstreamLambda, req)
 	}
 
 	return events.APIGatewayProxyResponse{}, err
