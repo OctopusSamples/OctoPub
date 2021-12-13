@@ -46,7 +46,7 @@ func HandleRequest(_ context.Context, req events.APIGatewayProxyRequest) (events
 		return callLambda(upstreamLambda, req)
 	}
 
-	return events.APIGatewayProxyResponse{}, err
+	return callLambda(os.Getenv("DEFAULT_LAMBDA"), req)
 
 }
 
