@@ -79,7 +79,7 @@ step "Upload Lambda Proxy" {
             Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.Package.DownloadOnTentacle = "False"
             Octopus.Action.Package.FeedId = "Octopub"
-            Octopus.Action.Package.PackageId = "com.octopus.octopub:reverse-proxy"
+            Octopus.Action.Package.PackageId = "com.octopus.octopub:reverse-proxy-arm"
             Octopus.Action.RunOnServer = "true"
         }
         worker_pool_variable = "WorkerPool"
@@ -87,7 +87,7 @@ step "Upload Lambda Proxy" {
         packages {
             acquisition_location = "Server"
             feed = "Octopub"
-            package_id = "com.octopus.octopub:reverse-proxy"
+            package_id = "com.octopus.octopub:reverse-proxy-arm"
             properties = {
                 SelectionMode = "immediate"
             }
@@ -579,7 +579,9 @@ step "Deploy Lambda" {
                                     "lambda:InvokeFunction"
                                   ],
                                   "Resource": [
-                                    "*"
+                                  	{
+                                      "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${EnvironmentName}-${LambdaName}*:*"
+                                   }
                                   ]
                                 }
                               ]
@@ -635,6 +637,7 @@ step "Deploy Lambda" {
                         "Description" : {"Fn::Sub": "${LambdaDescription} Proxy"},
                         "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Proxy" },
                         "Handler": "main",
+                        "Architectures": ["arm64"],
                         "MemorySize": 128,
                         "PackageType": "Zip",
                         "Role": {
