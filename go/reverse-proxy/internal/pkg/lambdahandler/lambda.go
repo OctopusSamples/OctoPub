@@ -103,17 +103,20 @@ func extractUpstreamService(req *events.APIGatewayProxyRequest) (*url.URL, strin
 			trimmedAcceptComponent := strings.TrimSpace(acceptComponent)
 			if strings.Contains(trimmedAcceptComponent, "=") {
 				versionComponents := strings.Split(trimmedAcceptComponent, "=")
-				if len(versionComponents) == 2 && matcher.Match(versionComponents[0], "version["+req.Path+"]") {
-					parsedUrl, err := url.Parse(versionComponents[1])
+				if len(versionComponents) == 2 {
+					isMatch := matcher.Match(versionComponents[0], "version["+req.Path+":"+req.HTTPMethod+"]")
+					if isMatch {
+						parsedUrl, err := url.Parse(versionComponents[1])
 
-					// downstream service was not a url, so assume it is a lambda
-					if err != nil || !strings.HasPrefix(versionComponents[1], "http") {
-						// the value can't be empty or blank
-						if len(strings.TrimSpace(versionComponents[1])) > 0 {
-							return nil, versionComponents[1], err
+						// downstream service was not a url, so assume it is a lambda
+						if err != nil || !strings.HasPrefix(versionComponents[1], "http") {
+							// the value can't be empty or blank
+							if len(strings.TrimSpace(versionComponents[1])) > 0 {
+								return nil, versionComponents[1], err
+							}
+						} else {
+							return parsedUrl, "", nil
 						}
-					} else {
-						return parsedUrl, "", nil
 					}
 				}
 			}
