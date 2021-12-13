@@ -5,7 +5,7 @@ step "Create Bucket" {
         environments = ["Production", "Development"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.AuditsBucket}"
+            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ReverseProxyBucket}"
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
                   "Resources": {
