@@ -65,6 +65,36 @@ step "Upload Lambda" {
     }
 }
 
+step "Upload Lambda Proxy" {
+
+    action {
+        action_type = "Octopus.AwsUploadS3"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.Aws.S3.BucketName = "#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}"
+            Octopus.Action.Aws.S3.PackageOptions = "{\"bucketKey\":\"\",\"bucketKeyBehaviour\":\"Filename\",\"bucketKeyPrefix\":\"\",\"storageClass\":\"STANDARD\",\"cannedAcl\":\"private\",\"metadata\":[],\"tags\":[]}"
+            Octopus.Action.Aws.S3.TargetMode = "EntirePackage"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.Package.DownloadOnTentacle = "False"
+            Octopus.Action.Package.FeedId = "Octopub"
+            Octopus.Action.Package.PackageId = "com.octopus.octopub:reverse-proxy"
+            Octopus.Action.RunOnServer = "true"
+        }
+        worker_pool_variable = "WorkerPool"
+
+        packages {
+            acquisition_location = "Server"
+            feed = "Octopub"
+            package_id = "com.octopus.octopub:reverse-proxy"
+            properties = {
+                SelectionMode = "immediate"
+            }
+        }
+    }
+}
+
 step "Get Stack Outputs" {
 
     action {
@@ -151,6 +181,9 @@ step "Deploy Lambda" {
                       "Type" : "String"
                     },
                     "LambdaS3Key" : {
+                      "Type" : "String"
+                    },
+                    "ProxyLambdaS3Key" : {
                       "Type" : "String"
                     },
                     "LambdaS3Bucket": {
@@ -500,6 +533,68 @@ step "Deploy Lambda" {
                       "Properties": {
                         "FunctionName": {"Ref": "LambdaVersion#{DeploymentId}"},
                         "Action": "lambda:InvokeFunction",
+                        "Principal": "lambda.amazonaws.com",
+                        "SourceArn": {"Ref": "ProxyLambda"}
+                      }
+                    },
+                    "AppLogGroupProxyLambda": {
+                      "Type": "AWS::Logs::LogGroup",
+                      "Properties": {
+                        "LogGroupName": { "Fn::Sub": "/aws/lambda/${EnvironmentName}-${LambdaName}-Proxy" }
+                      }
+                    },
+                    "IamRoleProxyLambdaExecution": {
+                      "Type": "AWS::IAM::Role",
+                      "Properties": {
+                        "AssumeRolePolicyDocument": {
+                          "Version": "2012-10-17",
+                          "Statement": [
+                            {
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": [
+                                  "lambda.amazonaws.com"
+                                ]
+                              },
+                              "Action": [
+                                "sts:AssumeRole"
+                              ]
+                            }
+                          ]
+                        },
+                        "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"],
+                        "Policies": [
+                          {
+                            "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Proxy-policy" },
+                            "PolicyDocument": {
+                              "Version": "2012-10-17",
+                              "Statement": [
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "logs:CreateLogStream",
+                                    "logs:CreateLogGroup",
+                                    "logs:PutLogEvents"
+                                  ],
+                                  "Resource": [
+                                    {
+                                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${EnvironmentName}-${LambdaName}-Proxy*:*"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "Path": "/",
+                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Proxy-role" }
+                      }
+                    },
+                    "ProxyLambdaPermissions": {
+                      "Type": "AWS::Lambda::Permission",
+                      "Properties": {
+                        "FunctionName": {"Fn::GetAtt": ["ProxyLambda", "Arn"]},
+                        "Action": "lambda:InvokeFunction",
                         "Principal": "apigateway.amazonaws.com",
                         "SourceArn": {
                           "Fn::Join": [
@@ -522,6 +617,37 @@ step "Deploy Lambda" {
                               "/*/*"
                             ]
                           ]
+                        }
+                      }
+                    },
+                    "ProxyLambda": {
+                      "Type": "AWS::Lambda::Function",
+                      "Properties": {
+                        "Code": {
+                          "S3Bucket": {"Ref": "LambdaS3Bucket"},
+                          "S3Key": {"Ref": "ProxyLambdaS3Key"}   
+                        },
+                        "Environment": {
+                          "Variables": {
+                          	"DEFAULT_LAMBDA": {"Ref": "LambdaVersion#{DeploymentId}"}
+                          }
+                        },
+                        "Description" : {"Fn::Sub": "${LambdaDescription} Proxy"},
+                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Proxy" },
+                        "Handler": "not.used.in.provided.runtime",
+                        "MemorySize": 128,
+                        "PackageType": "Zip",
+                        "Role": {
+                          "Fn::GetAtt": [
+                            "IamRoleProxyLambdaExecution",
+                            "Arn"
+                          ]
+                        },
+                        "Runtime": "provided",
+                        "Timeout": 30,
+                        "VpcConfig": {
+                        	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
+                			"SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
                         }
                       }
                     },
@@ -587,7 +713,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "LambdaVersion#{DeploymentId}" },
+                                { "Ref": "ProxyLambda" },
                                 "/invocations"
                               ]
                             ]
@@ -717,7 +843,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "LambdaVersion#{DeploymentId}" },
+                                { "Ref": "ProxyLambda" },
                                 "/invocations"
                               ]
                             ]
@@ -752,7 +878,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "LambdaVersion#{DeploymentId}" },
+                                { "Ref": "ProxyLambda" },
                                 "/invocations"
                               ]
                             ]
@@ -787,7 +913,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "LambdaVersion#{DeploymentId}" },
+                                { "Ref": "ProxyLambda" },
                                 "/invocations"
                               ]
                             ]
@@ -822,7 +948,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "LambdaVersion#{DeploymentId}" },
+                                { "Ref": "ProxyLambda" },
                                 "/invocations"
                               ]
                             ]
@@ -856,7 +982,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "LambdaVersion#{DeploymentId}" },
+                                { "Ref": "ProxyLambda" },
                                 "/invocations"
                               ]
                             ]
@@ -890,7 +1016,7 @@ step "Deploy Lambda" {
                                   "Ref": "AWS::Region"
                                 },
                                 ":lambda:path/2015-03-31/functions/",
-                                { "Ref": "LambdaVersion#{DeploymentId}" },
+                                { "Ref": "ProxyLambda" },
                                 "/invocations"
                               ]
                             ]
@@ -957,8 +1083,8 @@ step "Deploy Lambda" {
                   }
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"ProxyLambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda Proxy].Package[].PackageId}.#{Octopus.Action[Upload Lambda Proxy].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"ProxyLambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda Proxy].Package[].PackageId}.#{Octopus.Action[Upload Lambda Proxy].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"}]"
             Octopus.Action.Aws.IamCapabilities = "[\"CAPABILITY_NAMED_IAM\"]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
