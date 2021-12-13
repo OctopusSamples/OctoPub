@@ -506,7 +506,7 @@ step "Deploy Lambda" {
                 					"Ref": "LambdaDescription"
                 				},
                 				"FunctionName": {
-                					"Fn::Sub": "${EnvironmentName}-Web-${LambdaName}"
+                					"Fn::Sub": "${EnvironmentName}-${LambdaName}-Web"
                 				},
                 				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsApi",
                 				"MemorySize": 1024,
@@ -570,7 +570,7 @@ step "Deploy Lambda" {
                 					"Ref": "LambdaDescription"
                 				},
                 				"FunctionName": {
-                					"Fn::Sub": "${EnvironmentName}-InitDB-${LambdaName}"
+                					"Fn::Sub": "${EnvironmentName}-${LambdaName}-InitDB"
                 				},
                 				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsDbMigration",
                 				"MemorySize": 256,
@@ -634,7 +634,7 @@ step "Deploy Lambda" {
                 					"Ref": "LambdaDescription"
                 				},
                 				"FunctionName": {
-                					"Fn::Sub": "${EnvironmentName}-SQS-${LambdaName}"
+                					"Fn::Sub": "${EnvironmentName}-${LambdaName}-SQS"
                 				},
                 				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::HandleSqsEvent",
                 				"MemorySize": 128,
