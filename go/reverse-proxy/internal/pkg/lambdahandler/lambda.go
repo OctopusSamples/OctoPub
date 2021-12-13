@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/OctopusSamples/OctoPub/go/reverse-proxy/internal/pkg/utils"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -29,18 +30,7 @@ func HandleRequest(_ context.Context, req events.APIGatewayProxyRequest) (events
 	if err == nil {
 
 		if upstreamUrl != nil {
-			handler := func(w http.ResponseWriter, httpReq *http.Request) {
-				httputil.NewSingleHostReverseProxy(upstreamUrl).ServeHTTP(w, httpReq)
-			}
-
-			adapter := handlerfunc.New(handler)
-			resp, proxyErr := adapter.ProxyWithContext(context.Background(), req)
-
-			if proxyErr != nil {
-				return events.APIGatewayProxyResponse{}, proxyErr
-			}
-
-			return resp, nil
+			return httpReverseProxy(upstreamUrl, req)
 		}
 
 		return callLambda(upstreamLambda, req)
@@ -50,12 +40,27 @@ func HandleRequest(_ context.Context, req events.APIGatewayProxyRequest) (events
 
 }
 
+func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	handler := func(w http.ResponseWriter, httpReq *http.Request) {
+		httputil.NewSingleHostReverseProxy(upstreamUrl).ServeHTTP(w, httpReq)
+	}
+
+	adapter := handlerfunc.New(handler)
+	resp, proxyErr := adapter.ProxyWithContext(context.Background(), req)
+
+	if proxyErr != nil {
+		return events.APIGatewayProxyResponse{}, proxyErr
+	}
+
+	return resp, nil
+}
+
 func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
-	region := os.Getenv("AWS_REGION")
+	region := utils.GetEnv("AWS_REGION", "us-west-1")
 	client := lambda.New(sess, &aws.Config{Region: &region})
 	payload, err := json.Marshal(req)
 

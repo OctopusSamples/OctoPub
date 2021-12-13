@@ -2,11 +2,10 @@ package lambdahandler_test
 
 import (
 	"context"
-	"github.com/mcasperson/OctoPub/go/reverse-proxy/internal/pkg/lambdahandler"
-	"testing"
-
+	"github.com/OctopusSamples/OctoPub/go/reverse-proxy/internal/pkg/lambdahandler"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestHandler(t *testing.T) {
