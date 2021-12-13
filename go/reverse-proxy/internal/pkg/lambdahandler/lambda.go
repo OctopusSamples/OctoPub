@@ -25,30 +25,38 @@ var matcher = antpath.New()
 // HandleRequest takes the incoming Lambda request and forwards it to the downstream service
 // defined in the "Accept" headers.
 func HandleRequest(_ context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	upstreamUrl, upstreamLambda, err := extractUpstreamService(&req)
+	resp, err := processRequest(req)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+	return *fixHostHeader(resp), nil
+}
+
+func processRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+	upstreamUrl, upstreamLambda, err := extractUpstreamService(req)
 
 	if err == nil {
 
 		if upstreamUrl != nil {
 			resp, err := httpReverseProxy(upstreamUrl, req)
 			if err != nil {
-				return events.APIGatewayProxyResponse{}, err
+				return nil, err
 			}
-			return *fixHostHeader(resp), nil
+			return resp, nil
 		}
 
 		resp, err := callLambda(upstreamLambda, req)
 		if err != nil {
-			return events.APIGatewayProxyResponse{}, err
+			return nil, err
 		}
-		return *fixHostHeader(resp), nil
+		return resp, nil
 	}
 
 	resp, err := callLambda(os.Getenv("DEFAULT_LAMBDA"), req)
 	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
+		return nil, err
 	}
-	return *fixHostHeader(resp), nil
+	return resp, nil
 }
 
 func fixHostHeader(resp *events.APIGatewayProxyResponse) *events.APIGatewayProxyResponse {
@@ -101,7 +109,7 @@ func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (*events.A
 	return convertLambdaProxyResponse(lambdaResponse)
 }
 
-func extractUpstreamService(req *events.APIGatewayProxyRequest) (*url.URL, string, error) {
+func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string, error) {
 	acceptAll, err := getHeader(req.Headers, req.MultiValueHeaders, "Accept")
 
 	if err != nil {
