@@ -17,9 +17,6 @@ func TestHandler(t *testing.T) {
 		err     error
 	}{
 		{
-			// Test that the handler responds with the correct response
-			// when a valid name is provided in the HTTP body
-
 			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
@@ -30,6 +27,31 @@ func TestHandler(t *testing.T) {
 				HTTPMethod: "POST",
 			},
 			expect: "My Request",
+			err:    nil,
+		},
+		{
+			request: events.APIGatewayProxyRequest{
+				Body: "My Request",
+				Headers: map[string]string{
+					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com/put",
+					"Service-Name": "test",
+				},
+				Path:       "/",
+				HTTPMethod: "PUT",
+			},
+			expect: "My Request",
+			err:    nil,
+		},
+		{
+			request: events.APIGatewayProxyRequest{
+				Headers: map[string]string{
+					"Accept":       "application/vnd.api+json,application/vnd.api+json; test-version=https://postman-echo.com/get",
+					"Service-Name": "test",
+				},
+				Path:       "/",
+				HTTPMethod: "GET",
+			},
+			expect: "https://postman-echo.com/get/",
 			err:    nil,
 		},
 	}

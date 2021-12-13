@@ -16,7 +16,7 @@ import (
 // defined in the "Accept" headers.
 func HandleRequest(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	handler := func(w http.ResponseWriter, req *http.Request) {
-		url, err := extractProxy(req)
+		url, err := extractUpstreamService(req)
 
 		if err != nil {
 			w.WriteHeader(400)
@@ -37,7 +37,7 @@ func HandleRequest(ctx context.Context, req events.APIGatewayProxyRequest) (even
 	return resp, nil
 }
 
-func extractProxy(req *http.Request) (*url.URL, error) {
+func extractUpstreamService(req *http.Request) (*url.URL, error) {
 	serviceName := req.Header.Get("Service-Name")
 
 	if serviceName == "" {
