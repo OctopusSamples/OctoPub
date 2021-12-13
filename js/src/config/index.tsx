@@ -13,6 +13,7 @@ import Settings from "../pages/Settings";
 import DeleteBook from "../pages/DeleteBook";
 import UpdateBook from "../pages/UpdateBook";
 import Health from "../pages/Health";
+import Branching from "../pages/Branching";
 
 // define app routes
 export const routes: Array<RouteItem> = [
@@ -103,6 +104,16 @@ export const routes: Array<RouteItem> = [
         path: "/health",
         enabled: true,
         component: () => (props: CommonProps) => <Health {...props}/>,
+        icon: HomeIcon,
+        appendDivider: true
+    },
+    {
+        key: "router-branching",
+        title: "Branching",
+        tooltip: "Branching",
+        path: "/branching",
+        enabled: true,
+        component: () => (props: CommonProps) => <Branching {...props}/>,
         icon: HomeIcon,
         appendDivider: true
     }
