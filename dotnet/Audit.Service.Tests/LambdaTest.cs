@@ -14,12 +14,6 @@ namespace Audit.Service.Tests
     {
         private static readonly Audits Audits = new Audits();
 
-        [SetUp]
-        public void SetUp()
-        {
-            Audits.AuditsDbMigration(new APIGatewayProxyRequest(), null);
-        }
-
         [Test]
         public void GetAudits()
         {

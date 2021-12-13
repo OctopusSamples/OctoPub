@@ -22,16 +22,20 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 </title>
             </Helmet>
             <Grid container={true} className={classes.container}>
-                <Grid className={classes.cell} md={2} sm={12} xs={12}>
-                    <FormLabel className={classes.label}>API Key</FormLabel>
-                </Grid>
-                <Grid className={classes.cell} item md={10} sm={12} xs={12}>
-                    <TextField id="apiKey" fullWidth={true} type="password" variant="outlined" value={apiKey}
-                               onChange={v => {
-                                   setApiKey(v.target.value);
-                                   localStorage.setItem("apiKey", v.target.value);
-                               }}/>
-                </Grid>
+                {context.settings.requireApiKey !== "false" &&
+                    <>
+                        <Grid className={classes.cell} md={2} sm={12} xs={12}>
+                            <FormLabel className={classes.label}>API Key</FormLabel>
+                        </Grid>
+                        <Grid className={classes.cell} item md={10} sm={12} xs={12}>
+                            <TextField id="apiKey" fullWidth={true} type="password" variant="outlined" value={apiKey}
+                                       onChange={v => {
+                                           setApiKey(v.target.value);
+                                           localStorage.setItem("apiKey", v.target.value);
+                                       }}/>
+                        </Grid>
+                    </>
+                }
                 <Grid className={classes.cell} md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>Data Partition</FormLabel>
                 </Grid>

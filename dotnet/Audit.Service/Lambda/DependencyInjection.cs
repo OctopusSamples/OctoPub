@@ -40,9 +40,7 @@ namespace Audit.Service.Lambda
                 var optionsBuilder = new DbContextOptionsBuilder<Db>();
                 if (useInMemoryDb)
                 {
-                    var folder = Environment.SpecialFolder.LocalApplicationData;
-                    var path = Environment.GetFolderPath(folder);
-                    var dbPath = $"{path}{Path.DirectorySeparatorChar}audits.db";
+                    var dbPath = $"{Path.GetTempPath()}{Path.DirectorySeparatorChar}audits.db";
                     optionsBuilder.UseSqlite(
                         $"Data Source={dbPath}",
                         x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
@@ -52,7 +50,11 @@ namespace Audit.Service.Lambda
                     optionsBuilder.UseMySql(
                         configuration.GetConnectionString("MySqlDatabase"),
                         new MySqlServerVersion(Constants.MySqlVersion),
-                        x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
+                        x =>
+                        {
+                            x.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
+                            x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                        });
                 }
 
                 var context = new Db(optionsBuilder.Options);
@@ -62,6 +64,7 @@ namespace Audit.Service.Lambda
                 return context;
             });
 
+            services.AddSingleton<IResponseBuilder, ResponseBuilder>();
             services.AddSingleton<AuditCreateService>();
             services.AddSingleton<AuditGetAllService>();
             services.AddSingleton<AuditGetByIdService>();
@@ -74,11 +77,6 @@ namespace Audit.Service.Lambda
         {
             if (context.Database.IsSqlite())
                 context.Database.EnsureCreated();
-            else if (context.Database.IsMySql())
-                context.Database.SetCommandTimeout(
-                    int.TryParse(configuration.GetSection("Database:MySqlTimeout").Value, out var timeout)
-                        ? timeout
-                        : Constants.DefaultMySqlTimeout);
         }
     }
 }

@@ -7,7 +7,9 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.Json;
 using Amazon.Lambda.SQSEvents;
 using Audit.Service.Handler;
+using Audit.Service.Interceptor;
 using Audit.Service.Repositories;
+using Audit.Service.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
@@ -19,6 +21,7 @@ namespace Audit.Service.Lambda
     /// <summary>
     /// The entrypoint to the Audits Lambda.
     /// </summary>
+    [LogMethod]
     public class Audits
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -35,16 +38,27 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
-                var db = serviceProvider.GetRequiredService<Db>();
-                db.Database.Migrate();
-                return new APIGatewayProxyResponse
+                var responseBuilder = serviceProvider.GetRequiredService<IResponseBuilder>();
+
+                try
                 {
-                    StatusCode = 201
-                };
+                    var db = serviceProvider.GetRequiredService<Db>();
+                    db.Database.Migrate();
+                    return new APIGatewayProxyResponse
+                    {
+                        StatusCode = 201
+                    };
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(Constants.ServiceName + "-Migration-GeneralFailure:" + ex);
+                    return responseBuilder.BuildError(ex);
+                }
             }
             catch (Exception ex)
             {
-                return BuildError(ex);
+                Logger.Error(Constants.ServiceName + "-Migration-DIFailure:" + ex);
+                return BuildGenericError();
             }
         }
 
@@ -59,13 +73,24 @@ namespace Audit.Service.Lambda
             try
             {
                 var serviceProvider = DependencyInjection.ConfigureServices();
-                var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
-                var handler = serviceProvider.GetRequiredService<AuditHandler>();
-                return AddCors(ProcessRequest(handler, requestWrapper));
+                var responseBuilder = serviceProvider.GetRequiredService<IResponseBuilder>();
+
+                try
+                {
+                    var requestWrapper = RequestWrapperFactory.CreateFromHttpRequest(request);
+                    var handler = serviceProvider.GetRequiredService<AuditHandler>();
+                    return AddCors(ProcessRequest(handler, requestWrapper, responseBuilder));
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(Constants.ServiceName + "-Lambda-GeneralFailure:" + ex);
+                    return responseBuilder.BuildError(ex);
+                }
             }
             catch (Exception ex)
             {
-                return BuildError(ex);
+                Logger.Error(Constants.ServiceName + "-Lambda-DIFailure:" + ex);
+                return BuildGenericError();
             }
         }
 
@@ -80,11 +105,14 @@ namespace Audit.Service.Lambda
             Logger.Debug(sqsEvent.Records.Count + " records to process");
 
             var serviceProvider = DependencyInjection.ConfigureServices();
+
             sqsEvent.Records
                 .Select(m => new Thread(() =>
                 {
                     try
                     {
+                        var responseBuilder = serviceProvider.GetRequiredService<IResponseBuilder>();
+
                         Logger.Debug(System.Text.Json.JsonSerializer.Serialize(m));
 
                         var requestWrapper = RequestWrapperFactory.CreateFromSqsMessage(m);
@@ -93,14 +121,14 @@ namespace Audit.Service.Lambda
                         Logger.Debug(requestWrapper.Entity);
 
                         var handler = serviceProvider.GetRequiredService<AuditHandler>();
-                        var audit = ProcessRequest(handler, requestWrapper);
+                        var audit = ProcessRequest(handler, requestWrapper, responseBuilder);
 
                         Logger.Debug(System.Text.Json.JsonSerializer.Serialize(audit));
                     }
                     catch (Exception ex)
                     {
                         // need to do something here to allow sagas to roll themselves back
-                        Logger.Error(ex);
+                        Logger.Error(Constants.ServiceName + "-SQS-GeneralFailure", ex);
                     }
                 }))
                 .Select(t =>
@@ -112,13 +140,14 @@ namespace Audit.Service.Lambda
                 .ForEach(t => t.Join());
         }
 
-        private APIGatewayProxyResponse ProcessRequest(AuditHandler handler, RequestWrapper wrapper)
+        private APIGatewayProxyResponse ProcessRequest(AuditHandler handler, RequestWrapper wrapper,
+            IResponseBuilder responseBuilder)
         {
             return handler.GetAll(wrapper)
                    ?? handler.GetOne(wrapper)
                    ?? handler.CreateOne(wrapper)
                    ?? handler.GetHealth(wrapper)
-                   ?? BuildNotFound();
+                   ?? responseBuilder.BuildNotFound();
         }
 
         private APIGatewayProxyResponse AddCors(APIGatewayProxyResponse response)
@@ -129,7 +158,7 @@ namespace Audit.Service.Lambda
             return response;
         }
 
-        private APIGatewayProxyResponse BuildError(Exception ex)
+        private APIGatewayProxyResponse BuildGenericError()
         {
             return new APIGatewayProxyResponse
             {
@@ -137,25 +166,10 @@ namespace Audit.Service.Lambda
                 {
                     errors = new[]
                     {
-                        new { code = ex.GetType().Name }
+                        new { code = "A unspecified error occured" }
                     }
                 }),
                 StatusCode = 500
-            };
-        }
-
-        private APIGatewayProxyResponse BuildNotFound()
-        {
-            return new APIGatewayProxyResponse
-            {
-                Body = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    errors = new[]
-                    {
-                        new { title = "Resource was not found" }
-                    }
-                }),
-                StatusCode = 404
             };
         }
     }

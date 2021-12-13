@@ -1,0 +1,4 @@
+staticfile:
+  nginx:
+    pushstate: true
+    root: build

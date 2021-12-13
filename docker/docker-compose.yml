@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  frontend:
+    image: "octopussamples/octopub-frontend"
+    pull_policy: always
+    ports:
+      - "7080:7080"
+  products:
+    image: "octopussamples/octopub-products"
+    pull_policy: always
+    ports:
+      - "8083:8083"
+    environment:
+      AUDIT_SERVICE: "http://audits:9080"
+      MIGRATE_AT_START: "true"
+  audits:
+    image: "octopussamples/octopub-audits"
+    pull_policy: always
+    ports:
+      - "9080:9080"
+  # The health proxy uses NGINX to expose a single API which forwards
+  # health check requests to the individal services. This alllows clients,
+  # like the frontend web app, to access a single API to get the health of
+  # all the individual services.
+  #
+  # When deployed to a platform like AWS Lambda, this proxy would be replaced
+  # with API Gateway.
+  health:
+    image: "octopussamples/octopub-health-proxy"
+    pull_policy: always
+    ports:
+      - "6080:80"

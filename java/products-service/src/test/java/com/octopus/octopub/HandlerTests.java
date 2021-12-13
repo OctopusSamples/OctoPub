@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.exceptions.EntityNotFound;
+import com.octopus.octopub.handlers.HealthHandler;
 import com.octopus.octopub.handlers.ProductsHandler;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.services.LiquidbaseUpdater;
@@ -18,10 +19,12 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import liquibase.exception.LiquibaseException;
+import lombok.NonNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusTest
@@ -32,11 +35,26 @@ public class HandlerTests extends BaseTest {
 
   @Inject ProductsHandler productsHandler;
 
+  @Inject HealthHandler healthHandler;
+
   @Inject ResourceConverter resourceConverter;
 
   @BeforeAll
   public void setup() throws SQLException, LiquibaseException {
     liquidbaseUpdater.update();
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "/health/products,GET",
+    "/health/products,POST",
+    "/health/products/x,GET",
+    "/health/products/x,DELETE",
+    "/health/products/x,PATCH"
+  })
+  public void testHealth(@NonNull final String path, @NonNull final String method)
+      throws DocumentSerializationException {
+    assertNotNull(healthHandler.getHealth(path, method));
   }
 
   @Test

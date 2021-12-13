@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using Amazon.Lambda.APIGatewayEvents;
+using Audit.Service.Interceptor;
 using Audit.Service.Lambda;
 using Audit.Service.Services;
 using JsonApiSerializer;
 using Newtonsoft.Json;
+using NLog;
 
 namespace Audit.Service.Handler
 {
     /// <summary>
     ///     This class is created by the DI provider, and does the work of mapping requests to responses.
     /// </summary>
+    [LogMethod]
     public class AuditHandler
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly AuditCreateService auditCreateService;
         private readonly AuditGetAllService auditGetAllService;
         private readonly AuditGetByIdService auditGetByIdService;
+        private readonly IResponseBuilder responseBuilder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuditHandler"/> class.
@@ -23,14 +28,17 @@ namespace Audit.Service.Handler
         /// <param name="auditCreateService">The service used to create new resources.</param>
         /// <param name="auditGetAllService">The service used to return resource collections.</param>
         /// <param name="auditGetByIdService">The service used to return single resources.</param>
+        /// <param name="responseBuilder">The response builder.</param>
         public AuditHandler(
             AuditCreateService auditCreateService,
             AuditGetAllService auditGetAllService,
-            AuditGetByIdService auditGetByIdService)
+            AuditGetByIdService auditGetByIdService,
+            IResponseBuilder responseBuilder)
         {
             this.auditCreateService = auditCreateService;
             this.auditGetAllService = auditGetAllService;
             this.auditGetByIdService = auditGetByIdService;
+            this.responseBuilder = responseBuilder;
         }
 
         /// <summary>
@@ -94,7 +102,7 @@ namespace Audit.Service.Handler
                     StatusCode = 200
                 };
 
-            return BuildNotFound();
+            return responseBuilder.BuildNotFound();
         }
 
         /// <summary>
@@ -117,7 +125,7 @@ namespace Audit.Service.Handler
                 if (string.IsNullOrWhiteSpace(entity.Action) ||
                     string.IsNullOrWhiteSpace(entity.Object) ||
                     string.IsNullOrWhiteSpace(entity.Subject))
-                    return BuildRequestError("One or more required fields were not supplied");
+                    return responseBuilder.BuildClientError("One or more required fields were not supplied");
 
                 entity.Id = null;
                 entity.DataPartition = wrapper.DataPartition;
@@ -130,37 +138,9 @@ namespace Audit.Service.Handler
             }
             catch (Exception ex)
             {
-                return BuildServerError(ex);
+                Logger.Error(Constants.ServiceName + "-Handler-CreateFailure", ex);
+                return responseBuilder.BuildError(ex);
             }
-        }
-
-        private APIGatewayProxyResponse BuildServerError(Exception ex)
-        {
-            return new APIGatewayProxyResponse
-            {
-                Body =
-                    $"{{\"errors\": [{{\"code\": \"{ex.GetType().Name}\"}}]}}",
-                StatusCode = 500
-            };
-        }
-
-        private APIGatewayProxyResponse BuildRequestError(string message)
-        {
-            return new APIGatewayProxyResponse
-            {
-                Body =
-                    $"{{\"errors\": [{{\"title\": \"{message}\"}}]}}",
-                StatusCode = 401
-            };
-        }
-
-        private APIGatewayProxyResponse BuildNotFound()
-        {
-            return new APIGatewayProxyResponse
-            {
-                Body = "{\"errors\": [{\"title\": \"Resource not found\"}]}",
-                StatusCode = 404
-            };
         }
     }
 }

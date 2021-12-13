@@ -18,6 +18,8 @@ namespace Audit.Service
     /// </summary>
     public class Startup
     {
+        private static readonly string CorsPolicy = "Cors";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup"/> class.
         /// </summary>
@@ -39,13 +41,22 @@ namespace Audit.Service
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    CorsPolicy,
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin();
+                        builder.AllowAnyHeader();
+                        builder.AllowAnyMethod();
+                    });
+            });
             services.AddDbContext<Db>(opt =>
             {
                 if (bool.Parse((ReadOnlySpan<char>)Configuration.GetSection("Database:UseInMemory").Value))
                 {
-                    var folder = Environment.SpecialFolder.LocalApplicationData;
-                    var path = Environment.GetFolderPath(folder);
-                    var dbPath = $"{path}{Path.DirectorySeparatorChar}audits.db";
+                    var dbPath = $"{Path.GetTempPath()}{Path.DirectorySeparatorChar}audits.db";
                     opt.UseSqlite($"Data Source={dbPath}");
                 }
                 else
@@ -53,13 +64,18 @@ namespace Audit.Service
                     opt.UseMySql(
                         Configuration.GetConnectionString("MySqlDatabase"),
                         new MySqlServerVersion(Constants.MySqlVersion),
-                        x => x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name));
+                        x =>
+                        {
+                            x.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
+                            x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+                        });
                 }
             });
-            services.AddScoped<AuditHandler>();
-            services.AddScoped<AuditCreateService>();
-            services.AddScoped<AuditGetAllService>();
-            services.AddScoped<AuditGetByIdService>();
+            services.AddSingleton<IResponseBuilder, ResponseBuilder>();
+            services.AddSingleton<AuditHandler>();
+            services.AddSingleton<AuditCreateService>();
+            services.AddSingleton<AuditGetAllService>();
+            services.AddSingleton<AuditGetByIdService>();
         }
 
         /// <summary>
@@ -74,6 +90,8 @@ namespace Audit.Service
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(CorsPolicy);
 
             app.UseAuthorization();
 

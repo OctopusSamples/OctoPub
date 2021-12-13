@@ -30,7 +30,7 @@ import lombok.NonNull;
 @RequestScoped
 public class ProductResource {
 
-  @Inject ProductsHandler productsController;
+  @Inject ProductsHandler productsHandler;
 
   /**
    * The resource collection endpoint.
@@ -49,7 +49,7 @@ public class ProductResource {
       @QueryParam(Constants.FILTER_QUERY_PARAM) final String filter)
       throws DocumentSerializationException {
     checkAcceptHeader(acceptHeader);
-    return Response.ok(productsController.getAll(acceptHeader, filter)).build();
+    return Response.ok(productsHandler.getAll(acceptHeader, filter)).build();
   }
 
   /**
@@ -70,7 +70,7 @@ public class ProductResource {
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
       throws DocumentSerializationException {
     checkAcceptHeader(acceptHeader);
-    return Response.ok(productsController.create(document, acceptHeader)).build();
+    return Response.ok(productsHandler.create(document, acceptHeader)).build();
   }
 
   /**
@@ -94,7 +94,7 @@ public class ProductResource {
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
       throws DocumentSerializationException {
     checkAcceptHeader(acceptHeader);
-    return Response.ok(productsController.update(id, document, acceptHeader)).build();
+    return Response.ok(productsHandler.update(id, document, acceptHeader)).build();
   }
 
   /**
@@ -112,7 +112,7 @@ public class ProductResource {
       @PathParam("id") final String id,
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader) {
     checkAcceptHeader(acceptHeader);
-    if (productsController.delete(id, acceptHeader)) {
+    if (productsHandler.delete(id, acceptHeader)) {
       return Response.noContent().build();
     }
     return Response.status(Status.NOT_FOUND).build();
@@ -136,7 +136,7 @@ public class ProductResource {
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
       throws DocumentSerializationException {
     checkAcceptHeader(acceptHeader);
-    return Optional.ofNullable(productsController.getOne(id, acceptHeader))
+    return Optional.ofNullable(productsHandler.getOne(id, acceptHeader))
         .map(d -> Response.ok(d).build())
         .orElse(Response.status(Status.NOT_FOUND).build());
   }

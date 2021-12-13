@@ -1,0 +1,29 @@
+name: 'Pipeline Frontend'
+inputs:
+  dockerhub_username:
+    required: true
+  dockerhub_password:
+    required: true
+on:
+  push:
+  workflow_dispatch:
+
+runs:
+  using: "composite"
+
+  steps:
+    - uses: actions/checkout@v1
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ inputs.dockerhub_username }}
+        password: ${{ inputs.dockerhub_password }}
+
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: docker/nginx-health-proxy
+        push: true
+        tags: octopussamples/octopub-health-proxy

@@ -38,7 +38,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             .then(data => {
                 setBook(data);
 
-                if (!context.apiKey) {
+                if (context.settings.requireApiKey !== "false" && !context.apiKey) {
                     setError("The API key must be defined in the settings page.");
                 } else if (data?.data?.attributes?.dataPartition !== context.partition) {
                     setError("This book belongs to the "
@@ -49,7 +49,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 }
             })
             .catch(() => setError("There was an error retrieving the resource."));
-    }, [setBook, setDisabled, context.apiKey, context.partition, context.settings.productEndpoint, bookId]);
+    }, [setBook, setDisabled, context.apiKey, context.partition, context.settings.productEndpoint, context.settings.requireApiKey, bookId]);
 
     return (
         <>

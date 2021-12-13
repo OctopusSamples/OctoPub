@@ -4,6 +4,8 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <PublishReadyToRun>true</PublishReadyToRun>
+        <PublishTrimmed>false</PublishTrimmed>
+        <TrimMode>Link</TrimMode>
         <Nullable>enable</Nullable>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -16,8 +18,10 @@
         <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.0.0" />
         <PackageReference Include="EntityFramework" Version="6.4.4" />
         <PackageReference Include="JsonApiSerializer" Version="1.7.4" />
+        <PackageReference Include="MethodDecorator.Fody" Version="1.1.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.12" />
+        <PackageReference Include="MySqlConnector" Version="2.1.0" />
         <PackageReference Include="NLog" Version="5.0.0-preview.3" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.3" />
         <PackageReference Include="RestSQL.SqlKata" Version="1.0.8" />

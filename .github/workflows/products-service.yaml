@@ -8,8 +8,9 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    # We can't run on ubuntu-latest, as that has updated GLIBC to a version that
+    # is incompatible with Lambdas.
+    runs-on: ubuntu-18.04
 
     steps:
     - uses: actions/checkout@v1
@@ -20,5 +21,7 @@ jobs:
         run_number: ${{ github.run_number }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
         github_user: ${{ github.actor }}
+        dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+        dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
         octopus_server_url: ${{ secrets.OCTOPUS_URL }}
         octopus_api_token: ${{ secrets.OCTOPUS_API_KEY }}

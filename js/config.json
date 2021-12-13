@@ -3,7 +3,10 @@
     "basename": "",
     "title": "OctoPub",
     "productEndpoint": "",
+    "auditEndpoint": "",
+    "healthEndpoint": "",
     "editorFormat": "",
+    "requireApiKey": "",
     "google": {
       "tag": ""
     }

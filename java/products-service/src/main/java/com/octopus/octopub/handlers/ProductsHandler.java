@@ -6,6 +6,7 @@ import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
 import com.octopus.octopub.models.Audit;
+import com.octopus.octopub.models.Health;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.repositories.AuditRepository;
 import com.octopus.octopub.repositories.ProductRepository;
@@ -199,4 +200,6 @@ public class ProductsHandler {
     final JSONAPIDocument<Product> document = new JSONAPIDocument<Product>(product);
     return new String(resourceConverter.writeDocument(document));
   }
+
+
 }

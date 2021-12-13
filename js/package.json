@@ -1,6 +1,10 @@
 {
-  "name": "octopub",
+  "name": "octopub-frontend",
   "version": "0.1.0",
+  "engines": {
+    "npm": "7.x",
+    "yarn": "1.x"
+  },
   "private": true,
   "homepage": ".",
   "dependencies": {
@@ -17,8 +21,9 @@
     "react-router-dom": "^6.0.2",
     "react-scripts": "4.0.3",
     "typescript": "^4.1.2",
+    "use-state-with-callback": "2.0.3",
     "web-vitals": "^1.0.1",
-    "use-state-with-callback": "2.0.3"
+    "react-helmet": "^6.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -45,13 +50,12 @@
     ]
   },
   "devDependencies": {
-    "@types/react-helmet": "^6.1.2",
-    "@types/react-router-dom": "^5.3.0",
-    "react-helmet": "^6.1.0",
     "@types/jest": "^26.0.15",
     "@types/material-ui": "^0.21.9",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0"
+    "@types/react-dom": "^17.0.0",
+    "@types/react-helmet": "^6.1.2",
+    "@types/react-router-dom": "^5.3.0"
   }
 }

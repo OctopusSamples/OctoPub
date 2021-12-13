@@ -15,7 +15,7 @@ import Brightness3Icon from "@material-ui/icons/Brightness3";
 import {FC, useContext} from "react";
 import {AppContext} from "../App";
 import {useNavigate} from "react-router-dom";
-import {AddCircleOutline, Delete, Edit, History, SettingsApplications} from "@material-ui/icons";
+import {AddCircleOutline, Delete, Edit, History, LocalHospital, SettingsApplications} from "@material-ui/icons";
 import {CommonProps} from "../model/RouteItem.model";
 
 // define css-in-js
@@ -82,21 +82,21 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
-                {context.allBookId && context.apiKey &&
+                {context.allBookId && (context.settings.requireApiKey === "false" || context.apiKey) &&
                 <IconButton onClick={() => history('/deleteBook/' + context.allBookId)}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>
                     </Tooltip>
                 </IconButton>
                 }
-                {context.allBookId && context.apiKey &&
+                {context.allBookId && (context.settings.requireApiKey === "false" || context.apiKey) &&
                 <IconButton onClick={() => history('/updateBook/' + context.allBookId)}>
                     <Tooltip title={"Update"} placement={"bottom"}>
                         <Edit/>
                     </Tooltip>
                 </IconButton>
                 }
-                {context.apiKey &&
+                {(context.settings.requireApiKey === "false" || context.apiKey) &&
                 <IconButton onClick={() => history('/addBook')}>
                     <Tooltip title={"Add Book"} placement={"bottom"}>
                         <AddCircleOutline/>
@@ -111,6 +111,11 @@ const Header: FC<HeaderProps> = ({
                 <IconButton onClick={() => history('/settings')}>
                     <Tooltip title={"Settings"} placement={"bottom"}>
                         <SettingsApplications/>
+                    </Tooltip>
+                </IconButton>
+                <IconButton onClick={() => history('/health')}>
+                    <Tooltip title={"Health"} placement={"bottom"}>
+                        <LocalHospital/>
                     </Tooltip>
                 </IconButton>
                 <IconButton onClick={toggleTheme}>

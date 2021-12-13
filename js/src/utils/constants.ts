@@ -7,4 +7,4 @@ export const FOOTER_HEIGHT = 30
 /**
  * The number of times to retry GET requests.
  */
-export const GET_RETRIES = 3;
+export const GET_RETRIES = 5;

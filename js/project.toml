@@ -1,0 +1,8 @@
+[project]
+name = "OctoPub Frontend"
+
+[build]
+exclude = [
+    "node_modules",
+    "build"
+]

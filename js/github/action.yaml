@@ -6,6 +6,10 @@ inputs:
     required: true
   github_user:
     required: true
+  dockerhub_username:
+    required: true
+  dockerhub_password:
+    required: true
   octopus_server_url:
     required: true
   octopus_api_token:
@@ -22,10 +26,19 @@ runs:
 
     - uses: nelonoel/branch-name@v1.0.1
 
+    - id: setup-pack
+      uses: buildpacks/github-actions/setup-pack@v4.4.0
+
     - name: Install Octopus Deploy CLI
       uses: OctopusDeploy/install-octocli@v1
       with:
         version: 7.4.3124
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ inputs.dockerhub_username }}
+        password: ${{ inputs.dockerhub_password }}
 
     - name: Packages
       run: yarn install
@@ -84,6 +97,22 @@ runs:
       shell: bash
       working-directory: js
 
+    # See https://stackoverflow.com/questions/68770567/containerizing-angular-application-with-paketo-buildpacks-empty-reply
+    # for details on building a static web hosting image.
+    - run: |
+        pack build octopussamples/octopub-frontend \
+          --env "BP_NODE_RUN_SCRIPTS=build" \
+          --env "NODE_ENV=development" \
+          --env "BPE_PORT=7080" \
+          --builder paketobuildpacks/builder:full \
+          --buildpack paketo-buildpacks/nodejs \
+          --buildpack paketo-buildpacks/nginx \
+          --buildpack paketo-community/staticfile \
+          --buildpack gcr.io/paketo-buildpacks/environment-variables
+        docker push octopussamples/octopub-frontend
+      shell: bash
+      working-directory: js
+
     - name: Trigger deployment Frontend
       run: >
         octo create-release
@@ -93,4 +122,5 @@ runs:
         --server ${{ inputs.octopus_server_url }}
         --apiKey ${{ inputs.octopus_api_token }}
         --space "Octopub"
+        --gitRef master
       shell: bash
