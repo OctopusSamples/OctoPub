@@ -631,7 +631,6 @@ step "Deploy Lambda" {
                         },
                         "Environment": {
                           "Variables": {
-                          "DEFAULT_SERVICE": "LAMBDA",
                           	"DEFAULT_LAMBDA": {"Ref": "LambdaVersion#{DeploymentId}"}
                           }
                         },
