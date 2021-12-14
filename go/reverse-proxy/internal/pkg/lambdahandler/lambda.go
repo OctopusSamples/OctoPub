@@ -107,28 +107,36 @@ func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string
 		return nil, "", errors.New("accept header is required")
 	}
 
-	acceptArr := strings.Split(acceptAll, ",")
-	for _, element := range acceptArr {
-		acceptComponents := strings.Split(element, ";")
-		for _, acceptComponent := range acceptComponents {
-			path, method, destination, err := getRuleComponents(acceptComponent)
-			if err == nil {
-				if pathAndMethodIsMatch(path, method, req) {
+	for _, acceptComponent := range getComponentsFromHeader(acceptAll) {
+		path, method, destination, err := getRuleComponents(acceptComponent)
+		if err == nil {
+			if pathAndMethodIsMatch(path, method, req) {
 
-					url, err := getDestinationUrl(destination)
+				url, err := getDestinationUrl(destination)
 
-					if err == nil {
-						return url, "", nil
-					}
-
-					return nil, destination, err
+				if err == nil {
+					return url, "", nil
 				}
-			}
 
+				return nil, destination, err
+			}
 		}
 	}
 
 	return nil, "", errors.New("failed to find downstream service")
+}
+
+func getComponentsFromHeader(header string) []string {
+	var returnArray []string
+	headerArray := strings.Split(header, ",")
+	for _, element := range headerArray {
+		components := strings.Split(element, ";")
+		for _, component := range components {
+			returnArray = append(returnArray, component)
+		}
+	}
+
+	return returnArray
 }
 
 func pathAndMethodIsMatch(path string, method string, req events.APIGatewayProxyRequest) bool {
