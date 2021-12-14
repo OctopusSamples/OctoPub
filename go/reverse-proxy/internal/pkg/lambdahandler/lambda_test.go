@@ -72,7 +72,7 @@ func TestHandler(t *testing.T) {
 		response, err := lambdahandler.HandleRequest(ctx, test.request)
 		assert.IsType(t, test.err, err)
 		assert.Contains(t, response.Body, test.expect)
-		assert.Contains(t, response.Headers["Host"], "localhost")
+		assert.Contains(t, response.Headers["Host"], "")
 	}
 
 }
