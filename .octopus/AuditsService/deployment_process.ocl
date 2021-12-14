@@ -1148,7 +1148,7 @@ step "Deploy Lambda" {
                 			"Type": "AWS::ApiGateway::Method",
                 			"Properties": {
                 				"AuthorizationType": "NONE",
-                				"HttpMethod": "GET",
+                				"HttpMethod": "POST",
                 				"Integration": {
                 					"IntegrationHttpMethod": "POST",
                 					"TimeoutInMillis": 20000,
