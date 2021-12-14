@@ -29,7 +29,7 @@ func HandleRequest(_ context.Context, req events.APIGatewayProxyRequest) (events
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}
-	return *fixHostHeader(resp), nil
+	return *resp, nil
 }
 
 func processRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
@@ -57,18 +57,6 @@ func processRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyR
 		return nil, err
 	}
 	return resp, nil
-}
-
-func fixHostHeader(resp *events.APIGatewayProxyResponse) *events.APIGatewayProxyResponse {
-	if resp.Headers != nil {
-		delete(resp.Headers, "Host")
-	}
-
-	if resp.MultiValueHeaders != nil {
-		delete(resp.MultiValueHeaders, "Host")
-	}
-
-	return resp
 }
 
 func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
