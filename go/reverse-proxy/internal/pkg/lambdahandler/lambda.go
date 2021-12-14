@@ -118,7 +118,7 @@ func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string
 					return url, "", nil
 				}
 
-				return nil, destination, err
+				return nil, destination, nil
 			}
 		}
 	}
@@ -167,7 +167,7 @@ func getDestinationUrl(ruleDestination string) (*url.URL, error) {
 	parsedUrl, err := url.Parse(ruleDestination)
 
 	// downstream service was not a url, so assume it is a lambda
-	if err != nil || !strings.HasPrefix(ruleDestination, "http") {
+	if err == nil && strings.HasPrefix(ruleDestination, "http") {
 		return parsedUrl, nil
 	}
 
