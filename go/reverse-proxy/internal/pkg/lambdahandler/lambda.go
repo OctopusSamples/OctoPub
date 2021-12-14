@@ -59,7 +59,7 @@ func processRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyRe
 	if os.Getenv("DEFAULT_LAMBDA") != "" {
 		return callLambda(os.Getenv("DEFAULT_LAMBDA"), req)
 	} else if os.Getenv("DEFAULT_SQS") != "" {
-		return callLambda(os.Getenv("DEFAULT_SQS"), req)
+		return callSqs(os.Getenv("DEFAULT_SQS"), req)
 	} else {
 		url, err := url.Parse(os.Getenv("DEFAULT_URL"))
 		if err != nil {
