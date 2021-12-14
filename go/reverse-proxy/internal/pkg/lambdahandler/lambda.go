@@ -126,7 +126,11 @@ func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string
 					return url, "", nil
 				}
 
-				return nil, destination, nil
+				lambda, err := getDestinationLambda(destination)
+
+				if err == nil {
+					return nil, lambda, nil
+				}
 			}
 		}
 	}
@@ -187,16 +191,27 @@ func getDestinationPath(acceptAll string, ruleDestination string) (string, error
 func getDestinationUrl(ruleDestination string) (*url.URL, error) {
 	if strings.HasPrefix(ruleDestination, "url[") && strings.HasSuffix(ruleDestination, "]") {
 
+		trimmedDestination := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "url["), "]")
+
 		// See if the downstream service is a valid URL
-		parsedUrl, err := url.Parse(strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "url["), "]"))
+		parsedUrl, err := url.Parse(trimmedDestination)
 
 		// downstream service was not a url, so assume it is a lambda
-		if err == nil && strings.HasPrefix(ruleDestination, "http") {
+		if err == nil && strings.HasPrefix(trimmedDestination, "http") {
 			return parsedUrl, nil
 		}
 	}
 
 	return nil, errors.New("destination was not a URL")
+}
+
+func getDestinationLambda(ruleDestination string) (string, error) {
+	if strings.HasPrefix(ruleDestination, "lambda[") && strings.HasSuffix(ruleDestination, "]") {
+
+		return strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "lambda["), "]"), nil
+	}
+
+	return "", errors.New("destination was not a lambda")
 }
 
 func getHeader(singleHeaders map[string]string, multiHeaders map[string][]string, header string) (string, error) {

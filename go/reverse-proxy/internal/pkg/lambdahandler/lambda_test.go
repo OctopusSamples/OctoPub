@@ -18,7 +18,7 @@ func TestHandler(t *testing.T) {
 		{
 			request: events.APIGatewayProxyRequest{
 				Headers: map[string]string{
-					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/api/products*:GET]=Development-product-0",
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/api/products*:GET]=lambda[Development-product-0]",
 					"Host":   "localhost",
 				},
 				Path:       "/api/products",
@@ -31,7 +31,7 @@ func TestHandler(t *testing.T) {
 			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
-					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/post*:POST]=https://postman-echo.com",
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/post*:POST]=url[https://postman-echo.com]",
 					"Host":   "localhost",
 				},
 				Path:       "/post",
@@ -44,7 +44,7 @@ func TestHandler(t *testing.T) {
 			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
-					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/put*:PUT]=https://postman-echo.com",
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/put*:PUT]=url[https://postman-echo.com]",
 					"Host":   "localhost",
 				},
 				Path:       "/put",
@@ -56,7 +56,7 @@ func TestHandler(t *testing.T) {
 		{
 			request: events.APIGatewayProxyRequest{
 				Headers: map[string]string{
-					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/get*:GET]=https://postman-echo.com",
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/get*:GET]=url[https://postman-echo.com]",
 					"Host":   "localhost",
 				},
 				Path:       "/get",
