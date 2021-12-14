@@ -59,6 +59,9 @@ func processRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyR
 	return resp, nil
 }
 
+// fixHostHeader removes the host header from any response, as browsers will refuse to process a response
+// when the returned host header is different from the requested one with errors like
+// "Received a request for different Host than the current tunnel."
 func fixHostHeader(resp *events.APIGatewayProxyResponse) *events.APIGatewayProxyResponse {
 	if resp.Headers != nil {
 		delete(resp.Headers, "Host")
