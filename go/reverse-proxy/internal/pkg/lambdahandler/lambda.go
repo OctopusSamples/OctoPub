@@ -113,30 +113,46 @@ func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string
 		for _, acceptComponent := range acceptComponents {
 			trimmedAcceptComponent := strings.TrimSpace(acceptComponent)
 			if strings.Contains(trimmedAcceptComponent, "=") {
-				versionComponents := strings.Split(trimmedAcceptComponent, "=")
-				// ensure the component has an equals sign, and the LHS is something like "version[blah]"
-				if len(versionComponents) == 2 && strings.HasPrefix(versionComponents[0], "version[") && strings.HasSuffix(versionComponents[0], "]") {
-					// remove the version padding
-					strippedVersion := strings.TrimSuffix(strings.TrimPrefix(versionComponents[0], "version["), "]")
-					// make sure the path is something like "blah:GET"
-					pathAndMethod := strings.Split(strippedVersion, ":")
-					if len(pathAndMethod) == 2 {
-						// Before the colon is an ant matcher that must match the requested path
-						pathIsMatch := matcher.Match(pathAndMethod[0], req.Path)
-						// After the colon is the HTTP method
-						methodIsMatch := strings.EqualFold(pathAndMethod[1], req.HTTPMethod)
-						if pathIsMatch && methodIsMatch {
-							// See if the downstream service is a valid URL
-							parsedUrl, err := url.Parse(versionComponents[1])
+				ruleComponents := strings.Split(trimmedAcceptComponent, "=")
+				// ensure the component has an equals sign
+				if len(ruleComponents) == 2 {
+					// First part of the rule is the path and http method
+					rulePath := ruleComponents[0]
+					// Second part of the rule is the destination
+					ruleDestination := ruleComponents[1]
 
-							// downstream service was not a url, so assume it is a lambda
-							if err != nil || !strings.HasPrefix(versionComponents[1], "http") {
-								// the value can't be empty or blank
-								if len(strings.TrimSpace(versionComponents[1])) > 0 {
-									return nil, versionComponents[1], err
+					// The rule path must be something like "version[blah:GET]"
+					if strings.HasPrefix(rulePath, "version[") && strings.HasSuffix(rulePath, "]") {
+						// remove the version padding
+						strippedVersion := strings.TrimSuffix(strings.TrimPrefix(rulePath, "version["), "]")
+						// make sure the path is something like "blah:GET"
+						pathAndMethod := strings.Split(strippedVersion, ":")
+
+						if len(pathAndMethod) == 2 {
+							// First part of the rule path is the path
+							path := pathAndMethod[0]
+							// second part of rule path is the HTTP method
+							method := pathAndMethod[1]
+							// The path is an ant matcher that must match the requested path
+							pathIsMatch := matcher.Match(path, req.Path)
+							// AThe http method must match the current request
+							methodIsMatch := strings.EqualFold(method, req.HTTPMethod)
+							if pathIsMatch && methodIsMatch {
+								// All the work above is simply to find out if the current request has a
+								// custom destination. Now we need to work out what the destination is.
+
+								// See if the downstream service is a valid URL
+								parsedUrl, err := url.Parse(ruleDestination)
+
+								// downstream service was not a url, so assume it is a lambda
+								if err != nil || !strings.HasPrefix(ruleDestination, "http") {
+									// the value can't be empty or blank
+									if len(strings.TrimSpace(ruleDestination)) > 0 {
+										return nil, ruleDestination, err
+									}
+								} else {
+									return parsedUrl, "", nil
 								}
-							} else {
-								return parsedUrl, "", nil
 							}
 						}
 					}
