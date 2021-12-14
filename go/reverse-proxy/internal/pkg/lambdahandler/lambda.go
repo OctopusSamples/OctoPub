@@ -139,9 +139,7 @@ func getComponentsFromHeader(header string) []string {
 	headerArray := strings.Split(header, ",")
 	for _, element := range headerArray {
 		components := strings.Split(element, ";")
-		for _, component := range components {
-			returnArray = append(returnArray, component)
-		}
+		returnArray = append(returnArray, components...)
 	}
 
 	return returnArray
