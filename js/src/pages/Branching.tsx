@@ -86,7 +86,9 @@ const Branching: FC<CommonProps> = (props: CommonProps): ReactElement => {
     }
 
     function addRule() {
-        const newRules = [...rules, {id: rules.length, path: "", destination: ""}];
+        const maxId = rules.reduce((previousValue, currentValue) => previousValue < currentValue.id ? currentValue.id : previousValue, 0);
+
+        const newRules = [...rules, {id: maxId + 1, path: "", destination: ""}];
         localStorage.setItem("branching", JSON.stringify(newRules));
         setRules([...newRules])
     }
