@@ -12,6 +12,10 @@ function getBranchingRules() {
     return "";
 }
 
+function responseIsServerError(status: number) {
+    return status >= 500 && status <= 599;
+}
+
 export function getJson<T>(url: string, retryCount?: number): Promise<T> {
     return fetch(url, {
         method: 'GET',
@@ -20,7 +24,7 @@ export function getJson<T>(url: string, retryCount?: number): Promise<T> {
         }
     })
         .then(response => {
-            if (response.ok) {
+            if (!responseIsServerError(response.status)) {
                 return response.json();
             }
             if ((retryCount || 0) <= GET_RETRIES) {
@@ -44,7 +48,7 @@ export function getJsonApi<T>(url: string, partition: string | null, apiKey?: st
         }
     })
         .then(response => {
-            if (response.ok) {
+            if (!responseIsServerError(response.status)) {
                 return response.json();
             }
             if ((retryCount || 0) <= GET_RETRIES) {
@@ -69,7 +73,7 @@ export function patchJsonApi<T>(resource: string, url: string, partition: string
         body: resource
     })
         .then(response => {
-            if (response.ok) {
+            if (!responseIsServerError(response.status)) {
                 return response.json();
             }
             if ((retryCount || 0) <= GET_RETRIES) {
@@ -111,7 +115,7 @@ export function deleteJsonApi(url: string, partition: string | null, apiKey?: st
         }
     })
         .then(response => {
-            if (!response.ok) {
+            if (!responseIsServerError(response.status)) {
                 return Promise.reject(response);
             }
             if ((retryCount || 0) <= GET_RETRIES) {
