@@ -29,10 +29,10 @@ func HandleRequest(_ context.Context, req events.APIGatewayProxyRequest) (events
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}
-	return *resp, nil
+	return resp, nil
 }
 
-func processRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+func processRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	upstreamUrl, upstreamLambda, err := extractUpstreamService(req)
 
 	if err == nil {
@@ -47,7 +47,7 @@ func processRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyR
 	return callLambda(os.Getenv("DEFAULT_LAMBDA"), req)
 }
 
-func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	handler := func(w http.ResponseWriter, httpReq *http.Request) {
 		// The host header for the upstream requests must match the upstream server
 		// https://github.com/golang/go/issues/28168
@@ -60,13 +60,13 @@ func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (
 	resp, proxyErr := adapter.ProxyWithContext(context.Background(), req)
 
 	if proxyErr != nil {
-		return nil, proxyErr
+		return events.APIGatewayProxyResponse{}, proxyErr
 	}
 
-	return &resp, nil
+	return resp, nil
 }
 
-func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
@@ -76,13 +76,13 @@ func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (*events.A
 	payload, err := json.Marshal(req)
 
 	if err != nil {
-		return nil, err
+		return events.APIGatewayProxyResponse{}, err
 	}
 
 	lambdaResponse, lambdaErr := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String(lambdaName), Payload: payload})
 
 	if lambdaErr != nil {
-		return nil, lambdaErr
+		return events.APIGatewayProxyResponse{}, lambdaErr
 	}
 
 	return convertLambdaProxyResponse(lambdaResponse)
@@ -218,7 +218,7 @@ func getHeader(singleHeaders map[string]string, multiHeaders map[string][]string
 	return "", errors.New("key was not found")
 }
 
-func convertLambdaProxyResponse(lambdaResponse *lambda.InvokeOutput) (*events.APIGatewayProxyResponse, error) {
+func convertLambdaProxyResponse(lambdaResponse *lambda.InvokeOutput) (events.APIGatewayProxyResponse, error) {
 	var data LenientAPIGatewayProxyResponse
 	jsonErr := json.Unmarshal(lambdaResponse.Payload, &data)
 
@@ -227,19 +227,19 @@ func convertLambdaProxyResponse(lambdaResponse *lambda.InvokeOutput) (*events.AP
 		jsonErr2 := json.Unmarshal(lambdaResponse.Payload, &data2)
 
 		if jsonErr2 != nil {
-			return nil, jsonErr2
+			return events.APIGatewayProxyResponse{}, jsonErr2
 		}
 
-		return &data2, nil
+		return data2, nil
 	}
 
 	apiGatewayProxyResponse, conErr := data.toAPIGatewayProxyResponse()
 
 	if conErr != nil {
-		return nil, conErr
+		return events.APIGatewayProxyResponse{}, conErr
 	}
 
-	return &apiGatewayProxyResponse, nil
+	return apiGatewayProxyResponse, nil
 }
 
 type LenientAPIGatewayProxyResponse struct {
