@@ -20,7 +20,7 @@ const Branching: FC<CommonProps> = (props: CommonProps): ReactElement => {
     context.setAllBookId(null);
 
     const [rules, setRules] = useState<RedirectRule[]>(JSON.parse(localStorage.getItem("branching") || "[]"));
-    const [rulesEnabled, setRulesEnabled] = useState<boolean>((localStorage.getItem("branchingEnabled") || "").toLowerCase() === "true");
+    const [rulesEnabled, setRulesEnabled] = useState<boolean>((localStorage.getItem("branchingEnabled") || "").toLowerCase() !== "false");
 
     const columns = [
         {field: 'id', headerName: 'Index', width: 30},
