@@ -24,7 +24,6 @@ import (
 )
 
 var matcher = antpath.New()
-var individualPath = regexp.MustCompile(`/api/(?:[a-zA-Z]+)/\d+/?`)
 var groupPath = regexp.MustCompile(`/api/(?:[a-zA-Z]+)/?`)
 
 // HandleRequest takes the incoming Lambda request and forwards it to the downstream service
