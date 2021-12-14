@@ -71,11 +71,11 @@ namespace Audit.Service
                         });
                 }
             });
-            services.AddSingleton<IResponseBuilder, ResponseBuilder>();
-            services.AddSingleton<AuditHandler>();
-            services.AddSingleton<AuditCreateService>();
-            services.AddSingleton<AuditGetAllService>();
-            services.AddSingleton<AuditGetByIdService>();
+            services.AddScoped<IResponseBuilder, ResponseBuilder>();
+            services.AddScoped<AuditHandler>();
+            services.AddScoped<AuditCreateService>();
+            services.AddScoped<AuditGetAllService>();
+            services.AddScoped<AuditGetByIdService>();
         }
 
         /// <summary>
