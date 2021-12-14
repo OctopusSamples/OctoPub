@@ -112,6 +112,14 @@ func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string
 		if err == nil {
 			if pathAndMethodIsMatch(path, method, req) {
 
+				// for convenience, rules can reference the destinations of other paths, allowing
+				// complex rule sets to be updated with a single destination
+				pathDest, err := getDestinationPath(acceptAll, destination)
+
+				if err == nil {
+					destination = pathDest
+				}
+
 				url, err := getDestinationUrl(destination)
 
 				if err == nil {
@@ -162,13 +170,32 @@ func getRuleComponents(acceptComponent string) (string, string, string, error) {
 	return "", "", "", errors.New("component was not a valid rule")
 }
 
-func getDestinationUrl(ruleDestination string) (*url.URL, error) {
-	// See if the downstream service is a valid URL
-	parsedUrl, err := url.Parse(ruleDestination)
+func getDestinationPath(acceptAll string, ruleDestination string) (string, error) {
+	if strings.HasPrefix(ruleDestination, "path[") && strings.HasSuffix(ruleDestination, "]") {
 
-	// downstream service was not a url, so assume it is a lambda
-	if err == nil && strings.HasPrefix(ruleDestination, "http") {
-		return parsedUrl, nil
+		strippedDest := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "path["), "]")
+
+		for _, acceptComponent := range getComponentsFromHeader(acceptAll) {
+			path, method, destination, err := getRuleComponents(acceptComponent)
+			if err == nil && path+":"+method == strippedDest {
+				return destination, nil
+			}
+		}
+	}
+
+	return "", errors.New("destination was not a path, or did not find the path")
+}
+
+func getDestinationUrl(ruleDestination string) (*url.URL, error) {
+	if strings.HasPrefix(ruleDestination, "url[") && strings.HasSuffix(ruleDestination, "]") {
+
+		// See if the downstream service is a valid URL
+		parsedUrl, err := url.Parse(strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "url["), "]"))
+
+		// downstream service was not a url, so assume it is a lambda
+		if err == nil && strings.HasPrefix(ruleDestination, "http") {
+			return parsedUrl, nil
+		}
 	}
 
 	return nil, errors.New("destination was not a URL")
