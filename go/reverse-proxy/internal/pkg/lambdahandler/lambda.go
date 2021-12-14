@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/awslabs/aws-lambda-go-api-proxy/handlerfunc"
 	"github.com/vibrantbyte/go-antpath/antpath"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -31,6 +32,7 @@ var groupPath = regexp.MustCompile(`/api/(?:[a-zA-Z]+)/?`)
 func HandleRequest(_ context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	resp, err := processRequest(req)
 	if err != nil {
+		log.Println("ReverseProxy-Handler-GeneralFailure " + err.Error())
 		return events.APIGatewayProxyResponse{}, err
 	}
 	return resp, nil
@@ -68,6 +70,9 @@ func processRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyRe
 }
 
 func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Println("lambdahandler.httpReverseProxy(*url.URL, events.APIGatewayProxyRequest)")
+	log.Println("Calling URL " + upstreamUrl.String())
+
 	handler := func(w http.ResponseWriter, httpReq *http.Request) {
 		// The host header for the upstream requests must match the upstream server
 		// https://github.com/golang/go/issues/28168
@@ -80,6 +85,7 @@ func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (
 	resp, proxyErr := adapter.ProxyWithContext(context.Background(), req)
 
 	if proxyErr != nil {
+		log.Println("ReverseProxy-Url-GeneralFailure " + proxyErr.Error())
 		return events.APIGatewayProxyResponse{}, proxyErr
 	}
 
@@ -87,6 +93,9 @@ func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (
 }
 
 func callSqs(queueURL string, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Println("lambdahandler.callSqs(string, events.APIGatewayProxyRequest)")
+	log.Println("Calling SQS " + queueURL)
+
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
@@ -131,6 +140,7 @@ func callSqs(queueURL string, req events.APIGatewayProxyRequest) (events.APIGate
 	})
 
 	if sqsErr != nil {
+		log.Println("ReverseProxy-SQS-GeneralFailure " + sqsErr.Error())
 		return events.APIGatewayProxyResponse{}, sqsErr
 	}
 
@@ -138,6 +148,9 @@ func callSqs(queueURL string, req events.APIGatewayProxyRequest) (events.APIGate
 }
 
 func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Println("lambdahandler.callLambda(string, events.APIGatewayProxyRequest)")
+	log.Println("Calling Lambda " + lambdaName)
+
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
@@ -153,6 +166,7 @@ func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (events.AP
 	lambdaResponse, lambdaErr := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String(lambdaName), Payload: payload})
 
 	if lambdaErr != nil {
+		log.Println("ReverseProxy-Lambda-GeneralFailure " + lambdaErr.Error())
 		return events.APIGatewayProxyResponse{}, lambdaErr
 	}
 
