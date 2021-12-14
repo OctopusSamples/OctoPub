@@ -728,6 +728,22 @@ step "Deploy Lambda" {
                 						  "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${EnvironmentName}-${LambdaName}*:*"
                 					   }
                 					  ]
+                					},
+                					{
+                					  "Effect": "Allow",
+                					  "Action": [
+                						"lambda:InvokeFunction"
+                					  ],
+                					  "Resource": [
+                						{
+                						  "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${EnvironmentName}-${LambdaName}*:*"
+                					   }
+                					  ]
+                					},
+                					{
+                						"Action": "sqs:SendMessage",
+                						"Effect": "Allow",
+                						"Resource": "*"
                 					}
                 				  ]
                 				}
@@ -781,6 +797,33 @@ step "Deploy Lambda" {
                 			},
                 			"Description" : {"Fn::Sub": "${LambdaDescription} Proxy"},
                 			"FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-Proxy" },
+                			"Handler": "main",
+                			"MemorySize": 128,
+                			"PackageType": "Zip",
+                			"Role": {
+                			  "Fn::GetAtt": [
+                				"IamRoleProxyLambdaExecution",
+                				"Arn"
+                			  ]
+                			},
+                			"Runtime": "go1.x",
+                			"Timeout": 30
+                		  }
+                		},
+                		"SQSProxyLambda": {
+                		  "Type": "AWS::Lambda::Function",
+                		  "Properties": {
+                			"Code": {
+                			  "S3Bucket": {"Ref": "LambdaS3Bucket"},
+                			  "S3Key": {"Ref": "ProxyLambdaS3Key"}   
+                			},
+                			"Environment": {
+                			  "Variables": {
+                				"DEFAULT_SQS": {"Ref": "AuditsQueue"}
+                			  }
+                			},
+                			"Description" : {"Fn::Sub": "${LambdaDescription} SQS Proxy"},
+                			"FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-SQSProxy" },
                 			"Handler": "main",
                 			"MemorySize": 128,
                 			"PackageType": "Zip",
