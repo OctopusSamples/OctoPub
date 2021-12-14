@@ -76,6 +76,7 @@ func fixHostHeader(resp *events.APIGatewayProxyResponse) *events.APIGatewayProxy
 
 func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	handler := func(w http.ResponseWriter, httpReq *http.Request) {
+		httpReq.Host = upstreamUrl.Host
 		proxy := httputil.NewSingleHostReverseProxy(upstreamUrl)
 		proxy.ServeHTTP(w, httpReq)
 	}
