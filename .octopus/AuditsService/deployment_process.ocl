@@ -1173,7 +1173,7 @@ step "Deploy Lambda" {
                 					}
                 				},
                 				"ResourceId": {
-                					"Ref": "HealthProxyResource"
+                					"Ref": "EntityResource"
                 				},
                 				"RestApiId": {
                 					"Ref": "RestApi"
