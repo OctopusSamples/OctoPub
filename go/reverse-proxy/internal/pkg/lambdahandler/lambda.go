@@ -111,57 +111,59 @@ func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string
 	for _, element := range acceptArr {
 		acceptComponents := strings.Split(element, ";")
 		for _, acceptComponent := range acceptComponents {
-			trimmedAcceptComponent := strings.TrimSpace(acceptComponent)
-			if strings.Contains(trimmedAcceptComponent, "=") {
-				ruleComponents := strings.Split(trimmedAcceptComponent, "=")
-				// ensure the component has an equals sign
-				if len(ruleComponents) == 2 {
-					// First part of the rule is the path and http method
-					rulePath := ruleComponents[0]
-					// Second part of the rule is the destination
-					ruleDestination := ruleComponents[1]
+			path, method, destination, err := getRuleComponents(acceptComponent)
+			if err == nil {
+				if pathAndMethodIsMatch(path, method, req) {
 
-					// The rule path must be something like "version[blah:GET]"
-					if strings.HasPrefix(rulePath, "version[") && strings.HasSuffix(rulePath, "]") {
-						// remove the version padding
-						strippedVersion := strings.TrimSuffix(strings.TrimPrefix(rulePath, "version["), "]")
-						// make sure the path is something like "blah:GET"
-						pathAndMethod := strings.Split(strippedVersion, ":")
+					url, err := getDestinationUrl(destination)
 
-						if len(pathAndMethod) == 2 {
-							// First part of the rule path is the path
-							path := pathAndMethod[0]
-							// second part of rule path is the HTTP method
-							method := pathAndMethod[1]
-							// The path is an ant matcher that must match the requested path
-							pathIsMatch := matcher.Match(path, req.Path)
-							// AThe http method must match the current request
-							methodIsMatch := strings.EqualFold(method, req.HTTPMethod)
-							if pathIsMatch && methodIsMatch {
-								// All the work above is simply to find out if the current request has a
-								// custom destination. Now we need to work out what the destination is.
-
-								// See if the downstream service is a valid URL
-								parsedUrl, err := url.Parse(ruleDestination)
-
-								// downstream service was not a url, so assume it is a lambda
-								if err != nil || !strings.HasPrefix(ruleDestination, "http") {
-									// the value can't be empty or blank
-									if len(strings.TrimSpace(ruleDestination)) > 0 {
-										return nil, ruleDestination, err
-									}
-								} else {
-									return parsedUrl, "", nil
-								}
-							}
-						}
+					if err == nil {
+						return url, "", nil
 					}
+
+					return nil, destination, err
 				}
 			}
+
 		}
 	}
 
 	return nil, "", errors.New("failed to find downstream service")
+}
+
+func pathAndMethodIsMatch(path string, method string, req events.APIGatewayProxyRequest) bool {
+	// The path is an ant matcher that must match the requested path
+	pathIsMatch := matcher.Match(path, req.Path)
+	// AThe http method must match the current request
+	methodIsMatch := strings.EqualFold(method, req.HTTPMethod)
+
+	return pathIsMatch && methodIsMatch
+}
+
+func getRuleComponents(acceptComponent string) (string, string, string, error) {
+	ruleComponents := strings.Split(strings.TrimSpace(acceptComponent), "=")
+	// ensure the component has an equals sign
+	if len(ruleComponents) == 2 {
+		if strings.HasPrefix(ruleComponents[0], "version[") && strings.HasSuffix(ruleComponents[0], "]") {
+			strippedVersion := strings.TrimSuffix(strings.TrimPrefix(ruleComponents[0], "version["), "]")
+			pathAndMethod := strings.Split(strippedVersion, ":")
+			return pathAndMethod[0], pathAndMethod[1], ruleComponents[1], nil
+		}
+	}
+
+	return "", "", "", errors.New("component was not a valid rule")
+}
+
+func getDestinationUrl(ruleDestination string) (*url.URL, error) {
+	// See if the downstream service is a valid URL
+	parsedUrl, err := url.Parse(ruleDestination)
+
+	// downstream service was not a url, so assume it is a lambda
+	if err != nil || !strings.HasPrefix(ruleDestination, "http") {
+		return parsedUrl, nil
+	}
+
+	return nil, errors.New("destination was not a URL")
 }
 
 func getHeader(singleHeaders map[string]string, multiHeaders map[string][]string, header string) (string, error) {
