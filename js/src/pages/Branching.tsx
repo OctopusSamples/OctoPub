@@ -25,7 +25,7 @@ const Branching: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const columns = [
         {field: 'id', headerName: 'Index', width: 30},
         {field: 'path', headerName: 'Path', editable: true, width: 300},
-        {field: 'destination', headerName: 'Subject', editable: true, width: 300}
+        {field: 'destination', headerName: 'Destination', editable: true, width: 300}
     ];
 
     let selectedRows: GridRowId[] = [];
