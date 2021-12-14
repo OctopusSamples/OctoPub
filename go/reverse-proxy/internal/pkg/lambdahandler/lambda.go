@@ -116,6 +116,7 @@ func callSqs(queueURL string, req events.APIGatewayProxyRequest) (events.APIGate
 		if decodeError == nil {
 			body = string(decodedBody)
 		} else {
+			log.Println("ReverseProxy-SQS-BodyDecodeError " + decodeError.Error())
 			return events.APIGatewayProxyResponse{}, decodeError
 		}
 	}
