@@ -118,7 +118,7 @@ func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string
 					pathAndMethod := strings.Split(versionComponents[0], ":")
 					if len(pathAndMethod) == 2 {
 						pathIsMatch := matcher.Match(pathAndMethod[0], "version["+req.Path)
-						methodIsMatch := pathAndMethod[1] == req.HTTPMethod+"]"
+						methodIsMatch := strings.ToLower(pathAndMethod[1]) == strings.ToLower(req.HTTPMethod+"]")
 						if pathIsMatch && methodIsMatch {
 							parsedUrl, err := url.Parse(versionComponents[1])
 
