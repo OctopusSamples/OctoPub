@@ -147,6 +147,10 @@ public class ProductsHandler {
               || partitionIdentifier
                   .getPartition(acceptHeaders)
                   .equals(product.getDataPartition()))) {
+
+        if (!product.name.startsWith("My Branch "))
+          product.name = "My Branch " + product.name;
+
         return respondWithProduct(product);
       }
     } catch (final NumberFormatException ex) {
