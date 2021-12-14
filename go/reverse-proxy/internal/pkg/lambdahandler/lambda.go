@@ -63,6 +63,7 @@ func processRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyRe
 	} else {
 		url, err := url.Parse(os.Getenv("DEFAULT_URL"))
 		if err != nil {
+			log.Println("ReverseProxy-Handler-UrlParseError " + err.Error())
 			return events.APIGatewayProxyResponse{}, err
 		}
 		return httpReverseProxy(url, req)
