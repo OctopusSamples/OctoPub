@@ -2,10 +2,14 @@ import {GET_RETRIES} from "./constants";
 import {RedirectRule} from "../pages/Branching";
 
 function getBranchingRules() {
-    const rules: RedirectRule[] = JSON.parse(localStorage.getItem("branching") || "[]")
-    return rules
-        .filter(r => r.path.trim() && r.destination.trim())
-        .map(r => "version[" + r.path + "]=" + r.destination).join(";")
+    if ((localStorage.getItem("branchingEnabled") || "").toLowerCase() !== "false") {
+        const rules: RedirectRule[] = JSON.parse(localStorage.getItem("branching") || "[]")
+        return rules
+            .filter(r => r.path.trim() && r.destination.trim())
+            .map(r => "version[" + r.path + "]=" + r.destination).join(";")
+    }
+
+    return "";
 }
 
 export function getJson<T>(url: string, retryCount?: number): Promise<T> {

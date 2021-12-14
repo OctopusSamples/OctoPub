@@ -4,7 +4,7 @@ import {Helmet} from "react-helmet";
 import {AppContext} from "../App";
 import {DataGrid, GridCellEditCommitParams, GridRowId} from "@material-ui/data-grid";
 import {styles} from "../utils/styles";
-import {Button, Grid} from "@material-ui/core";
+import {Button, Checkbox, FormLabel, Grid} from "@material-ui/core";
 
 export interface RedirectRule {
     id: number,
@@ -20,6 +20,7 @@ const Branching: FC<CommonProps> = (props: CommonProps): ReactElement => {
     context.setAllBookId(null);
 
     const [rules, setRules] = useState<RedirectRule[]>(JSON.parse(localStorage.getItem("branching") || "[]"));
+    const [rulesEnabled, setRulesEnabled] = useState<boolean>((localStorage.getItem("branchingEnabled") || "").toLowerCase() === "true");
 
     const columns = [
         {field: 'id', headerName: 'Index', width: 30},
@@ -48,12 +49,24 @@ const Branching: FC<CommonProps> = (props: CommonProps): ReactElement => {
                         onCellEditCommit={onEdit}
                     />
                 </Grid>
+                <Grid container={true} className={classes.cell} xs={4}>
+                    <FormLabel className={classes.label}>Branching rules enabled</FormLabel>
+                </Grid>
+                <Grid container={true} className={classes.cell} item xs={8}>
+                    <Checkbox
+                        checked={rulesEnabled}
+                        onChange={event => {
+                            setRulesEnabled(event.target.checked);
+                            localStorage.setItem("branchingEnabled", event.target.checked.toString());
+                        }}/>
+                </Grid>
                 <Grid container={true} className={classes.cell} sm={3} xs={12}>
                     <Button variant={"outlined"} onClick={_ => addRule()}>Add Rule</Button>
                 </Grid>
                 <Grid container={true} className={classes.cell} sm={3} xs={12}>
                     <Button variant={"outlined"} onClick={_ => deleteRule()}>Delete Rule</Button>
                 </Grid>
+
             </Grid>
         </>
     );

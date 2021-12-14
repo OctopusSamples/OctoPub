@@ -114,12 +114,19 @@ func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string
 			trimmedAcceptComponent := strings.TrimSpace(acceptComponent)
 			if strings.Contains(trimmedAcceptComponent, "=") {
 				versionComponents := strings.Split(trimmedAcceptComponent, "=")
-				if len(versionComponents) == 2 {
-					pathAndMethod := strings.Split(versionComponents[0], ":")
+				// ensure the component has an equals sign, and the LHS is something like "version[blah]"
+				if len(versionComponents) == 2 && strings.HasPrefix(versionComponents[0], "version[") && strings.HasSuffix(versionComponents[0], "]") {
+					// remove the version padding
+					strippedVersion := strings.TrimSuffix(strings.TrimPrefix(versionComponents[0], "version["), "]")
+					// make sure the path is something like "blah:GET"
+					pathAndMethod := strings.Split(strippedVersion, ":")
 					if len(pathAndMethod) == 2 {
-						pathIsMatch := matcher.Match(pathAndMethod[0], "version["+req.Path)
-						methodIsMatch := strings.EqualFold(pathAndMethod[1], req.HTTPMethod+"]")
+						// Before the colon is an ant matcher that must match the requested path
+						pathIsMatch := matcher.Match(pathAndMethod[0], req.Path)
+						// After the colon is the HTTP method
+						methodIsMatch := strings.EqualFold(pathAndMethod[1], req.HTTPMethod)
 						if pathIsMatch && methodIsMatch {
+							// See if the downstream service is a valid URL
 							parsedUrl, err := url.Parse(versionComponents[1])
 
 							// downstream service was not a url, so assume it is a lambda
