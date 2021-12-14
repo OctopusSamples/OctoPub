@@ -278,8 +278,12 @@ func getDestinationUrl(ruleDestination string) (*url.URL, error) {
 		parsedUrl, err := url.Parse(trimmedDestination)
 
 		// downstream service was not a url, so assume it is a lambda
-		if err == nil && strings.HasPrefix(trimmedDestination, "http") {
-			return parsedUrl, nil
+		if err == nil {
+			if strings.HasPrefix(trimmedDestination, "http") {
+				return parsedUrl, nil
+			}
+		} else {
+			log.Println("ReverseProxy-Url-UrlParseError " + err.Error())
 		}
 	}
 
