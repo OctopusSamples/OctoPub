@@ -100,7 +100,7 @@ func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (*events.A
 	return convertLambdaProxyResponse(lambdaResponse)
 }
 
-func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string, error) {
+func extractUpstreamService(req events.APIGatewayProxyRequest) (http *url.URL, lambda string, err error) {
 	acceptAll, err := getHeader(req.Headers, req.MultiValueHeaders, "Accept")
 
 	if err != nil {
