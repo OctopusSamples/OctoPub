@@ -838,7 +838,8 @@ step "Deploy Lambda" {
                 			},
                 			"Environment": {
                 			  "Variables": {
-                				"DEFAULT_SQS": {"Fn::GetAtt": ["AuditsQueue", "QueueName"]}
+                				"DEFAULT_SQS": {"Fn::GetAtt": ["AuditsQueue", "QueueName"]},
+                				"ENTITY_TYPE": "Audit"
                 			  }
                 			},
                 			"Description" : {"Fn::Sub": "${LambdaDescription} SQS Proxy"},
