@@ -38,25 +38,13 @@ func processRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyR
 	if err == nil {
 
 		if upstreamUrl != nil {
-			resp, err := httpReverseProxy(upstreamUrl, req)
-			if err != nil {
-				return nil, err
-			}
-			return resp, nil
+			return httpReverseProxy(upstreamUrl, req)
 		}
 
-		resp, err := callLambda(upstreamLambda, req)
-		if err != nil {
-			return nil, err
-		}
-		return resp, nil
+		return callLambda(upstreamLambda, req)
 	}
 
-	resp, err := callLambda(os.Getenv("DEFAULT_LAMBDA"), req)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
+	return callLambda(os.Getenv("DEFAULT_LAMBDA"), req)
 }
 
 func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
