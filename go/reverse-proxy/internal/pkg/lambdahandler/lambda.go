@@ -122,7 +122,7 @@ func callSqs(queueURL string, req events.APIGatewayProxyRequest) (events.APIGate
 	}
 
 	_, sqsErr := svc.SendMessage(&sqs.SendMessageInput{
-		DelaySeconds: aws.Int64(10),
+		DelaySeconds: aws.Int64(0),
 		MessageAttributes: map[string]*sqs.MessageAttributeValue{
 			"action": &sqs.MessageAttributeValue{
 				DataType:    aws.String("String"),
