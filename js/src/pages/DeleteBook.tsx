@@ -3,7 +3,7 @@ import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
 import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
-import {Error, Product} from "../model/Product";
+import {Error, Errors, Product} from "../model/Product";
 import {useNavigate, useParams} from "react-router-dom";
 import {styles} from "../utils/styles";
 import {deleteJsonApi, getJsonApi} from "../utils/network";
@@ -21,10 +21,10 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     context.setAllBookId(null);
 
     useEffect(() => {
-        getJsonApi<Product|Error[]>(context.settings.productEndpoint + "/" + bookId, context.partition)
+        getJsonApi<Product|Errors>(context.settings.productEndpoint + "/" + bookId, context.partition)
             .then(data => {
                 const product = data as Product;
-                const error = data as Error[];
+                const error = data as Errors;
                 if (product) {
                     setBook(product);
 
@@ -39,7 +39,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     }
                 }
                 if (error) {
-                    setError(error[0].title || "Failed to load book");
+                    setError(error.errors[0].title || "Failed to load book");
                 }
             })
             .catch(() => {

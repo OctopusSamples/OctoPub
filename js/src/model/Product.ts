@@ -10,6 +10,10 @@ export interface Error {
     title?: string
 }
 
+export interface Errors {
+    errors: Error[]
+}
+
 export interface ProductData {
     id: number | null,
     type: string | null,
