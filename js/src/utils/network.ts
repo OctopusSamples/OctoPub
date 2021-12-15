@@ -116,7 +116,7 @@ export function deleteJsonApi(url: string, partition: string | null, apiKey?: st
     })
         .then(response => {
             if (!responseIsServerError(response.status)) {
-                return Promise.reject(response);
+                return response.json();
             }
             if ((retryCount || 0) <= GET_RETRIES) {
                 /*
