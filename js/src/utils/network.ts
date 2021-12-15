@@ -125,6 +125,6 @@ export function deleteJsonApi(url: string, partition: string | null, apiKey?: st
                  */
                 return deleteJsonApi(url, partition, apiKey, (retryCount || 0) + 1);
             }
-            return response;
+            return Promise.reject(response);
         });
 }
