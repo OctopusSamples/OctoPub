@@ -79,7 +79,7 @@ runs:
     - name: Rename zip
       run: >
         mv target/function.zip
-        products-service.0.0.1.${{ inputs.run_number }}.zip
+        products-service.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}.zip
       shell: bash
       working-directory: java/products-service
 
@@ -88,7 +88,7 @@ runs:
         -Dfile=products-service.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=products-service
-        -Dversion=0.0.1.${{ github.run_number }}
+        -Dversion=0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
         -Dpackaging=zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
@@ -103,7 +103,7 @@ runs:
       run: >
         octo pack
         --id products-service-sbom
-        --version 0.0.1.${{ inputs.run_number }}
+        --version 0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
         --format zip
         --include **/bom.xml
       shell: bash
@@ -115,7 +115,7 @@ runs:
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
         -DgroupId=com.octopus.octopub
         -DartifactId=products-service-sbom
-        -Dversion=0.0.1.${{ github.run_number }}
+        -Dversion=0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
         -Dpackaging=zip
       shell: bash
       working-directory: java/products-service
