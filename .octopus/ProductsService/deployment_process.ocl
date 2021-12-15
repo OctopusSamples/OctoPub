@@ -515,7 +515,7 @@ step "Deploy Lambda" {
                         "RDSCluster"
                       ]
                     },
-                    "LambdaVersion#{Octopus.Deployment.Id}": {
+                    "LambdaVersion#{Octopus.Deployment.Id | Replace -}": {
                      	"Type": "AWS::Lambda::Version",
                       	"Properties": {
                          	 "FunctionName": {"Ref": "LambdaOne"},
@@ -1023,7 +1023,7 @@ step "Deploy Lambda" {
                         "RestApiId": {"Ref": "RestApi"}
                       }
                     },
-                    "Deployment#{DeploymentId}": {
+                    "Deployment#{Octopus.Deployment.Id | Replace -}": {
                       "Type": "AWS::ApiGateway::Deployment",
                       "Properties": {
                         "RestApiId": {"Ref": "RestApi"}
@@ -1041,7 +1041,7 @@ step "Deploy Lambda" {
                   "Outputs" : {
                     "DeploymentId" : {
                       "Description" : "The deployment id",
-                      "Value" : {"Ref": "Deployment#{Octopus.Deployment.Id}"}
+                      "Value" : {"Ref": "Deployment#{Octopus.Deployment.Id | Replace -}"}
                     },
                     "VpcId" : {
                       "Description" : "The VPC id",
@@ -1143,7 +1143,7 @@ step "Update Stage" {
                     },
                     "DeploymentId" : {
                       "Type" : "String",
-                      "Default" : "Deployment#{Octopus.Deployment.Id}"
+                      "Default" : "Deployment#{Octopus.Deployment.Id | Replace -}"
                     },
                     "ApiGatewayId" : {
                       "Type" : "String"
@@ -1184,8 +1184,8 @@ step "Update Stage" {
                   }
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"Deployment#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"Deployment#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"Deployment#{Octopus.Deployment.Id | Replace -}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"Deployment#{Octopus.Deployment.Id | Replace -}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
             Octopus.Action.Aws.WaitForCompletion = "True"
