@@ -123,10 +123,13 @@ runs:
     - run: |
         pack build --builder heroku/buildpacks:20 --env "MAVEN_CUSTOM_GOALS=clean package -Dquarkus.profile=dist" octopussamples/octopub-products
         docker push octopussamples/octopub-products
+        docker tag octopussamples/octopub-products:latest octopussamples/octopub-products:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        docker push octopussamples/octopub-products:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
       shell: bash
       working-directory: java/products-service
 
     - name: Trigger deployment
+      if: ${{ env.BRANCH_NAME == 'master' }}
       run: >
         octo create-release
         --project "Products Service"
