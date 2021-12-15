@@ -58,7 +58,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     {context.settings.title}
                 </title>
             </Helmet>
-            {book &&
+            {book && book.data &&
                 <Grid container={true}>
                     <Grid container={true} className={classes.cell} md={2} sm={12} xs={12}>
                         <FormLabel className={classes.label}>Id</FormLabel>
