@@ -25,10 +25,10 @@ deeply nested microservices will be executed without having to recreate the enti
 
 # Redirection rules
 
-* HTTP - `version[ant path]=url[http://urlgoeshere]`
-* Lambda - `version[ant path]=lambda[lambda name or arn]`
-* SQS - `version[ant path]=sqs[queue name]`
-* Reference redirection on another path - `version[antpath]=path[ant path whose redirection rules will be used]`
+* HTTP - `version[ant path:method]=url[http://urlgoeshere]`
+* Lambda - `version[ant path:method]=lambda[lambda name or arn]`
+* SQS - `version[ant path:method]=sqs[queue name]`
+* Reference redirection on another path - `version[antpath]=path[ant path and method whose redirection rules will be used]`
 
 # Examples
 
@@ -37,4 +37,4 @@ deeply nested microservices will be executed without having to recreate the enti
 The `path` redirection performs a lookup of the redirection rule assigned to another path. This allows you to define
 one redirection rule to a `url`, `sqs`, or `lambda`, and then reference it from multiple other redirection rules.
 
-`version[/api/products*]=https://c9ce-118-208-2-185.ngrok.io;version[/api/products/**/*]=path[/api/products*]`
+`version[/api/products*:GET]=https://c9ce-118-208-2-185.ngrok.io;version[/api/products/**/*]=path[/api/products*:GET]`

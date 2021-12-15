@@ -273,6 +273,9 @@ func getDestinationUrl(ruleDestination string) (*url.URL, error) {
 	if strings.HasPrefix(ruleDestination, "url[") && strings.HasSuffix(ruleDestination, "]") {
 
 		trimmedDestination := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "url["), "]")
+		if trimmedDestination == "" {
+			return nil, errors.New("destination can not be blank")
+		}
 
 		// See if the downstream service is a valid URL
 		parsedUrl, err := url.Parse(trimmedDestination)
@@ -293,7 +296,11 @@ func getDestinationUrl(ruleDestination string) (*url.URL, error) {
 func getDestinationLambda(ruleDestination string) (string, error) {
 	if strings.HasPrefix(ruleDestination, "lambda[") && strings.HasSuffix(ruleDestination, "]") {
 
-		return strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "lambda["), "]"), nil
+		destination := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "lambda["), "]")
+		if strings.TrimSpace(destination) == "" {
+			return "", errors.New("destination can not be blank")
+		}
+		return destination, nil
 	}
 
 	return "", errors.New("destination was not a lambda")
@@ -302,7 +309,10 @@ func getDestinationLambda(ruleDestination string) (string, error) {
 func getDestinationSqs(ruleDestination string) (string, error) {
 	if strings.HasPrefix(ruleDestination, "sqs[") && strings.HasSuffix(ruleDestination, "]") {
 
-		return strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "sqs["), "]"), nil
+		destination := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "sqs["), "]")
+		if strings.TrimSpace(destination) == "" {
+			return "", errors.New("destination can not be blank")
+		}
 	}
 
 	return "", errors.New("destination was not a sqs")
