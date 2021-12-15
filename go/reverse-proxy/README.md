@@ -1,5 +1,5 @@
-This project implements a simple reverse proxy Lambda capable of forwarding requests to a downstream HTTP service
-or Lambda.
+This project implements a simple reverse proxy Lambda capable of forwarding requests to a downstream HTTP service, Lambda,
+or SQS queues.
 
 The intention of this proxy is to allow Lambda requests to be routed to feature branch instances. The instances can be
 hosted on a developers local machine and exposed to public traffic with services like [ngrok](https://ngrok.com/) or via
