@@ -116,9 +116,9 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
         setDisabled(true);
         deleteJsonApi(context.settings.productEndpoint + "/" + bookId, context.partition, context.apiKey)
             .then(_ => history('/index.html'))
-            .catch(_ => {
+            .catch(reason => {
                 setDisabled(false);
-                setError("An error occurred while deleting the book.");
+                setError("An error occurred while deleting the book: " + reason);
             });
     }
 }
