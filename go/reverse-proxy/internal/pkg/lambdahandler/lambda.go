@@ -3,6 +3,7 @@ package lambdahandler
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"github.com/OctopusSamples/OctoPub/go/reverse-proxy/internal/pkg/utils"
@@ -10,56 +11,69 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
+	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/awslabs/aws-lambda-go-api-proxy/handlerfunc"
 	"github.com/vibrantbyte/go-antpath/antpath"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
 var matcher = antpath.New()
+var groupPath = regexp.MustCompile(`/api/(?:[a-zA-Z]+)/?`)
 
 // HandleRequest takes the incoming Lambda request and forwards it to the downstream service
 // defined in the "Accept" headers.
 func HandleRequest(_ context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	resp, err := processRequest(req)
 	if err != nil {
+		log.Println("ReverseProxy-Handler-GeneralFailure " + err.Error())
 		return events.APIGatewayProxyResponse{}, err
-	}
-	return *resp, nil
-}
-
-func processRequest(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
-	upstreamUrl, upstreamLambda, err := extractUpstreamService(req)
-
-	if err == nil {
-
-		if upstreamUrl != nil {
-			resp, err := httpReverseProxy(upstreamUrl, req)
-			if err != nil {
-				return nil, err
-			}
-			return resp, nil
-		}
-
-		resp, err := callLambda(upstreamLambda, req)
-		if err != nil {
-			return nil, err
-		}
-		return resp, nil
-	}
-
-	resp, err := callLambda(os.Getenv("DEFAULT_LAMBDA"), req)
-	if err != nil {
-		return nil, err
 	}
 	return resp, nil
 }
 
-func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+func processRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	upstreamUrl, upstreamLambda, upstreamSqs, err := extractUpstreamService(req)
+
+	if err == nil {
+
+		if upstreamUrl != nil {
+			return httpReverseProxy(upstreamUrl, req)
+		}
+
+		if upstreamLambda != "" {
+			return callLambda(upstreamLambda, req)
+		}
+
+		if upstreamSqs != "" {
+			return callSqs(upstreamSqs, req)
+		}
+	}
+
+	if os.Getenv("DEFAULT_LAMBDA") != "" {
+		return callLambda(os.Getenv("DEFAULT_LAMBDA"), req)
+	} else if os.Getenv("DEFAULT_SQS") != "" {
+		return callSqs(os.Getenv("DEFAULT_SQS"), req)
+	} else {
+		url, err := url.Parse(os.Getenv("DEFAULT_URL"))
+		if err != nil {
+			log.Println("ReverseProxy-Handler-UrlParseError " + err.Error())
+			return events.APIGatewayProxyResponse{}, err
+		}
+		return httpReverseProxy(url, req)
+	}
+}
+
+func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Println("lambdahandler.httpReverseProxy(*url.URL, events.APIGatewayProxyRequest)")
+	log.Println("Calling URL " + upstreamUrl.String())
+
 	handler := func(w http.ResponseWriter, httpReq *http.Request) {
 		// The host header for the upstream requests must match the upstream server
 		// https://github.com/golang/go/issues/28168
@@ -72,13 +86,73 @@ func httpReverseProxy(upstreamUrl *url.URL, req events.APIGatewayProxyRequest) (
 	resp, proxyErr := adapter.ProxyWithContext(context.Background(), req)
 
 	if proxyErr != nil {
-		return nil, proxyErr
+		log.Println("ReverseProxy-Url-GeneralFailure " + proxyErr.Error())
+		return events.APIGatewayProxyResponse{}, proxyErr
 	}
 
-	return &resp, nil
+	return resp, nil
 }
 
-func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+func callSqs(queueURL string, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Println("lambdahandler.callSqs(string, events.APIGatewayProxyRequest)")
+	log.Println("Calling SQS " + queueURL)
+
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
+
+	svc := sqs.New(sess)
+
+	acceptHeader, err := getHeader(req.Headers, req.MultiValueHeaders, "Accept")
+
+	if err != nil {
+		acceptHeader = ""
+	}
+
+	body := req.Body
+
+	if req.IsBase64Encoded {
+		decodedBody, decodeError := base64.StdEncoding.DecodeString(body)
+		if decodeError == nil {
+			body = string(decodedBody)
+		} else {
+			log.Println("ReverseProxy-SQS-BodyDecodeError " + decodeError.Error())
+			return events.APIGatewayProxyResponse{}, decodeError
+		}
+	}
+
+	_, sqsErr := svc.SendMessage(&sqs.SendMessageInput{
+		DelaySeconds: aws.Int64(0),
+		MessageAttributes: map[string]*sqs.MessageAttributeValue{
+			"action": &sqs.MessageAttributeValue{
+				DataType:    aws.String("String"),
+				StringValue: aws.String(getAction(req)),
+			},
+			"entity": &sqs.MessageAttributeValue{
+				DataType:    aws.String("String"),
+				StringValue: aws.String(utils.GetEnv("ENTITY_TYPE", "Unknown")),
+			},
+			"dataPartition": &sqs.MessageAttributeValue{
+				DataType:    aws.String("String"),
+				StringValue: aws.String(acceptHeader),
+			},
+		},
+		MessageBody: aws.String(body),
+		QueueUrl:    &queueURL,
+	})
+
+	if sqsErr != nil {
+		log.Println("ReverseProxy-SQS-GeneralFailure " + sqsErr.Error())
+		return events.APIGatewayProxyResponse{}, sqsErr
+	}
+
+	return events.APIGatewayProxyResponse{StatusCode: 201}, nil
+}
+
+func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Println("lambdahandler.callLambda(string, events.APIGatewayProxyRequest)")
+	log.Println("Calling Lambda " + lambdaName)
+
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
@@ -88,53 +162,160 @@ func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (*events.A
 	payload, err := json.Marshal(req)
 
 	if err != nil {
-		return nil, err
+		return events.APIGatewayProxyResponse{}, err
 	}
 
 	lambdaResponse, lambdaErr := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String(lambdaName), Payload: payload})
 
 	if lambdaErr != nil {
-		return nil, lambdaErr
+		log.Println("ReverseProxy-Lambda-GeneralFailure " + lambdaErr.Error())
+		return events.APIGatewayProxyResponse{}, lambdaErr
 	}
 
 	return convertLambdaProxyResponse(lambdaResponse)
 }
 
-func extractUpstreamService(req events.APIGatewayProxyRequest) (*url.URL, string, error) {
+func extractUpstreamService(req events.APIGatewayProxyRequest) (http *url.URL, lambda string, sqs string, err error) {
 	acceptAll, err := getHeader(req.Headers, req.MultiValueHeaders, "Accept")
 
 	if err != nil {
-		return nil, "", errors.New("accept header is required")
+		return nil, "", "", errors.New("accept header is required")
 	}
 
-	acceptArr := strings.Split(acceptAll, ",")
-	for _, element := range acceptArr {
-		acceptComponents := strings.Split(element, ";")
-		for _, acceptComponent := range acceptComponents {
-			trimmedAcceptComponent := strings.TrimSpace(acceptComponent)
-			if strings.Contains(trimmedAcceptComponent, "=") {
-				versionComponents := strings.Split(trimmedAcceptComponent, "=")
-				if len(versionComponents) == 2 {
-					isMatch := matcher.Match(versionComponents[0], "version["+req.Path+":"+req.HTTPMethod+"]")
-					if isMatch {
-						parsedUrl, err := url.Parse(versionComponents[1])
+	for _, acceptComponent := range getComponentsFromHeader(acceptAll) {
+		path, method, destination, err := getRuleComponents(acceptComponent)
+		if err == nil {
+			if pathAndMethodIsMatch(path, method, req) {
 
-						// downstream service was not a url, so assume it is a lambda
-						if err != nil || !strings.HasPrefix(versionComponents[1], "http") {
-							// the value can't be empty or blank
-							if len(strings.TrimSpace(versionComponents[1])) > 0 {
-								return nil, versionComponents[1], err
-							}
-						} else {
-							return parsedUrl, "", nil
-						}
-					}
+				// for convenience, rules can reference the destinations of other paths, allowing
+				// complex rule sets to be updated with a single destination
+				pathDest, err := getDestinationPath(acceptAll, destination)
+
+				if err == nil {
+					destination = pathDest
+				}
+
+				url, err := getDestinationUrl(destination)
+
+				if err == nil {
+					return url, "", "", nil
+				}
+
+				lambda, err := getDestinationLambda(destination)
+
+				if err == nil {
+					return nil, lambda, "", nil
+				}
+
+				sqs, err := getDestinationSqs(destination)
+
+				if err == nil {
+					return nil, "", sqs, nil
 				}
 			}
 		}
 	}
 
-	return nil, "", errors.New("failed to find downstream service")
+	return nil, "", "", errors.New("failed to find downstream service")
+}
+
+func getComponentsFromHeader(header string) []string {
+	var returnArray []string
+	headerArray := strings.Split(header, ",")
+	for _, element := range headerArray {
+		components := strings.Split(element, ";")
+		returnArray = append(returnArray, components...)
+	}
+
+	return returnArray
+}
+
+func pathAndMethodIsMatch(path string, method string, req events.APIGatewayProxyRequest) bool {
+	// The path is an ant matcher that must match the requested path
+	pathIsMatch := matcher.Match(path, req.Path)
+	// AThe http method must match the current request
+	methodIsMatch := strings.EqualFold(method, req.HTTPMethod)
+
+	return pathIsMatch && methodIsMatch
+}
+
+func getRuleComponents(acceptComponent string) (string, string, string, error) {
+	ruleComponents := strings.Split(strings.TrimSpace(acceptComponent), "=")
+	// ensure the component has an equals sign
+	if len(ruleComponents) == 2 {
+		if strings.HasPrefix(ruleComponents[0], "version[") && strings.HasSuffix(ruleComponents[0], "]") {
+			strippedVersion := strings.TrimSuffix(strings.TrimPrefix(ruleComponents[0], "version["), "]")
+			pathAndMethod := strings.Split(strippedVersion, ":")
+			return pathAndMethod[0], pathAndMethod[1], ruleComponents[1], nil
+		}
+	}
+
+	return "", "", "", errors.New("component was not a valid rule")
+}
+
+func getDestinationPath(acceptAll string, ruleDestination string) (string, error) {
+	if strings.HasPrefix(ruleDestination, "path[") && strings.HasSuffix(ruleDestination, "]") {
+
+		strippedDest := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "path["), "]")
+
+		for _, acceptComponent := range getComponentsFromHeader(acceptAll) {
+			path, method, destination, err := getRuleComponents(acceptComponent)
+			if err == nil && path+":"+method == strippedDest {
+				return destination, nil
+			}
+		}
+	}
+
+	return "", errors.New("destination was not a path, or did not find the path")
+}
+
+func getDestinationUrl(ruleDestination string) (*url.URL, error) {
+	if strings.HasPrefix(ruleDestination, "url[") && strings.HasSuffix(ruleDestination, "]") {
+
+		trimmedDestination := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "url["), "]")
+		if trimmedDestination == "" {
+			return nil, errors.New("destination can not be blank")
+		}
+
+		// See if the downstream service is a valid URL
+		parsedUrl, err := url.Parse(trimmedDestination)
+
+		// downstream service was not a url, so assume it is a lambda
+		if err == nil {
+			if strings.HasPrefix(trimmedDestination, "http") {
+				return parsedUrl, nil
+			}
+		} else {
+			log.Println("ReverseProxy-Url-UrlParseError " + err.Error())
+		}
+	}
+
+	return nil, errors.New("destination was not a URL")
+}
+
+func getDestinationLambda(ruleDestination string) (string, error) {
+	if strings.HasPrefix(ruleDestination, "lambda[") && strings.HasSuffix(ruleDestination, "]") {
+
+		destination := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "lambda["), "]")
+		if strings.TrimSpace(destination) == "" {
+			return "", errors.New("destination can not be blank")
+		}
+		return destination, nil
+	}
+
+	return "", errors.New("destination was not a lambda")
+}
+
+func getDestinationSqs(ruleDestination string) (string, error) {
+	if strings.HasPrefix(ruleDestination, "sqs[") && strings.HasSuffix(ruleDestination, "]") {
+
+		destination := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "sqs["), "]")
+		if strings.TrimSpace(destination) == "" {
+			return "", errors.New("destination can not be blank")
+		}
+	}
+
+	return "", errors.New("destination was not a sqs")
 }
 
 func getHeader(singleHeaders map[string]string, multiHeaders map[string][]string, header string) (string, error) {
@@ -153,7 +334,27 @@ func getHeader(singleHeaders map[string]string, multiHeaders map[string][]string
 	return "", errors.New("key was not found")
 }
 
-func convertLambdaProxyResponse(lambdaResponse *lambda.InvokeOutput) (*events.APIGatewayProxyResponse, error) {
+func getAction(req events.APIGatewayProxyRequest) string {
+	method := strings.ToLower(req.HTTPMethod)
+
+	if method == "get" && groupPath.Match([]byte(method)) {
+		return "ReadAll"
+	}
+
+	switch method {
+	case "get":
+		return "Read"
+	case "post":
+		return "Create"
+	case "patch":
+		return "Update"
+	case "delete":
+		return "Delete"
+	}
+	return "None"
+}
+
+func convertLambdaProxyResponse(lambdaResponse *lambda.InvokeOutput) (events.APIGatewayProxyResponse, error) {
 	var data LenientAPIGatewayProxyResponse
 	jsonErr := json.Unmarshal(lambdaResponse.Payload, &data)
 
@@ -162,19 +363,19 @@ func convertLambdaProxyResponse(lambdaResponse *lambda.InvokeOutput) (*events.AP
 		jsonErr2 := json.Unmarshal(lambdaResponse.Payload, &data2)
 
 		if jsonErr2 != nil {
-			return nil, jsonErr2
+			return events.APIGatewayProxyResponse{}, jsonErr2
 		}
 
-		return &data2, nil
+		return data2, nil
 	}
 
 	apiGatewayProxyResponse, conErr := data.toAPIGatewayProxyResponse()
 
 	if conErr != nil {
-		return nil, conErr
+		return events.APIGatewayProxyResponse{}, conErr
 	}
 
-	return &apiGatewayProxyResponse, nil
+	return apiGatewayProxyResponse, nil
 }
 
 type LenientAPIGatewayProxyResponse struct {

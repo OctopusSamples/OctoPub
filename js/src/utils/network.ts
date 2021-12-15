@@ -2,10 +2,18 @@ import {GET_RETRIES} from "./constants";
 import {RedirectRule} from "../pages/Branching";
 
 function getBranchingRules() {
-    const rules: RedirectRule[] = JSON.parse(localStorage.getItem("branching") || "[]")
-    return rules
-        .filter(r => r.path.trim() && r.destination.trim())
-        .map(r => "version[" + r.path + "]=" + r.destination).join(";")
+    if ((localStorage.getItem("branchingEnabled") || "").toLowerCase() !== "false") {
+        const rules: RedirectRule[] = JSON.parse(localStorage.getItem("branching") || "[]")
+        return rules
+            .filter(r => r.path.trim() && r.destination.trim())
+            .map(r => "version[" + r.path + "]=" + r.destination).join(";")
+    }
+
+    return "";
+}
+
+function responseIsServerError(status: number) {
+    return status >= 500 && status <= 599;
 }
 
 export function getJson<T>(url: string, retryCount?: number): Promise<T> {
@@ -16,7 +24,7 @@ export function getJson<T>(url: string, retryCount?: number): Promise<T> {
         }
     })
         .then(response => {
-            if (response.ok) {
+            if (!responseIsServerError(response.status)) {
                 return response.json();
             }
             if ((retryCount || 0) <= GET_RETRIES) {
@@ -40,7 +48,7 @@ export function getJsonApi<T>(url: string, partition: string | null, apiKey?: st
         }
     })
         .then(response => {
-            if (response.ok) {
+            if (!responseIsServerError(response.status)) {
                 return response.json();
             }
             if ((retryCount || 0) <= GET_RETRIES) {
@@ -65,7 +73,7 @@ export function patchJsonApi<T>(resource: string, url: string, partition: string
         body: resource
     })
         .then(response => {
-            if (response.ok) {
+            if (!responseIsServerError(response.status)) {
                 return response.json();
             }
             if ((retryCount || 0) <= GET_RETRIES) {
@@ -107,8 +115,8 @@ export function deleteJsonApi(url: string, partition: string | null, apiKey?: st
         }
     })
         .then(response => {
-            if (!response.ok) {
-                return Promise.reject(response);
+            if (!responseIsServerError(response.status)) {
+                return Promise.resolve(response);
             }
             if ((retryCount || 0) <= GET_RETRIES) {
                 /*
@@ -117,6 +125,6 @@ export function deleteJsonApi(url: string, partition: string | null, apiKey?: st
                  */
                 return deleteJsonApi(url, partition, apiKey, (retryCount || 0) + 1);
             }
-            return response;
+            return Promise.reject(response);
         });
 }

@@ -114,6 +114,7 @@ runs:
       working-directory: js
 
     - name: Trigger deployment Frontend
+      if: ${{ env.BRANCH_NAME == 'master' }}
       run: >
         octo create-release
         --project "Octopub Frontend"

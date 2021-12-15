@@ -29,10 +29,11 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const [error, setError] = useState<string | null>(null);
 
     const columns = [
-        { field: 'id', headerName: 'Id', width: 70 },
-        { field: 'subject', headerName: 'Subject', width: 130 },
-        { field: 'action', headerName: 'Action', width: 600 },
-        { field: 'object', headerName: 'Object', width: 130 },
+        {field: 'id', headerName: 'Id', width: 70},
+        {field: 'subject', headerName: 'Subject', width: 130},
+        {field: 'action', headerName: 'Action', width: 130},
+        {field: 'object', headerName: 'Object', width: 130},
+        {field: 'dataPartition', headerName: 'Data Partition', width: 130},
     ];
 
     useEffect(() => {
@@ -51,7 +52,13 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
             {!audits && !error && <div>Loading...</div>}
             {!audits && error && <div>{error}</div>}
             {audits && <DataGrid
-                rows={audits.data.map((a: Audit) => ({id: a.id, subject: a.attributes.subject, action: a.attributes.action, object: a.attributes.object}))}
+                rows={audits.data.map((a: Audit) => ({
+                    id: a.id,
+                    subject: a.attributes.subject,
+                    action: a.attributes.action,
+                    object: a.attributes.object,
+                    dataPartition: a.attributes.dataPartition
+                }))}
                 columns={columns}
                 pageSize={5}
                 rowsPerPageOptions={[5]}

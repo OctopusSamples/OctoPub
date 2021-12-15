@@ -62,7 +62,7 @@ runs:
       working-directory: java/products-service
 
     - name: Update version
-      run: ./mvnw --batch-mode build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.${{ github.run_number }}
+      run: ./mvnw --batch-mode build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.${{ github.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
       shell: bash
       working-directory: java/products-service
 
@@ -79,16 +79,16 @@ runs:
     - name: Rename zip
       run: >
         mv target/function.zip
-        products-service.0.0.1.${{ inputs.run_number }}.zip
+        products-service.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}.zip
       shell: bash
       working-directory: java/products-service
 
     - run: >
         ./mvnw deploy:deploy-file
-        -Dfile=products-service.0.0.1.${{ inputs.run_number }}.zip
+        -Dfile=products-service.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=products-service
-        -Dversion=0.0.1.${{ github.run_number }}
+        -Dversion=0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
         -Dpackaging=zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
@@ -103,7 +103,7 @@ runs:
       run: >
         octo pack
         --id products-service-sbom
-        --version 0.0.1.${{ inputs.run_number }}
+        --version 0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
         --format zip
         --include **/bom.xml
       shell: bash
@@ -111,11 +111,11 @@ runs:
 
     - run: >
         ./mvnw deploy:deploy-file
-        -Dfile=products-service-sbom.0.0.1.${{ inputs.run_number }}.zip
+        -Dfile=products-service-sbom.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}.zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
         -DgroupId=com.octopus.octopub
         -DartifactId=products-service-sbom
-        -Dversion=0.0.1.${{ github.run_number }}
+        -Dversion=0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
         -Dpackaging=zip
       shell: bash
       working-directory: java/products-service
@@ -123,10 +123,13 @@ runs:
     - run: |
         pack build --builder heroku/buildpacks:20 --env "MAVEN_CUSTOM_GOALS=clean package -Dquarkus.profile=dist" octopussamples/octopub-products
         docker push octopussamples/octopub-products
+        docker tag octopussamples/octopub-products:latest octopussamples/octopub-products:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        docker push octopussamples/octopub-products:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
       shell: bash
       working-directory: java/products-service
 
     - name: Trigger deployment
+      if: ${{ env.BRANCH_NAME == 'master' }}
       run: >
         octo create-release
         --project "Products Service"

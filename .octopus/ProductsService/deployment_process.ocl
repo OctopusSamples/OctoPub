@@ -69,6 +69,7 @@ step "Upload Lambda Proxy" {
 
     action {
         action_type = "Octopus.AwsUploadS3"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -1077,7 +1078,11 @@ step "Deploy Lambda" {
                     "DatbasePort" : {
                       "Description" : "The database hostname",
                       "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]}
-                    }      
+                    },    
+                    "InstanceSecurityGroup": {
+                      "Description" : "The security group",
+                      "Value" : {"Ref" : "InstanceSecurityGroup"}
+                    }
                   }
                 }
             EOT
