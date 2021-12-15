@@ -6,6 +6,10 @@ export interface Product {
     data: ProductData
 }
 
+export interface Error {
+    title?: string
+}
+
 export interface ProductData {
     id: number | null,
     type: string | null,

@@ -3,7 +3,7 @@ import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
 import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
-import {Product} from "../model/Product";
+import {Error, Product} from "../model/Product";
 import {useNavigate, useParams} from "react-router-dom";
 import {styles} from "../utils/styles";
 import {getJsonApi, patchJsonApi} from "../utils/network";
@@ -21,18 +21,25 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     context.setAllBookId(null);
 
     useEffect(() => {
-        getJsonApi<Product>(context.settings.productEndpoint + "/" + bookId, context.partition)
+        getJsonApi<Product|Error[]>(context.settings.productEndpoint + "/" + bookId, context.partition)
             .then(data => {
-                setBook(data);
+                const product = data as Product;
+                const error = data as Error[];
+                if (product) {
+                    setBook(product);
 
-                if (context.settings.requireApiKey !== "false" && !context.apiKey) {
-                    setError("The API key must be defined in the settings page.");
-                } else if (data?.data?.attributes?.dataPartition !== context.partition) {
-                    setError("This book belongs to the "
-                        + data?.data?.attributes?.dataPartition
-                        + " data partition, and cannot be edited.");
-                } else {
-                    setDisabled(false);
+                    if (context.settings.requireApiKey !== "false" && !context.apiKey) {
+                        setError("The API key must be defined in the settings page.");
+                    } else if (product?.data?.attributes?.dataPartition !== context.partition) {
+                        setError("This book belongs to the "
+                            + product?.data?.attributes?.dataPartition
+                            + " data partition, and cannot be edited.");
+                    } else {
+                        setDisabled(false);
+                    }
+                }
+                if (error) {
+                    setError(error[0].title || "Failed to load book");
                 }
             })
             .catch(() => {
