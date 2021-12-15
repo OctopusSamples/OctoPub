@@ -132,10 +132,6 @@ step "Get Stack Outputs" {
                     
                 set_octopusvariable "RestApi" ${REST_API}
                 
-                TIMESTAMP=$(date '+%Y%m%d%H%M%S')
-                
-                set_octopusvariable "DeploymentId" ${TIMESTAMP}
-                
                 PRERELEASE="#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionPreRelease}"
                 echo "PRERELEASE: ${PRERELEASE}"
                 if [[ -z ${PRERELEASE} ]]; then
