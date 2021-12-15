@@ -3,7 +3,7 @@ import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
 import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
-import {Error, Errors, Product} from "../model/Product";
+import {Errors, Product} from "../model/Product";
 import {useNavigate, useParams} from "react-router-dom";
 import {styles} from "../utils/styles";
 import {deleteJsonApi, getJsonApi} from "../utils/network";
