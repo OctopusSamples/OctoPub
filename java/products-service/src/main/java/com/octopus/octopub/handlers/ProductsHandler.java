@@ -6,7 +6,6 @@ import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.Constants;
 import com.octopus.octopub.exceptions.EntityNotFound;
 import com.octopus.octopub.models.Audit;
-import com.octopus.octopub.models.Health;
 import com.octopus.octopub.models.Product;
 import com.octopus.octopub.repositories.AuditRepository;
 import com.octopus.octopub.repositories.ProductRepository;
@@ -39,7 +38,8 @@ public class ProductsHandler {
    * @param acceptHeaders The "accept" headers.
    * @param filterParam The filter query param.
    * @return All matching resources
-   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI resource.
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI
+   *     resource.
    */
   public String getAll(@NonNull final List<String> acceptHeaders, final String filterParam)
       throws DocumentSerializationException {
@@ -58,7 +58,8 @@ public class ProductsHandler {
    * @param document The JSONAPI resource to create.
    * @param acceptHeaders The "accept" headers.
    * @return The newly created resource
-   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI resource.
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI
+   *     resource.
    */
   public String create(@NonNull final String document, @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
@@ -84,7 +85,8 @@ public class ProductsHandler {
    * @param document The JSONAPI resource document with the updates.
    * @param acceptHeaders The "accept" headers.
    * @return The updated resource
-   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI resource.
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI
+   *     resource.
    */
   public String update(
       @NonNull final String id,
@@ -136,7 +138,8 @@ public class ProductsHandler {
    * @param id The ID of the resource to return.
    * @param acceptHeaders The "accept" headers.
    * @return The matching resource.
-   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI resource.
+   * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI
+   *     resource.
    */
   public String getOne(@NonNull final String id, @NonNull final List<String> acceptHeaders)
       throws DocumentSerializationException {
@@ -148,8 +151,9 @@ public class ProductsHandler {
                   .getPartition(acceptHeaders)
                   .equals(product.getDataPartition()))) {
 
-        if (!product.name.startsWith("My Branch "))
+        if (!product.name.startsWith("My Branch ")) {
           product.name = "My Branch " + product.name;
+        }
 
         return respondWithProduct(product);
       }
@@ -204,6 +208,4 @@ public class ProductsHandler {
     final JSONAPIDocument<Product> document = new JSONAPIDocument<Product>(product);
     return new String(resourceConverter.writeDocument(document));
   }
-
-
 }
