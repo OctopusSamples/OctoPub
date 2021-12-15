@@ -58,68 +58,69 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     {context.settings.title}
                 </title>
             </Helmet>
-            <Grid container={true}>
-                <Grid container={true} className={classes.cell} md={2} sm={12} xs={12}>
-                    <FormLabel className={classes.label}>Id</FormLabel>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
-                    <TextField id={"id"} disabled={true} fullWidth={true} variant={"outlined"}
-                               value={book.data.id}/>
-                </Grid>
-                <Grid container={true} className={classes.cell} md={2} sm={12} xs={12}>
-                    <FormLabel className={classes.label}>Name</FormLabel>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
-                    <TextField id={"name"} disabled={disabled} fullWidth={true} variant={"outlined"}
-                               value={book.data.attributes.name}
-                               onChange={v => updateBook(v, "name")}/>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
-                    <FormLabel className={classes.label}>Image</FormLabel>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
-                    <TextField id={"image"} disabled={disabled} fullWidth={true} variant={"outlined"}
-                               value={book.data.attributes.image}
-                               onChange={v => updateBook(v, "image")}/>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
-                    <FormLabel className={classes.label}>EPUB</FormLabel>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
-                    <TextField id={"epub"} disabled={disabled} fullWidth={true} variant={"outlined"}
-                               value={book.data.attributes.epub}
-                               onChange={v => updateBook(v, "epub")}/>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
-                    <FormLabel className={classes.label}>PDF</FormLabel>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
-                    <TextField id={"pdf"} disabled={disabled} fullWidth={true} variant={"outlined"}
-                               value={book.data.attributes.pdf}
-                               onChange={v => updateBook(v, "pdf")}/>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
-                    <FormLabel className={classes.label}>Description</FormLabel>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
-                    <TextField id={"description"} disabled={disabled} multiline={true} rows={10} fullWidth={true}
-                               variant={"outlined"}
-                               value={book.data.attributes.description}
-                               onChange={v => updateBook(v, "description")}/>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
+            {book &&
+                <Grid container={true}>
+                    <Grid container={true} className={classes.cell} md={2} sm={12} xs={12}>
+                        <FormLabel className={classes.label}>Id</FormLabel>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
+                        <TextField id={"id"} disabled={true} fullWidth={true} variant={"outlined"}
+                                   value={book.data.id}/>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} md={2} sm={12} xs={12}>
+                        <FormLabel className={classes.label}>Name</FormLabel>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
+                        <TextField id={"name"} disabled={disabled} fullWidth={true} variant={"outlined"}
+                                   value={book.data.attributes.name}
+                                   onChange={v => updateBook(v, "name")}/>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
+                        <FormLabel className={classes.label}>Image</FormLabel>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
+                        <TextField id={"image"} disabled={disabled} fullWidth={true} variant={"outlined"}
+                                   value={book.data.attributes.image}
+                                   onChange={v => updateBook(v, "image")}/>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
+                        <FormLabel className={classes.label}>EPUB</FormLabel>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
+                        <TextField id={"epub"} disabled={disabled} fullWidth={true} variant={"outlined"}
+                                   value={book.data.attributes.epub}
+                                   onChange={v => updateBook(v, "epub")}/>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
+                        <FormLabel className={classes.label}>PDF</FormLabel>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
+                        <TextField id={"pdf"} disabled={disabled} fullWidth={true} variant={"outlined"}
+                                   value={book.data.attributes.pdf}
+                                   onChange={v => updateBook(v, "pdf")}/>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
+                        <FormLabel className={classes.label}>Description</FormLabel>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
+                        <TextField id={"description"} disabled={disabled} multiline={true} rows={10} fullWidth={true}
+                                   variant={"outlined"}
+                                   value={book.data.attributes.description}
+                                   onChange={v => updateBook(v, "description")}/>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
 
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
-                    <Button variant={"outlined"} disabled={disabled} onClick={_ => saveBook()}>Update Book</Button>
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
+                        <Button variant={"outlined"} disabled={disabled} onClick={_ => saveBook()}>Update Book</Button>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
 
-                </Grid>
-                <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
-                    {error && <span>{error}</span>}
-                </Grid>
-            </Grid>
+                    </Grid>
+                    <Grid container={true} className={classes.cell} item md={10} sm={12} xs={12}>
+                        {error && <span>{error}</span>}
+                    </Grid>
+                </Grid>}
 
         </>
     );
