@@ -23,9 +23,8 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     useEffect(() => {
         getJsonApi<Product|Errors>(context.settings.productEndpoint + "/" + bookId, context.partition)
             .then(data => {
-                const product = data as Product;
-                const error = data as Errors;
-                if (product) {
+                if ("data" in data) {
+                    const product = data as Product;
                     setBook(product);
 
                     if (context.settings.requireApiKey !== "false" && !context.apiKey) {
@@ -38,7 +37,8 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                         setDisabled(false);
                     }
                 }
-                if (error) {
+                if ("errors" in data) {
+                    const error = data as Errors;
                     setError(error.errors[0].title || "Failed to load book");
                 }
             })
