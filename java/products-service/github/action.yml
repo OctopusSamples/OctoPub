@@ -62,7 +62,7 @@ runs:
       working-directory: java/products-service
 
     - name: Update version
-      run: ./mvnw --batch-mode build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.${{ github.run_number }}${{ env.BRANCH_NAME=='master' && '' || format('-{0}', env.BRANCH_NAME) }}
+      run: ./mvnw --batch-mode build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.${{ github.run_number }}${{ env.BRANCH_NAME == 'master' && '' || format('-{0}', env.BRANCH_NAME) }}
       shell: bash
       working-directory: java/products-service
 
@@ -85,7 +85,7 @@ runs:
 
     - run: >
         ./mvnw deploy:deploy-file
-        -Dfile=products-service.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME=='master' && '' || format('-{0}', env.BRANCH_NAME) }}.zip
+        -Dfile=products-service.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME == 'master' && '' || format('-{0}', env.BRANCH_NAME) }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=products-service
         -Dversion=0.0.1.${{ github.run_number }}
@@ -111,7 +111,7 @@ runs:
 
     - run: >
         ./mvnw deploy:deploy-file
-        -Dfile=products-service-sbom.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME=='master' && '' || format('-{0}', env.BRANCH_NAME) }}.zip
+        -Dfile=products-service-sbom.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME == 'master' && '' || format('-{0}', env.BRANCH_NAME) }}.zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
         -DgroupId=com.octopus.octopub
         -DartifactId=products-service-sbom
