@@ -69,6 +69,7 @@ step "Upload Proxy Lambda" {
 
     action {
         action_type = "Octopus.AwsUploadS3"
+        environments = ["Development", "Production"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
