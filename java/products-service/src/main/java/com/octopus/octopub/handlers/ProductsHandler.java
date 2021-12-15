@@ -151,8 +151,8 @@ public class ProductsHandler {
                   .getPartition(acceptHeaders)
                   .equals(product.getDataPartition()))) {
 
-        if (!product.name.startsWith("My Branch ")) {
-          product.name = "My Branch " + product.name;
+        if (!product.description.startsWith("My Branch")) {
+          product.description = "My Branch\n" + product.description;
         }
 
         return respondWithProduct(product);
