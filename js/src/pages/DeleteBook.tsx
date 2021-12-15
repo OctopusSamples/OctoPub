@@ -16,20 +16,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const classes = styles();
     const [disabled, setDisabled] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [book, setBook] = useState<Product>({
-        data: {
-            id: null,
-            type: "products",
-            attributes: {
-                name: "",
-                description: "",
-                image: "",
-                epub: "",
-                pdf: "",
-                dataPartition: ""
-            }
-        }
-    });
+    const [book, setBook] = useState<Product | null>(null);
 
     context.setAllBookId(null);
 
@@ -48,7 +35,11 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     setDisabled(false);
                 }
             })
-            .catch(() => setError("There was an error retrieving the resource."));
+            .catch(() => {
+                setError("There was an error retrieving the resource.");
+                setBook(null);
+                setDisabled(true);
+            });
     }, [setBook, setDisabled, context.apiKey, context.settings.requireApiKey, context.partition, context.settings.productEndpoint, bookId]);
 
     return (
@@ -114,13 +105,15 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     );
 
     function deleteBook() {
-        setDisabled(true);
-        deleteJsonApi(context.settings.productEndpoint + "/" + bookId, context.partition, context.apiKey)
-            .then(_ => history('/index.html'))
-            .catch(reason => {
-                setDisabled(false);
-                setError("An error occurred while deleting the book: " + reason);
-            });
+        if (book) {
+            setDisabled(true);
+            deleteJsonApi(context.settings.productEndpoint + "/" + bookId, context.partition, context.apiKey)
+                .then(_ => history('/index.html'))
+                .catch(reason => {
+                    setDisabled(false);
+                    setError("An error occurred while deleting the book: " + reason);
+                });
+        }
     }
 }
 

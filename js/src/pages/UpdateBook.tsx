@@ -16,20 +16,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const classes = styles();
     const [disabled, setDisabled] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [book, setBook] = useState<Product>({
-        data: {
-            id: null,
-            type: "products",
-            attributes: {
-                name: "",
-                description: "",
-                image: "",
-                epub: "",
-                pdf: "",
-                dataPartition: ""
-            }
-        }
-    });
+    const [book, setBook] = useState<Product | null>(null);
 
     context.setAllBookId(null);
 
@@ -48,7 +35,10 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     setDisabled(false);
                 }
             })
-            .catch(() => setError("There was an error retrieving the resource."));
+            .catch(() => {
+                setError("There was an error retrieving the resource.");
+                setBook(null);
+            });
     }, [setBook, setDisabled, context.apiKey, context.partition, context.settings.productEndpoint, context.settings.requireApiKey, bookId]);
 
     return (
@@ -126,13 +116,15 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     );
 
     function updateBook(input: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, property: string) {
-        setBook({
-            data: {
-                id: null,
-                type: book.data.type,
-                attributes: {...book.data.attributes, [property]: input.target.value}
-            }
-        })
+        if (book) {
+            setBook({
+                data: {
+                    id: null,
+                    type: book.data.type,
+                    attributes: {...book.data.attributes, [property]: input.target.value}
+                }
+            })
+        }
     }
 
     function saveBook() {
