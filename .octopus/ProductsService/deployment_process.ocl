@@ -519,7 +519,7 @@ step "Deploy Lambda" {
                         "RDSCluster"
                       ]
                     },
-                    "LambdaVersion#{DeploymentId}": {
+                    "LambdaVersion#{Octopus.Deployment.Id}": {
                      	"Type": "AWS::Lambda::Version",
                       	"Properties": {
                          	 "FunctionName": {"Ref": "LambdaOne"},
@@ -1045,7 +1045,7 @@ step "Deploy Lambda" {
                   "Outputs" : {
                     "DeploymentId" : {
                       "Description" : "The deployment id",
-                      "Value" : {"Ref": "Deployment#{DeploymentId}"}
+                      "Value" : {"Ref": "Deployment#{Octopus.Deployment.Id}"}
                     },
                     "VpcId" : {
                       "Description" : "The VPC id",
