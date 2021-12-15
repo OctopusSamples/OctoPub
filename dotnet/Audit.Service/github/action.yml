@@ -155,6 +155,7 @@ runs:
       working-directory: dotnet/Audit.Service
 
     - name: Trigger deployment
+      if: ${{ env.BRANCH_NAME == 'master' }}
       run: >
         octo create-release
         --project "Audits Service"
