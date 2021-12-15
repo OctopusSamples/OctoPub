@@ -1078,7 +1078,11 @@ step "Deploy Lambda" {
                     "DatbasePort" : {
                       "Description" : "The database hostname",
                       "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]}
-                    }      
+                    },    
+                    "InstanceSecurityGroup": {
+                      "Description" : "The security group",
+                      "Value" : {"Ref" : "InstanceSecurityGroup"}
+                    }
                   }
                 }
             EOT
