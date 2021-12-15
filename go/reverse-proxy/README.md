@@ -8,8 +8,8 @@ siblings.
 
 # How to perform redirections
 
-Redirections are considered to be a specialized form of API versioning in that redirections are expected to be implemented
-to direct traffic to feature branch versions of a microservice for testing. A lengthy discussion on how to implement API
+Redirections are considered to be a specialized form of API versioning in that redirections are expected to direct traffic 
+to feature branch versions of a microservice for testing. A lengthy discussion on how to implement API
 versioning with JSONAPI can be found [here](https://github.com/json-api/json-api/issues/406).
 
 Redirection rules are defined in the `Accept` header based on ant wildcard paths. For example, the header 

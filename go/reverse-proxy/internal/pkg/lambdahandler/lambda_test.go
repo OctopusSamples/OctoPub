@@ -5,6 +5,7 @@ import (
 	"github.com/OctopusSamples/OctoPub/go/reverse-proxy/internal/pkg/lambdahandler"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -18,7 +19,7 @@ func TestHandler(t *testing.T) {
 		{
 			request: events.APIGatewayProxyRequest{
 				Headers: map[string]string{
-					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/api/products*:GET]=lambda[Development-product-0]",
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/api/products*:GET]=lambda[" + os.Getenv("TEST_LAMBDA") + "]",
 					"Host":   "localhost",
 				},
 				Path:       "/api/products",
