@@ -7,12 +7,12 @@ a more direct tunnel such as a VPN. Alternatively, feature branch Lambdas can be
 siblings.
 
 Redirection rules are defined in the `Accept` header based on ant wildcard paths. For example, the header 
-`version[/api/products*]=https://c9ce-118-208-2-185.ngrok.io` instructs this proxy to redirect all requests made on
+`version[/api/products*]=url[https://c9ce-118-208-2-185.ngrok.io]` instructs this proxy to redirect all requests made on
 paths that match `/api/products*` to https://c9ce-118-208-2-185.ngrok.io. A header like
-`version[/api/products*]=Development-products-0-myfeature` will redirect requests made on
+`version[/api/products*]=url[Development-products-0-myfeature]` will redirect requests made on
 paths that match `/api/products*` to the Lambda called `Development-products-0-myfeature`.
 
 This allows a client to make a request to a top level API with `Accept` headers like 
-`version[/api/products*]=https://c9ce-118-208-2-185.ngrok.io;version[/api/audits*]=Development-audits-0-myfeature`,
+`version[/api/products*]=https://c9ce-118-208-2-185.ngrok.io;version[/api/audits*]=url[Development-audits-0-myfeature]`,
 and so long as each service forwards the `Accept` header to each service it calls, feature branch instances of 
 deeply nested microservices will be executed without having to recreate the entire microservice ecosystem locally.
