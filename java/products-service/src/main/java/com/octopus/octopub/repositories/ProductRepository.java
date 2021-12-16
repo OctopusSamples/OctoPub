@@ -33,6 +33,12 @@ public class ProductRepository {
 
   @Inject Validator validator;
 
+  /**
+   * Get a single entity.
+   *
+   * @param id The ID of the entity to update.
+   * @return The entity.
+   */
   public Product findOne(final int id) {
     final Product product = em.find(Product.class, id);
     if (product != null) {
