@@ -128,7 +128,6 @@ step "Deploy Feature Branch Lambda" {
 
     action {
         action_type = "Octopus.AwsRunCloudFormation"
-        is_disabled = true
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.AuditsBranchService}"
