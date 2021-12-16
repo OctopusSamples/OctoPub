@@ -1280,7 +1280,7 @@ step "Deploy Lambda" {
                 		  "Description" : "The database hostname",
                 		  "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]}
                 		},
-                		"DatbasePort" : {
+                		"DatabasePort" : {
                 		  "Description" : "The database hostname",
                 		  "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Port" ]}
                 		}
