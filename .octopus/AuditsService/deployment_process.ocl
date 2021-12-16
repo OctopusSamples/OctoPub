@@ -1252,7 +1252,7 @@ step "Deploy Lambda" {
                 				"Ref": "SubnetB"
                 			}
                 		},
-                		"SecurityGroupId": {
+                		"InstanceSecurityGroup": {
                 			"Description": "The security group id",
                 			"Value": {
                 				"Ref": "InstanceSecurityGroup"
