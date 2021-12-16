@@ -151,7 +151,7 @@ runs:
     - run: |
         pack build --builder paketobuildpacks/builder:full octopussamples/octopub-audits
         docker push octopussamples/octopub-audits
-        docker tag octopussamples/octopub-audits:latest octopussamples/octopub-products:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        docker tag octopussamples/octopub-audits:latest octopussamples/octopub-audits:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
         docker push octopussamples/octopub-audits:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
       shell: bash
       working-directory: dotnet/Audit.Service
