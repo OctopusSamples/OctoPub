@@ -34,7 +34,11 @@ public class ProductRepository {
   @Inject Validator validator;
 
   public Product findOne(final int id) {
-    return em.find(Product.class, id);
+    final Product product = em.find(Product.class, id);
+    if (product != null) {
+      em.detach(product);
+    }
+    return product;
   }
 
   public void delete(final int id) {
