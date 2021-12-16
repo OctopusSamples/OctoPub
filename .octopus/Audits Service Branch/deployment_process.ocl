@@ -66,10 +66,10 @@ step "Get Stack Outputs" {
                 DATABASE_PORT=$(aws cloudformation \
                 	describe-stacks \
                     --stack-name "#{CloudFormation.AuditsService}" \
-                    --query "Stacks[0].Outputs[?OutputKey=='DatbasePort'].OutputValue" \
+                    --query "Stacks[0].Outputs[?OutputKey=='DatabasePort'].OutputValue" \
                     --output text)
                     
-                set_octopusvariable "DatbasePort" ${DATABASE_PORT}
+                set_octopusvariable "DatabasePort" ${DATABASE_PORT}
                 echo ${DATABASE_PORT}
                 
                 
