@@ -580,6 +580,17 @@ step "Deploy Lambda" {
                                       "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${EnvironmentName}-${LambdaName}*:*"
                                    }
                                   ]
+                                },
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "lambda:InvokeFunction"
+                                  ],
+                                  "Resource": [
+                                  	{
+                                      "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${EnvironmentName}-${LambdaName}*"
+                                   }
+                                  ]
                                 }
                               ]
                             }
