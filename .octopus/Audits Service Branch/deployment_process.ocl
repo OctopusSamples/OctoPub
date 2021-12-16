@@ -98,7 +98,6 @@ step "Upload Lambda" {
 
     action {
         action_type = "Octopus.AwsUploadS3"
-        is_disabled = true
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
