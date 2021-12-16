@@ -168,3 +168,16 @@ runs:
         --space "Octopub"
         --gitRef master
       shell: bash
+
+    - name: Trigger branch deployment
+      if: ${{ env.BRANCH_NAME == 'master' }}
+      run: >
+        octo create-release
+        --project "Audits Service Branch"
+        --deployTo "Development"
+        --waitForDeployment
+        --server ${{ inputs.octopus_server_url }}
+        --apiKey ${{ inputs.octopus_api_token }}
+        --space "Octopub"
+        --gitRef master
+      shell: bash
