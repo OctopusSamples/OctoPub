@@ -132,10 +132,6 @@ step "Get Stack Outputs" {
                     
                 set_octopusvariable "RestApi" ${REST_API}
                 
-                TIMESTAMP=$(date '+%Y%m%d%H%M%S')
-                
-                set_octopusvariable "DeploymentId" ${TIMESTAMP}
-                
                 PRERELEASE="#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionPreRelease}"
                 echo "PRERELEASE: ${PRERELEASE}"
                 if [[ -z ${PRERELEASE} ]]; then
@@ -519,7 +515,7 @@ step "Deploy Lambda" {
                         "RDSCluster"
                       ]
                     },
-                    "LambdaVersion#{DeploymentId}": {
+                    "LambdaVersion#{Octopus.Deployment.Id | Replace -}": {
                      	"Type": "AWS::Lambda::Version",
                       	"Properties": {
                          	 "FunctionName": {"Ref": "LambdaOne"},
@@ -582,6 +578,17 @@ step "Deploy Lambda" {
                                   "Resource": [
                                   	{
                                       "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${EnvironmentName}-${LambdaName}*:*"
+                                   }
+                                  ]
+                                },
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "lambda:InvokeFunction"
+                                  ],
+                                  "Resource": [
+                                  	{
+                                      "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${EnvironmentName}-${LambdaName}*"
                                    }
                                   ]
                                 }
@@ -1027,7 +1034,7 @@ step "Deploy Lambda" {
                         "RestApiId": {"Ref": "RestApi"}
                       }
                     },
-                    "Deployment#{DeploymentId}": {
+                    "Deployment#{Octopus.Deployment.Id | Replace -}": {
                       "Type": "AWS::ApiGateway::Deployment",
                       "Properties": {
                         "RestApiId": {"Ref": "RestApi"}
@@ -1045,7 +1052,7 @@ step "Deploy Lambda" {
                   "Outputs" : {
                     "DeploymentId" : {
                       "Description" : "The deployment id",
-                      "Value" : {"Ref": "Deployment#{DeploymentId}"}
+                      "Value" : {"Ref": "Deployment#{Octopus.Deployment.Id | Replace -}"}
                     },
                     "VpcId" : {
                       "Description" : "The VPC id",
@@ -1086,8 +1093,8 @@ step "Deploy Lambda" {
                   }
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"ProxyLambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda Proxy].Package[].PackageId}.#{Octopus.Action[Upload Lambda Proxy].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"ProxyLambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda Proxy].Package[].PackageId}.#{Octopus.Action[Upload Lambda Proxy].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.Username}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.Password}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"ProxyLambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda Proxy].Package[].PackageId}.#{Octopus.Action[Upload Lambda Proxy].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.ProductUsername}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.ProductPassword}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"},{\"ParameterKey\":\"ResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Api}\"},{\"ParameterKey\":\"HealthResourceId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.Health}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"ProxyLambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda Proxy].Package[].PackageId}.#{Octopus.Action[Upload Lambda Proxy].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.ProductUsername}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.ProductPassword}\"},{\"ParameterKey\":\"Path\",\"ParameterValue\":\"products\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"}]"
             Octopus.Action.Aws.IamCapabilities = "[\"CAPABILITY_NAMED_IAM\"]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
@@ -1147,7 +1154,7 @@ step "Update Stage" {
                     },
                     "DeploymentId" : {
                       "Type" : "String",
-                      "Default" : "Deployment#{DeploymentId}"
+                      "Default" : "Deployment#{Octopus.Deployment.Id | Replace -}"
                     },
                     "ApiGatewayId" : {
                       "Type" : "String"
@@ -1188,8 +1195,8 @@ step "Update Stage" {
                   }
                 }
             EOT
-            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"#{Octopus.Action[Deploy Lambda].Output.AwsOutputs[DeploymentId]}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
-            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"#{Octopus.Action[Deploy Lambda].Output.AwsOutputs[DeploymentId]}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"Deployment#{Octopus.Deployment.Id | Replace -}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeploymentId\",\"ParameterValue\":\"Deployment#{Octopus.Deployment.Id | Replace -}\"},{\"ParameterKey\":\"ApiGatewayId\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.Aws.TemplateSource = "Inline"
             Octopus.Action.Aws.WaitForCompletion = "True"
