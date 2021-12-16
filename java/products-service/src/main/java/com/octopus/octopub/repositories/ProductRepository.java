@@ -41,6 +41,13 @@ public class ProductRepository {
    */
   public Product findOne(final int id) {
     final Product product = em.find(Product.class, id);
+    /*
+     We don't expect any local code to modify the entity returned here. Any changes will be done by
+     returning the entity to a client, the client makes the appropriate updates, and the updated
+     entity is sent back with a new request.
+
+     To prevent the entity from being accidentally updated, we detach it from the context.
+     */
     if (product != null) {
       em.detach(product);
     }
