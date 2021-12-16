@@ -56,7 +56,7 @@ step "Get Stack Outputs" {
                 
                 DATABASE_ADDRESS=$(aws cloudformation \
                 	describe-stacks \
-                    --stack-name "#{CloudFormation.AuditsBucket}" \
+                    --stack-name "#{CloudFormation.AuditsService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='DatabaseAddress'].OutputValue" \
                     --output text)
                     
@@ -98,6 +98,7 @@ step "Upload Lambda" {
 
     action {
         action_type = "Octopus.AwsUploadS3"
+        is_disabled = true
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -128,6 +129,7 @@ step "Deploy Feature Branch Lambda" {
 
     action {
         action_type = "Octopus.AwsRunCloudFormation"
+        is_disabled = true
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.AuditsBranchService}"
