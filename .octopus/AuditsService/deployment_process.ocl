@@ -1276,7 +1276,7 @@ step "Deploy Lambda" {
                 				"Fn::GetAtt": ["AuditsQueue", "QueueName"]
                 			}
                 		},
-                		"DatbaseAddress" : {
+                		"DatabaseAddress" : {
                 		  "Description" : "The database hostname",
                 		  "Value" : {"Fn::GetAtt" : [ "RDSCluster", "Endpoint.Address" ]}
                 		},
