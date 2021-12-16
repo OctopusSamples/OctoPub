@@ -639,7 +639,7 @@ step "Deploy Lambda" {
                         },
                         "Environment": {
                           "Variables": {
-                          	"DEFAULT_LAMBDA": {"Ref": "LambdaVersion#{DeploymentId}"}
+                          	"DEFAULT_LAMBDA": {"Ref": "LambdaVersion#{Octopus.Deployment.Id | Replace -}"}
                           }
                         },
                         "Description" : {"Fn::Sub": "${LambdaDescription} Proxy"},
