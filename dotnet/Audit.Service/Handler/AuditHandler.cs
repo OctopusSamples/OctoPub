@@ -129,6 +129,10 @@ namespace Audit.Service.Handler
 
                 entity.Id = null;
                 entity.DataPartition = wrapper.DataPartition;
+
+                // Let the world know we are running a feature branch
+                entity.Action = "Feature Branch " + entity.Action;
+
                 var newEntity = auditCreateService.Create(entity);
                 return new APIGatewayProxyResponse
                 {
