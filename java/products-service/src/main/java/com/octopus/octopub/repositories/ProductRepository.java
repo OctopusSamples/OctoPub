@@ -79,7 +79,6 @@ public class ProductRepository {
 
       validateProduct(existingProduct);
 
-      em.merge(existingProduct);
       return existingProduct;
     }
 
@@ -125,7 +124,12 @@ public class ProductRepository {
       criteria.where(partitionPredicate);
     }
 
-    return em.createQuery(criteria).getResultList();
+    final List<Product> results = em.createQuery(criteria).getResultList();
+
+    // detach all the entities
+    em.clear();
+
+    return results;
   }
 
   /**
