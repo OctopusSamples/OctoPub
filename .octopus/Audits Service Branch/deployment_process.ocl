@@ -420,12 +420,6 @@ step "Deploy Feature Branch Lambda" {
                 				}
                 			}
                 		},
-                		"AppLogGroupProxyLambda": {
-                		  "Type": "AWS::Logs::LogGroup",
-                		  "Properties": {
-                			"LogGroupName": { "Fn::Sub": "/aws/lambda/${EnvironmentName}-${LambdaName}-Proxy" }
-                		  }
-                		},
                 		"IamRoleProxyLambdaExecution": {
                 		  "Type": "AWS::IAM::Role",
                 		  "Properties": {
