@@ -272,7 +272,7 @@ func getDestinationPath(acceptAll string, ruleDestination string) (string, error
 func getDestinationUrl(ruleDestination string) (*url.URL, error) {
 	if strings.HasPrefix(ruleDestination, "url[") && strings.HasSuffix(ruleDestination, "]") {
 
-		trimmedDestination := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "url["), "]")
+		trimmedDestination := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "url["), "]"))
 		if trimmedDestination == "" {
 			return nil, errors.New("destination can not be blank")
 		}
@@ -296,8 +296,8 @@ func getDestinationUrl(ruleDestination string) (*url.URL, error) {
 func getDestinationLambda(ruleDestination string) (string, error) {
 	if strings.HasPrefix(ruleDestination, "lambda[") && strings.HasSuffix(ruleDestination, "]") {
 
-		destination := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "lambda["), "]")
-		if strings.TrimSpace(destination) == "" {
+		destination := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "lambda["), "]"))
+		if destination == "" {
 			return "", errors.New("destination can not be blank")
 		}
 		return destination, nil
@@ -309,10 +309,11 @@ func getDestinationLambda(ruleDestination string) (string, error) {
 func getDestinationSqs(ruleDestination string) (string, error) {
 	if strings.HasPrefix(ruleDestination, "sqs[") && strings.HasSuffix(ruleDestination, "]") {
 
-		destination := strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "sqs["), "]")
-		if strings.TrimSpace(destination) == "" {
+		destination := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(ruleDestination, "sqs["), "]"))
+		if destination == "" {
 			return "", errors.New("destination can not be blank")
 		}
+		return destination, nil
 	}
 
 	return "", errors.New("destination was not a sqs")
