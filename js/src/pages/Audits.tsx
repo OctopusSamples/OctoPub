@@ -31,8 +31,8 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const columns = [
         {field: 'id', headerName: 'Id', width: 70},
         {field: 'subject', headerName: 'Subject', width: 130},
-        {field: 'action', headerName: 'Action', width: 130},
-        {field: 'object', headerName: 'Object', width: 130},
+        {field: 'action', headerName: 'Action', width: 200},
+        {field: 'object', headerName: 'Object', width: 200},
         {field: 'dataPartition', headerName: 'Data Partition', width: 130},
     ];
 
