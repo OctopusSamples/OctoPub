@@ -63,3 +63,6 @@ A catch all error for any exceptions thrown while processing a SQS request.
 
 ### AuditsService-Handler-CreateFailure
 A catch all error when creating an entity.
+
+### AuditsService-LocalSQS-GeneralFailure
+A catch all error when processing SQS messages from a locally hosted feature branch.
