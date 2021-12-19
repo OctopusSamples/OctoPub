@@ -31,6 +31,9 @@ OctoPub has been designed to allow testing of feature branches without deploying
 microservice stack. Feature branches can either be deployed to platforms like AWS Lambda, or run
 locally.
 
+This functionality is implemented in the [reverse-proxy](https://github.com/OctopusSamples/OctoPub/tree/master/go/reverse-proxy)
+service.
+
 To test this microservice locally, start the service from the command line or from within
 your IDE. This exposes the API at http://localhost:8083.
 
