@@ -80,4 +80,6 @@ To direct all requests to your local microservice, add the following rules:
 | `/api/products/*:DELETE` | `path[/api/products:GET]` |
 
 Rules with the `path[...]` syntax are used to lookup another rule. This provides the opportunity
-to define the redirection rule once, and then reuse it for multiple paths.
+to define the redirection rule once, and then reuse it for multiple paths:
+
+![](OctoPub2.png)
