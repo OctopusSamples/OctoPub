@@ -1,0 +1,86 @@
+step "Create SQS Queue" {
+
+    action {
+        action_type = "Octopus.AwsRunCloudFormation"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.AuditsService}"
+            Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
+                {
+                	"Parameters": {
+                		"EnvironmentName": {
+                			"Type": "String",
+                			"Default": "#{Octopus.Environment.Name}"
+                		},		
+                		"DeveloperName": {
+                			"Type": "String"
+                		}
+                	},
+                	"Resources": {		
+                		"AuditsQueue": {
+                			"Type": "AWS::SQS::Queue",
+                			"Properties": {
+                				"QueueName": {
+                					"Fn::Join": ["", [
+                					{
+                						"Ref": "EnvironmentName"
+                					},
+                					"-audits-",
+                					{"Ref": "DeveloperName"}
+                                  ]]
+                				}
+                			}
+                		}
+                	},
+                	"Outputs": {		
+                		"AduitsQueue": {
+                			"Description": "Url of the audits queue",
+                			"Value": {
+                				"Ref": "AuditsQueue"
+                			}
+                		},
+                		"AduitsQueueArn": {
+                			"Description": "Arn of the audits queue",
+                			"Value": {
+                				"Fn::GetAtt": ["AuditsQueue", "Arn"]
+                			}
+                		},
+                		"AduitsQueueName": {
+                			"Description": "Name of the audits queue",
+                			"Value": {
+                				"Fn::GetAtt": ["AuditsQueue", "QueueName"]
+                			}
+                		}
+                	}
+                }
+            EOT
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeveloperName\",\"ParameterValue\":\"#{DeveloperName}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"DeveloperName\",\"ParameterValue\":\"#{DeveloperName}\"}]"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.Aws.TemplateSource = "Inline"
+            Octopus.Action.Aws.WaitForCompletion = "True"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.RunOnServer = "true"
+        }
+        worker_pool_variable = "WorkerPool"
+    }
+}
+
+step "Run a Script" {
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "true"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                echo "#{Octopus.Action[Deploy an AWS CloudFormation template].Output.AwsOutputs[AduitsQueueArn]}" 
+                echo "#{Octopus.Action[Deploy an AWS CloudFormation template].Output.AwsOutputs[AduitsQueueName]}" 
+                echo "#{Octopus.Action[Deploy an AWS CloudFormation template].Output.AwsOutputs[AduitsQueue]}" 
+            EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "PowerShell"
+        }
+        worker_pool_variable = "WorkerPool"
+    }
+}
