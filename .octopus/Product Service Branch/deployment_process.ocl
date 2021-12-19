@@ -1,0 +1,308 @@
+step "Get Stack Outputs" {
+
+    action {
+        action_type = "Octopus.AwsRunScript"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.RunOnServer = "true"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                REST_API=$(aws cloudformation \
+                	describe-stacks \
+                    --stack-name "#{CloudFormation.ApiGateway}" \
+                    --query "Stacks[0].Outputs[?OutputKey=='RestApi'].OutputValue" \
+                    --output text)
+                    
+                set_octopusvariable "RestApi" ${REST_API}
+                
+                SUBNET_B=$(aws cloudformation \
+                	describe-stacks \
+                    --stack-name "#{CloudFormation.ProductService}" \
+                    --query "Stacks[0].Outputs[?OutputKey=='SubnetBId'].OutputValue" \
+                    --output text)
+                    
+                set_octopusvariable "SubnetB" ${SUBNET_B}
+                
+                SUBNET_C=$(aws cloudformation \
+                	describe-stacks \
+                    --stack-name "#{CloudFormation.ProductService}" \
+                    --query "Stacks[0].Outputs[?OutputKey=='SubnetCId'].OutputValue" \
+                    --output text)
+                    
+                set_octopusvariable "SubnetC" ${SUBNET_C}
+                
+                INSTANCE_SECURITY_GROUP=$(aws cloudformation \
+                	describe-stacks \
+                    --stack-name "#{CloudFormation.ProductService}" \
+                    --query "Stacks[0].Outputs[?OutputKey=='InstanceSecurityGroup'].OutputValue" \
+                    --output text)
+                    
+                set_octopusvariable "InstanceSecurityGroup" ${INSTANCE_SECURITY_GROUP}
+                
+                BUCKET=$(aws cloudformation \
+                	describe-stacks \
+                    --stack-name "#{CloudFormation.ProductsBucket}" \
+                    --query "Stacks[0].Outputs[?OutputKey=='LambdaS3Bucket'].OutputValue" \
+                    --output text)
+                    
+                set_octopusvariable "LambdaS3Bucket" ${BUCKET}
+                
+                DATABASE_ADDRESS=$(aws cloudformation \
+                	describe-stacks \
+                    --stack-name "#{CloudFormation.ProductService}" \
+                    --query "Stacks[0].Outputs[?OutputKey=='DatbaseAddress'].OutputValue" \
+                    --output text)
+                    
+                set_octopusvariable "DatbaseAddress" ${DATABASE_ADDRESS}
+                
+                DATABASE_PORT=$(aws cloudformation \
+                	describe-stacks \
+                    --stack-name "#{CloudFormation.ProductService}" \
+                    --query "Stacks[0].Outputs[?OutputKey=='DatbasePort'].OutputValue" \
+                    --output text)
+                    
+                set_octopusvariable "DatbasePort" ${DATABASE_PORT}
+                
+                
+                PRERELEASE="#{Octopus.Action[Upload Lambda].Package[].PackageVersion | VersionPreRelease}"
+                echo "PRERELEASE: ${PRERELEASE}"
+                if [[ -z ${PRERELEASE} ]]; then
+                	set_octopusvariable "PreReleaseSuffix" ""
+                else
+                	set_octopusvariable "PreReleaseSuffix" "-${PRERELEASE}"	
+                fi
+            EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = "WorkerPool"
+
+        container {
+            feed = "Dockerhub"
+            image = "octopusdeploy/worker-tools:3.3.1-ubuntu.18.04"
+        }
+    }
+}
+
+step "Upload Lambda" {
+
+    action {
+        action_type = "Octopus.AwsUploadS3"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.Aws.S3.BucketName = "#{Octopus.Action[Get Stack Outputs].Output.LambdaS3Bucket}"
+            Octopus.Action.Aws.S3.PackageOptions = "{\"bucketKey\":\"\",\"bucketKeyBehaviour\":\"Filename\",\"bucketKeyPrefix\":\"\",\"storageClass\":\"STANDARD\",\"cannedAcl\":\"private\",\"metadata\":[],\"tags\":[]}"
+            Octopus.Action.Aws.S3.TargetMode = "EntirePackage"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.Package.DownloadOnTentacle = "False"
+            Octopus.Action.Package.FeedId = "Octopub"
+            Octopus.Action.Package.PackageId = "com.octopus.octopub:products-service"
+            Octopus.Action.RunOnServer = "true"
+        }
+        worker_pool_variable = "WorkerPool"
+
+        packages {
+            acquisition_location = "Server"
+            feed = "Octopub"
+            package_id = "com.octopus.octopub:products-service"
+            properties = {
+                SelectionMode = "immediate"
+            }
+        }
+    }
+}
+
+step "Deploy Feature Branch Lambda" {
+
+    action {
+        action_type = "Octopus.AwsRunCloudFormation"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ProductBranchService}"
+            Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
+                {
+                  "Parameters" : {
+                    "EnvironmentName" : {
+                      "Type" : "String",
+                      "Default" : "#{Octopus.Environment.Name}"
+                    },    
+                    "LambdaS3Key" : {
+                      "Type" : "String"
+                    },    
+                    "LambdaS3Bucket": {
+                      "Type": "String"
+                    },
+                    "LambdaName": {
+                      "Type": "String"
+                    },
+                    "LambdaDescription": {
+                     	"Type": "String" 
+                    },
+                    "DBUsername": {
+                     	"Type": "String" 
+                    },
+                    "DBPassword": {
+                     	"Type": "String" 
+                    },
+                    "ApiKey": {
+                    	"Type": "String" 
+                    },
+                    "SubnetB": {
+                    	"Type": "String" 
+                    },
+                    "SubnetC": {
+                    	"Type": "String" 
+                    },
+                    "InstanceSecurityGroup": {
+                    	"Type": "String" 
+                    },
+                    "DatbaseAddress": {
+                    	"Type": "String" 
+                    },
+                    "DatbasePort": {
+                    	"Type": "String" 
+                    },
+                    "RestApi" : {
+                      "Type" : "String"
+                    }
+                  },
+                  "Resources": {    
+                    "AppLogGroupOne": {
+                      "Type": "AWS::Logs::LogGroup",
+                      "Properties": {
+                        "LogGroupName": { "Fn::Sub": "/aws/lambda/${EnvironmentName}-${LambdaName}" }
+                      }
+                    },
+                    "IamRoleLambdaOneExecution": {
+                      "Type": "AWS::IAM::Role",
+                      "Properties": {
+                        "AssumeRolePolicyDocument": {
+                          "Version": "2012-10-17",
+                          "Statement": [
+                            {
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": [
+                                  "lambda.amazonaws.com"
+                                ]
+                              },
+                              "Action": [
+                                "sts:AssumeRole"
+                              ]
+                            }
+                          ]
+                        },
+                        "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"],
+                        "Policies": [
+                          {
+                            "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-policy" },
+                            "PolicyDocument": {
+                              "Version": "2012-10-17",
+                              "Statement": [
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "logs:CreateLogStream",
+                                    "logs:CreateLogGroup",
+                                    "logs:PutLogEvents"
+                                  ],
+                                  "Resource": [
+                                    {
+                                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${EnvironmentName}-${LambdaName}*:*"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "Path": "/",
+                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-role" }
+                      }
+                    },    
+                    "FetaureBranchLambda": {
+                      "Type": "AWS::Lambda::Function",
+                      "Properties": {
+                        "Code": {
+                          "S3Bucket": {"Ref": "LambdaS3Bucket"},
+                          "S3Key": {"Ref": "LambdaS3Key"}   
+                        },
+                        "Environment": {
+                          "Variables": {
+                          	"DATABASE_USERNAME": {"Ref": "DBUsername"},
+                            "DATABASE_PASSWORD": {"Ref": "DBPassword"},
+                            "DATABASE_HOSTNAME": {"Ref" : "DatbaseAddress"},
+                            "DATABASE_PORT": {"Ref" : "DatbasePort"},
+                            "API_KEY": {"Ref": "ApiKey"},
+                            "AUDIT_SERVICE": {
+                				"Fn::Join": [
+                				  "",
+                				  [
+                					"https://",
+                					{"Ref": "RestApi"},
+                					".execute-api.",
+                					{
+                					  "Ref": "AWS::Region"
+                					},
+                					".amazonaws.com/",
+                					{
+                					  "Ref": "EnvironmentName"
+                					}
+                				  ]
+                				]
+                			  }
+                          }
+                        },
+                        "Description" : {"Ref": "LambdaDescription"},
+                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
+                        "Handler": "not.used.in.provided.runtime",
+                        "MemorySize": 128,
+                        "PackageType": "Zip",
+                        "Role": {
+                          "Fn::GetAtt": [
+                            "IamRoleLambdaOneExecution",
+                            "Arn"
+                          ]
+                        },
+                        "Runtime": "provided",
+                        "Timeout": 30,
+                        "VpcConfig": {
+                        	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
+                			"SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
+                        }
+                      }
+                    },
+                    "LambdaVersion#{Octopus.Deployment.Id | Replace -}": {
+                     	"Type": "AWS::Lambda::Version",
+                      	"Properties": {
+                         	 "FunctionName": {"Ref": "FetaureBranchLambda"},
+                          	"Description": {"Ref": "LambdaDescription"},
+                          "ProvisionedConcurrencyConfig": {
+                            "ProvisionedConcurrentExecutions": 20
+                          }
+                        }
+                    }    
+                  },
+                  "Outputs" : {
+                        
+                  }
+                }
+            EOT
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.LambdaS3Bucket}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.ProductUsername}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.ProductPassword}\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"},{\"ParameterKey\":\"SubnetB\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.SubnetB}\"},{\"ParameterKey\":\"SubnetC\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.SubnetC}\"},{\"ParameterKey\":\"InstanceSecurityGroup\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.InstanceSecurityGroup}\"},{\"ParameterKey\":\"DatbaseAddress\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.DatbaseAddress}\"},{\"ParameterKey\":\"DatbasePort\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.DatbasePort}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.LambdaS3Bucket}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"#{Lambda.ProductService}\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"v#{Octopus.Action[Upload Lambda].Package[].PackageVersion}-#{Octopus.Deployment.Id}\"},{\"ParameterKey\":\"DBUsername\",\"ParameterValue\":\"#{Database.ProductUsername}\"},{\"ParameterKey\":\"DBPassword\",\"ParameterValue\":\"#{Database.ProductPassword}\"},{\"ParameterKey\":\"ApiKey\",\"ParameterValue\":\"#{Security.ApiKey}\"},{\"ParameterKey\":\"SubnetB\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.SubnetB}\"},{\"ParameterKey\":\"SubnetC\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.SubnetC}\"},{\"ParameterKey\":\"InstanceSecurityGroup\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.InstanceSecurityGroup}\"},{\"ParameterKey\":\"DatbaseAddress\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.DatbaseAddress}\"},{\"ParameterKey\":\"DatbasePort\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.DatbasePort}\"},{\"ParameterKey\":\"RestApi\",\"ParameterValue\":\"#{Octopus.Action[Get Stack Outputs].Output.RestApi}\"}]"
+            Octopus.Action.Aws.IamCapabilities = "[\"CAPABILITY_NAMED_IAM\"]"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.Aws.TemplateSource = "Inline"
+            Octopus.Action.Aws.WaitForCompletion = "True"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.RunOnServer = "true"
+        }
+        worker_pool_variable = "WorkerPool"
+    }
+}
