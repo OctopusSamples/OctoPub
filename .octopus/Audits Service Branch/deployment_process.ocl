@@ -503,7 +503,7 @@ step "Deploy Feature Branch Lambda" {
                 					{
                 						"Ref": "EnvironmentName"
                 					},
-                					"-audits-",
+                					"-audits",
                 					{
                 						"Ref": "Suffix"
                 					}]]
