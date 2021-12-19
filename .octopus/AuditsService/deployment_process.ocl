@@ -1083,9 +1083,12 @@ step "Deploy Lambda" {
                 			"Type": "AWS::SQS::Queue",
                 			"Properties": {
                 				"QueueName": {
-                					"Fn::Join": ["", ["audits-", {
+                					"Fn::Join": ["", [
+                					{
                 						"Ref": "EnvironmentName"
-                					}, {
+                					}, 
+                					"-audits-",
+                					{
                 						"Ref": "Suffix"
                 					}]]
                 				}
