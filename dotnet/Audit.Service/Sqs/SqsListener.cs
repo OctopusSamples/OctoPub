@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Amazon.Lambda.SQSEvents;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Audit.Service.Lambda;
@@ -52,7 +50,7 @@ namespace Audit.Service.Sqs
             try
             {
                 // We have to do some conversions between the different representations of SQS messages and values
-                var sqsMessage = ConvertToSqsMessage(msgMessage);
+                var sqsMessage = msgMessage.ConvertToSqsMessage();
                 audits.ProcessMessage(sqsMessage, serviceProvider);
                 await sqsClient.DeleteMessageAsync(queueUrl, msgMessage.ReceiptHandle);
             }
@@ -78,31 +76,6 @@ namespace Audit.Service.Sqs
                 WaitTimeSeconds = 10,
                 MessageAttributeNames = attributes
             });
-        }
-
-        private SQSEvent.SQSMessage ConvertToSqsMessage(Message message)
-        {
-            return new SQSEvent.SQSMessage()
-            {
-                Attributes = message.Attributes,
-                Body = message.Body,
-                MessageId = message.MessageId,
-                MessageAttributes = message.MessageAttributes
-                    .Select(p => new KeyValuePair<string, SQSEvent.MessageAttribute>(
-                        p.Key,
-                        new SQSEvent.MessageAttribute
-                        {
-                            BinaryValue = p.Value.BinaryValue,
-                            DataType = p.Value.DataType,
-                            StringValue = p.Value.StringValue,
-                            BinaryListValues = p.Value.BinaryListValues,
-                            StringListValues = p.Value.StringListValues
-                        }))
-                    .ToDictionary(p => p.Key, p => p.Value),
-                ReceiptHandle = message.ReceiptHandle,
-                Md5OfBody = message.MD5OfBody,
-                Md5OfMessageAttributes = message.MD5OfMessageAttributes
-            };
         }
     }
 }
