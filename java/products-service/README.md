@@ -72,8 +72,8 @@ your local microservice responding to requests.
 To direct all requests to your local microservice, add the following rules:
 
 | PATH                     | Destination                                |
-| `/api/products:GET`      | `url[https://312b-118-208-2-185.ngrok.io]` |
 | ------------------------ | ------------------------------------------ |
+| `/api/products:GET`      | `url[https://312b-118-208-2-185.ngrok.io]` |
 | `/api/products/**:GET`   | `path[/api/products:GET]` |
 | `/api/products:POST`     | `path[/api/products:GET]` |
 | `/api/products/*:PATCH`  | `path[/api/products:GET]` |
