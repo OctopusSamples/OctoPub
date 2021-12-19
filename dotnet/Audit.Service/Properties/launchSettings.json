@@ -18,6 +18,7 @@
       }
     },
     "audit_service": {
+      "commandLineArgs": "--mode Sqs --sqs-queue https://sqs.us-west-1.amazonaws.com/720766170633/audits-Development-0-my-feature-branch",
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": false,

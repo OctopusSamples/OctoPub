@@ -107,30 +107,7 @@ namespace Audit.Service.Lambda
             var serviceProvider = DependencyInjection.ConfigureServices();
 
             sqsEvent.Records
-                .Select(m => new Thread(() =>
-                {
-                    try
-                    {
-                        var responseBuilder = serviceProvider.GetRequiredService<IResponseBuilder>();
-
-                        Logger.Debug(System.Text.Json.JsonSerializer.Serialize(m));
-
-                        var requestWrapper = RequestWrapperFactory.CreateFromSqsMessage(m);
-
-                        Logger.Debug(System.Text.Json.JsonSerializer.Serialize(requestWrapper));
-                        Logger.Debug(requestWrapper.Entity);
-
-                        var handler = serviceProvider.GetRequiredService<AuditHandler>();
-                        var audit = ProcessRequest(handler, requestWrapper, responseBuilder);
-
-                        Logger.Debug(System.Text.Json.JsonSerializer.Serialize(audit));
-                    }
-                    catch (Exception ex)
-                    {
-                        // need to do something here to allow sagas to roll themselves back
-                        Logger.Error(Constants.ServiceName + "-SQS-GeneralFailure", ex);
-                    }
-                }))
+                .Select(m => new Thread(() => ProcessMessage(m, serviceProvider)))
                 .Select(t =>
                 {
                     t.Start();
@@ -138,6 +115,36 @@ namespace Audit.Service.Lambda
                 })
                 .ToList()
                 .ForEach(t => t.Join());
+        }
+
+        /// <summary>
+        /// Process an individual SQS message.
+        /// </summary>
+        /// <param name="message">The SQS message.</param>
+        /// <param name="serviceProvider">The DI service provider.</param>
+        public void ProcessMessage(SQSEvent.SQSMessage message, ServiceProvider serviceProvider)
+        {
+            try
+            {
+                var responseBuilder = serviceProvider.GetRequiredService<IResponseBuilder>();
+
+                Logger.Debug(System.Text.Json.JsonSerializer.Serialize(message));
+
+                var requestWrapper = RequestWrapperFactory.CreateFromSqsMessage(message);
+
+                Logger.Debug(System.Text.Json.JsonSerializer.Serialize(requestWrapper));
+                Logger.Debug(requestWrapper.Entity);
+
+                var handler = serviceProvider.GetRequiredService<AuditHandler>();
+                var audit = ProcessRequest(handler, requestWrapper, responseBuilder);
+
+                Logger.Debug(System.Text.Json.JsonSerializer.Serialize(audit));
+            }
+            catch (Exception ex)
+            {
+                // need to do something here to allow sagas to roll themselves back
+                Logger.Error(Constants.ServiceName + "-SQS-GeneralFailure", ex);
+            }
         }
 
         private APIGatewayProxyResponse ProcessRequest(AuditHandler handler, RequestWrapper wrapper,
