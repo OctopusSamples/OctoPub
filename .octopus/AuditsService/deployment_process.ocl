@@ -1087,7 +1087,7 @@ step "Deploy Lambda" {
                 					{
                 						"Ref": "EnvironmentName"
                 					}, 
-                					"-audits-",
+                					"-audits",
                 					{
                 						"Ref": "Suffix"
                 					}]]
