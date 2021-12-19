@@ -42,8 +42,17 @@ namespace Audit.Service
                 });
         }
 
+        /// <summary>
+        /// When operating as a local development branch, we listen to the specified SQS branch for new message
+        /// and process them like we would if the messages were received by a Lambda.
+        /// </summary>
+        /// <param name="o">The command line options.</param>
         private static async Task ListenSqs(Options o)
         {
+            var keepRunning = true;
+
+            Console.CancelKeyPress += (sender, e) => { keepRunning = false; };
+
             var sqsClient = new AmazonSQSClient();
             var audits = new Audits();
             var serviceProvider = new DependencyInjection().ConfigureServices();
@@ -84,7 +93,7 @@ namespace Audit.Service
                     audits.ProcessMessage(sqsMessage, serviceProvider);
                 }
             }
-            while (true);
+            while (keepRunning);
         }
 
         /// <summary>
