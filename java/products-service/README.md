@@ -1,75 +1,83 @@
-# products-service Project
+# Products Microservice
+This service exposes an interface for retrieving, creating, editing, and deleting books from OctoPub, 
+the online Octopus library. It is written with the [Quarkus](https://quarkus.io/) framework.
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+# Building
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+The `github/action.yml` file contains a GitHub Actions workflow used to build this service. The 
+builds can be viewed on [GitHub](https://github.com/OctopusSamples/OctoPub/actions/workflows/products-service.yaml).
 
-## Running the application in dev mode
+# Local debugging
 
-You can run your application in dev mode that enables live coding using:
+Run a local copy of the service backed by an in-memory database with the command. The `MIGRATE_AT_START` 
+environment variable instructs the application to run database migrations
+when at startup, which is required when running locally as the in-memory database will be
+empty by default:
 
-```shell script
-./mvnw compile quarkus:dev
+```bash
+MIGRATE_AT_START=true ./mvnw compile quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+The following `curl` command can be used to list the products. This service exposes a JSONAPI
+interface, which requires the `Accept` header be defined for each request:
 
-## Packaging and running the application
-
-The application can be packaged using:
-
-```shell script
-./mvnw package
+```bash
+curl 'http://localhost:8083/api/products' -H 'Accept: application/vnd.api+json'
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory. Be aware that it’s
-not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+# Feature branch testing
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+OctoPub has been designed to allow testing of feature branches without deploying the complete
+microservice stack. Feature branches can either be deployed to platforms like AWS Lambda, or run
+locally.
 
-If you want to build an _über-jar_, execute the following command:
+To test this microservice locally, start the service from the command line or from within
+your IDE. This exposes the API at http://localhost:8083.
 
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
+To expose the service publicly, even when your local PC is behind a NAT Gateway with no public
+IP address, install [Ngrok](https://ngrok.com/), and run the command:
+
+```bash
+ngrok http 8083
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+The output will look something like this:
 
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Pnative
+```bash
+ngrok by @inconshreveable
+Session Status                online
+Session Expires               1 hour, 59 minutes
+Version                       2.3.40
+Region                        United States (us)
+Web Interface                 http://127.0.0.1:4040
+Forwarding                    http://312b-118-208-2-185.ngrok.io -> http://localhost:8083
+Forwarding                    https://312b-118-208-2-185.ngrok.io -> http://localhost:8083
+Connections                   ttl     opn     rt1     rt5     p50     p90
+                              0       0       0.00    0.00    0.00    0.00
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container
-using:
+Your local development instance is now accessible from the public address https://312b-118-208-2-185.ngrok.io
+(note this URL changes every time).
 
-```shell script
-./mvnw package -Pnative -Dquarkus.native.container-build=true
-```
+In the [branching rules section of the OctoPub frontend](https://development.octopus.pub/#/branching)
+define a rule with a `Path` of `/api/products:GET` and a `Destination` of `url[https://312b-118-208-2-185.ngrok.io]`.
+This rule redirects `GET` requests to any path matching `/api/products` to the supplied URL instead of
+the default Lambda:
 
-You can then execute your native executable with: `./target/products-service-1.0.0-SNAPSHOT-runner`
+![](OctoPub.png)
 
-If you want to learn more about building native executables, please
-consult https://quarkus.io/guides/maven-tooling.html.
+Open the [main OctoPub page](https://development.octopus.pub/#/index.html), and you will notice
+your local microservice responding to requests.
 
-## Related Guides
+To direct all requests to your local microservice, add the following rules:
 
-- RESTEasy JAX-RS ([guide](https://quarkus.io/guides/rest-json)): REST endpoint framework
-  implementing JAX-RS and more
+| PATH                     | Destination                                |
+| `/api/products:GET`      | `url[https://312b-118-208-2-185.ngrok.io]` |
+| ------------------------ | ------------------------------------------ |
+| `/api/products/**:GET`   | `path[/api/products:GET]` |
+| `/api/products:POST`     | `path[/api/products:GET]` |
+| `/api/products/*:PATCH`  | `path[/api/products:GET]` |
+| `/api/products/*:DELETE` | `path[/api/products:GET]` |
 
-## Provided Code
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
-
-### RESTEasy Reactive
-
-Easily start your Reactive RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+Rules with the `path[...]` syntax are used to lookup another rule. This provides the opportunity
+to define the redirection rule once, and then reuse it for multiple paths.
