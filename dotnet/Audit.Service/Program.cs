@@ -19,8 +19,8 @@ namespace Audit.Service
         /// <param name="args">The arguments passed from the command line.</param>
         public static void Main(string[] args)
         {
-            Parser.Default.Settings.IgnoreUnknownArguments = true;
-            Parser.Default.ParseArguments<Options>(args)
+            var parser = new Parser(with => with.IgnoreUnknownArguments = true);
+            parser.ParseArguments<Options>(args)
                 .WithParsed<Options>(o =>
                 {
                     AppMode fixedMode = Enum.TryParse<AppMode>(o.Mode, out var mode) ? mode : AppMode.Web;
