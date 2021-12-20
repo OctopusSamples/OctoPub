@@ -82,10 +82,10 @@ func TestHandler(t *testing.T) {
 			request: events.APIGatewayProxyRequest{
 				Body: "My Body",
 				Headers: map[string]string{
-					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/common:GET]=sqs[" + os.Getenv("TEST_SQS") + "]; version[/get*:GET]=path[/common:GET]",
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/common:POST]=sqs[" + os.Getenv("TEST_SQS") + "]",
 					"Host":   "localhost",
 				},
-				Path:       "/post",
+				Path:       "/common",
 				HTTPMethod: "POST",
 			},
 			expect: "",
