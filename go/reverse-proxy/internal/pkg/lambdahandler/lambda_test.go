@@ -25,7 +25,7 @@ func TestHandler(t *testing.T) {
 				Path:       "/api/products",
 				HTTPMethod: "GET",
 			},
-			expect: "data",
+			expect: "application/vnd.api+json,application/vnd.api+json; version[/api/products*:GET]=lambda[" + os.Getenv("TEST_LAMBDA") + "]",
 			err:    nil,
 		},
 		{
