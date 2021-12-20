@@ -2,7 +2,16 @@
 
 OctoPub is an online library. It is hosted at [octopus.pub](https://octopus.pub/).
 
-It is written as microservices in a variety of languages and supports deployments to modern platforms like Lambdas and Kubernetes.
+OctoPub has been designed to explore advanced deployment patterns in modern platforms like Lambda and Kubernetes. Specifically:
+
+* How do you perform blue/green and canary deployments to serverless platforms?
+* How do you test feature branches, either locally or deployed to a hosted platform?
+* How do you version deployments and APIs?
+* How do you safely perform testing in production?
+
+While OctoPub has been has been written as a collection of microservices, it is not a goal of this project to explore design patterns like asynchronous
+communication, sagas, tracing, security, logging etc. Projects like [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo/)
+or [eShopOnContainers](https://github.com/dotnet-architecture/eShopOnContainers) provide better exaples of these patterns.
 
 ## Architecture
 
