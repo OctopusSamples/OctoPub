@@ -78,6 +78,19 @@ func TestHandler(t *testing.T) {
 			expect: "https://postman-echo.com/",
 			err:    nil,
 		},
+		{
+			request: events.APIGatewayProxyRequest{
+				Body: "My Body",
+				Headers: map[string]string{
+					"Accept": "application/vnd.api+json,application/vnd.api+json; version[/common:GET]=sqs[" + os.Getenv("TEST_SQS") + "]; version[/get*:GET]=path[/common:GET]",
+					"Host":   "localhost",
+				},
+				Path:       "/post",
+				HTTPMethod: "POST",
+			},
+			expect: "",
+			err:    nil,
+		},
 	}
 
 	for _, test := range tests {

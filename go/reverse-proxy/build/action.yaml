@@ -43,6 +43,7 @@ runs:
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws_secret_key }}
         AWS_REGION: us-west-1
         TEST_LAMBDA: Development-hello-world
+        TEST_SQS: https://sqs.us-west-1.amazonaws.com/720766170633/Development-integrationtest
 
     - run: cyclonedx-gomod app -main cmd/lambda -output cyclonedx.bom.xml
       shell: bash
