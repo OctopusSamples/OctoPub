@@ -4,6 +4,10 @@ OctoPub is an online library. It is hosted at [octopus.pub](https://octopus.pub/
 
 It is written as microservices in a variety of languages and supports deployments to modern platforms like Lambdas and Kubernetes.
 
+## Architecture
+
+![](Architecture.png)
+
 ## Features
 
 
