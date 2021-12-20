@@ -19,6 +19,7 @@ namespace Audit.Service
         /// <param name="args">The arguments passed from the command line.</param>
         public static void Main(string[] args)
         {
+            Parser.Default.Settings.IgnoreUnknownArguments = true;
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed<Options>(o =>
                 {
