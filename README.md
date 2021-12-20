@@ -8,6 +8,7 @@ specifically:
 * How do you perform blue/green and canary deployments to serverless platforms?
 * How do you test feature branches, either locally or deployed to a hosted platform?
 * How do you version deployments and APIs?
+* How do you orchestrate database migrations?
 * How do you safely perform testing in production?
 
 While OctoPub has been has been written as a collection of microservices, it is not a goal of this project to explore 
