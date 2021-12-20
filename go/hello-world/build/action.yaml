@@ -60,7 +60,7 @@ runs:
         -DartifactId=hello-world
         -Dversion=0.0.1.${{ github.run_number }}
       shell: bash
-      working-directory: go/reverse-proxy
+      working-directory: go/hello-world
 
     - run: >
         mvn deploy:deploy-file
@@ -71,4 +71,4 @@ runs:
         -DartifactId=hello-world-sbom
         -Dversion=0.0.1.${{ github.run_number }}
       shell: bash
-      working-directory: go/reverse-proxy
+      working-directory: go/hello-world
