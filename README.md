@@ -2,7 +2,7 @@
 
 OctoPub is an online library. It is hosted at [octopus.pub](https://octopus.pub/).
 
-OctoPub has been designed to explore advanced deployment patterns in modern platforms like Lambda and Kubernetes. Specifically:
+OctoPub has been designed to explore advanced deployment patterns in modern platforms like Lambda and Kubernetes, specifically:
 
 * How do you perform blue/green and canary deployments to serverless platforms?
 * How do you test feature branches, either locally or deployed to a hosted platform?
