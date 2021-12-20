@@ -40,7 +40,7 @@ runs:
       shell: bash
       working-directory: go/hello-world  
 
-    - run: go build cmd/lambda/main.go
+    - run: go build main.go
       shell: bash
       working-directory: go/hello-world
       env:
