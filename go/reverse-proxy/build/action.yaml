@@ -41,6 +41,7 @@ runs:
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws_secret_key }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws_secret_key }}
+        AWS_REGION: us-west-1
         TEST_LAMBDA: Development-hello-world
 
     - run: cyclonedx-gomod app -main cmd/lambda -output cyclonedx.bom.xml
