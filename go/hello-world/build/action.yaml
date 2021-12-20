@@ -29,7 +29,7 @@ runs:
       shell: bash
       working-directory: go/hello-world
 
-    - run: cyclonedx-gomod app -main cmd/lambda -output cyclonedx.bom.xml
+    - run: cyclonedx-gomod app -output cyclonedx.bom.xml
       shell: bash
       working-directory: go/hello-world
       env:
