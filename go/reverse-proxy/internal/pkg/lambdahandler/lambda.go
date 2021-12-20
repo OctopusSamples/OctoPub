@@ -97,9 +97,7 @@ func callSqs(queueURL string, req events.APIGatewayProxyRequest) (events.APIGate
 	log.Println("lambdahandler.callSqs(string, events.APIGatewayProxyRequest)")
 	log.Println("Calling SQS " + queueURL)
 
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	sess := session.Must(session.NewSession())
 
 	svc := sqs.New(sess)
 
@@ -153,9 +151,7 @@ func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (events.AP
 	log.Println("lambdahandler.callLambda(string, events.APIGatewayProxyRequest)")
 	log.Println("Calling Lambda " + lambdaName)
 
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	sess := session.Must(session.NewSession())
 
 	region := utils.GetEnv("AWS_REGION", "us-west-1")
 	client := lambda.New(sess, &aws.Config{Region: &region})
