@@ -6,6 +6,35 @@ hosted on a developers local machine and exposed to public traffic with services
 a more direct tunnel such as a VPN. Alternatively, feature branch Lambdas can be deployed alongside their mainline
 siblings.
 
+# History
+
+API Gateway is a rich platform for exposing backend services like Lambdas, and offers a great deal of flexibility in
+terms of validating and modifying requests before they are sent to a Lambda, and then modifying the response before
+it is sent to the client.
+
+API Gateway also has some limited functionality for selecting the backend Lambda with each request using 
+[stage variables](https://aws.amazon.com/blogs/compute/using-api-gateway-stage-variables-to-manage-lambda-functions/).
+
+Unfortunately, stage variables are static, meaning Lambdas can only be selected per stage rather than dynamically
+selected per request. This limitation prevents anything more than simple routing rules.
+
+What OctoPub required to support feature branch deployments of microservices was something like a reverse proxy
+or service mesh routing each request. Platforms like Kubernetes have a wealth of options, while traditional VM based
+application hosting can make use of tools like NGINX, but there were no good examples of this kind of functionality
+that could be run as a Lambda.
+
+The [HTTP reverse proxy built into Go](https://go.dev/src/net/http/httputil/reverseproxy.go), combined with the fact
+that Go has a quick boot time, made it an ideal language to write a Lambda reverse proxy in. The AWS SDK
+made it easy to pass requests to other services like Lambdas and SQS.
+
+# Limitations
+
+This project is not designed to be a generic reverse proxy. It supports simple routing rules through predetermined headers,
+and has strong opinions about how HTTP requests are translated to SQS messages based [JSON:API](https://jsonapi.org/)
+semantics.
+
+But the code is easy enough to modify if anyone is looking for a place to start.
+
 # How to perform redirections
 
 Redirections are considered to be a specialized form of API versioning in that redirections are expected to direct traffic 
@@ -15,11 +44,11 @@ versioning with JSONAPI can be found [here](https://github.com/json-api/json-api
 Redirection rules are defined in the `Accept` header based on ant wildcard paths. For example, the header 
 `version[/api/products*]=url[https://c9ce-118-208-2-185.ngrok.io]` instructs this proxy to redirect all requests made on
 paths that match `/api/products*` to https://c9ce-118-208-2-185.ngrok.io. A header like
-`version[/api/products*]=url[Development-products-0-myfeature]` will redirect requests made on
+`version[/api/products*]=lambda[Development-products-0-myfeature]` will redirect requests made on
 paths that match `/api/products*` to the Lambda called `Development-products-0-myfeature`.
 
 This allows a client to make a request to a top level API with `Accept` headers like 
-`version[/api/products*]=https://c9ce-118-208-2-185.ngrok.io;version[/api/audits*]=url[Development-audits-0-myfeature]`,
+`version[/api/products*]=https://c9ce-118-208-2-185.ngrok.io;version[/api/audits*]=lambda[Development-audits-0-myfeature]`,
 and so long as each service forwards the `Accept` header to each service it calls, feature branch instances of 
 deeply nested microservices will be executed without having to recreate the entire microservice ecosystem locally.
 
