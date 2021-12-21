@@ -6,7 +6,7 @@ import {AppContext} from "../App";
 import {Errors, Product} from "../model/Product";
 import {useNavigate, useParams} from "react-router-dom";
 import {styles} from "../utils/styles";
-import {getJsonApi, patchJsonApi} from "../utils/network";
+import {getJsonApi, isBranchingEnabled, patchJsonApi} from "../utils/network";
 
 const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
@@ -39,7 +39,8 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 }
                 if ("errors" in data) {
                     const error = data as Errors;
-                    setError(error.errors[0].title || "Failed to load book");
+                    setError(error.errors[0].title || "Failed to load book."
+                        + (isBranchingEnabled() ? " Branching rules are enabled - double check they are valid, or disable them." : ""));
                 }
             })
             .catch(() => {

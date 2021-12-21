@@ -1,8 +1,12 @@
 import {GET_RETRIES} from "./constants";
 import {RedirectRule} from "../pages/Branching";
 
+export function isBranchingEnabled() {
+    return (localStorage.getItem("branchingEnabled") || "").toLowerCase() !== "false";
+}
+
 function getBranchingRules() {
-    if ((localStorage.getItem("branchingEnabled") || "").toLowerCase() !== "false") {
+    if (isBranchingEnabled()) {
         const rules: RedirectRule[] = JSON.parse(localStorage.getItem("branching") || "[]")
         return rules
             .filter(r => r.path.trim() && r.destination.trim())

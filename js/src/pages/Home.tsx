@@ -8,7 +8,7 @@ import {AppContext} from "../App";
 import {CommonProps} from "../model/RouteItem.model";
 import {Products} from "../model/Product";
 import {useNavigate} from "react-router-dom";
-import {getJsonApi} from "../utils/network";
+import {getJsonApi, isBranchingEnabled} from "../utils/network";
 
 // define css-in-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -53,7 +53,8 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
     useEffect(() => {
         getJsonApi<Products>(context.settings.productEndpoint, context.partition)
             .then(data => setBooks(data))
-            .catch(() => setError("Failed to retrieve the list of books."));
+            .catch(() => setError("Failed to retrieve the list of books."
+                + (isBranchingEnabled() ? " Branching rules are enabled - double check they are valid, or disable them." : "")));
     }, [context.settings.productEndpoint, setBooks, setError, context.partition]);
 
     return (
