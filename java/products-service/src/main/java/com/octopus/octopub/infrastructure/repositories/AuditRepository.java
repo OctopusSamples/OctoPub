@@ -4,7 +4,7 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.octopus.octopub.GlobalConstants;
 import com.octopus.octopub.domain.entities.Audit;
 import com.octopus.octopub.domain.framework.producers.JsonApiConverter;
-import com.octopus.octopub.domain.client.AuditClient;
+import com.octopus.octopub.infrastructure.client.AuditClient;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;

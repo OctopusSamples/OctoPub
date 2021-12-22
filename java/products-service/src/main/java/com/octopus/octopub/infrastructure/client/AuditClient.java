@@ -1,4 +1,4 @@
-package com.octopus.octopub.domain.client;
+package com.octopus.octopub.infrastructure.client;
 
 import com.octopus.octopub.application.Constants;
 import javax.ws.rs.Consumes;
