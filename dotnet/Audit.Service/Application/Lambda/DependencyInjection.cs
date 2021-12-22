@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using Audit.Service.Domain.Handler;
+using Audit.Service.Domain.Utilities;
 using Audit.Service.Infrastructure.Repositories;
 using Audit.Service.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;

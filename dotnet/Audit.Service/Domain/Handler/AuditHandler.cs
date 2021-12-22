@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Amazon.Lambda.APIGatewayEvents;
 using Audit.Service.Application.Lambda;
 using Audit.Service.Domain.Interceptor;
+using Audit.Service.Domain.Utilities;
 using Audit.Service.Infrastructure.Services;
 using JsonApiSerializer;
 using Newtonsoft.Json;

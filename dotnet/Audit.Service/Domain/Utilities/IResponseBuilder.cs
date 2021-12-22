@@ -1,7 +1,7 @@
 ﻿using System;
 using Amazon.Lambda.APIGatewayEvents;
 
-namespace Audit.Service.Infrastructure.Services
+namespace Audit.Service.Domain.Utilities
 {
     /// <summary>
     /// Defines a service for building common JSONAPI responses.

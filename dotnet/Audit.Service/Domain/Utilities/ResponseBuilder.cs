@@ -1,7 +1,8 @@
 ﻿using System;
 using Amazon.Lambda.APIGatewayEvents;
+using Audit.Service.Infrastructure.Services;
 
-namespace Audit.Service.Infrastructure.Services
+namespace Audit.Service.Domain.Utilities
 {
     /// <summary>
     /// A service used to build responses.

@@ -8,6 +8,7 @@ using Amazon.Lambda.Serialization.Json;
 using Amazon.Lambda.SQSEvents;
 using Audit.Service.Domain.Handler;
 using Audit.Service.Domain.Interceptor;
+using Audit.Service.Domain.Utilities;
 using Audit.Service.Infrastructure.Repositories;
 using Audit.Service.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
