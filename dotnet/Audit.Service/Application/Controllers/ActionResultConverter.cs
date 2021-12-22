@@ -1,7 +1,7 @@
 ﻿using Amazon.Lambda.APIGatewayEvents;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Audit.Service.Controllers
+namespace Audit.Service.Application.Controllers
 {
     /// <summary>
     /// A class that builds a new ContentResult object from a APIGatewayProxyResponse.

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.SQSEvents;
-using Audit.Service.Lambda;
+using Audit.Service.Application.Lambda;
 using JsonApiSerializer;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -29,7 +29,7 @@ namespace Audit.Service.Tests
                 Audits.AuditsApi(
                     new APIGatewayProxyRequest
                     {
-                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Models.Audit
+                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Domain.Entities.Audit
                         {
                             Action = "test1",
                             Object = "test2",
@@ -38,7 +38,7 @@ namespace Audit.Service.Tests
                     }, null);
             Assert.IsNotNull(response);
 
-            var entity = JsonConvert.DeserializeObject<Models.Audit>(response.Body,
+            var entity = JsonConvert.DeserializeObject<Domain.Entities.Audit>(response.Body,
                 new JsonApiSerializerSettings());
 
             var getResponse =
@@ -49,7 +49,7 @@ namespace Audit.Service.Tests
                         QueryStringParameters = new Dictionary<string, string> { { "filter", "id==" + entity.Id } }
                     }, null);
 
-            var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
+            var list = JsonConvert.DeserializeObject<List<Domain.Entities.Audit>>(getResponse.Body,
                 new JsonApiSerializerSettings());
 
             Assert.IsTrue(list.Any(p => p.Id == entity.Id));
@@ -62,7 +62,7 @@ namespace Audit.Service.Tests
                         QueryStringParameters = new Dictionary<string, string> { { "filter", "subject==doesnotexist" } }
                     }, null);
 
-            var list2 = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse2.Body,
+            var list2 = JsonConvert.DeserializeObject<List<Domain.Entities.Audit>>(getResponse2.Body,
                 new JsonApiSerializerSettings());
 
             Assert.IsTrue(list2.Count == 0);
@@ -75,7 +75,7 @@ namespace Audit.Service.Tests
                 Audits.AuditsApi(
                     new APIGatewayProxyRequest
                     {
-                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Models.Audit
+                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Domain.Entities.Audit
                         {
                             Action = "test1",
                             Object = "test2",
@@ -92,7 +92,7 @@ namespace Audit.Service.Tests
                     }, null);
             Assert.IsNotNull(response);
 
-            var entity = JsonConvert.DeserializeObject<Models.Audit>(response.Body,
+            var entity = JsonConvert.DeserializeObject<Domain.Entities.Audit>(response.Body,
                 new JsonApiSerializerSettings());
 
             // Attempt to get the record in the context of another partition
@@ -112,7 +112,7 @@ namespace Audit.Service.Tests
                         }
                     }, null);
 
-            var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
+            var list = JsonConvert.DeserializeObject<List<Domain.Entities.Audit>>(getResponse.Body,
                 new JsonApiSerializerSettings());
 
             Assert.IsTrue(list.Count == 1);
@@ -125,7 +125,7 @@ namespace Audit.Service.Tests
                 Audits.AuditsApi(
                     new APIGatewayProxyRequest
                     {
-                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Models.Audit
+                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Domain.Entities.Audit
                         {
                             Action = "test1",
                             Object = "test2",
@@ -142,7 +142,7 @@ namespace Audit.Service.Tests
                     }, null);
             Assert.IsNotNull(response);
 
-            var entity = JsonConvert.DeserializeObject<Models.Audit>(response.Body,
+            var entity = JsonConvert.DeserializeObject<Domain.Entities.Audit>(response.Body,
                 new JsonApiSerializerSettings());
 
             // Attempt to get the record in the context of another partition
@@ -162,7 +162,7 @@ namespace Audit.Service.Tests
                         }
                     }, null);
 
-            var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
+            var list = JsonConvert.DeserializeObject<List<Domain.Entities.Audit>>(getResponse.Body,
                 new JsonApiSerializerSettings());
 
             Assert.IsTrue(list.Count == 0);
@@ -175,7 +175,7 @@ namespace Audit.Service.Tests
                 Audits.AuditsApi(
                     new APIGatewayProxyRequest
                     {
-                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Models.Audit
+                        HttpMethod = "POST", Path = "/api/audits", Body = JsonConvert.SerializeObject(new Domain.Entities.Audit
                         {
                             Action = "test1",
                             Object = "test2",
@@ -184,7 +184,7 @@ namespace Audit.Service.Tests
                     }, null);
             Assert.IsNotNull(response);
 
-            var entity = JsonConvert.DeserializeObject<Models.Audit>(response.Body,
+            var entity = JsonConvert.DeserializeObject<Domain.Entities.Audit>(response.Body,
                 new JsonApiSerializerSettings());
 
             Assert.AreEqual("test1", entity.Action);
@@ -204,7 +204,7 @@ namespace Audit.Service.Tests
                     {
                         new SQSEvent.SQSMessage
                         {
-                            Body = JsonConvert.SerializeObject(new Models.Audit
+                            Body = JsonConvert.SerializeObject(new Domain.Entities.Audit
                             {
                                 Action = "test1",
                                 Object = "test2",
@@ -228,7 +228,7 @@ namespace Audit.Service.Tests
                             { { "filter", "subject=='" + subject + "'" } }
                     }, null);
 
-            var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
+            var list = JsonConvert.DeserializeObject<List<Domain.Entities.Audit>>(getResponse.Body,
                 new JsonApiSerializerSettings());
 
             Assert.IsTrue(list.Count == 1);
@@ -253,7 +253,7 @@ namespace Audit.Service.Tests
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing" }
                             }
                         },
-                        Body = JsonConvert.SerializeObject(new Models.Audit
+                        Body = JsonConvert.SerializeObject(new Domain.Entities.Audit
                         {
                             Action = "test",
                             Object = "test",
@@ -262,7 +262,7 @@ namespace Audit.Service.Tests
                     }, null);
             Assert.IsNotNull(response);
 
-            var entity = JsonConvert.DeserializeObject<Models.Audit>(response.Body,
+            var entity = JsonConvert.DeserializeObject<Domain.Entities.Audit>(response.Body,
                 new JsonApiSerializerSettings());
 
             var getResponse =
@@ -302,7 +302,7 @@ namespace Audit.Service.Tests
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing" }
                             }
                         },
-                        Body = JsonConvert.SerializeObject(new Models.Audit
+                        Body = JsonConvert.SerializeObject(new Domain.Entities.Audit
                         {
                             Action = "test",
                             Object = "test",
@@ -311,7 +311,7 @@ namespace Audit.Service.Tests
                     }, null);
             Assert.IsNotNull(response);
 
-            var entity = JsonConvert.DeserializeObject<Models.Audit>(response.Body,
+            var entity = JsonConvert.DeserializeObject<Domain.Entities.Audit>(response.Body,
                 new JsonApiSerializerSettings());
 
             var getResponse =
@@ -329,7 +329,7 @@ namespace Audit.Service.Tests
                         }
                     }, null);
 
-            var list = JsonConvert.DeserializeObject<List<Models.Audit>>(getResponse.Body,
+            var list = JsonConvert.DeserializeObject<List<Domain.Entities.Audit>>(getResponse.Body,
                 new JsonApiSerializerSettings());
 
             Assert.False(list.Any(a => a.Id == entity.Id));
@@ -357,7 +357,7 @@ namespace Audit.Service.Tests
                                     { "application/vnd.api+json", "application/vnd.api+json; dataPartition=testing" }
                             }
                         },
-                        Body = JsonConvert.SerializeObject(new Models.Audit
+                        Body = JsonConvert.SerializeObject(new Domain.Entities.Audit
                         {
                             Action = action,
                             Object = objectField,

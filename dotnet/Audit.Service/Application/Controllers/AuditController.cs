@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Audit.Service.Handler;
-using Audit.Service.Lambda;
+using Audit.Service.Application.Lambda;
+using Audit.Service.Domain.Handler;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Audit.Service.Controllers
+namespace Audit.Service.Application.Controllers
 {
     /// <summary>
     /// The HTTP controller exposing audit resources.

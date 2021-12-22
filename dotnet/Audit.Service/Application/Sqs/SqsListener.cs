@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-using Audit.Service.Lambda;
+using Audit.Service.Application.Lambda;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
-namespace Audit.Service.Sqs
+namespace Audit.Service.Application.Sqs
 {
     /// <summary>
     /// Listens to new SQS messages and passes them to the Lambda handler.

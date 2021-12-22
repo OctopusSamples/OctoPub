@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.SQSEvents;
-using Audit.Service.Lambda;
+using Audit.Service.Application.Lambda;
 using NUnit.Framework;
 
 namespace Audit.Service.Tests

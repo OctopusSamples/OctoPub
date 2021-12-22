@@ -1,4 +1,4 @@
-﻿namespace Audit.Service.Lambda
+﻿namespace Audit.Service.Application.Lambda
 {
     /// <summary>
     ///     CRUD actions.

@@ -1,6 +1,6 @@
-﻿using Audit.Service.Repositories;
+﻿using Audit.Service.Infrastructure.Repositories;
 
-namespace Audit.Service.Services
+namespace Audit.Service.Infrastructure.Services
 {
     /// <summary>
     /// The service used to create new audit records.
@@ -23,7 +23,7 @@ namespace Audit.Service.Services
         /// </summary>
         /// <param name="resource">The new audit record.</param>
         /// <returns>The audit record once it has been saved.</returns>
-        public Models.Audit Create(Models.Audit resource)
+        public Domain.Entities.Audit Create(Domain.Entities.Audit resource)
         {
             resource.Id = null;
             context.Audits.Add(resource);

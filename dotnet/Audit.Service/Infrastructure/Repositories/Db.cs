@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Audit.Service.Repositories
+namespace Audit.Service.Infrastructure.Repositories
 {
     /// <summary>
     /// The entity framework context.
@@ -19,6 +19,6 @@ namespace Audit.Service.Repositories
         /// <summary>
         /// Gets the collection of audit entities.
         /// </summary>
-        public DbSet<Models.Audit> Audits => Set<Models.Audit>();
+        public DbSet<Domain.Entities.Audit> Audits => Set<Domain.Entities.Audit>();
     }
 }

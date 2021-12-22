@@ -1,9 +1,9 @@
-﻿using Audit.Service.Repositories;
+﻿using Audit.Service.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Audit.Service.Migrations
+namespace Audit.Service.Infrastructure.Migrations
 {
     /// <summary>
     /// A database migration that creates the initial Audits table.

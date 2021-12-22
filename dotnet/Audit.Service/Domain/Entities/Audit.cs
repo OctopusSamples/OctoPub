@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Audit.Service.Models
+namespace Audit.Service.Domain.Entities
 {
     /// <summary>
     /// Represents an audit database entity.

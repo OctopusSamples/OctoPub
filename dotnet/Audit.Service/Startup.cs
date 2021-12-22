@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Audit.Service.Handler;
-using Audit.Service.Repositories;
-using Audit.Service.Services;
+using Audit.Service.Domain.Handler;
+using Audit.Service.Infrastructure.Repositories;
+using Audit.Service.Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;

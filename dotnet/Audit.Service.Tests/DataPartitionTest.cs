@@ -1,4 +1,4 @@
-﻿using Audit.Service.Lambda;
+﻿using Audit.Service.Application.Lambda;
 using NUnit.Framework;
 
 namespace Audit.Service.Tests

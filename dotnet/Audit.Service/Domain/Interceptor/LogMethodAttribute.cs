@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Reflection;
-using Audit.Service.Interceptor;
+using Audit.Service.Domain.Interceptor;
 using MethodDecorator.Fody.Interfaces;
 using NLog;
 
 [module: LogMethod]
 
-namespace Audit.Service.Interceptor
+namespace Audit.Service.Domain.Interceptor
 {
     /// <summary>
     /// A Fody interceptor that logs when a method is entered, exited, or throws an exception.

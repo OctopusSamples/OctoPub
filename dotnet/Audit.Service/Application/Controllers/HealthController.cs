@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Audit.Service.Handler;
-using Audit.Service.Lambda;
+using Audit.Service.Application.Lambda;
+using Audit.Service.Domain.Handler;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Audit.Service.Controllers
+namespace Audit.Service.Application.Controllers
 {
     /// <summary>
     /// If this controller is running, return OK for any request to the /health endpoint.

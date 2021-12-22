@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Audit.Service.Repositories;
+using Audit.Service.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using RestSQL.SqlKata;
 using SqlKata.Compilers;
 
-namespace Audit.Service.Services
+namespace Audit.Service.Infrastructure.Services
 {
     /// <summary>
     /// The service used to get collections of audit records.
@@ -29,7 +29,7 @@ namespace Audit.Service.Services
         /// <param name="partitions">The partitions the records must belong to.</param>
         /// <param name="filter">The RSQL query to use when searching.</param>
         /// <returns>The collection of matching audit records.</returns>
-        public IReadOnlyCollection<Models.Audit> Get(IList<string> partitions, string filter)
+        public IReadOnlyCollection<Domain.Entities.Audit> Get(IList<string> partitions, string filter)
         {
             var filteredPartitions = GetFilteredPartitions(partitions);
 
@@ -43,7 +43,7 @@ namespace Audit.Service.Services
                     .Where(a => filteredPartitions.Contains(a.DataPartition)).ToList();
             }
 
-            IReadOnlyCollection<Models.Audit> list = context.Audits
+            IReadOnlyCollection<Domain.Entities.Audit> list = context.Audits
                 .Where(a => filteredPartitions.Contains(a.DataPartition))
                 .ToList();
             return list;

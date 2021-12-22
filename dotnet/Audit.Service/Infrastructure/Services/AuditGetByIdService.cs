@@ -1,7 +1,7 @@
-﻿using Audit.Service.Lambda;
-using Audit.Service.Repositories;
+﻿using Audit.Service.Application.Lambda;
+using Audit.Service.Infrastructure.Repositories;
 
-namespace Audit.Service.Services
+namespace Audit.Service.Infrastructure.Services
 {
     /// <summary>
     /// The service used to get individual audit records.
@@ -25,7 +25,7 @@ namespace Audit.Service.Services
         /// <param name="id">The ID of the audit record.</param>
         /// <param name="wrapper">The details of the request.</param>
         /// <returns>The matching audit record, or null.</returns>
-        public Models.Audit? Get(int id, RequestWrapper wrapper)
+        public Domain.Entities.Audit? Get(int id, RequestWrapper wrapper)
         {
             var audit = context.Audits.Find(id);
             return audit != null && (audit.DataPartition == Constants.DefaultPartition ||

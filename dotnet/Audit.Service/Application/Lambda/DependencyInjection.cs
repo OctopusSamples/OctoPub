@@ -1,14 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using Audit.Service.Handler;
-using Audit.Service.Repositories;
-using Audit.Service.Services;
+using Audit.Service.Domain.Handler;
+using Audit.Service.Infrastructure.Repositories;
+using Audit.Service.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Audit.Service.Lambda
+namespace Audit.Service.Application.Lambda
 {
     /// <summary>
     ///     Manages the dependency injection context.

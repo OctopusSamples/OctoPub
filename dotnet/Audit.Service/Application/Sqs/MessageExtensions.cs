@@ -3,7 +3,7 @@ using System.Linq;
 using Amazon.Lambda.SQSEvents;
 using Amazon.SQS.Model;
 
-namespace Audit.Service.Sqs
+namespace Audit.Service.Application.Sqs
 {
     /// <summary>
     /// Provides extension methods to converting message classes.

@@ -9,7 +9,7 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.SQSEvents;
 using Microsoft.AspNetCore.Http;
 
-namespace Audit.Service.Lambda
+namespace Audit.Service.Application.Lambda
 {
     /// <summary>
     ///     This service supports access via HTTP and async messages. Regardless of the access type, all requests

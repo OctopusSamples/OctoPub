@@ -6,17 +6,17 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.Json;
 using Amazon.Lambda.SQSEvents;
-using Audit.Service.Handler;
-using Audit.Service.Interceptor;
-using Audit.Service.Repositories;
-using Audit.Service.Services;
+using Audit.Service.Domain.Handler;
+using Audit.Service.Domain.Interceptor;
+using Audit.Service.Infrastructure.Repositories;
+using Audit.Service.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 
-namespace Audit.Service.Lambda
+namespace Audit.Service.Application.Lambda
 {
     /// <summary>
     /// The entrypoint to the Audits Lambda.

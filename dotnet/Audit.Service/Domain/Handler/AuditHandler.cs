@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Amazon.Lambda.APIGatewayEvents;
-using Audit.Service.Interceptor;
-using Audit.Service.Lambda;
-using Audit.Service.Services;
+using Audit.Service.Application.Lambda;
+using Audit.Service.Domain.Interceptor;
+using Audit.Service.Infrastructure.Services;
 using JsonApiSerializer;
 using Newtonsoft.Json;
 using NLog;
 
-namespace Audit.Service.Handler
+namespace Audit.Service.Domain.Handler
 {
     /// <summary>
     ///     This class is created by the DI provider, and does the work of mapping requests to responses.
@@ -118,7 +118,7 @@ namespace Audit.Service.Handler
 
             try
             {
-                var entity = JsonConvert.DeserializeObject<Models.Audit>(
+                var entity = JsonConvert.DeserializeObject<Entities.Audit>(
                     wrapper.Entity,
                     new JsonApiSerializerSettings());
 

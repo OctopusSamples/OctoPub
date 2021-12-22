@@ -1,4 +1,4 @@
-﻿using Audit.Service.Repositories;
+﻿using Audit.Service.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

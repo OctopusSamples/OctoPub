@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Audit.Service.Controllers;
-using Audit.Service.Handler;
-using Audit.Service.Lambda;
+using Audit.Service.Application.Controllers;
+using Audit.Service.Application.Lambda;
+using Audit.Service.Domain.Handler;
 using JsonApiSerializer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -46,22 +46,22 @@ namespace Audit.Service.Tests
             controller.HttpContext.Request.Body = body;
         }
 
-        private async Task<Models.Audit> CallControllerAndGetAudit(AuditController controller)
+        private async Task<Domain.Entities.Audit> CallControllerAndGetAudit(AuditController controller)
         {
             var createResponse = await controller.Entry() as ContentResult;
             if (createResponse == null) throw new Exception();
 
-            return JsonConvert.DeserializeObject<Models.Audit>(
+            return JsonConvert.DeserializeObject<Domain.Entities.Audit>(
                 createResponse.Content,
                 new JsonApiSerializerSettings());
         }
 
-        private async Task<(List<Models.Audit>, ContentResult)> CallControllerAndGetAudits(AuditController controller)
+        private async Task<(List<Domain.Entities.Audit>, ContentResult)> CallControllerAndGetAudits(AuditController controller)
         {
             var createResponse = await controller.Entry() as ContentResult;
             if (createResponse == null) throw new Exception();
 
-            return (JsonConvert.DeserializeObject<List<Models.Audit>>(
+            return (JsonConvert.DeserializeObject<List<Domain.Entities.Audit>>(
                 createResponse.Content,
                 new JsonApiSerializerSettings()), createResponse);
         }
@@ -98,7 +98,7 @@ namespace Audit.Service.Tests
 
             // create a stream for the post request
             await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
-                new Models.Audit
+                new Domain.Entities.Audit
                 {
                     Action = "test1",
                     Object = "test2",
@@ -127,7 +127,7 @@ namespace Audit.Service.Tests
 
             // create a stream for the post request
             await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
-                new Models.Audit
+                new Domain.Entities.Audit
                 {
                     Action = "test1",
                     Object = "test2",
@@ -156,7 +156,7 @@ namespace Audit.Service.Tests
 
             // create a stream for the post request
             await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
-                new Models.Audit
+                new Domain.Entities.Audit
                 {
                     Action = "test1",
                     Object = "test2",
@@ -187,7 +187,7 @@ namespace Audit.Service.Tests
 
             // create a stream for the post request
             await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
-                new Models.Audit
+                new Domain.Entities.Audit
                 {
                     Action = "test1",
                     Object = "test2",
@@ -219,7 +219,7 @@ namespace Audit.Service.Tests
 
             // create a stream for the post request
             await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
-                new Models.Audit
+                new Domain.Entities.Audit
                 {
                     Action = "test1",
                     Object = "test2",
@@ -253,7 +253,7 @@ namespace Audit.Service.Tests
 
             // create a stream for the post request
             await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
-                new Models.Audit
+                new Domain.Entities.Audit
                 {
                     Action = "test1",
                     Object = "test2",
@@ -283,7 +283,7 @@ namespace Audit.Service.Tests
 
             // create a stream for the post request
             await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
-                new Models.Audit
+                new Domain.Entities.Audit
                 {
                     Action = "test1",
                     Object = "test2",
@@ -307,7 +307,7 @@ namespace Audit.Service.Tests
 
             // create a stream for the post request
             await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
-                new Models.Audit
+                new Domain.Entities.Audit
                 {
                     Action = "test1",
                     Object = "test2",

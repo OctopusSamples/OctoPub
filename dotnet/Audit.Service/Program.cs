@@ -1,5 +1,5 @@
 using System;
-using Audit.Service.Sqs;
+using Audit.Service.Application.Sqs;
 using CommandLine;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
