@@ -1,4 +1,4 @@
-package com.octopus.octopub.domain.services;
+package com.octopus.octopub.domain.utilities;
 
 import com.octopus.octopub.domain.Constants;
 import java.util.List;

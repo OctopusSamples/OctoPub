@@ -12,7 +12,7 @@ import com.octopus.octopub.domain.exceptions.EntityNotFound;
 import com.octopus.octopub.domain.handlers.HealthHandler;
 import com.octopus.octopub.domain.handlers.ProductsHandler;
 import com.octopus.octopub.domain.entities.Product;
-import com.octopus.octopub.domain.services.LiquidbaseUpdater;
+import com.octopus.octopub.infrastructure.utilities.LiquidbaseUpdater;
 import io.quarkus.test.junit.QuarkusTest;
 import java.sql.SQLException;
 import java.util.List;

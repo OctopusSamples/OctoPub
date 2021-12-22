@@ -2,7 +2,7 @@ package com.octopus.octopub.application.lambda;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.octopus.octopub.domain.services.LiquidbaseUpdater;
+import com.octopus.octopub.infrastructure.utilities.LiquidbaseUpdater;
 import java.sql.SQLException;
 import java.util.Map;
 import javax.inject.Inject;

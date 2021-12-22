@@ -10,7 +10,7 @@ import com.octopus.octopub.domain.entities.Audit;
 import com.octopus.octopub.domain.entities.Product;
 import com.octopus.octopub.infrastructure.repositories.AuditRepository;
 import com.octopus.octopub.infrastructure.repositories.ProductRepository;
-import com.octopus.octopub.domain.services.PartitionIdentifier;
+import com.octopus.octopub.domain.utilities.PartitionIdentifier;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;

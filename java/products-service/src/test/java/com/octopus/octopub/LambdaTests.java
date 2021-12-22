@@ -10,7 +10,7 @@ import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.application.lambda.ProductApi;
 import com.octopus.octopub.application.lambda.ProxyResponse;
 import com.octopus.octopub.domain.entities.Product;
-import com.octopus.octopub.domain.services.LiquidbaseUpdater;
+import com.octopus.octopub.infrastructure.utilities.LiquidbaseUpdater;
 import io.quarkus.test.junit.QuarkusTest;
 import java.sql.SQLException;
 import java.util.HashMap;

@@ -5,7 +5,7 @@ import static io.restassured.RestAssured.given;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.domain.entities.Product;
-import com.octopus.octopub.domain.services.LiquidbaseUpdater;
+import com.octopus.octopub.infrastructure.utilities.LiquidbaseUpdater;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;

@@ -1,4 +1,4 @@
-package com.octopus.octopub.domain.services;
+package com.octopus.octopub.infrastructure.utilities;
 
 import java.sql.Connection;
 import java.sql.SQLException;
