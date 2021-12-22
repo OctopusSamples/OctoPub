@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
-import com.octopus.octopub.exceptions.EntityNotFound;
-import com.octopus.octopub.handlers.HealthHandler;
-import com.octopus.octopub.handlers.ProductsHandler;
-import com.octopus.octopub.models.Product;
-import com.octopus.octopub.services.LiquidbaseUpdater;
+import com.octopus.octopub.domain.exceptions.EntityNotFound;
+import com.octopus.octopub.domain.handlers.HealthHandler;
+import com.octopus.octopub.domain.handlers.ProductsHandler;
+import com.octopus.octopub.domain.entities.Product;
+import com.octopus.octopub.domain.services.LiquidbaseUpdater;
 import io.quarkus.test.junit.QuarkusTest;
 import java.sql.SQLException;
 import java.util.List;

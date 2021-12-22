@@ -1,6 +1,6 @@
 package com.octopus.octopub;
 
-import com.octopus.octopub.services.PartitionIdentifier;
+import com.octopus.octopub.domain.services.PartitionIdentifier;
 import java.util.ArrayList;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
