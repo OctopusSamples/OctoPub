@@ -1075,8 +1075,8 @@ step "Deploy Lambda" {
                 			"DependsOn": [
                 				"LambdaResourceMethodOne",
                 				"LambdaResourceMethodTwo",
-                				"LambdaHealthResourceMethodOne",
-                				"LambdaHealthResourceMethodTwo"
+                				"HealthMethodOne",
+                				"HealthMethodTwo"
                 			]
                 		},
                 		"AuditsQueue": {
