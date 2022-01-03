@@ -509,7 +509,7 @@ step "Deploy Lambda" {
                 				"FunctionName": {
                 					"Fn::Sub": "${EnvironmentName}-${LambdaName}-Web"
                 				},
-                				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsApi",
+                				"Handler": "Audit.Service::Audit.Service.Application.Lambda.Audits::AuditsApi",
                 				"MemorySize": 1024,
                 				"PackageType": "Zip",
                 				"Role": {
@@ -573,7 +573,7 @@ step "Deploy Lambda" {
                 				"FunctionName": {
                 					"Fn::Sub": "${EnvironmentName}-${LambdaName}-InitDB"
                 				},
-                				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsDbMigration",
+                				"Handler": "Audit.Service::Audit.Service.Application.Lambda.Audits::AuditsDbMigration",
                 				"MemorySize": 256,
                 				"PackageType": "Zip",
                 				"Role": {
