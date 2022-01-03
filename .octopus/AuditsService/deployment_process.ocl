@@ -993,78 +993,6 @@ step "Deploy Lambda" {
                 				}
                 			}
                 		},
-                		"HealthMethodOne": {
-                			"Type": "AWS::ApiGateway::Method",
-                			"Properties": {
-                				"AuthorizationType": "NONE",
-                				"HttpMethod": "GET",
-                				"Integration": {
-                					"IntegrationHttpMethod": "POST",
-                					"TimeoutInMillis": 20000,
-                					"Type": "AWS_PROXY",
-                					"Uri": {
-                						"Fn::Join": [
-                							"",
-                						  [
-                							"arn:",
-                							{
-                							  "Ref": "AWS::Partition"
-                							},
-                							":apigateway:",
-                							{
-                							  "Ref": "AWS::Region"
-                							},
-                							":lambda:path/2015-03-31/functions/",
-                							{"Fn::GetAtt": ["ProxyLambda", "Arn"]},
-                							"/invocations"
-                						  ]
-                						]
-                					}
-                				},
-                				"ResourceId": {
-                					"Ref": "HealthResource"
-                				},
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				}
-                			}
-                		},
-                		"HealthMethodTwo": {
-                			"Type": "AWS::ApiGateway::Method",
-                			"Properties": {
-                				"AuthorizationType": "NONE",
-                				"HttpMethod": "GET",
-                				"Integration": {
-                					"IntegrationHttpMethod": "POST",
-                					"TimeoutInMillis": 20000,
-                					"Type": "AWS_PROXY",
-                					"Uri": {
-                						"Fn::Join": [
-                							"",
-                						  [
-                							"arn:",
-                							{
-                							  "Ref": "AWS::Partition"
-                							},
-                							":apigateway:",
-                							{
-                							  "Ref": "AWS::Region"
-                							},
-                							":lambda:path/2015-03-31/functions/",
-                							{"Fn::GetAtt": ["ProxyLambda", "Arn"]},
-                							"/invocations"
-                						  ]
-                						]
-                					}
-                				},
-                				"ResourceId": {
-                					"Ref": "HealthProxyResource"
-                				},
-                				"RestApiId": {
-                					"Ref": "RestApi"
-                				}
-                			}
-                		},
                 		"Deployment#{DeploymentId}": {
                 			"Type": "AWS::ApiGateway::Deployment",
                 			"Properties": {
@@ -1074,9 +1002,7 @@ step "Deploy Lambda" {
                 			},
                 			"DependsOn": [
                 				"LambdaResourceMethodOne",
-                				"LambdaResourceMethodTwo",
-                				"HealthMethodOne",
-                				"HealthMethodTwo"
+                				"LambdaResourceMethodTwo"
                 			]
                 		},
                 		"AuditsQueue": {
