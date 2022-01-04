@@ -130,7 +130,7 @@ step "Deploy Feature Branch Lambda" {
         action_type = "Octopus.AwsRunCloudFormation"
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ProductBranchService}"
+            Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ProductService}"
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
                   "Parameters" : {
