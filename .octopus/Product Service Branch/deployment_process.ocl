@@ -19,7 +19,7 @@ step "Get Stack Outputs" {
                 
                 SUBNET_B=$(aws cloudformation \
                 	describe-stacks \
-                    --stack-name "#{CloudFormation.ProductService}" \
+                    --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='SubnetBId'].OutputValue" \
                     --output text)
                     
@@ -27,7 +27,7 @@ step "Get Stack Outputs" {
                 
                 SUBNET_C=$(aws cloudformation \
                 	describe-stacks \
-                    --stack-name "#{CloudFormation.ProductService}" \
+                    --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='SubnetCId'].OutputValue" \
                     --output text)
                     
@@ -35,7 +35,7 @@ step "Get Stack Outputs" {
                 
                 INSTANCE_SECURITY_GROUP=$(aws cloudformation \
                 	describe-stacks \
-                    --stack-name "#{CloudFormation.ProductService}" \
+                    --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='InstanceSecurityGroup'].OutputValue" \
                     --output text)
                     
@@ -43,7 +43,7 @@ step "Get Stack Outputs" {
                 
                 BUCKET=$(aws cloudformation \
                 	describe-stacks \
-                    --stack-name "#{CloudFormation.ProductsBucket}" \
+                    --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='LambdaS3Bucket'].OutputValue" \
                     --output text)
                     
@@ -51,7 +51,7 @@ step "Get Stack Outputs" {
                 
                 DATABASE_ADDRESS=$(aws cloudformation \
                 	describe-stacks \
-                    --stack-name "#{CloudFormation.ProductService}" \
+                    --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='DatbaseAddress'].OutputValue" \
                     --output text)
                     
@@ -59,7 +59,7 @@ step "Get Stack Outputs" {
                 
                 DATABASE_PORT=$(aws cloudformation \
                 	describe-stacks \
-                    --stack-name "#{CloudFormation.ProductService}" \
+                    --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='DatbasePort'].OutputValue" \
                     --output text)
                     
