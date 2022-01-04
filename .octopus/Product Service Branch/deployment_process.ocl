@@ -47,7 +47,7 @@ step "Get Stack Outputs" {
                 
                 BUCKET=$(aws cloudformation \
                 	describe-stacks \
-                    --stack-name "#{CloudFormation.ProductMainService}" \
+                    --stack-name "#{CloudFormation.ProductsBucket}" \
                     --query "Stacks[0].Outputs[?OutputKey=='LambdaS3Bucket'].OutputValue" \
                     --output text)
                     
