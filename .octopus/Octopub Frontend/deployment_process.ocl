@@ -115,7 +115,7 @@ step "Get Stack Outputs" {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.RunOnServer = "true"
             Octopus.Action.Script.ScriptBody = <<-EOT
                 WEB_RESOURCE_ID=$(aws cloudformation \
@@ -391,7 +391,7 @@ step "Proxy with API Gateway" {
             Octopus.Action.Aws.TemplateSource = "Inline"
             Octopus.Action.Aws.WaitForCompletion = "True"
             Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.RunOnServer = "true"
         }
         worker_pool_variable = "WorkerPool"
@@ -465,7 +465,7 @@ step "Update Stage" {
             Octopus.Action.Aws.TemplateSource = "Inline"
             Octopus.Action.Aws.WaitForCompletion = "True"
             Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.RunOnServer = "true"
         }
         worker_pool_variable = "WorkerPool"
@@ -481,7 +481,7 @@ step "Get Stage URL" {
             Octopus.Action.Aws.AssumeRole = "False"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
             Octopus.Action.AwsAccount.UseInstanceRole = "False"
-            Octopus.Action.AwsAccount.Variable = "AWS"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
             Octopus.Action.RunOnServer = "true"
             Octopus.Action.Script.ScriptBody = <<-EOT
                 STARGE_URL=$(aws cloudformation \
