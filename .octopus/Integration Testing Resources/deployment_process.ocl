@@ -1,0 +1,245 @@
+step "Create Bucket" {
+
+    action {
+        action_type = "Octopus.AwsRunCloudFormation"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.CloudFormationStackName = "hello-world-lambda-bucket"
+            Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
+                {
+                  "Resources": {
+                    "LambdaS3Bucket": {
+                      "Type": "AWS::S3::Bucket"
+                    }
+                  },
+                  "Outputs" : {
+                    "LambdaS3Bucket" : {
+                      "Description" : "The S3 Bucket",
+                      "Value" : {"Ref": "LambdaS3Bucket"}
+                    }
+                  }
+                }
+            EOT
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[]"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.Aws.TemplateSource = "Inline"
+            Octopus.Action.Aws.WaitForCompletion = "True"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.RunOnServer = "true"
+        }
+        worker_pool_variable = "WorkerPool"
+    }
+}
+
+step "Upload Lambda" {
+
+    action {
+        action_type = "Octopus.AwsUploadS3"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.Aws.S3.BucketName = "#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}"
+            Octopus.Action.Aws.S3.PackageOptions = "{\"bucketKey\":\"\",\"bucketKeyBehaviour\":\"Filename\",\"bucketKeyPrefix\":\"\",\"storageClass\":\"STANDARD\",\"cannedAcl\":\"private\",\"metadata\":[],\"tags\":[]}"
+            Octopus.Action.Aws.S3.TargetMode = "EntirePackage"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.Package.DownloadOnTentacle = "False"
+            Octopus.Action.Package.FeedId = "Octopub"
+            Octopus.Action.Package.PackageId = "com.octopus.octopub:hello-world"
+            Octopus.Action.RunOnServer = "true"
+        }
+        worker_pool_variable = "WorkerPool"
+
+        packages {
+            acquisition_location = "Server"
+            feed = "Octopub"
+            package_id = "com.octopus.octopub:hello-world"
+            properties = {
+                SelectionMode = "immediate"
+            }
+        }
+    }
+}
+
+step "Deploy Lambda" {
+
+    action {
+        action_type = "Octopus.AwsRunCloudFormation"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.CloudFormationStackName = "hello-world-lambda"
+            Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
+                {
+                  "Parameters" : { 
+                    "EnvironmentName" : {
+                      "Type" : "String",
+                      "Default" : "#{Octopus.Environment.Name}"
+                    },
+                    "LambdaS3Key" : {
+                      "Type" : "String"
+                    },   
+                    "LambdaS3Bucket": {
+                      "Type": "String"
+                    },
+                    "LambdaName": {
+                      "Type": "String"
+                    },
+                    "LambdaDescription": {
+                     	"Type": "String" 
+                    }
+                  },
+                  "Resources": {   
+                    "IamRoleHelloWorldLambdaExecution": {
+                      "Type": "AWS::IAM::Role",
+                      "Properties": {
+                        "AssumeRolePolicyDocument": {
+                          "Version": "2012-10-17",
+                          "Statement": [
+                            {
+                              "Effect": "Allow",
+                              "Principal": {
+                                "Service": [
+                                  "lambda.amazonaws.com"
+                                ]
+                              },
+                              "Action": [
+                                "sts:AssumeRole"
+                              ]
+                            }
+                          ]
+                        },
+                        "Policies": [
+                          {
+                            "PolicyName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-policy" },
+                            "PolicyDocument": {
+                              "Version": "2012-10-17",
+                              "Statement": [
+                                {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                    "logs:CreateLogStream",
+                                    "logs:CreateLogGroup",
+                                    "logs:PutLogEvents"
+                                  ],
+                                  "Resource": [
+                                    {
+                                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${EnvironmentName}-${LambdaName}*:*"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "Path": "/",
+                        "RoleName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}-role" }
+                      }
+                    },
+                    "HelloWorldLambda": {
+                      "Type": "AWS::Lambda::Function",
+                      "Properties": {
+                        "Code": {
+                          "S3Bucket": {"Ref": "LambdaS3Bucket"},
+                          "S3Key": {"Ref": "LambdaS3Key"}   
+                        },        
+                        "Description" : {"Fn::Sub": "${LambdaDescription}"},
+                        "FunctionName": { "Fn::Sub": "${EnvironmentName}-${LambdaName}" },
+                        "Handler": "main",
+                        "MemorySize": 128,
+                        "PackageType": "Zip",
+                        "Role": {
+                          "Fn::GetAtt": [
+                            "IamRoleHelloWorldLambdaExecution",
+                            "Arn"
+                          ]
+                        },
+                        "Runtime": "go1.x",
+                        "Timeout": 30
+                      }
+                    }
+                  },
+                  "Outputs" : {
+                    
+                  }
+                }
+            EOT
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"hello-world\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"Basic lambda used for integration testing\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"},{\"ParameterKey\":\"LambdaS3Key\",\"ParameterValue\":\"#{Octopus.Action[Upload Lambda].Package[].PackageId}.#{Octopus.Action[Upload Lambda].Package[].PackageVersion}.zip\"},{\"ParameterKey\":\"LambdaS3Bucket\",\"ParameterValue\":\"#{Octopus.Action[Create Bucket].Output.AwsOutputs[LambdaS3Bucket]}\"},{\"ParameterKey\":\"LambdaName\",\"ParameterValue\":\"hello-world\"},{\"ParameterKey\":\"LambdaDescription\",\"ParameterValue\":\"Basic lambda used for integration testing\"}]"
+            Octopus.Action.Aws.IamCapabilities = "[\"CAPABILITY_NAMED_IAM\"]"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.Aws.TemplateSource = "Inline"
+            Octopus.Action.Aws.WaitForCompletion = "True"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.RunOnServer = "true"
+        }
+        worker_pool_variable = "WorkerPool"
+    }
+}
+
+step "Create SQS Queue" {
+
+    action {
+        action_type = "Octopus.AwsRunCloudFormation"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.CloudFormationStackName = "hello-world-sqs"
+            Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
+                {
+                	"Parameters": {
+                		"EnvironmentName": {
+                			"Type": "String",
+                			"Default": "#{Octopus.Environment.Name}"
+                		}
+                	},
+                	"Resources": {		
+                		"AuditsQueue": {
+                			"Type": "AWS::SQS::Queue",
+                			"Properties": {
+                				"QueueName": {
+                					"Fn::Join": ["", [
+                					{
+                						"Ref": "EnvironmentName"
+                					},
+                					"-integrationtest"
+                                  ]]
+                				}
+                			}
+                		}
+                	},
+                	"Outputs": {		
+                		"AduitsQueue": {
+                			"Description": "Url of the audits queue",
+                			"Value": {
+                				"Ref": "AuditsQueue"
+                			}
+                		},
+                		"AduitsQueueArn": {
+                			"Description": "Arn of the audits queue",
+                			"Value": {
+                				"Fn::GetAtt": ["AuditsQueue", "Arn"]
+                			}
+                		},
+                		"AduitsQueueName": {
+                			"Description": "Name of the audits queue",
+                			"Value": {
+                				"Fn::GetAtt": ["AuditsQueue", "QueueName"]
+                			}
+                		}
+                	}
+                }
+            EOT
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"}]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[{\"ParameterKey\":\"EnvironmentName\",\"ParameterValue\":\"#{Octopus.Environment.Name}\"}]"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.Aws.TemplateSource = "Inline"
+            Octopus.Action.Aws.WaitForCompletion = "True"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+            Octopus.Action.RunOnServer = "true"
+        }
+        worker_pool_variable = "WorkerPool"
+    }
+}
