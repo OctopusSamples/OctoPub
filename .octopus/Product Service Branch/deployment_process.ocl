@@ -14,7 +14,8 @@ step "Get Stack Outputs" {
                     --stack-name "#{CloudFormation.ApiGateway}" \
                     --query "Stacks[0].Outputs[?OutputKey=='RestApi'].OutputValue" \
                     --output text)
-                    
+                
+                echo "RestApi: ${REST_API}"
                 set_octopusvariable "RestApi" ${REST_API}
                 
                 SUBNET_B=$(aws cloudformation \
@@ -22,7 +23,8 @@ step "Get Stack Outputs" {
                     --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='SubnetBId'].OutputValue" \
                     --output text)
-                    
+                
+                echo "SubnetB: ${SUBNET_B}"
                 set_octopusvariable "SubnetB" ${SUBNET_B}
                 
                 SUBNET_C=$(aws cloudformation \
@@ -30,7 +32,8 @@ step "Get Stack Outputs" {
                     --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='SubnetCId'].OutputValue" \
                     --output text)
-                    
+                
+                echo "SubnetC: ${SUBNET_C}"
                 set_octopusvariable "SubnetC" ${SUBNET_C}
                 
                 INSTANCE_SECURITY_GROUP=$(aws cloudformation \
@@ -38,7 +41,8 @@ step "Get Stack Outputs" {
                     --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='InstanceSecurityGroup'].OutputValue" \
                     --output text)
-                    
+                
+                echo "InstanceSecurityGroup: ${INSTANCE_SECURITY_GROUP}"
                 set_octopusvariable "InstanceSecurityGroup" ${INSTANCE_SECURITY_GROUP}
                 
                 BUCKET=$(aws cloudformation \
@@ -47,6 +51,7 @@ step "Get Stack Outputs" {
                     --query "Stacks[0].Outputs[?OutputKey=='LambdaS3Bucket'].OutputValue" \
                     --output text)
                     
+                echo "LambdaS3Bucket: ${BUCKET}"
                 set_octopusvariable "LambdaS3Bucket" ${BUCKET}
                 
                 DATABASE_ADDRESS=$(aws cloudformation \
@@ -54,7 +59,8 @@ step "Get Stack Outputs" {
                     --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='DatbaseAddress'].OutputValue" \
                     --output text)
-                    
+                
+                echo "DatbaseAddress: ${DATABASE_ADDRESS}"
                 set_octopusvariable "DatbaseAddress" ${DATABASE_ADDRESS}
                 
                 DATABASE_PORT=$(aws cloudformation \
@@ -62,7 +68,8 @@ step "Get Stack Outputs" {
                     --stack-name "#{CloudFormation.ProductMainService}" \
                     --query "Stacks[0].Outputs[?OutputKey=='DatbasePort'].OutputValue" \
                     --output text)
-                    
+                
+                echo "DatbasePort: ${DATABASE_PORT}"
                 set_octopusvariable "DatbasePort" ${DATABASE_PORT}
                 
                 
