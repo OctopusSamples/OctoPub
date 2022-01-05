@@ -128,18 +128,6 @@ runs:
       shell: bash
       working-directory: java/products-service
 
-    - name: Generate Octopus Deploy build information
-      uses: xo-energy/action-octopus-build-information@v1.1.2
-      with:
-        octopus_api_key: ${{ inputs.octopus_api_token }}
-        octopus_project: Products Service
-        octopus_server: ${{ inputs.octopus_server_url }}
-        push_version: 0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
-        push_package_ids: com.octopus.octopub:products-service
-        push_overwrite_mode: OverwriteExisting
-        output_path: octopus
-        octopus_space: "Octopub"
-
     - name: Trigger deployment
       if: ${{ env.BRANCH_NAME == 'master' }}
       run: >
