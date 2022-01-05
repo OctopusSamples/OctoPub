@@ -1,4 +1,0 @@
-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
-
-printf "protocol=https\nhost=github.com\nusername=mcasperson" | \
-  /usr/libexec/git-core/git-credential-libsecret erase
