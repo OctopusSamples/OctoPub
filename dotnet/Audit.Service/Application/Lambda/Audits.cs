@@ -39,6 +39,12 @@ namespace Audit.Service.Application.Lambda
         {
             try
             {
+                /*
+                 * This migration may be run directly after the database infrastructure has been
+                 * created. CloudFormation can return before the database can be accessed though,
+                 * so the migration logic reties indefinitely until it completes or the Lambda
+                 * times out.
+                 */
                 var policy = Policy
                     .Handle<Exception>()
                     .RetryForever();
