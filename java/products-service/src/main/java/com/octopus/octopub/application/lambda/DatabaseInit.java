@@ -21,6 +21,12 @@ public class DatabaseInit implements RequestHandler<Map<String, Object>, ProxyRe
   public ProxyResponse handleRequest(
       final Map<String, Object> stringObjectMap, final Context context) {
 
+    /*
+      This migration can be run directly after the database infrastructure
+      is created. CloudFormation can return before the database can be
+      accessed though, so this logic repeats forever until the migration
+      succeeds or the Lambda times out.
+     */
     try {
       liquidbaseUpdater.update();
       return new ProxyResponse("200", "ok");
