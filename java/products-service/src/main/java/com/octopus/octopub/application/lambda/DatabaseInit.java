@@ -25,7 +25,7 @@ public class DatabaseInit implements RequestHandler<Map<String, Object>, ProxyRe
       liquidbaseUpdater.update();
       return new ProxyResponse("200", "ok");
     } catch (final LiquibaseException | SQLException ex) {
-      return new ProxyResponse("500", ex.toString());
+      return handleRequest(stringObjectMap, context);
     }
   }
 }
