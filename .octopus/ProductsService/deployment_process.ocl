@@ -450,7 +450,7 @@ step "Deploy Lambda" {
                           ]
                         },
                         "Runtime": "provided",
-                        "Timeout": 30,
+                        "Timeout": 900,
                         "VpcConfig": {
                         	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
                 			"SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
