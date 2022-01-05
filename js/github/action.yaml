@@ -124,6 +124,7 @@ runs:
         push_overwrite_mode: OverwriteExisting
         output_path: octopus
         octopus_space: "Octopub"
+        octopus_environment: "Development"
 
     - name: Trigger deployment Frontend
       if: ${{ env.BRANCH_NAME == 'master' }}
