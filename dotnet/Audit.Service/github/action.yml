@@ -166,6 +166,7 @@ runs:
         push_package_ids: com.octopus.octopub:audits-service
         push_overwrite_mode: OverwriteExisting
         output_path: octopus
+        octopus_space: "Octopub"
 
     - name: Trigger deployment
       if: ${{ env.BRANCH_NAME == 'master' }}
