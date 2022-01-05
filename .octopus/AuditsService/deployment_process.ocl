@@ -583,7 +583,7 @@ step "Deploy Lambda" {
                 					]
                 				},
                 				"Runtime": "dotnetcore3.1",
-                				"Timeout": 30,
+                				"Timeout": 900,
                 				"VpcConfig": {
                 					"SecurityGroupIds": [{
                 						"Ref": "InstanceSecurityGroup"
