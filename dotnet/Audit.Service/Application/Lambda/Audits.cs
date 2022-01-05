@@ -41,7 +41,7 @@ namespace Audit.Service.Application.Lambda
             {
                 var policy = Policy
                     .Handle<Exception>()
-                    .Retry(5);
+                    .RetryForever();
                 var serviceProvider = DependencyInjection.ConfigureServices();
                 var responseBuilder = serviceProvider.GetRequiredService<IResponseBuilder>();
 
