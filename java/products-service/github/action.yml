@@ -174,7 +174,7 @@ runs:
     - name: Trigger deployment to security
       if: ${{ env.BRANCH_NAME == 'master' }}
       run: >
-        octo create-release
+        octo deploy-release
         --project "Products Service"
         --deployTo "Development (Security)"
         --waitForDeployment
