@@ -102,7 +102,7 @@ runs:
         -Dfile=octopub-frontend.0.1.0.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend
-        -Dversion=0.0.1.${{ github.run_number }}
+        -Dversion=0.1.${{ github.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
         -Dpackaging=zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
@@ -113,7 +113,7 @@ runs:
         -Dfile=octopub-frontend-sbom.0.1.0.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend-sbom
-        -Dversion=0.0.1.${{ github.run_number }}
+        -Dversion=0.1.${{ github.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
         -Dpackaging=zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
@@ -154,6 +154,19 @@ runs:
         octo create-release
         --project "Octopub Frontend"
         --deployTo "Development"
+        --waitForDeployment
+        --server ${{ inputs.octopus_server_url }}
+        --apiKey ${{ inputs.octopus_api_token }}
+        --space "Octopub"
+        --gitRef master
+      shell: bash
+
+    - name: Trigger deployment to security
+      if: ${{ env.BRANCH_NAME == 'master' }}
+      run: >
+        octo deploy-release
+        --project "Octopub Frontend"
+        --deployTo "Development (Security)"
         --waitForDeployment
         --server ${{ inputs.octopus_server_url }}
         --apiKey ${{ inputs.octopus_api_token }}
