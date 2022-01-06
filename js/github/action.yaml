@@ -75,6 +75,28 @@ runs:
       shell: bash
       working-directory: js
 
+    - name: List Dependencies
+      run: yarn list --all > dependencies.txt
+      shell: bash
+      working-directory: js
+
+    - name: Collect Dependencies
+      uses: actions/upload-artifact@v2
+      with:
+        name: Dependencies
+        path: js/dependencies.txt
+
+    - name: List Dependency Updates
+      run: yarn outdated > dependencyUpdates.txt || true
+      shell: bash
+      working-directory: js
+
+    - name: Collect Dependency Updates
+      uses: actions/upload-artifact@v2
+      with:
+        name: Dependencies Updates
+        path: js/dependencyUpdates.txt
+
     - run: >
         mvn deploy:deploy-file
         -Dfile=octopub-frontend.0.1.0.${{ inputs.run_number }}.zip
