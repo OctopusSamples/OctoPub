@@ -171,7 +171,7 @@ runs:
         --gitRef master
       shell: bash
 
-    - name: Trigger deployment
+    - name: Trigger deployment to security
       if: ${{ env.BRANCH_NAME == 'master' }}
       run: >
         octo create-release
