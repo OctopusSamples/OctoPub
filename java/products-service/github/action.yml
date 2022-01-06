@@ -66,10 +66,27 @@ runs:
       shell: bash
       working-directory: java/products-service
 
-    - name: List dependencies
-      run: mvn --batch-mode dependency:tree --no-transfer-progress
+    - name: List Dependencies
+      run: ./mvnw --batch-mode dependency:tree --no-transfer-progress > dependencies.txt
       shell: bash
       working-directory: java/products-service
+
+    - name: Collect Dependencies
+      uses: actions/upload-artifact@v2
+      with:
+        name: Dependencies
+        path: java/products-service/dependencies.txt
+
+    - name: List Dependency Updates
+      run: ./mvnw --batch-mode versions:display-dependency-updates > dependencyUpdates.txt
+      shell: bash
+      working-directory: java/products-service
+
+    - name: Collect Dependency Updates
+      uses: actions/upload-artifact@v2
+      with:
+        name: Dependencies Updates
+        path: java/products-service/dependencyUpdates.txt
 
     - name: Build with Maven
       run: ./mvnw --batch-mode package --file pom.xml -Pnative -DskipTests -Dquarkus.profile=prod
