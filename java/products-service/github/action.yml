@@ -171,6 +171,19 @@ runs:
         --gitRef master
       shell: bash
 
+    - name: Trigger deployment
+      if: ${{ env.BRANCH_NAME == 'master' }}
+      run: >
+        octo create-release
+        --project "Products Service"
+        --deployTo "Development (Security)"
+        --waitForDeployment
+        --server ${{ inputs.octopus_server_url }}
+        --apiKey ${{ inputs.octopus_api_token }}
+        --space "Octopub"
+        --gitRef master
+      shell: bash
+
     - name: Trigger branch deployment
       if: ${{ env.BRANCH_NAME != 'master' }}
       run: >
