@@ -625,7 +625,8 @@ step "Deploy Lambda" {
                 								";password=",
                 								{
                 								  "Ref": "DBPassword"
-                								}
+                								},
+                                                "Connection Timeout=10"
                 							  ]
                 							]
                 						  }
