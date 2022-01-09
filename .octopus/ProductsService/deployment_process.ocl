@@ -1255,7 +1255,7 @@ step "Check for vulnerabilities" {
                 cd products-service-sbom
                 SUCCESS=0
                 for x in **/bom.xml; do 
-                	docker run --rm -v "$PWD:/app" appthreat/dep-scan scan --bom "/app/$x" --type bom 2>&1
+                	docker run --rm -v "$PWD:/app" appthreat/dep-scan scan --bom "/app/$x" --type bom 2>&1 | sed 's/\x1b\[[0-9;]*m//g'
                     if [[ $? -ne 0 ]]; then
                     	SUCCESS=1
                     fi
