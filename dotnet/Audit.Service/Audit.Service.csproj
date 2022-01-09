@@ -15,7 +15,7 @@
         <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.4.0" />
         <PackageReference Include="Amazon.Lambda.Core" Version="2.1.0" />
         <PackageReference Include="Amazon.Lambda.Serialization.Json" Version="2.0.0" />
-        <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.0.0" />
+        <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.1.0" />
         <PackageReference Include="AWSSDK.SQS" Version="3.7.2.4" />
         <PackageReference Include="CommandLineParser" Version="2.8.0" />
         <PackageReference Include="EntityFramework" Version="6.4.4" />
