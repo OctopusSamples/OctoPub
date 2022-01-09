@@ -183,6 +183,19 @@ runs:
         --space "Octopub"
         --gitRef master
       shell: bash
+      
+    - name: Trigger deployment to security
+      if: ${{ env.BRANCH_NAME == 'master' }}
+      run: >
+        octo deploy-release
+        --project "Audits Service"
+        --deployTo "Development (Security)"
+        --waitForDeployment
+        --server ${{ inputs.octopus_server_url }}
+        --apiKey ${{ inputs.octopus_api_token }}
+        --space "Octopub"
+        --version=latest
+      shell: bash
 
     - name: Trigger branch deployment
       if: ${{ env.BRANCH_NAME != 'master' }}
