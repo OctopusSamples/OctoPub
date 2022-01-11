@@ -671,10 +671,11 @@ step "Check for vulnerabilities" {
                 cd octopub-frontend-sbom
                 SUCCESS=0
                 for x in **/bom.xml; do 
-                	docker run --rm -v "$PWD:/app" appthreat/dep-scan scan --bom "/app/$x" --type bom 2>&1 | sed 's/\x1b\[[0-9;]*m//g'
+                	OUTPUT=$(bash -c "docker run --rm -v \"$PWD:/app\" appthreat/dep-scan scan --bom \"/app/$x\" --type bom; exit \$?" 2>&1)
                     if [[ $? -ne 0 ]]; then
                     	SUCCESS=1
                     fi
+                    echo -e "${OUTPUT}" | sed 's/\x1b\[[0-9;]*m//g'
                 done
                 
                 set_octopusvariable "VerificationResult" $SUCCESS
