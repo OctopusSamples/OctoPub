@@ -19,4 +19,4 @@ spec:
           image: com.octopus.octopub:audits-service
           ports:
             - name: web
-              containerPort: 8083
+              containerPort: 9080
