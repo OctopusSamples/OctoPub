@@ -4,6 +4,7 @@ on:
   push:
       paths:
       - 'dotnet/Audit.Service/**'
+      - '!dotnet/Audit.Service/k8s/**'
   workflow_dispatch:
 
 jobs:
