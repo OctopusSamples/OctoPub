@@ -1,0 +1,24 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audits-service
+  labels:
+    app: web
+spec:
+  selector:
+    matchLabels:
+      app: audits-service
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: audits-service
+    spec:
+      containers:
+        - name: randomquotes
+          image: com.octopus.octopub:audits-service
+          ports:
+            - name: web
+              containerPort: 8083

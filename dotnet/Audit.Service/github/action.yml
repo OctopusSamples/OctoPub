@@ -158,6 +158,16 @@ runs:
       shell: bash
       working-directory: dotnet/Audit.Service
 
+    # Update the deployment.yaml file to trigger a GitOps deployment
+    - name: Update values.yaml
+      uses: fjogeleit/yaml-update-action@master
+      with:
+        valueFile: 'dotnet/Audit.Service/k8s/deployment.yaml'
+        propertyPath: 'spec.template.spec.containers.0.image'
+        value: "octopussamples/octopub-audits:latest octopussamples/octopub-audits:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}"
+        message: "Updated image reference"
+        createPR: false
+
     - name: Generate Octopus Deploy build information
       uses: xo-energy/action-octopus-build-information@v1.1.2
       with:
@@ -183,7 +193,7 @@ runs:
         --space "Octopub"
         --gitRef master
       shell: bash
-      
+
     - name: Trigger deployment to security
       if: ${{ env.BRANCH_NAME == 'master' }}
       run: >
