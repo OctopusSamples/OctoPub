@@ -132,8 +132,20 @@ runs:
           --buildpack paketo-community/staticfile \
           --buildpack gcr.io/paketo-buildpacks/environment-variables
         docker push octopussamples/octopub-frontend
+        docker tag octopussamples/octopub-frontend:latest octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        docker push octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
       shell: bash
       working-directory: js
+      
+    # Update the deployment.yaml file to trigger a GitOps deployment
+    - name: Update values.yaml
+      uses: fjogeleit/yaml-update-action@master
+      with:
+        valueFile: 'java/products-service/k8s/deployment.yaml'
+        propertyPath: 'spec.template.spec.containers.0.image'
+        value: "octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}"
+        message: "Updated image reference"
+        createPR: false
 
     - name: Generate Octopus Deploy build information
       uses: xo-energy/action-octopus-build-information@v1.1.2

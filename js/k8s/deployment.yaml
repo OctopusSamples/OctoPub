@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    matchLabels:
+      app: frontend-service
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: frontend-service
+    spec:
+      containers:
+        - name: randomquotes
+          image: octopussamples/octopub-frontend
+          ports:
+            - name: web
+              containerPort: 7080
