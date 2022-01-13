@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: octopus-deployment
+  labels:
+    app: web
+spec:
+  selector:
+    matchLabels:
+      app: product-service
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+        - name: randomquotes
+          image: octopussamples/octopub-products
+          ports:
+            - name: web
+              containerPort: 8083
