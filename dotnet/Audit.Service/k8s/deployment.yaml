@@ -1,7 +1,9 @@
-﻿apiVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: audits-service
+  labels:
+    app: web
 spec:
   selector:
     matchLabels:
@@ -16,7 +18,7 @@ spec:
     spec:
       containers:
         - name: randomquotes
-          image: com.octopus.octopub:audits-service
+          image: octopussamples/octopub-audits:latest octopussamples/octopub-audits:0.1.214
           ports:
             - name: web
               containerPort: 9080
