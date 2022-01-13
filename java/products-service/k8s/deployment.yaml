@@ -1,7 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-service
+  name: octopus-deployment
+  labels:
+    app: web
 spec:
   selector:
     matchLabels:
@@ -16,7 +18,7 @@ spec:
     spec:
       containers:
         - name: randomquotes
-          image: octopussamples/octopub-products:0.1.252
+          image: octopussamples/octopub-products:0.1.253
           ports:
             - name: web
               containerPort: 8083
