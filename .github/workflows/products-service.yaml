@@ -4,6 +4,7 @@ on:
   push:
       paths:
       - 'java/products-service/**'
+      - '!java/products-service/k8s/**'
   workflow_dispatch:
 
 jobs:
