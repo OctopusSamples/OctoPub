@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: randomquotes
-          image: octopussamples/octopub-products
+          image: octopussamples/octopub-products:0.1.252
           ports:
             - name: web
               containerPort: 8083
