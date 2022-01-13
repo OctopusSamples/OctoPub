@@ -1,9 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: octopus-deployment
-  labels:
-    app: web
+  name: product-service
 spec:
   selector:
     matchLabels:

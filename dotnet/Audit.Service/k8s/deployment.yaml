@@ -2,8 +2,6 @@
 kind: Deployment
 metadata:
   name: audits-service
-  labels:
-    app: web
 spec:
   selector:
     matchLabels:
