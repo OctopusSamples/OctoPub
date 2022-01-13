@@ -450,7 +450,7 @@ step "Deploy Lambda" {
                           ]
                         },
                         "Runtime": "provided",
-                        "Timeout": 30,
+                        "Timeout": 900,
                         "VpcConfig": {
                         	"SecurityGroupIds" : [ {"Ref": "InstanceSecurityGroup"} ],
                 			"SubnetIds" : [ {"Ref": "SubnetB"}, {"Ref": "SubnetC"} ]
@@ -1255,10 +1255,11 @@ step "Check for vulnerabilities" {
                 cd products-service-sbom
                 SUCCESS=0
                 for x in **/bom.xml; do 
-                	docker run --rm -v "$PWD:/app" appthreat/dep-scan scan --bom "/app/$x" --type bom 2>&1
+                	OUTPUT=$(bash -c "docker run --rm -v \"$PWD:/app\" appthreat/dep-scan scan --bom \"/app/$x\" --type bom; exit \$?" 2>&1)
                     if [[ $? -ne 0 ]]; then
                     	SUCCESS=1
                     fi
+                    echo -e "${OUTPUT}" | sed 's/\x1b\[[0-9;]*m//g'
                 done
                 
                 set_octopusvariable "VerificationResult" $SUCCESS
@@ -1280,28 +1281,5 @@ step "Check for vulnerabilities" {
                 SelectionMode = "immediate"
             }
         }
-    }
-}
-
-step "Send Notification" {
-    condition = "Variable"
-    properties = {
-        Octopus.Step.ConditionVariableExpression = "#{if Octopus.Action[Check for vulnerabilities].Output.VerificationResult != \"0\"}True#{/if}"
-    }
-
-    action {
-        environments = ["Development (Security)", "Production (Security)"]
-        properties = {
-            Octopus.Action.RunOnServer = "true"
-            Octopus.Action.Template.Id = "ActionTemplates-441"
-            Octopus.Action.Template.Version = "1"
-            ssn_Color = "danger"
-            ssn_HookUrl = "#{Slack.Hook}"
-            ssn_IconUrl = "https://octopus.com/content/resources/favicon.png"
-            ssn_Message = "Open #{Octopus.Web.ServerUri}#{Octopus.Web.DeploymentLink} to review the logs."
-            ssn_Title = "Vulnerabilities found in Products Service"
-            ssn_Username = "Octopus Deploy"
-        }
-        worker_pool_variable = "WorkerPool"
     }
 }

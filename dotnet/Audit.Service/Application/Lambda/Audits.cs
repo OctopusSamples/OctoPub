@@ -14,6 +14,7 @@ using Audit.Service.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
+using Polly;
 
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 
@@ -38,17 +39,29 @@ namespace Audit.Service.Application.Lambda
         {
             try
             {
+                /*
+                 * This migration may be run directly after the database infrastructure has been
+                 * created. CloudFormation can return before the database can be accessed though,
+                 * so the migration logic reties indefinitely until it completes or the Lambda
+                 * times out.
+                 */
+                var policy = Policy
+                    .Handle<Exception>()
+                    .RetryForever();
                 var serviceProvider = DependencyInjection.ConfigureServices();
                 var responseBuilder = serviceProvider.GetRequiredService<IResponseBuilder>();
 
                 try
                 {
-                    var db = serviceProvider.GetRequiredService<Db>();
-                    db.Database.Migrate();
-                    return new APIGatewayProxyResponse
+                    return policy.Execute(() =>
                     {
-                        StatusCode = 201
-                    };
+                        var db = serviceProvider.GetRequiredService<Db>();
+                        db.Database.Migrate();
+                        return new APIGatewayProxyResponse
+                        {
+                            StatusCode = 201
+                        };
+                    });
                 }
                 catch (Exception ex)
                 {

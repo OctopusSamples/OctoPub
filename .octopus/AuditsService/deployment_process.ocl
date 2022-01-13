@@ -113,7 +113,7 @@ step "Get Stack Outputs" {
                     --stack-name #{CloudFormation.ApiGateway} \
                     --query "Stacks[0].Outputs[?OutputKey=='Api'].OutputValue" \
                     --output text)
-                    
+                echo "Api: ${PIPELINE_RESOURCE_ID}"
                 set_octopusvariable "Api" ${PIPELINE_RESOURCE_ID}
                 
                 PIPELINE_HEALTH_RESOURCE_ID=$(aws cloudformation \
@@ -121,7 +121,7 @@ step "Get Stack Outputs" {
                     --stack-name #{CloudFormation.ApiGateway} \
                     --query "Stacks[0].Outputs[?OutputKey=='Health'].OutputValue" \
                     --output text)
-                    
+                echo "Health: ${PIPELINE_HEALTH_RESOURCE_ID}"
                 set_octopusvariable "Health" ${PIPELINE_HEALTH_RESOURCE_ID}
                 
                 REST_API=$(aws cloudformation \
@@ -129,7 +129,7 @@ step "Get Stack Outputs" {
                     --stack-name #{CloudFormation.ApiGateway} \
                     --query "Stacks[0].Outputs[?OutputKey=='RestApi'].OutputValue" \
                     --output text)
-                    
+                echo "RestApi: ${REST_API}"
                 set_octopusvariable "RestApi" ${REST_API}
                 
                 TIMESTAMP=$(date '+%Y%m%d%H%M%S')
@@ -509,7 +509,7 @@ step "Deploy Lambda" {
                 				"FunctionName": {
                 					"Fn::Sub": "${EnvironmentName}-${LambdaName}-Web"
                 				},
-                				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsApi",
+                				"Handler": "Audit.Service::Audit.Service.Application.Lambda.Audits::AuditsApi",
                 				"MemorySize": 1024,
                 				"PackageType": "Zip",
                 				"Role": {
@@ -573,7 +573,7 @@ step "Deploy Lambda" {
                 				"FunctionName": {
                 					"Fn::Sub": "${EnvironmentName}-${LambdaName}-InitDB"
                 				},
-                				"Handler": "Audit.Service::Audit.Service.Lambda.Audits::AuditsDbMigration",
+                				"Handler": "Audit.Service::Audit.Service.Application.Lambda.Audits::AuditsDbMigration",
                 				"MemorySize": 256,
                 				"PackageType": "Zip",
                 				"Role": {
@@ -583,7 +583,7 @@ step "Deploy Lambda" {
                 					]
                 				},
                 				"Runtime": "dotnetcore3.1",
-                				"Timeout": 30,
+                				"Timeout": 900,
                 				"VpcConfig": {
                 					"SecurityGroupIds": [{
                 						"Ref": "InstanceSecurityGroup"
@@ -625,7 +625,8 @@ step "Deploy Lambda" {
                 								";password=",
                 								{
                 								  "Ref": "DBPassword"
-                								}
+                								},
+                                                "Connection Timeout=10"
                 							  ]
                 							]
                 						  }
@@ -993,7 +994,7 @@ step "Deploy Lambda" {
                 				}
                 			}
                 		},
-                		"LambdaHealthResourceMethodOne": {
+                		"HealthMethodOne": {
                 			"Type": "AWS::ApiGateway::Method",
                 			"Properties": {
                 				"AuthorizationType": "NONE",
@@ -1029,7 +1030,7 @@ step "Deploy Lambda" {
                 				}
                 			}
                 		},
-                		"LambdaHealthResourceMethodTwo": {
+                		"HealthMethodTwo": {
                 			"Type": "AWS::ApiGateway::Method",
                 			"Properties": {
                 				"AuthorizationType": "NONE",
@@ -1075,8 +1076,8 @@ step "Deploy Lambda" {
                 			"DependsOn": [
                 				"LambdaResourceMethodOne",
                 				"LambdaResourceMethodTwo",
-                				"LambdaHealthResourceMethodOne",
-                				"LambdaHealthResourceMethodTwo"
+                				"HealthMethodOne",
+                				"HealthMethodTwo"
                 			]
                 		},
                 		"AuditsQueue": {
@@ -1457,12 +1458,13 @@ step "Check for vulnerabilities" {
             Octopus.Action.Script.ScriptBody = <<-EOT
                 cd audits-service-sbom
                 SUCCESS=0
-                for x in **/bom.xml; do 
-                	docker run --rm -v "$PWD:/app" appthreat/dep-scan scan --bom "/app/$x" --type bom 2>&1
-                    if [[ $? -ne 0 ]]; then
-                    	SUCCESS=1
-                    fi
-                done
+                
+                OUTPUT=$(bash -c "docker run --rm -v \"$PWD:/app\" appthreat/dep-scan scan --bom \"/app/bom.xml\" --type bom; exit \$?" 2>&1)
+                if [[ $? -ne 0 ]]; then
+                SUCCESS=1
+                fi
+                echo -e "${OUTPUT}" | sed 's/\x1b\[[0-9;]*m//g'
+                
                 
                 set_octopusvariable "VerificationResult" $SUCCESS
                 
@@ -1483,28 +1485,5 @@ step "Check for vulnerabilities" {
                 SelectionMode = "immediate"
             }
         }
-    }
-}
-
-step "Send Notification" {
-    condition = "Variable"
-    properties = {
-        Octopus.Step.ConditionVariableExpression = "#{if Octopus.Action[Check for vulnerabilities].Output.VerificationResult != \"0\"}True#{/if}"
-    }
-
-    action {
-        environments = ["Development (Security)", "Production (Security)"]
-        properties = {
-            Octopus.Action.RunOnServer = "true"
-            Octopus.Action.Template.Id = "ActionTemplates-441"
-            Octopus.Action.Template.Version = "1"
-            ssn_Color = "danger"
-            ssn_HookUrl = "#{Slack.Hook}"
-            ssn_IconUrl = "https://octopus.com/content/resources/favicon.png"
-            ssn_Message = "Open #{Octopus.Web.ServerUri}#{Octopus.Web.DeploymentLink} to review the logs."
-            ssn_Title = "Vulnerabilities found in Products Service"
-            ssn_Username = "Octopus Deploy"
-        }
-        worker_pool_variable = "WorkerPool"
     }
 }

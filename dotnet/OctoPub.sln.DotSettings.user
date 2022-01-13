@@ -5,8 +5,8 @@
 &lt;/AssemblyExplorer&gt;</s:String>
 	
 	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=345f666f_002Dd628_002D4da2_002D9dbc_002D0a92bb4d1c6e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from WebTests.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Project Location="C:\Code\OctoPub\dotnet\Audit.Service.Tests" Presentation="&amp;lt;Audit.Service.Tests&amp;gt;" /&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=345f666f_002Dd628_002D4da2_002D9dbc_002D0a92bb4d1c6e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from WebTests.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="C:\Code\OctoPub\dotnet\Audit.Service.Tests" Presentation="&amp;lt;Audit.Service.Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String>
 	
 	

@@ -73,6 +73,8 @@ Then open [http://localhost:7080](http://localhost:7080).
 ### AuditsService-Lambda-GeneralFailure
 A catch all error for any exceptions thrown while processing a Lambda request.
 
+The error `Table 'audits.audits' doesn't exist` can be fixed by rerunning the database migration Lambda.
+
 ### AuditsService-Lambda-DIFailure
 This is likely reported when the dependency injection configuration was incorrect.
 
