@@ -8,10 +8,9 @@ data:
       "settings": {
         "basename": "",
         "title": "OctoPub",
-        "productEndpoint": "",
-        "auditEndpoint": "",
+        "productEndpoint": "/api/products",
+        "auditEndpoint": "/api/audits",
         "healthEndpoint": "/health",
-        "editorFormat": "",
         "requireApiKey": "",
         "google": {
           "tag": ""

@@ -10,7 +10,6 @@ export interface DynamicConfig {
         healthEndpoint: string;
         requireApiKey: string;
         title: string;
-        editorFormat: string;
         google: {
             tag: string;
         }
