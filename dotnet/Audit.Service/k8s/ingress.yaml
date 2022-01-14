@@ -1,0 +1,16 @@
+﻿apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: product-service
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /api/audits
+            pathType: Prefix
+            backend:
+              service:
+                name: audit-service
+                port:
+                  number: 80
