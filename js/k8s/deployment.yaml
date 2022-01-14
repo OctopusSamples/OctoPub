@@ -17,6 +17,14 @@ spec:
       containers:
         - name: randomquotes
           image: octopussamples/octopub-frontend:0.1.131
+          volumeMounts:
+          - name: config-volume
+            mountPath: /workspace/config.json
+            subPath: config.json
           ports:
             - name: web
               containerPort: 7080
+  volumes:
+    - name: config-volume
+      configMap:
+        name: webconfig
