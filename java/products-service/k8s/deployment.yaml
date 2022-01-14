@@ -23,3 +23,5 @@ spec:
           env:
             - name: MIGRATE_AT_START
               value: !str "true"
+            - name: AUDIT_SERVICE
+              value: "http://audit-service.audits-development"
