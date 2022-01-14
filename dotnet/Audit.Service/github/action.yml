@@ -158,7 +158,7 @@ runs:
         --format zip
         --include k8s/**
       shell: bash
-      working-directory: java/products-service
+      working-directory: dotnet
 
     - run: >
         mvn deploy:deploy-file
