@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: randomquotes
-          image: octopussamples/octopub-frontend:0.1.129
+          image: octopussamples/octopub-frontend:0.1.131
           ports:
             - name: web
               containerPort: 7080
