@@ -150,6 +150,27 @@ runs:
       shell: bash
       working-directory: dotnet
 
+    - name: Build K8s package
+      run: >
+        octo pack
+        --id audits-service-k8s
+        --version 0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        --format zip
+        --include k8s/**
+      shell: bash
+      working-directory: java/products-service
+
+    - run: >
+        ./mvnw deploy:deploy-file
+        -Dfile=audits-service-k8s.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}.zip
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
+        -DgroupId=com.octopus.octopub
+        -DartifactId=audits-service-k8s
+        -Dversion=0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        -Dpackaging=zip
+      shell: bash
+      working-directory: dotnet
+
     - run: |
         pack build --builder paketobuildpacks/builder:full octopussamples/octopub-audits
         docker push octopussamples/octopub-audits

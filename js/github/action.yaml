@@ -119,6 +119,27 @@ runs:
       shell: bash
       working-directory: js
 
+    - name: Build K8s package
+      run: >
+        octo pack
+        --id octopub-frontend-k8s
+        --version 0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        --format zip
+        --include k8s/**
+      shell: bash
+      working-directory: js
+
+    - run: >
+        ./mvnw deploy:deploy-file
+        -Dfile=octopub-frontend-k8s.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}.zip
+        -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
+        -DgroupId=com.octopus.octopub
+        -DartifactId=octopub-frontend-k8s
+        -Dversion=0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        -Dpackaging=zip
+      shell: bash
+      working-directory: js
+
     # See https://stackoverflow.com/questions/68770567/containerizing-angular-application-with-paketo-buildpacks-empty-reply
     # for details on building a static web hosting image.
     - run: |
