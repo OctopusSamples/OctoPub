@@ -21,4 +21,5 @@ spec:
             - name: web
               containerPort: 8083
           env:
-            MIGRATE_AT_START: true
+            - name: MIGRATE_AT_START
+              value: true
