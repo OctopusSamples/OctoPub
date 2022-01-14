@@ -161,7 +161,7 @@ runs:
       working-directory: java/products-service
 
     - run: >
-        ./mvnw deploy:deploy-file
+        mvn deploy:deploy-file
         -Dfile=audits-service-k8s.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}.zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
         -DgroupId=com.octopus.octopub
