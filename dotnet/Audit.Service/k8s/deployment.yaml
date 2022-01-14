@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: audits-service
+  name: audit-service
 spec:
   selector:
     matchLabels:
-      app: audits-service
+      app: audit-service
   replicas: 1
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: audits-service
+        app: audit-service
     spec:
       containers:
         - name: randomquotes

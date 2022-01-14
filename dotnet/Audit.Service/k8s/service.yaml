@@ -1,10 +1,10 @@
 ﻿apiVersion: v1
 kind: Service
 metadata:
-  name: audits-service
+  name: audit-service
 spec:
   selector:
-    app: audits-service
+    app: audit-service
   ports:
     - protocol: TCP
       port: 80
