@@ -19,7 +19,7 @@ spec:
           image: octopussamples/octopub-frontend:0.1.133
           volumeMounts:
             - name: config-volume
-              mountPath: /workspace/config.json
+              mountPath: /workspace/build/config.json
               subPath: config.json
           ports:
             - name: web
