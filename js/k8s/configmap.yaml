@@ -4,17 +4,17 @@ metadata:
   name: webconfig
 data:
   config.json: |
-  {
-    "settings": {
-      "basename": "",
-      "title": "OctoPub",
-      "productEndpoint": "",
-      "auditEndpoint": "",
-      "healthEndpoint": "/health",
-      "editorFormat": "",
-      "requireApiKey": "",
-      "google": {
-        "tag": ""
+    {
+      "settings": {
+        "basename": "",
+        "title": "OctoPub",
+        "productEndpoint": "",
+        "auditEndpoint": "",
+        "healthEndpoint": "/health",
+        "editorFormat": "",
+        "requireApiKey": "",
+        "google": {
+          "tag": ""
+        }
       }
     }
-  }
