@@ -15,8 +15,8 @@ spec:
         app: product-service
     spec:
       containers:
-        - name: randomquotes
-          image: octopussamples/octopub-frontend:0.1.128
+        - name: frontend
+          image: octopussamples/octopub-products:0.1.128
           ports:
             - name: web
               containerPort: 8083
