@@ -158,7 +158,7 @@ runs:
         --format zip
         --include k8s/**
       shell: bash
-      working-directory: dotnet
+      working-directory: dotnet/Audit.Service
 
     - run: >
         mvn deploy:deploy-file
@@ -169,7 +169,7 @@ runs:
         -Dversion=0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
         -Dpackaging=zip
       shell: bash
-      working-directory: dotnet
+      working-directory: dotnet/Audit.Service
 
     - run: |
         pack build --builder paketobuildpacks/builder:full octopussamples/octopub-audits
