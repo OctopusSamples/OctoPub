@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: randomquotes
-          image: octopussamples/octopub-frontend:0.1.132
+          image: octopussamples/octopub-frontend:0.1.133
           volumeMounts:
             - name: config-volume
               mountPath: /workspace/config.json
