@@ -22,4 +22,4 @@ spec:
               containerPort: 8083
           env:
             - name: MIGRATE_AT_START
-              value: true
+              value: !str "true"
