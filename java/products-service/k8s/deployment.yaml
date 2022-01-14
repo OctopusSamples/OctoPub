@@ -15,7 +15,7 @@ spec:
         app: product-service
     spec:
       containers:
-        - name: frontend
+        - name: product-service
           image: octopussamples/octopub-products:0.1.128
           ports:
             - name: web
