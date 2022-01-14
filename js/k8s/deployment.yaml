@@ -24,7 +24,7 @@ spec:
           ports:
             - name: web
               containerPort: 7080
-  volumes:
-    - name: config-volume
-      configMap:
-        name: webconfig
+      volumes:
+        - name: config-volume
+          configMap:
+            name: webconfig
