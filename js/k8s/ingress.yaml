@@ -9,7 +9,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /(static/(css|js)/)?[a-zA-Z0-9-.]+?\.(html|css|js|png|jpg|jpeg|gif|map|txt)
+          - path: /(static/(css|js)/)?[a-zA-Z0-9-.]+?\.(json|html|css|js|png|jpg|jpeg|gif|map|txt)
             pathType: Prefix
             backend:
               service:
