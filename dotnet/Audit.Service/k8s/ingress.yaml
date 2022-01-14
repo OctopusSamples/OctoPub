@@ -14,3 +14,10 @@ spec:
                 name: audit-service
                 port:
                   number: 80
+          - path: /health/audits
+            pathType: Prefix
+            backend:
+              service:
+                name: audit-service
+                port:
+                  number: 80

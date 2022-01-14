@@ -14,3 +14,10 @@ spec:
                 name: product-service
                 port:
                   number: 80
+          - path: /health/products
+            pathType: Prefix
+            backend:
+              service:
+                name: product-service
+                port:
+                  number: 80
