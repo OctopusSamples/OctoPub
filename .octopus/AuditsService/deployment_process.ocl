@@ -1412,6 +1412,23 @@ step "Update Stage" {
     }
 }
 
+step "Display Variables" {
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                echo "VPC ID: #{Octopus.Action[Deploy Lambda].Output.AwsOutputs[VpcId]}" 
+                echo "Subnet A: #{Octopus.Action[Deploy Lambda].Output.AwsOutputs[SubnetAId]}" 
+                echo "Subnet B: #{Octopus.Action[Deploy Lambda].Output.AwsOutputs[SubnetBId]}" 
+            EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+        }
+        worker_pool = "AWS"
+    }
+}
+
 step "Get Stage URL" {
 
     action {
