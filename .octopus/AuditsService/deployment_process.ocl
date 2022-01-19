@@ -1421,6 +1421,7 @@ step "Display Variables" {
                 echo "VPC ID: #{Octopus.Action[Deploy Lambda].Output.AwsOutputs[VpcId]}" 
                 echo "Subnet A: #{Octopus.Action[Deploy Lambda].Output.AwsOutputs[SubnetAId]}" 
                 echo "Subnet B: #{Octopus.Action[Deploy Lambda].Output.AwsOutputs[SubnetBId]}" 
+                echo "Security Group: #{Octopus.Action[Deploy Lambda].Output.AwsOutputs[InstanceSecurityGroup]}"
             EOT
             Octopus.Action.Script.ScriptSource = "Inline"
             Octopus.Action.Script.Syntax = "Bash"
