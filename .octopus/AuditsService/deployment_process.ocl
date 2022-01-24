@@ -661,7 +661,7 @@ step "Deploy Lambda" {
                 				}
                 			}
                 		},
-                		"LambdaVersion#{DeploymentId}": {
+                		"LambdaVersion#{Octopus.Deployment.Id | Replace -}": {
                 			"Type": "AWS::Lambda::Version",
                 			"Properties": {
                 				"FunctionName": {
@@ -794,7 +794,7 @@ step "Deploy Lambda" {
                 			},
                 			"Environment": {
                 			  "Variables": {
-                				"DEFAULT_LAMBDA": {"Ref": "LambdaVersion#{DeploymentId}"}
+                				"DEFAULT_LAMBDA": {"Ref": "LambdaVersion#{Octopus.Deployment.Id | Replace -}"}
                 			  }
                 			},
                 			"Description" : {"Fn::Sub": "${LambdaDescription} Proxy"},
