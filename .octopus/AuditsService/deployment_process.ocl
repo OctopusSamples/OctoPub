@@ -1066,7 +1066,7 @@ step "Deploy Lambda" {
                 				}
                 			}
                 		},
-                		"Deployment#{DeploymentId}": {
+                		"Deployment#{Octopus.Deployment.Id | Replace -}": {
                 			"Type": "AWS::ApiGateway::Deployment",
                 			"Properties": {
                 				"RestApiId": {
@@ -1235,7 +1235,7 @@ step "Deploy Lambda" {
                 		"DeploymentId": {
                 			"Description": "The deployment id",
                 			"Value": {
-                				"Ref": "Deployment#{DeploymentId}"
+                				"Ref": "Deployment#{Octopus.Deployment.Id | Replace -}"
                 			}
                 		},
                 		"VpcId": {
