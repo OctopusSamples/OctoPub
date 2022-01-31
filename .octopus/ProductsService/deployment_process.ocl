@@ -160,7 +160,7 @@ step "Deploy Lambda" {
         environments = ["Production", "Development"]
         properties = {
             Octopus.Action.Aws.AssumeRole = "False"
-            Octopus.Action.Aws.CloudFormation.Tags = "[{\"key\":\"Environment\",\"value\":\"#{Octopus.Environment.Name}\"},{\"key\":\"DeploymentProject\",\"value\":\"https://tenpillars.octopus.app/app#/Spaces-42/projects/products-service\"},{\"key\":\"Team\",\"value\":\"Content Marketing\"}]"
+            Octopus.Action.Aws.CloudFormation.Tags = "[{\"key\":\"Environment\",\"value\":\"#{Octopus.Environment.Name}\"},{\"key\":\"Deployment Project\",\"value\":\"Products Service\"},{\"key\":\"Team\",\"value\":\"Content Marketing\"}]"
             Octopus.Action.Aws.CloudFormationStackName = "#{CloudFormation.ProductService}"
             Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
                 {
