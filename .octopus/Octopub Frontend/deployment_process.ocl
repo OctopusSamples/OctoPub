@@ -679,7 +679,7 @@ step "Check for vulnerabilities" {
                 # Report file is not generated if no threats found
                 # https://github.com/ShiftLeftSecurity/sast-scan/issues/168
                 if [[ -f "$PWD/depscan.json" ]]; then
-                new_octopusartifact "$PWD/depscan.json"
+                  new_octopusartifact "$PWD/depscan.json"
                 fi
                 if [[ $? -ne 0 ]]; then
                   SUCCESS=1
