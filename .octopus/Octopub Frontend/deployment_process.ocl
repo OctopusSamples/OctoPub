@@ -675,7 +675,6 @@ step "Check for vulnerabilities" {
                 SUCCESS=0
                 
                 OUTPUT=$(bash -c "docker run --rm -v \"$PWD:/app\" appthreat/dep-scan scan --bom \"/app/bom.xml\" --type bom --report_file /app/depscan.json; exit \$?" 2>&1)
-                ls -la
                 # Report file is not generated if no threats found
                 # https://github.com/ShiftLeftSecurity/sast-scan/issues/168
                 if [[ -f "$PWD/depscan-bom.json" ]]; then
