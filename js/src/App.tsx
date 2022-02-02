@@ -112,7 +112,7 @@ function getBaseNamePrefix(basename: string) {
         return "";
     }
 
-    return basename + "/";
+    return basename;
 }
 
 export default App;
