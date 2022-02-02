@@ -84,7 +84,7 @@ function App(config: DynamicConfig) {
                                     route.subRoutes.map((item: RouteItem) => (
                                         <Route
                                             key={`${item.key}`}
-                                            path={`${config.settings.basename}${item.path}`}
+                                            path={`${getBaseNamePrefix(config.settings.basename)}${item.path}`}
                                             element={<Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
                                                 {item.component()({})}</Layout>}
                                         />
@@ -92,7 +92,7 @@ function App(config: DynamicConfig) {
                                 ) : (
                                     <Route
                                         key={`${route.key}`}
-                                        path={`${config.settings.basename}${route.path}`}
+                                        path={`${getBaseNamePrefix(config.settings.basename)}${route.path}`}
                                         element={<Layout toggleTheme={toggle}
                                                          useDefaultTheme={useDefaultTheme}>{route.component()({})}</Layout>}
                                     />
@@ -105,6 +105,14 @@ function App(config: DynamicConfig) {
             </AppContext.Provider>
         </>
     );
+}
+
+function getBaseNamePrefix(basename: string) {
+    if (basename === "/" || basename === "") {
+        return "";
+    }
+
+    return basename + "/";
 }
 
 export default App;
