@@ -235,7 +235,7 @@ step "Proxy with API Gateway" {
                           "Ref": "RestApi"
                         },
                         "ParentId": {"Ref": "BranchResource"},
-                        "PathPart": {"Ref": "{proxy+}"}
+                        "PathPart": "proxy+"
                       }
                 	},
                     "FrontendMethodOne": {
