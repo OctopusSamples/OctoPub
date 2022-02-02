@@ -6,8 +6,7 @@
     "healthEndpoint": "",
     "requireApiKey": "",
     "google": {
-      "tag": "",
-      "oauthClientId": ""
+      "tag": ""
     },
     "aws": {
       "cognitoLogin": "",
