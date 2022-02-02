@@ -16,17 +16,14 @@ import {routes} from "./config";
 
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
-    settings: {basename: "", title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", requireApiKey: "", google: {tag: ""}},
+    settings: {title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", requireApiKey: "", google: {tag: "", oauthClientId: ""}, aws: {cognitoLogin: "", jwk: []}},
     useDefaultTheme: true,
     apiKey: null,
-    setPartition: () => {
-    },
+    setPartition: () => {},
     partition: null,
     allBookId: null,
-    setAllBookId: () => {
-    },
-    setApiKey: () => {
-    }
+    setAllBookId: () => {},
+    setApiKey: () => {}
 });
 
 function App(config: DynamicConfig) {
@@ -68,16 +65,16 @@ function App(config: DynamicConfig) {
                                 route.subRoutes ? (
                                     route.subRoutes.map((item: RouteItem) => (
                                         <Route
-                                            key={`${item.key}`}
-                                            path={`${item.path}`}
+                                            key={item.key}
+                                            path={item.path}
                                             element={<Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
                                                 {item.component()({})}</Layout>}
                                         />
                                     ))
                                 ) : (
                                     <Route
-                                        key={`${route.key}`}
-                                        path={`${route.path}`}
+                                        key={route.key}
+                                        path={route.path}
                                         element={<Layout toggleTheme={toggle}
                                                          useDefaultTheme={useDefaultTheme}>{route.component()({})}</Layout>}
                                     />

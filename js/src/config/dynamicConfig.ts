@@ -1,10 +1,11 @@
+import {JWK} from "jwk-to-pem";
+
 /**
  * Represents the configuration in the config.json file, which is processed by Octopus for each deployment
  * and environment.
  */
 export interface DynamicConfig {
     settings: {
-        basename: string;
         productEndpoint: string;
         auditEndpoint: string;
         healthEndpoint: string;
@@ -12,6 +13,11 @@ export interface DynamicConfig {
         title: string;
         google: {
             tag: string;
+            oauthClientId: string;
+        },
+        aws: {
+            cognitoLogin: string;
+            jwk: JWK[];
         }
     },
     useDefaultTheme?: boolean;

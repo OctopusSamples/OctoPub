@@ -1,4 +1,5 @@
 import {DynamicConfig} from "./config/dynamicConfig";
+import {getBaseUrl} from "./utils/path";
 
 /**
  * We need for this application to work under a variety of subpaths.
@@ -13,26 +14,10 @@ export async function loadConfig(): Promise<DynamicConfig> {
         .then(response => response.ok ? response.json() : defaultResponse)
         .catch(error => defaultResponse);
     // Set some default values if the config file was not present or not configured
-    config.settings.basename = baseUrl;
     config.settings.title = config.settings.title || "OctoPub";
     config.settings.productEndpoint = config.settings.productEndpoint || "http://localhost:8083/api/products";
     config.settings.auditEndpoint = config.settings.auditEndpoint || "http://localhost:9080/api/audits";
     config.settings.healthEndpoint = config.settings.healthEndpoint || "http://localhost:6080/health";
     config.settings.requireApiKey = config.settings.requireApiKey || "false";
     return config;
-}
-
-function getBaseUrl() {
-    try {
-        const url = window.location.pathname;
-        if (url.endsWith(".html") || url.endsWith(".htm")) {
-            return url.substr(0, url.lastIndexOf('/'));
-        } else if (url.endsWith("/")) {
-            return url.substring(0, url.length - 1);
-        }
-
-        return url;
-    } catch {
-       return "";
-    }
 }

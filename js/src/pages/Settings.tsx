@@ -5,6 +5,8 @@ import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {styles} from "../utils/styles";
 import {useNavigate} from "react-router-dom";
+import {setLoginBranch} from "../utils/path";
+import {clearAccessToken, getAccessToken} from "../utils/security";
 
 const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
@@ -13,6 +15,8 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const history = useNavigate();
     const [apiKey, setApiKey] = useState<string | null>(context.apiKey);
     const [partition, setPartition] = useState<string | null>(context.partition);
+
+    const accessToken = getAccessToken(context.settings.aws.jwk);
 
     return (
         <>
@@ -24,7 +28,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
             <Grid container={true} className={classes.container}>
                 {context.settings.requireApiKey !== "false" &&
                     <>
-                        <Grid className={classes.cell} md={2} sm={12} xs={12}>
+                        <Grid className={classes.cell} item md={2} sm={12} xs={12}>
                             <FormLabel className={classes.label}>API Key</FormLabel>
                         </Grid>
                         <Grid className={classes.cell} item md={10} sm={12} xs={12}>
@@ -36,7 +40,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                         </Grid>
                     </>
                 }
-                <Grid className={classes.cell} md={2} sm={12} xs={12}>
+                <Grid className={classes.cell} item md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>Data Partition</FormLabel>
                 </Grid>
                 <Grid className={classes.cell} item md={10} sm={12} xs={12}>
@@ -56,6 +60,14 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                         </p>
                     </span>
                 </Grid>
+                <Grid className={classes.cell} item md={2} sm={12} xs={12}>
+                    <FormLabel className={classes.label}>Developer Login</FormLabel>
+                </Grid>
+                <Grid className={classes.cell} item md={10} sm={12} xs={12}>
+                        {accessToken
+                            ? <Button variant={"outlined"} onClick={_ => logout()}>Logout</Button>
+                            : <Button variant={"outlined"} onClick={_ => login()}>Login</Button>}
+                </Grid>
                 <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
 
                 </Grid>
@@ -63,9 +75,17 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     <Button variant={"outlined"} onClick={_ => saveSettings()}>Save Settings</Button>
                 </Grid>
             </Grid>
-
         </>
     );
+
+    function login() {
+        setLoginBranch();
+        window.location.href = context.settings.aws.cognitoLogin;
+    }
+
+    function logout() {
+        clearAccessToken();
+    }
 
     function saveSettings() {
         const fixedPartition = partition ? partition.trim() : "";
