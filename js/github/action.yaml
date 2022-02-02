@@ -48,7 +48,7 @@ runs:
 
     - name: Update package.json homepage for branch deployments
       if: ${{ env.BRANCH_NAME != 'master' }}
-      run: echo "`jq '.homepage="/${BRANCH_NAME////-}"' package.json`" > package.json
+      run: echo "`jq \".homepage="/${BRANCH_NAME////-}"\" package.json`" > package.json
       shell: bash
       working-directory: js
 
