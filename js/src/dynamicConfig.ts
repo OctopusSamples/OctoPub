@@ -13,7 +13,6 @@ export async function loadConfig(): Promise<DynamicConfig> {
         .then(response => response.ok ? response.json() : defaultResponse)
         .catch(error => defaultResponse);
     // Set some default values if the config file was not present or not configured
-    config.settings.basename = baseUrl;
     config.settings.title = config.settings.title || "OctoPub";
     config.settings.productEndpoint = config.settings.productEndpoint || "http://localhost:8083/api/products";
     config.settings.auditEndpoint = config.settings.auditEndpoint || "http://localhost:9080/api/audits";
@@ -23,12 +22,7 @@ export async function loadConfig(): Promise<DynamicConfig> {
 }
 
 /**
- * We assume that the path that was requested is the correct base path to the application. The build process may
- * define other requirements, especially where the "homepage" value in package.json defines where static resources
- * are located.
- *
- * But, if we are running this function, we assume the page was loaded from the correct location, and so the basename
- * is deduced from the current path.
+ * Get the path from which to load the config.json file.
  */
 function getBaseUrl() {
     try {

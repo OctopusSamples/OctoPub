@@ -4,7 +4,6 @@
  */
 export interface DynamicConfig {
     settings: {
-        basename: string;
         productEndpoint: string;
         auditEndpoint: string;
         healthEndpoint: string;
