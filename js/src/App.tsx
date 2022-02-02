@@ -58,7 +58,7 @@ function App(config: DynamicConfig) {
                 });
             });
         }
-    });
+    }, [config.settings.google]);
 
     return (
         <>
