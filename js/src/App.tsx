@@ -83,16 +83,16 @@ function App(config: DynamicConfig) {
                                 route.subRoutes ? (
                                     route.subRoutes.map((item: RouteItem) => (
                                         <Route
-                                            key={`${item.key}`}
-                                            path={config.settings.basename + item.path}
+                                            key={item.key}
+                                            path={item.path}
                                             element={<Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
                                                 {item.component()({})}</Layout>}
                                         />
                                     ))
                                 ) : (
                                     <Route
-                                        key={`${route.key}`}
-                                        path={config.settings.basename + route.path}
+                                        key={route.key}
+                                        path={route.path}
                                         element={<Layout toggleTheme={toggle}
                                                          useDefaultTheme={useDefaultTheme}>{route.component()({})}</Layout>}
                                     />
