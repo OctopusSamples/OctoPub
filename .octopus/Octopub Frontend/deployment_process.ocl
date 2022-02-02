@@ -307,7 +307,7 @@ step "Proxy with API Gateway" {
                         }],
                         "ResourceId": {         
                           "Fn::If": [
-                            "CreateLargeSize",
+                            "IsFeatureBranch",
                             {"Ref": "BranchResource"},
                             {"Ref": "RootResourceId"}
                           ] 
@@ -407,7 +407,7 @@ step "Proxy with API Gateway" {
                         }],
                         "ResourceId": {         
                           "Fn::If": [
-                            "CreateLargeSize",
+                            "IsFeatureBranch",
                             {"Ref": "BranchResourceProxy"},
                             {"Ref": "ResourceId"}
                           ] 
