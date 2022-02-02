@@ -14,7 +14,7 @@ export interface DynamicConfig {
             oauthClientId: string;
         },
         aws: {
-            cognitoPool: string;
+            cognitoLogin: string;
         }
     },
     useDefaultTheme?: boolean;
@@ -24,5 +24,4 @@ export interface DynamicConfig {
     setPartition: (id: string | null) => void;
     setAllBookId: (id: string | null) => void;
     allBookId: string | null;
-    googleAuth: any | null;
 }

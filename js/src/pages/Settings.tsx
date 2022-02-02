@@ -1,11 +1,12 @@
-import {FC, ReactElement, useContext, useEffect, useState} from "react";
+import {FC, ReactElement, useContext, useState} from "react";
 import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
 import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {styles} from "../utils/styles";
 import {useNavigate} from "react-router-dom";
-import * as AWS from "aws-sdk";
+import {setLoginBranch} from "../utils/path";
+import {clearAccessToken, getAccessToken} from "../utils/security";
 
 const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
@@ -13,12 +14,9 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const classes = styles();
     const history = useNavigate();
     const [apiKey, setApiKey] = useState<string | null>(context.apiKey);
-    const [signedIn, setSignedIn] = useState<boolean>(false);
     const [partition, setPartition] = useState<string | null>(context.partition);
 
-    useEffect(() => {
-        setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get());
-    }, [context.googleAuth]);
+    const accessToken = getAccessToken();
 
     return (
         <>
@@ -66,15 +64,9 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     <FormLabel className={classes.label}>Developer Login</FormLabel>
                 </Grid>
                 <Grid className={classes.cell} item md={10} sm={12} xs={12}>
-                    {!context.googleAuth &&
-                        <Button variant={"outlined"} disabled={true}>Loading...</Button>}
-                    {context.googleAuth &&
-                        <span>
-                            {signedIn
-                                ? <Button variant={"outlined"} onClick={_ => logout()}>Logout</Button>
-                                : <Button variant={"outlined"} onClick={_ => login()}>Login</Button>}
-                        </span>
-                    }
+                        {accessToken
+                            ? <Button variant={"outlined"} onClick={_ => logout()}>Logout</Button>
+                            : <Button variant={"outlined"} onClick={_ => login()}>Login</Button>}
                 </Grid>
                 <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
 
@@ -87,46 +79,12 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     );
 
     function login() {
-        if (context.googleAuth && !context.googleAuth.isSignedIn.get()) {
-            context.googleAuth.signIn()
-                .then((authResult: any) => {
-                    setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get());
-
-                    // https://docs.aws.amazon.com/cognito/latest/developerguide/google.html#set-up-google-1.javascript
-                    if (authResult['status']['signed_in']) {
-                        // Add the Google access token to the Amazon Cognito credentials login map.
-                        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                            IdentityPoolId: context.settings.aws.cognitoPool,
-                            Logins: {
-                                'accounts.google.com': authResult['id_token']
-                            }
-                        });
-
-                        // Obtain AWS credentials
-                        if ("get" in AWS.config.credentials) {
-                            AWS.config.credentials.get(function () {
-                                // Credentials will be available when this function is called.
-                                // https://docs.aws.amazon.com/cognito/latest/developerguide/getting-credentials.html#getting-credentials-1.javascript
-                                /*var accessKeyId = AWS.config.credentials.accessKeyId;
-                                var secretAccessKey = AWS.config.credentials.secretAccessKey;
-                                var sessionToken = AWS.config.credentials.sessionToken;*/
-
-                                console.log("Access ID: " + AWS && AWS.config.credentials
-                                    ? AWS.config.credentials.accessKeyId
-                                    : "none");
-                            });
-                        }
-                    }
-                });
-        }
+        setLoginBranch();
+        window.location.href = context.settings.aws.cognitoLogin;
     }
 
     function logout() {
-        if (context.googleAuth && context.googleAuth.isSignedIn.get()) {
-            context.googleAuth.signOut().then(() => {
-                setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get());
-            });
-        }
+        clearAccessToken();
     }
 
     function saveSettings() {

@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer, useState} from "react";
+import React, {useReducer, useState} from "react";
 import {createTheme, responsiveFontSizes, Theme, ThemeProvider,} from "@material-ui/core/styles";
 import {HashRouter, Route, Routes} from "react-router-dom";
 import {Helmet} from "react-helmet";
@@ -14,20 +14,16 @@ import RouteItem from "./model/RouteItem.model";
 import {DynamicConfig} from "./config/dynamicConfig";
 import {routes} from "./config";
 
-// The google api library
-declare var gapi: any;
-
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
-    settings: {title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", requireApiKey: "", google: {tag: "", oauthClientId: ""}, aws: {cognitoPool: ""}},
+    settings: {title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", requireApiKey: "", google: {tag: "", oauthClientId: ""}, aws: {cognitoLogin: ""}},
     useDefaultTheme: true,
     apiKey: null,
     setPartition: () => {},
     partition: null,
     allBookId: null,
     setAllBookId: () => {},
-    setApiKey: () => {},
-    googleAuth: null
+    setApiKey: () => {}
 });
 
 function App(config: DynamicConfig) {
@@ -46,21 +42,6 @@ function App(config: DynamicConfig) {
     const [allBookId, setAllBookId] = useState<string | null>(null);
     const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem("apiKey"));
     const [partition, setPartition] = useState<string | null>(localStorage.getItem("partition") || "main");
-    const [googleAuth, setGoogleAuth] = useState<any | null>(null);
-
-    const oauthClientId = config.settings.google ? config.settings.google.oauthClientId : null;
-
-    useEffect(() => {
-        if (oauthClientId) {
-            gapi.load('auth2', function () {
-                gapi.auth2.init({
-                    client_id: oauthClientId + '.apps.googleusercontent.com'
-                }).then(function () {
-                    setGoogleAuth(gapi.auth2.getAuthInstance());
-                });
-            });
-        }
-    }, [oauthClientId]);
 
     return (
         <>
@@ -75,8 +56,7 @@ function App(config: DynamicConfig) {
                 apiKey,
                 setApiKey,
                 partition,
-                setPartition,
-                googleAuth
+                setPartition
             }}>
                 <ThemeProvider theme={theme}>
                     <HashRouter>

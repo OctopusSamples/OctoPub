@@ -1,4 +1,5 @@
 import {DynamicConfig} from "./config/dynamicConfig";
+import {getBaseUrl} from "./utils/path";
 
 /**
  * We need for this application to work under a variety of subpaths.
@@ -19,22 +20,4 @@ export async function loadConfig(): Promise<DynamicConfig> {
     config.settings.healthEndpoint = config.settings.healthEndpoint || "http://localhost:6080/health";
     config.settings.requireApiKey = config.settings.requireApiKey || "false";
     return config;
-}
-
-/**
- * Get the path from which to load the config.json file.
- */
-function getBaseUrl() {
-    try {
-        const url = window.location.pathname;
-        if (url.endsWith(".html") || url.endsWith(".htm")) {
-            return url.substr(0, url.lastIndexOf('/'));
-        } else if (url.endsWith("/")) {
-            return url.substring(0, url.length - 1);
-        }
-
-        return url;
-    } catch {
-       return "";
-    }
 }

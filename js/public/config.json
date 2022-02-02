@@ -10,7 +10,7 @@
       "oauthClientId": ""
     },
     "aws": {
-      "cognitoPool": ""
+      "cognitoLogin": ""
     }
   }
 }
