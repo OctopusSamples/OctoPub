@@ -51,12 +51,14 @@ const Home: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     context.setAllBookId(null);
 
+    const accessToken = getAccessToken(context.settings.aws.jwk);
+
     useEffect(() => {
-        getJsonApi<Products>(context.settings.productEndpoint, context.partition, getAccessToken(context.settings.aws.jwk))
+        getJsonApi<Products>(context.settings.productEndpoint, context.partition, accessToken)
             .then(data => setBooks(data))
             .catch(() => setError("Failed to retrieve the list of books."
                 + (isBranchingEnabled() ? " Branching rules are enabled - double check they are valid, or disable them." : "")));
-    }, [context.settings.productEndpoint, setBooks, setError, context.partition, context.settings.aws.jwk]);
+    }, [context.settings.productEndpoint, setBooks, setError, context.partition, accessToken]);
 
     return (
         <>
