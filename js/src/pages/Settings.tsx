@@ -1,4 +1,4 @@
-import {FC, ReactElement, useContext, useState} from "react";
+import {FC, ReactElement, useContext, useEffect, useState} from "react";
 import {CommonProps} from "../model/RouteItem.model";
 import {Helmet} from "react-helmet";
 import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
@@ -12,8 +12,12 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const classes = styles();
     const history = useNavigate();
     const [apiKey, setApiKey] = useState<string | null>(context.apiKey);
-    const [signedIn, setSignedIn] = useState<string | null>(context.googleAuth && context.googleAuth.isSignedIn.get());
+    const [signedIn, setSignedIn] = useState<boolean>(false);
     const [partition, setPartition] = useState<string | null>(context.partition);
+
+    useEffect(() => {
+        setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get());
+    }, [context.googleAuth]);
 
     return (
         <>
@@ -84,8 +88,8 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     function login() {
         if (context.googleAuth && !context.googleAuth.isSignedIn.get()) {
             context.googleAuth.signIn()
-                .then(() => {
-                    setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get())
+                .then((authResult: any) => {
+                    setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get());
                 });
         }
     }
@@ -93,7 +97,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     function logout() {
         if (context.googleAuth && context.googleAuth.isSignedIn.get()) {
             context.googleAuth.signOut().then(() => {
-                setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get())
+                setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get());
             });
         }
     }
