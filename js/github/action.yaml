@@ -46,12 +46,6 @@ runs:
         echo PRERELEASE=${PRERELEASE////-} >> $GITHUB_ENV
       shell: bash
 
-    - name: Update package.json homepage for branch deployments
-      if: ${{ env.BRANCH_NAME != 'master' }}
-      run: echo "`jq ".homepage=\\"/${BRANCH_NAME////-}\\"" package.json`" > package.json
-      shell: bash
-      working-directory: js
-
     - name: Packages
       run: yarn install
       shell: bash
