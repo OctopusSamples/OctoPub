@@ -13,7 +13,6 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const context = useContext(AppContext);
     const classes = styles();
     const history = useNavigate();
-    const [apiKey, setApiKey] = useState<string | null>(context.apiKey);
     const [partition, setPartition] = useState<string | null>(context.partition);
 
     const accessToken = getAccessToken(context.settings.aws.jwk);
@@ -26,20 +25,6 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 </title>
             </Helmet>
             <Grid container={true} className={classes.container}>
-                {context.settings.requireApiKey !== "false" &&
-                    <>
-                        <Grid className={classes.cell} item md={2} sm={12} xs={12}>
-                            <FormLabel className={classes.label}>API Key</FormLabel>
-                        </Grid>
-                        <Grid className={classes.cell} item md={10} sm={12} xs={12}>
-                            <TextField id="apiKey" fullWidth={true} type="password" variant="outlined" value={apiKey}
-                                       onChange={v => {
-                                           setApiKey(v.target.value);
-                                           localStorage.setItem("apiKey", v.target.value);
-                                       }}/>
-                        </Grid>
-                    </>
-                }
                 <Grid className={classes.cell} item md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>Data Partition</FormLabel>
                 </Grid>
@@ -89,11 +74,8 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     function saveSettings() {
         const fixedPartition = partition ? partition.trim() : "";
-        const fixedApiKey = apiKey ? apiKey.trim() : "";
         localStorage.setItem("partition", fixedPartition);
-        localStorage.setItem("apiKey", fixedApiKey);
         context.setPartition(fixedPartition);
-        context.setApiKey(fixedApiKey);
         history('/index.html');
     }
 }

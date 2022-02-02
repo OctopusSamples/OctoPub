@@ -7,6 +7,7 @@ import {Product} from "../model/Product";
 import {useNavigate} from "react-router-dom";
 import {styles} from "../utils/styles";
 import {postJsonApi} from "../utils/network";
+import {getAccessToken} from "../utils/security";
 
 const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
@@ -33,13 +34,15 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     context.setAllBookId(null);
 
+    const accessToken = getAccessToken(context.settings.aws.jwk);
+
     useEffect(() => {
-        if (context.settings.requireApiKey !== "false" && !context.apiKey) {
+        if (!accessToken) {
             setError("The API key must be defined in the settings page.");
         } else {
             setDisabled(false);
         }
-    }, [setDisabled, setError, context.apiKey, context.settings.requireApiKey]);
+    }, [setDisabled, setError, accessToken]);
 
     return (
         <>
@@ -124,7 +127,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             }),
             context.settings.productEndpoint,
             context.partition,
-            context.apiKey)
+            getAccessToken(context.settings.aws.jwk))
             .then(_ => history('/index.html'))
             .catch(_ => {
                 setDisabled(false);

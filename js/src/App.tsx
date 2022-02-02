@@ -16,14 +16,12 @@ import {routes} from "./config";
 
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
-    settings: {title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", requireApiKey: "", google: {tag: "", oauthClientId: ""}, aws: {cognitoLogin: "", jwk: []}},
+    settings: {title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", google: {tag: "", oauthClientId: ""}, aws: {cognitoLogin: "", jwk: []}},
     useDefaultTheme: true,
-    apiKey: null,
     setPartition: () => {},
     partition: null,
     allBookId: null,
-    setAllBookId: () => {},
-    setApiKey: () => {}
+    setAllBookId: () => {}
 });
 
 function App(config: DynamicConfig) {
@@ -40,7 +38,6 @@ function App(config: DynamicConfig) {
     theme = responsiveFontSizes(theme);
 
     const [allBookId, setAllBookId] = useState<string | null>(null);
-    const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem("apiKey"));
     const [partition, setPartition] = useState<string | null>(localStorage.getItem("partition") || "main");
 
     return (
@@ -53,8 +50,6 @@ function App(config: DynamicConfig) {
                 useDefaultTheme,
                 allBookId,
                 setAllBookId,
-                apiKey,
-                setApiKey,
                 partition,
                 setPartition
             }}>

@@ -4,6 +4,7 @@ import {Helmet} from "react-helmet";
 import {AppContext} from "../App";
 import {DataGrid} from "@material-ui/data-grid";
 import {getJsonApi, isBranchingEnabled} from "../utils/network";
+import {getAccessToken} from "../utils/security";
 
 interface AuditsCollection {
     data: Audit[]
@@ -37,11 +38,11 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
     ];
 
     useEffect(() => {
-        getJsonApi<AuditsCollection>(context.settings.auditEndpoint, context.partition)
+        getJsonApi<AuditsCollection>(context.settings.auditEndpoint, context.partition, getAccessToken(context.settings.aws.jwk))
             .then(data => setAudits(data))
             .catch(() => setError("Failed to retrieve audit resources. "
                 + (isBranchingEnabled() ? "Branching rules are enabled - double check they are valid, or disable them." : "")))
-    }, [setAudits, context.settings.auditEndpoint, context.partition]);
+    }, [setAudits, context.settings.auditEndpoint, context.partition, context.settings.aws.jwk]);
 
     return (
         <>

@@ -20,11 +20,12 @@ function responseIsServerError(status: number) {
     return status >= 500 && status <= 599;
 }
 
-export function getJson<T>(url: string, retryCount?: number): Promise<T> {
+export function getJson<T>(url: string, accessToken?: string | null, retryCount?: number): Promise<T> {
     return fetch(url, {
         method: 'GET',
         headers: {
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Authentication': accessToken ? "Bearer: " + accessToken : ""
         }
     })
         .then(response => {
@@ -36,19 +37,19 @@ export function getJson<T>(url: string, retryCount?: number): Promise<T> {
                  Some lambdas are slow, and initial requests timeout with a 504 response.
                  We automatically retry these requests.
                  */
-                return getJson<T>(url, (retryCount || 0) + 1);
+                return getJson<T>(url, accessToken, (retryCount || 0) + 1);
             }
             return Promise.reject(response);
         });
 }
 
-export function getJsonApi<T>(url: string, partition: string | null, apiKey?: string | null, retryCount?: number): Promise<T> {
+export function getJsonApi<T>(url: string, partition: string | null, accessToken?: string | null, retryCount?: number): Promise<T> {
     return fetch(url, {
         method: 'GET',
         headers: {
             'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
-            'X-API-Key': apiKey || ""
+            'Authentication': accessToken ? "Bearer: " + accessToken : ""
         }
     })
         .then(response => {
@@ -60,19 +61,19 @@ export function getJsonApi<T>(url: string, partition: string | null, apiKey?: st
                  Some lambdas are slow, and initial requests timeout with a 504 response.
                  We automatically retry these requests.
                  */
-                return getJsonApi<T>(url, partition, apiKey, (retryCount || 0) + 1);
+                return getJsonApi<T>(url, partition, accessToken, (retryCount || 0) + 1);
             }
             return Promise.reject(response);
         });
 }
 
-export function patchJsonApi<T>(resource: string, url: string, partition: string | null, apiKey?: string | null, retryCount?: number): Promise<T> {
+export function patchJsonApi<T>(resource: string, url: string, partition: string | null, accessToken?: string | null, retryCount?: number): Promise<T> {
     return fetch(url, {
         method: 'PATCH',
         headers: {
             'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
-            'X-API-Key': apiKey || ""
+            'Authentication': accessToken ? "Bearer: " + accessToken : ""
         },
         body: resource
     })
@@ -85,19 +86,19 @@ export function patchJsonApi<T>(resource: string, url: string, partition: string
                  Some lambdas are slow, and initial requests timeout with a 504 response.
                  We automatically retry these requests.
                  */
-                return patchJsonApi<T>(resource, url, partition, apiKey, (retryCount || 0) + 1);
+                return patchJsonApi<T>(resource, url, partition, accessToken, (retryCount || 0) + 1);
             }
             return Promise.reject(response);
         });
 }
 
-export function postJsonApi<T>(resource: string, url: string, partition: string | null, apiKey?: string | null): Promise<T> {
+export function postJsonApi<T>(resource: string, url: string, partition: string | null, accessToken?: string | null): Promise<T> {
     return fetch(url, {
         method: 'POST',
         headers: {
             'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
-            'X-API-Key': apiKey || ""
+            'Authentication': accessToken ? "Bearer: " + accessToken : ""
         },
         body: resource
     })
@@ -109,13 +110,13 @@ export function postJsonApi<T>(resource: string, url: string, partition: string 
         });
 }
 
-export function deleteJsonApi(url: string, partition: string | null, apiKey?: string | null, retryCount?: number): Promise<Response> {
+export function deleteJsonApi(url: string, partition: string | null, accessToken?: string | null, retryCount?: number): Promise<Response> {
     return fetch(url, {
         method: 'DELETE',
         headers: {
             'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
-            'X-API-Key': apiKey || ""
+            'Authentication': accessToken ? "Bearer: " + accessToken : ""
         }
     })
         .then(response => {
@@ -127,7 +128,7 @@ export function deleteJsonApi(url: string, partition: string | null, apiKey?: st
                  Some lambdas are slow, and initial requests timeout with a 504 response.
                  We automatically retry these requests.
                  */
-                return deleteJsonApi(url, partition, apiKey, (retryCount || 0) + 1);
+                return deleteJsonApi(url, partition, accessToken, (retryCount || 0) + 1);
             }
             return Promise.reject(response);
         });

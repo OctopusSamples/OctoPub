@@ -7,6 +7,7 @@ import {Errors, Product} from "../model/Product";
 import {useNavigate, useParams} from "react-router-dom";
 import {styles} from "../utils/styles";
 import {getJsonApi, isBranchingEnabled, patchJsonApi} from "../utils/network";
+import {getAccessToken} from "../utils/security";
 
 const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
@@ -20,15 +21,17 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     context.setAllBookId(null);
 
+    const accessToken = getAccessToken(context.settings.aws.jwk);
+
     useEffect(() => {
-        getJsonApi<Product|Errors>(context.settings.productEndpoint + "/" + bookId, context.partition)
+        getJsonApi<Product|Errors>(context.settings.productEndpoint + "/" + bookId, context.partition, accessToken)
             .then(data => {
                 if ("data" in data) {
                     const product = data as Product;
                     setBook(product);
 
-                    if (context.settings.requireApiKey !== "false" && !context.apiKey) {
-                        setError("The API key must be defined in the settings page.");
+                    if (!accessToken) {
+                        setError("You must log into the app to update a book. Open the settings to perform a login.");
                     } else if (product?.data?.attributes?.dataPartition !== context.partition) {
                         setError("This book belongs to the "
                             + product?.data?.attributes?.dataPartition
@@ -47,7 +50,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 setError("There was an error retrieving the resource.");
                 setBook(null);
             });
-    }, [setBook, setDisabled, context.apiKey, context.partition, context.settings.productEndpoint, context.settings.requireApiKey, bookId]);
+    }, [setBook, accessToken, setDisabled, context.partition, context.settings.productEndpoint, bookId]);
 
     return (
         <>
@@ -147,7 +150,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             }),
             context.settings.productEndpoint + "/" + bookId,
             context.partition,
-            context.apiKey)
+            getAccessToken(context.settings.aws.jwk))
             .then(_ => history('/index.html'))
             .catch(_ => {
                 setDisabled(false);

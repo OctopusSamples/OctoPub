@@ -9,7 +9,6 @@ export interface DynamicConfig {
         productEndpoint: string;
         auditEndpoint: string;
         healthEndpoint: string;
-        requireApiKey: string;
         title: string;
         google: {
             tag: string;
@@ -21,8 +20,6 @@ export interface DynamicConfig {
         }
     },
     useDefaultTheme?: boolean;
-    apiKey: string | null;
-    setApiKey: (key: string) => void;
     partition: string | null;
     setPartition: (id: string | null) => void;
     setAllBookId: (id: string | null) => void;

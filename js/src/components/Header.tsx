@@ -17,6 +17,7 @@ import {AppContext} from "../App";
 import {useNavigate} from "react-router-dom";
 import {AddCircleOutline, Delete, Edit, History, LocalHospital, SettingsApplications, Share} from "@material-ui/icons";
 import {CommonProps} from "../model/RouteItem.model";
+import {getAccessToken} from "../utils/security";
 
 // define css-in-js
 const useStyles = makeStyles((theme: Theme) =>
@@ -66,6 +67,7 @@ const Header: FC<HeaderProps> = ({
     const classes = useStyles();
     const context = useContext(AppContext);
     const history = useNavigate();
+    const accessToken = getAccessToken(context.settings.aws.jwk);
     return (
         <AppBar
             position="relative"
@@ -82,21 +84,21 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
-                {context.allBookId && (context.settings.requireApiKey === "false" || context.apiKey) &&
+                {context.allBookId && accessToken &&
                 <IconButton onClick={() => history('/deleteBook/' + context.allBookId)}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>
                     </Tooltip>
                 </IconButton>
                 }
-                {context.allBookId && (context.settings.requireApiKey === "false" || context.apiKey) &&
+                {context.allBookId && accessToken &&
                 <IconButton onClick={() => history('/updateBook/' + context.allBookId)}>
                     <Tooltip title={"Update"} placement={"bottom"}>
                         <Edit/>
                     </Tooltip>
                 </IconButton>
                 }
-                {(context.settings.requireApiKey === "false" || context.apiKey) &&
+                {accessToken &&
                 <IconButton onClick={() => history('/addBook')}>
                     <Tooltip title={"Add Book"} placement={"bottom"}>
                         <AddCircleOutline/>

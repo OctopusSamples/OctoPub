@@ -7,6 +7,7 @@ import {Errors, Product} from "../model/Product";
 import {useNavigate, useParams} from "react-router-dom";
 import {styles} from "../utils/styles";
 import {deleteJsonApi, getJsonApi, isBranchingEnabled} from "../utils/network";
+import {getAccessToken} from "../utils/security";
 
 const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
@@ -20,15 +21,17 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     context.setAllBookId(null);
 
+    const accessToken = getAccessToken(context.settings.aws.jwk);
+
     useEffect(() => {
-        getJsonApi<Product|Errors>(context.settings.productEndpoint + "/" + bookId, context.partition)
+        getJsonApi<Product|Errors>(context.settings.productEndpoint + "/" + bookId, context.partition, accessToken)
             .then(data => {
                 if ("data" in data) {
                     const product = data as Product;
                     setBook(product);
 
-                    if (context.settings.requireApiKey !== "false" && !context.apiKey) {
-                        setError("The API key must be defined in the settings page.");
+                    if (!accessToken) {
+                        setError("You must log into the app to delete a book. Open the settings to perform a login.");
                     } else if (product?.data?.attributes?.dataPartition !== context.partition) {
                         setError("This book belongs to the "
                             + product?.data?.attributes?.dataPartition
@@ -48,7 +51,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 setBook(null);
                 setDisabled(true);
             });
-    }, [setBook, setDisabled, context.apiKey, context.settings.requireApiKey, context.partition, context.settings.productEndpoint, bookId]);
+    }, [setBook, setDisabled, accessToken, context.partition, context.settings.productEndpoint, bookId]);
 
     return (
         <>
@@ -118,7 +121,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     function deleteBook() {
         if (book) {
             setDisabled(true);
-            deleteJsonApi(context.settings.productEndpoint + "/" + bookId, context.partition, context.apiKey)
+            deleteJsonApi(context.settings.productEndpoint + "/" + bookId, context.partition, getAccessToken(context.settings.aws.jwk))
                 .then(_ => history('/index.html'))
                 .catch(reason => {
                     setDisabled(false);

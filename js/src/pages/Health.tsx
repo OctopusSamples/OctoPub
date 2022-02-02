@@ -6,6 +6,7 @@ import {getJson} from "../utils/network";
 import { Clear, Done } from "@material-ui/icons";
 import {createStyles, makeStyles} from "@material-ui/core/styles";
 import {Theme} from "@material-ui/core";
+import {getAccessToken} from "../utils/security";
 
 const newHealth: {[key: string]: boolean} = {};
 
@@ -45,12 +46,12 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     useEffect(() => {
         for (const endpoint of endpoints) {
-            ((myEndpoint) => getJson(myEndpoint)
+            ((myEndpoint) => getJson(myEndpoint, getAccessToken(context.settings.aws.jwk))
                 .then(() => newHealth[myEndpoint] = true)
                 .catch(() => newHealth[myEndpoint] = false)
                 .finally(() => setHealth({...newHealth})))(endpoint);
         }
-    }, [endpoints, setHealth]);
+    }, [endpoints, setHealth, context.settings.aws.jwk]);
 
     return (
         <>

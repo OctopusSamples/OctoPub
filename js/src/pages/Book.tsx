@@ -7,6 +7,7 @@ import {Product} from "../model/Product";
 import {useParams} from "react-router-dom";
 import {createStyles, makeStyles} from "@material-ui/core/styles";
 import {getJsonApi} from "../utils/network";
+import {getAccessToken} from "../utils/security";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -37,9 +38,9 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const [book, setBook] = useState<Product | null>(null);
 
     useEffect(() => {
-        getJsonApi<Product>(context.settings.productEndpoint + "/" + bookId, context.partition)
+        getJsonApi<Product>(context.settings.productEndpoint + "/" + bookId, context.partition, getAccessToken(context.settings.aws.jwk))
             .then(data => setBook(data));
-    }, [bookId, setBook, context.settings.productEndpoint, context.partition]);
+    }, [bookId, setBook, context.settings.productEndpoint, context.partition, context.settings.aws.jwk]);
 
     return (
         <>
