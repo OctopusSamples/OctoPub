@@ -46,6 +46,7 @@ runs:
       run: |
         PRERELEASE="${{ inputs.branch != 'master' && format('-{0}', inputs.branch) || '' }}"
         echo PRERELEASE=${PRERELEASE////-} >> $GITHUB_ENV
+      shell: bash
 
     - name: Packages
       run: yarn install
