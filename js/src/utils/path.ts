@@ -1,3 +1,5 @@
+const DEFAULT_BRANCH = "main";
+
 /**
  * Get the path from which to load the config.json file.
  */
@@ -19,7 +21,7 @@ export function getBaseUrl() {
 export function getBranch() {
     const baseUrl = getBaseUrl();
     if (baseUrl === "") {
-        return baseUrl;
+        return DEFAULT_BRANCH;
     }
 
     return baseUrl.split("/").pop() || "";
