@@ -187,6 +187,7 @@ runs:
         --apiKey ${{ inputs.octopus_api_token }}
         --space "Octopub"
         --gitRef master
+        --defaultPackageVersion ${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
       shell: bash
 
     - name: Trigger deployment to security
@@ -199,5 +200,5 @@ runs:
         --server ${{ inputs.octopus_server_url }}
         --apiKey ${{ inputs.octopus_api_token }}
         --space "Octopub"
-        --version=latest
+        --version latest
       shell: bash

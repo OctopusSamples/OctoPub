@@ -1,4 +1,4 @@
-import React, {useReducer, useState} from "react";
+import React, {useEffect, useReducer, useState} from "react";
 import {createTheme, responsiveFontSizes, Theme, ThemeProvider,} from "@material-ui/core/styles";
 import {HashRouter, Route, Routes} from "react-router-dom";
 import {Helmet} from "react-helmet";
@@ -14,19 +14,20 @@ import RouteItem from "./model/RouteItem.model";
 import {DynamicConfig} from "./config/dynamicConfig";
 import {routes} from "./config";
 
+// The google api library
+declare var gapi: any;
+
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
-    settings: {basename: "", title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", requireApiKey: "", google: {tag: ""}},
+    settings: {basename: "", title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", requireApiKey: "", google: {tag: "", oauthClientId: ""}},
     useDefaultTheme: true,
     apiKey: null,
-    setPartition: () => {
-    },
+    setPartition: () => {},
     partition: null,
     allBookId: null,
-    setAllBookId: () => {
-    },
-    setApiKey: () => {
-    }
+    setAllBookId: () => {},
+    setApiKey: () => {},
+    googleAuth: null
 });
 
 function App(config: DynamicConfig) {
@@ -45,6 +46,17 @@ function App(config: DynamicConfig) {
     const [allBookId, setAllBookId] = useState<string | null>(null);
     const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem("apiKey"));
     const [partition, setPartition] = useState<string | null>(localStorage.getItem("partition") || "main");
+    const [googleAuth, setGoogleAuth] = useState<any | null>(null);
+
+    useEffect(() => {
+        gapi.load('auth2', function() {
+            gapi.auth2.init({
+                client_id: config.settings.google.oauthClientId + '.apps.googleusercontent.com'
+            }).then(function () {
+                setGoogleAuth(gapi.auth2.getAuthInstance());
+            });
+        });
+    });
 
     return (
         <>
@@ -59,7 +71,8 @@ function App(config: DynamicConfig) {
                 apiKey,
                 setApiKey,
                 partition,
-                setPartition
+                setPartition,
+                googleAuth
             }}>
                 <ThemeProvider theme={theme}>
                     <HashRouter>

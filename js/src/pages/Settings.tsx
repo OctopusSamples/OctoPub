@@ -24,7 +24,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
             <Grid container={true} className={classes.container}>
                 {context.settings.requireApiKey !== "false" &&
                     <>
-                        <Grid className={classes.cell} md={2} sm={12} xs={12}>
+                        <Grid className={classes.cell} item md={2} sm={12} xs={12}>
                             <FormLabel className={classes.label}>API Key</FormLabel>
                         </Grid>
                         <Grid className={classes.cell} item md={10} sm={12} xs={12}>
@@ -36,7 +36,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                         </Grid>
                     </>
                 }
-                <Grid className={classes.cell} md={2} sm={12} xs={12}>
+                <Grid className={classes.cell} item md={2} sm={12} xs={12}>
                     <FormLabel className={classes.label}>Data Partition</FormLabel>
                 </Grid>
                 <Grid className={classes.cell} item md={10} sm={12} xs={12}>
@@ -56,6 +56,17 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                         </p>
                     </span>
                 </Grid>
+                <Grid className={classes.cell} item md={2} sm={12} xs={12}>
+                    <FormLabel className={classes.label}>Developer Login</FormLabel>
+                </Grid>
+                <Grid className={classes.cell} item md={10} sm={12} xs={12}>
+                    {!context.googleAuth &&
+                        <Button variant={"outlined"} disabled={true}>Loading...</Button>}
+                    {context.googleAuth && !context.googleAuth.isSignedIn.get() &&
+                        <Button variant={"outlined"} onClick={_ => login()}>Login</Button>}
+                    {context.googleAuth && context.googleAuth.isSignedIn.get() &&
+                        <Button variant={"outlined"} onClick={_ => logout()}>Logout</Button>}
+                </Grid>
                 <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
 
                 </Grid>
@@ -63,9 +74,20 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                     <Button variant={"outlined"} onClick={_ => saveSettings()}>Save Settings</Button>
                 </Grid>
             </Grid>
-
         </>
     );
+
+    function login() {
+        if (context.googleAuth && !context.googleAuth.isSignedIn.get()) {
+            context.googleAuth.signIn();
+        }
+    }
+
+    function logout() {
+        if (context.googleAuth && context.googleAuth.isSignedIn.get()) {
+            context.googleAuth.signOut();
+        }
+    }
 
     function saveSettings() {
         const fixedPartition = partition ? partition.trim() : "";

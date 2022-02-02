@@ -23,11 +23,10 @@ loadConfig().then((config) => {
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
-
 function setupGoogleAnalytics(tag: string) {
     if (!tag) return;
 
-    addScript("https://www.googletagmanager.com/gtag/js?id=" + tag)
+    addScript("https://www.googletagmanager.com/gtag/js?id=" + tag, true, false)
     window.dataLayer = window.dataLayer || [];
 
     function gtag() {
@@ -38,9 +37,14 @@ function setupGoogleAnalytics(tag: string) {
     gtag('config', tag);
 }
 
-function addScript(src) {
+function addScript(src, async, defer) {
     const s = document.createElement('script');
     s.setAttribute('src', src);
-    s.setAttribute('async', 'async')
+    if (async) {
+        s.setAttribute('async', 'async')
+    }
+    if (defer) {
+        s.setAttribute('defer', 'defer')
+    }
     document.body.appendChild(s);
 }
