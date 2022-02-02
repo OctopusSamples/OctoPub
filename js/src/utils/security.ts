@@ -11,7 +11,7 @@ export function setAccessToken(accessToken: string) {
  * @param jwk sourced from https://cognito-idp.<region>.amazonaws.com/<pool id>/.well-known/jwks.json
  */
 export function getAccessToken(jwk: JWK[]) {
-    const accessToken = window.localStorage.getItem(getLoginBranch() + "-accesstoken") || "";
+    const accessToken = window.localStorage.getItem(getBranch() + "-accesstoken") || "";
     if (accessToken) {
         const anyValidate = jwk.map(j => {
             try {
