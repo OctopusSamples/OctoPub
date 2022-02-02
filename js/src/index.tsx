@@ -46,13 +46,18 @@ function handleLogin() {
         }
 
         const loginBranch = getLoginBranch();
+        const accessToken = getHashField("access_token");
 
         // Before we redirect to cognito, the login branch must be set. If not, ignore redirect.
         if (!loginBranch) {
-            return true;
+            if (!accessToken) {
+                return true;
+            } else {
+                // There are values in the hash that will cause issues with routing, so go back to the root.
+                window.location.href = "/";
+                return false;
+            }
         }
-
-        const accessToken = getHashField("access_token");
 
         if (accessToken) {
             setAccessToken(accessToken);
