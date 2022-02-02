@@ -192,7 +192,7 @@ runs:
         --apiKey ${{ inputs.octopus_api_token }}
         --space "Octopub"
         --gitRef master
-        --defaultPackageVersion ${{ inputs.run_number }}${{ env.PRERELEASE  }}
+        --defaultPackageVersion 0.1.${{ inputs.run_number }}${{ env.PRERELEASE  }}
       shell: bash
 
     - name: Trigger deployment to security
