@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: randomquotes
-          image: octopussamples/octopub-frontend:0.1.134
+          image: octopussamples/octopub-frontend:0.1.141-mattc-google-auth
           volumeMounts:
             - name: config-volume
               mountPath: /workspace/build/config.json
@@ -28,10 +28,10 @@ spec:
           resources:
             limits:
               memory: 512Mi
-              cpu: "128m"
+              cpu: 128m
             requests:
               memory: 256Mi
-              cpu: "128m"
+              cpu: 128m
       volumes:
         - name: config-volume
           configMap:
