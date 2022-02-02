@@ -75,7 +75,7 @@ function getHashField(field: string) {
     // The returned hash from Cognito splits id and access tokens with ampersand
     return window.location.hash
         // drop the leading hash
-        .substr(1)
+        .replace("#", "")
         // split on ampersands
         .split("&")
         // The access token starts with this string
