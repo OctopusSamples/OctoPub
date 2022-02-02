@@ -61,7 +61,7 @@ function handleLogin() {
 
         if (accessToken) {
             setAccessToken(accessToken);
-            window.location.href = "/" + loginBranch;
+            window.location.href = "/" + loginBranch + "/";
             return false;
         }
 
