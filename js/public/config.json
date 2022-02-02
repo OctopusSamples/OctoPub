@@ -1,6 +1,5 @@
 {
   "settings": {
-    "basename": "/",
     "title": "OctoPub",
     "productEndpoint": "",
     "auditEndpoint": "",

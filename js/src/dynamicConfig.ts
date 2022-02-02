@@ -22,6 +22,14 @@ export async function loadConfig(): Promise<DynamicConfig> {
     return config;
 }
 
+/**
+ * We assume that the path that was requested is the correct base path to the application. The build process may
+ * define other requirements, especially where the "homepage" value in package.json defines where static resources
+ * are located.
+ *
+ * But, if we are running this function, we assume the page was loaded from the correct location, and so the basename
+ * is deduced from the current path.
+ */
 function getBaseUrl() {
     try {
         const url = window.location.pathname;
