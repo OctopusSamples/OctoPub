@@ -295,7 +295,13 @@ step "Proxy with API Gateway" {
                             }
                         }],
                         "ResourceId": {
-                          "Ref": "RootResourceId"
+                          "Ref": {
+                                "Fn::If": [
+                                    "CreateLargeSize",
+                                    "BranchResource",
+                                    "RootResourceId"
+                                ]
+                            }
                         },
                         "RestApiId": {"Ref": "RestApi"}
                       }
@@ -391,7 +397,13 @@ step "Proxy with API Gateway" {
                             }
                         }],
                         "ResourceId": {
-                          "Ref": "ResourceId"
+                          "Ref": {
+                                "Fn::If": [
+                                    "CreateLargeSize",
+                                    "BranchResource",
+                                    "ResourceId"
+                                ]
+                            }
                         },
                         "RestApiId": {"Ref": "RestApi"}
                       }
