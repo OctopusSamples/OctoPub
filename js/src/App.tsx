@@ -49,7 +49,7 @@ function App(config: DynamicConfig) {
     const [googleAuth, setGoogleAuth] = useState<any | null>(null);
 
     useEffect(() => {
-        if (config.settings.google.oauthClientId) {
+        if (config.settings.google && config.settings.google.oauthClientId) {
             gapi.load('auth2', function () {
                 gapi.auth2.init({
                     client_id: config.settings.google.oauthClientId + '.apps.googleusercontent.com'
@@ -77,7 +77,7 @@ function App(config: DynamicConfig) {
                 googleAuth
             }}>
                 <ThemeProvider theme={theme}>
-                    <HashRouter basename={config.settings.basename}>
+                    <HashRouter>
                         <Routes>
                             {routes.map((route: RouteItem) =>
                                 route.subRoutes ? (
