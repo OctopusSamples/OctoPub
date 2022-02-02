@@ -84,7 +84,7 @@ function App(config: DynamicConfig) {
                                     route.subRoutes.map((item: RouteItem) => (
                                         <Route
                                             key={`${item.key}`}
-                                            path={`${item.path}`}
+                                            path={`${process.env.PUBLIC_URL}/${item.path}`}
                                             element={<Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
                                                 {item.component()({})}</Layout>}
                                         />
@@ -92,7 +92,7 @@ function App(config: DynamicConfig) {
                                 ) : (
                                     <Route
                                         key={`${route.key}`}
-                                        path={`${route.path}`}
+                                        path={`${process.env.PUBLIC_URL}/${route.path}`}
                                         element={<Layout toggleTheme={toggle}
                                                          useDefaultTheme={useDefaultTheme}>{route.component()({})}</Layout>}
                                     />
