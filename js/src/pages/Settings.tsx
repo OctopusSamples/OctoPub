@@ -12,6 +12,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const classes = styles();
     const history = useNavigate();
     const [apiKey, setApiKey] = useState<string | null>(context.apiKey);
+    const [signedIn, setSignedIn] = useState<string | null>(context.googleAuth && context.googleAuth.isSignedIn.get());
     const [partition, setPartition] = useState<string | null>(context.partition);
 
     return (
@@ -62,10 +63,13 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 <Grid className={classes.cell} item md={10} sm={12} xs={12}>
                     {!context.googleAuth &&
                         <Button variant={"outlined"} disabled={true}>Loading...</Button>}
-                    {context.googleAuth && !context.googleAuth.isSignedIn.get() &&
-                        <Button variant={"outlined"} onClick={_ => login()}>Login</Button>}
-                    {context.googleAuth && context.googleAuth.isSignedIn.get() &&
-                        <Button variant={"outlined"} onClick={_ => logout()}>Logout</Button>}
+                    {context.googleAuth &&
+                        <span>
+                            {signedIn
+                                ? <Button variant={"outlined"} onClick={_ => logout()}>Logout</Button>
+                                : <Button variant={"outlined"} onClick={_ => login()}>Login</Button>}
+                        </span>
+                    }
                 </Grid>
                 <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
 
@@ -79,13 +83,18 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     function login() {
         if (context.googleAuth && !context.googleAuth.isSignedIn.get()) {
-            context.googleAuth.signIn();
+            context.googleAuth.signIn()
+                .then(() => {
+                    setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get())
+                });
         }
     }
 
     function logout() {
         if (context.googleAuth && context.googleAuth.isSignedIn.get()) {
-            context.googleAuth.signOut();
+            context.googleAuth.signOut().then(() => {
+                setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get())
+            });
         }
     }
 
