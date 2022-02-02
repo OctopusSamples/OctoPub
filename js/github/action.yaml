@@ -42,7 +42,7 @@ runs:
         username: ${{ inputs.dockerhub_username }}
         password: ${{ inputs.dockerhub_password }}
 
-    - name: Set the environment variable
+    - name: Creating a prerelease from the branch
       run: |
         PRERELEASE="${{ inputs.branch != 'master' && format('-{0}', inputs.branch) || '' }}"
         echo PRERELEASE=${PRERELEASE////-} >> $GITHUB_ENV
@@ -69,12 +69,12 @@ runs:
       working-directory: js
 
     - name: Create zip
-      run: cd build; zip -r ../octopub-frontend.0.1.0.${{ inputs.run_number }}.zip .
+      run: cd build; zip -r ../octopub-frontend.0.1.${{ inputs.run_number }}.zip .
       shell: bash
       working-directory: js
 
     - name: Create zip
-      run: zip octopub-frontend-sbom.0.1.0.${{ inputs.run_number }}.zip bom.xml
+      run: zip octopub-frontend-sbom.0.1.${{ inputs.run_number }}.zip bom.xml
       shell: bash
       working-directory: js
 
@@ -102,7 +102,7 @@ runs:
 
     - run: >
         mvn deploy:deploy-file
-        -Dfile=octopub-frontend.0.1.0.${{ inputs.run_number }}.zip
+        -Dfile=octopub-frontend.0.1.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend
         -Dversion=0.1.${{ github.run_number }}${{ env.PRERELEASE  }}
@@ -113,7 +113,7 @@ runs:
 
     - run: >
         mvn deploy:deploy-file
-        -Dfile=octopub-frontend-sbom.0.1.0.${{ inputs.run_number }}.zip
+        -Dfile=octopub-frontend-sbom.0.1.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend-sbom
         -Dversion=0.1.${{ github.run_number }}${{ env.PRERELEASE  }}
