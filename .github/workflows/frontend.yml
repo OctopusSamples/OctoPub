@@ -25,4 +25,3 @@ jobs:
           dockerhub_password: ${{ secrets.DOCKERHUB_SAMPLES_PASSWORD }}
           octopus_server_url: ${{ secrets.OCTOPUS_URL }}
           octopus_api_token: ${{ secrets.OCTOPUS_API_KEY }}
-          branch: ${{ env.BRANCH_NAME }}

@@ -14,8 +14,6 @@ inputs:
     required: true
   octopus_api_token:
     required: true
-  branch:
-    required: true
 on:
   push:
   workflow_dispatch:
@@ -44,7 +42,7 @@ runs:
 
     - name: Creating a prerelease from the branch
       run: |
-        PRERELEASE="${{ inputs.branch != 'master' && format('-{0}', inputs.branch) || '' }}"
+        PRERELEASE="${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || '' }}"
         echo PRERELEASE=${PRERELEASE////-} >> $GITHUB_ENV
       shell: bash
 
