@@ -227,6 +227,17 @@ step "Proxy with API Gateway" {
                         "PathPart": {"Ref": "SubPath"}
                       }
                 	},
+                    "BranchResourceProxy": {
+                      "Type": "AWS::ApiGateway::Resource",
+                      "Condition": "IsFeatureBranch",
+                      "Properties": {
+                        "RestApiId": {
+                          "Ref": "RestApi"
+                        },
+                        "ParentId": {"Ref": "BranchResource"},
+                        "PathPart": {"Ref": "{proxy+}"}
+                      }
+                	},
                     "FrontendMethodOne": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
@@ -294,14 +305,12 @@ step "Proxy with API Gateway" {
                             	"method.response.header.Strict-Transport-Security": true 
                             }
                         }],
-                        "ResourceId": {
-                          "Ref": {
-                                "Fn::If": [
-                                    "CreateLargeSize",
-                                    "BranchResource",
-                                    "RootResourceId"
-                                ]
-                            }
+                        "ResourceId": {         
+                          "Fn::If": [
+                            "CreateLargeSize",
+                            {"Ref": "BranchResource"},
+                            {"Ref": "RootResourceId"}
+                          ] 
                         },
                         "RestApiId": {"Ref": "RestApi"}
                       }
@@ -396,14 +405,12 @@ step "Proxy with API Gateway" {
                             	"method.response.header.Location": true
                             }
                         }],
-                        "ResourceId": {
-                          "Ref": {
-                                "Fn::If": [
-                                    "CreateLargeSize",
-                                    "BranchResource",
-                                    "ResourceId"
-                                ]
-                            }
+                        "ResourceId": {         
+                          "Fn::If": [
+                            "CreateLargeSize",
+                            {"Ref": "BranchResourceProxy"},
+                            {"Ref": "ResourceId"}
+                          ] 
                         },
                         "RestApiId": {"Ref": "RestApi"}
                       }
