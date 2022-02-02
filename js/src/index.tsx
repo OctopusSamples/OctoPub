@@ -6,7 +6,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {loadConfig} from "./dynamicConfig";
-import {clearLoginBranch, getLoginBranch} from "./utils/path";
+import {clearLoginBranch, getBranchPath, getLoginBranch} from "./utils/path";
 import {setAccessToken} from "./utils/security";
 
 if (handleLogin()) {
@@ -61,7 +61,7 @@ function handleLogin() {
 
         if (accessToken) {
             setAccessToken(accessToken);
-            window.location.href = "/" + loginBranch + "/";
+            window.location.href = getBranchPath(loginBranch);
             return false;
         }
 

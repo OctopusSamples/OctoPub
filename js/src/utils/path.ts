@@ -27,6 +27,14 @@ export function getBranch() {
     return baseUrl.split("/").pop() || "";
 }
 
+export function getBranchPath(branch: string) {
+    if (branch === DEFAULT_BRANCH) {
+        return "/";
+    }
+
+    return "/" + branch + "/";
+}
+
 export function setLoginBranch() {
     return window.localStorage.setItem("loginbranch", getBranch());
 }
