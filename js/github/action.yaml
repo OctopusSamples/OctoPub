@@ -14,6 +14,8 @@ inputs:
     required: true
   octopus_api_token:
     required: true
+  branch:
+    required: true
 on:
   push:
   workflow_dispatch:
@@ -97,7 +99,7 @@ runs:
         -Dfile=octopub-frontend.0.1.0.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend
-        -Dversion=0.1.${{ github.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        -Dversion=0.1.${{ github.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}
         -Dpackaging=zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
@@ -108,7 +110,7 @@ runs:
         -Dfile=octopub-frontend-sbom.0.1.0.${{ inputs.run_number }}.zip
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend-sbom
-        -Dversion=0.1.${{ github.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        -Dversion=0.1.${{ github.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}
         -Dpackaging=zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
       shell: bash
@@ -118,7 +120,7 @@ runs:
       run: >
         octo pack
         --id octopub-frontend-k8s
-        --version 0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        --version 0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}
         --format zip
         --include k8s/**
       shell: bash
@@ -126,11 +128,11 @@ runs:
 
     - run: >
         mvn deploy:deploy-file
-        -Dfile=octopub-frontend-k8s.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}.zip
+        -Dfile=octopub-frontend-k8s.0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}.zip
         -Durl="https://${{ inputs.github_user }}:${{ inputs.github_token }}@maven.pkg.github.com/${{ github.repository }}"
         -DgroupId=com.octopus.octopub
         -DartifactId=octopub-frontend-k8s
-        -Dversion=0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        -Dversion=0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}
         -Dpackaging=zip
       shell: bash
       working-directory: js
@@ -148,8 +150,8 @@ runs:
           --buildpack paketo-community/staticfile \
           --buildpack gcr.io/paketo-buildpacks/environment-variables
         docker push octopussamples/octopub-frontend
-        docker tag octopussamples/octopub-frontend:latest octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
-        docker push octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        docker tag octopussamples/octopub-frontend:latest octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}
+        docker push octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}
       shell: bash
       working-directory: js
       
@@ -159,7 +161,7 @@ runs:
       with:
         valueFile: 'js/k8s/deployment.yaml'
         propertyPath: 'spec.template.spec.containers.0.image'
-        value: "octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}"
+        value: "octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}"
         message: "Updated image reference"
         createPR: false
 
@@ -169,7 +171,7 @@ runs:
         octopus_api_key: ${{ inputs.octopus_api_token }}
         octopus_project: Octopub Frontend
         octopus_server: ${{ inputs.octopus_server_url }}
-        push_version: 0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        push_version: 0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}
         push_package_ids: com.octopus.octopub:octopub-frontend
         push_overwrite_mode: OverwriteExisting
         output_path: octopus
@@ -187,7 +189,7 @@ runs:
         --apiKey ${{ inputs.octopus_api_token }}
         --space "Octopub"
         --gitRef master
-        --defaultPackageVersion ${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
+        --defaultPackageVersion ${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}
       shell: bash
 
     - name: Trigger deployment to security
