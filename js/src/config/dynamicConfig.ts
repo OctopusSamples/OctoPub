@@ -1,3 +1,5 @@
+import {JWK} from "jwk-to-pem";
+
 /**
  * Represents the configuration in the config.json file, which is processed by Octopus for each deployment
  * and environment.
@@ -15,6 +17,7 @@ export interface DynamicConfig {
         },
         aws: {
             cognitoLogin: string;
+            jwk: JWK[];
         }
     },
     useDefaultTheme?: boolean;

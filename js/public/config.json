@@ -10,7 +10,27 @@
       "oauthClientId": ""
     },
     "aws": {
-      "cognitoLogin": ""
+      "cognitoLogin": "",
+      "jwk": {
+        "keys": [
+          {
+            "alg": "RS256",
+            "e": "AQAB",
+            "kid": "nNq74cYaLILBzK3Xj6fbLyAft1PKQ+NUk1qfbti+hCc=",
+            "kty": "RSA",
+            "n": "v9p2l1sndITz8aJfv_eyd-1qM4QLaeM9KZv0RpAP64TqRltnCzqnhGh9LQFWi3yBP3W8FSpcEIbTOWAPEJTmghei9UIrFsj0FjOKvPekOo0Ru9bC5hzXP-qfvPYm-tI5eLfETh3tAzYh8yZOUdA54Aeh8gcgXmo76xgDpAWOdGUA9rWQy_9yOaw3BjbdxTfrMEc0PWgabvr6lbkJAnRniy1OuKagLkq_4LR4FqMZeMLigH6DCNZcxxt7zEAvq2FHmI7pb61wIjE6IaRpMVQzIigAt9RPsDtxdKa0t81eFGwJ0zTZohug25Tjxaq6dQ7_EaeNKydqQE0DQuBCK4PSnw",
+            "use": "sig"
+          },
+          {
+            "alg": "RS256",
+            "e": "AQAB",
+            "kid": "EOvH2oVI+dytpFdeOf4XgaQZJCxi9D2p6NNksAQ0xwc=",
+            "kty": "RSA",
+            "n": "3wvVIcPQDchoSHj-3t5p-dmNhJtBsQNiYkdFdhBX8snO4nOBVl0lHmbnlT95qxv8IsD32-U_IbGH_eQMK_1FypYGaTZx-7ztVWpevb1L0SkIA9-Hiss8iikClYZb_RseKK65rqit7_LliHIQlXdD7oG_iRoEexlnNL-3sgCnGlXxtxocUMJYLQQShx5aZCnS_yUwTz89oyYdD6NZRyRYJ66NUSivw4H9URghIQMiP6fFM9q-AWXhE4FwIRg-_AjjgjznsGefXVdS1bqnx6aCjsffcODRoDADFKk7cCV37f_3GKgGG44zGgyHpESYDDD_3n5BgM4eMZXhlLLEZAYmTQ",
+            "use": "sig"
+          }
+        ]
+      }
     }
   }
 }

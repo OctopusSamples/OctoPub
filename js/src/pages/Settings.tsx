@@ -16,7 +16,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const [apiKey, setApiKey] = useState<string | null>(context.apiKey);
     const [partition, setPartition] = useState<string | null>(context.partition);
 
-    const accessToken = getAccessToken();
+    const accessToken = getAccessToken(context.settings.aws.jwk);
 
     return (
         <>
