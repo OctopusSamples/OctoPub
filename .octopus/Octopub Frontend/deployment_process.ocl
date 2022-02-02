@@ -216,6 +216,17 @@ step "Proxy with API Gateway" {
                     }
                   },
                   "Resources": {
+                    "BranchResource": {
+                      "Type": "AWS::ApiGateway::Resource",
+                      "Condition": "IsFeatureBranch",
+                      "Properties": {
+                        "RestApiId": {
+                          "Ref": "RestApi"
+                        },
+                        "ParentId": {"Ref": "RootResourceId"},
+                        "PathPart": {"Ref": "SubPath"}
+                      }
+                	},
                     "FrontendMethodOne": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
