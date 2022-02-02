@@ -201,7 +201,7 @@ step "Proxy with API Gateway" {
                       "Type": "String"
                     }
                   },
-                  "Condition": {
+                  "Conditions": {
                   	"IsFeatureBranch":  {
                       "Fn::Not": [
                         {
