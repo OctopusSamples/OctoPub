@@ -44,7 +44,7 @@ runs:
 
     - name: Set the environment variable
       run: |
-        PRERELEASE="${{ env.inputs.branch != 'master' && format('-{0}', inputs.branch) || '' }}"
+        PRERELEASE="${{ inputs.branch != 'master' && format('-{0}', inputs.branch) || '' }}"
         echo PRERELEASE=${PRERELEASE////-} >> $GITHUB_ENV
 
     - name: Packages
@@ -166,7 +166,7 @@ runs:
       with:
         valueFile: 'js/k8s/deployment.yaml'
         propertyPath: 'spec.template.spec.containers.0.image'
-        value: "octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', inputs.branch) || ''  }}"
+        value: "octopussamples/octopub-frontend:0.1.${{ inputs.run_number }}${{ env.PRERELEASE  }}"
         message: "Updated image reference"
         createPR: false
 
