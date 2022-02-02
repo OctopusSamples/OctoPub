@@ -50,6 +50,7 @@ runs:
       if: ${{ env.BRANCH_NAME != 'master' }}
       run: |-
         echo "`jq '.homepage="/${BRANCH_NAME////-}"' package.json`" > package.json
+      shell: bash
 
     - name: Packages
       run: yarn install
