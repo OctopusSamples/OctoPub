@@ -5,6 +5,7 @@ import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {styles} from "../utils/styles";
 import {useNavigate} from "react-router-dom";
+import * as AWS from "aws-sdk";
 
 const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
@@ -90,6 +91,32 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
             context.googleAuth.signIn()
                 .then((authResult: any) => {
                     setSignedIn(context.googleAuth && context.googleAuth.isSignedIn.get());
+
+                    // https://docs.aws.amazon.com/cognito/latest/developerguide/google.html#set-up-google-1.javascript
+                    if (authResult['status']['signed_in']) {
+                        // Add the Google access token to the Amazon Cognito credentials login map.
+                        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+                            IdentityPoolId: context.settings.aws.cognitoPool,
+                            Logins: {
+                                'accounts.google.com': authResult['id_token']
+                            }
+                        });
+
+                        // Obtain AWS credentials
+                        if ("get" in AWS.config.credentials) {
+                            AWS.config.credentials.get(function () {
+                                // Credentials will be available when this function is called.
+                                // https://docs.aws.amazon.com/cognito/latest/developerguide/getting-credentials.html#getting-credentials-1.javascript
+                                /*var accessKeyId = AWS.config.credentials.accessKeyId;
+                                var secretAccessKey = AWS.config.credentials.secretAccessKey;
+                                var sessionToken = AWS.config.credentials.sessionToken;*/
+
+                                console.log("Access ID: " + AWS && AWS.config.credentials
+                                    ? AWS.config.credentials.accessKeyId
+                                    : "none");
+                            });
+                        }
+                    }
                 });
         }
     }

@@ -19,7 +19,7 @@ declare var gapi: any;
 
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
-    settings: {title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", requireApiKey: "", google: {tag: "", oauthClientId: ""}},
+    settings: {title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", requireApiKey: "", google: {tag: "", oauthClientId: ""}, aws: {cognitoPool: ""}},
     useDefaultTheme: true,
     apiKey: null,
     setPartition: () => {},

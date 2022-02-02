@@ -12,6 +12,9 @@ export interface DynamicConfig {
         google: {
             tag: string;
             oauthClientId: string;
+        },
+        aws: {
+            cognitoPool: string;
         }
     },
     useDefaultTheme?: boolean;
