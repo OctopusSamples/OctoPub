@@ -48,17 +48,19 @@ function App(config: DynamicConfig) {
     const [partition, setPartition] = useState<string | null>(localStorage.getItem("partition") || "main");
     const [googleAuth, setGoogleAuth] = useState<any | null>(null);
 
+    const oauthClientId = config.settings.google ? config.settings.google.oauthClientId : null;
+
     useEffect(() => {
-        if (config.settings.google && config.settings.google.oauthClientId) {
+        if (oauthClientId) {
             gapi.load('auth2', function () {
                 gapi.auth2.init({
-                    client_id: config.settings.google.oauthClientId + '.apps.googleusercontent.com'
+                    client_id: oauthClientId + '.apps.googleusercontent.com'
                 }).then(function () {
                     setGoogleAuth(gapi.auth2.getAuthInstance());
                 });
             });
         }
-    }, [config.settings.google]);
+    }, [oauthClientId]);
 
     return (
         <>
