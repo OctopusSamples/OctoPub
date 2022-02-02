@@ -37,7 +37,7 @@ function handleLogin() {
 
         // Before we redirect to cognito, the login branch must be set. If not, ignore redirect.
         if (!loginBranch) {
-            return;
+            return true;
         }
 
         const accessToken =
