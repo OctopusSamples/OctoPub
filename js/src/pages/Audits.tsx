@@ -37,12 +37,14 @@ const Audits: FC<CommonProps> = (props: CommonProps): ReactElement => {
         {field: 'dataPartition', headerName: 'Data Partition', width: 130},
     ];
 
+    const accessToken = getAccessToken(context.settings.aws.jwk.keys);
+
     useEffect(() => {
-        getJsonApi<AuditsCollection>(context.settings.auditEndpoint, context.partition, getAccessToken(context.settings.aws.jwk))
+        getJsonApi<AuditsCollection>(context.settings.auditEndpoint, context.partition, accessToken)
             .then(data => setAudits(data))
             .catch(() => setError("Failed to retrieve audit resources. "
                 + (isBranchingEnabled() ? "Branching rules are enabled - double check they are valid, or disable them." : "")))
-    }, [setAudits, context.settings.auditEndpoint, context.partition, context.settings.aws.jwk]);
+    }, [setAudits, context.settings.auditEndpoint, context.partition, accessToken]);
 
     return (
         <>

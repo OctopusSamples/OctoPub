@@ -18,6 +18,9 @@ export function getBaseUrl() {
     }
 }
 
+/**
+ * Determines the branch name from the URL.
+ */
 export function getBranch() {
     const baseUrl = getBaseUrl();
     if (baseUrl === "") {
@@ -27,6 +30,9 @@ export function getBranch() {
     return baseUrl.split("/").pop() || "";
 }
 
+/**
+ * Converts a branch name into a path. This takes care of the fact that the main branch is on the root path.
+ */
 export function getBranchPath(branch: string) {
     if (branch === DEFAULT_BRANCH) {
         return "/";
@@ -39,10 +45,21 @@ export function setLoginBranch() {
     return window.localStorage.setItem("loginbranch", getBranch());
 }
 
+/**
+ * Because of the way Cognito works, you can only be redirected back to pages listed in the Cognito pool redirect URLs.
+ * This presents an issue, because we want to redirect users back to the feature branch they logged in from.
+ *
+ * To support directing users back to their branch, the loginbranch local storage item is set to the name of the branch
+ * that initiated the login. When users are returned to the app, they will be redirected back to the feature branch
+ * based on the loginbranch local storage item value.
+ */
 export function getLoginBranch() {
     return window.localStorage.getItem("loginbranch");
 }
 
+/**
+ * loginbranch is a short-lived value, lasting only as long as is required to complete a login.
+ */
 export function clearLoginBranch() {
     return window.localStorage.setItem("loginbranch", "");
 }

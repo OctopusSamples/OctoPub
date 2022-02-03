@@ -16,7 +16,9 @@ export interface DynamicConfig {
         },
         aws: {
             cognitoLogin: string;
-            jwk: JWK[];
+            jwk: {
+                keys: JWK[]
+            };
         }
     },
     useDefaultTheme?: boolean;

@@ -16,7 +16,7 @@ import {routes} from "./config";
 
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
-    settings: {title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", google: {tag: "", oauthClientId: ""}, aws: {cognitoLogin: "", jwk: []}},
+    settings: {title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", google: {tag: "", oauthClientId: ""}, aws: {cognitoLogin: "", jwk: {keys: []}}},
     useDefaultTheme: true,
     setPartition: () => {},
     partition: null,

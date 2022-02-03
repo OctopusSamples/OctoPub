@@ -43,15 +43,16 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
         [context]);
 
     const [health, setHealth] = useState<{[key: string]: boolean}>({});
+    const accessToken = getAccessToken(context.settings.aws.jwk.keys);
 
     useEffect(() => {
         for (const endpoint of endpoints) {
-            ((myEndpoint) => getJson(myEndpoint, getAccessToken(context.settings.aws.jwk))
+            ((myEndpoint) => getJson(myEndpoint, accessToken)
                 .then(() => newHealth[myEndpoint] = true)
                 .catch(() => newHealth[myEndpoint] = false)
                 .finally(() => setHealth({...newHealth})))(endpoint);
         }
-    }, [endpoints, setHealth, context.settings.aws.jwk]);
+    }, [endpoints, setHealth, accessToken]);
 
     return (
         <>
