@@ -25,7 +25,7 @@ export function getJson<T>(url: string, accessToken?: string | null, retryCount?
         method: 'GET',
         headers: {
             'Accept': 'application/json',
-            'Authentication': accessToken ? "Bearer: " + accessToken : ""
+            'Authorization': accessToken ? "Bearer: " + accessToken : ""
         }
     })
         .then(response => {
@@ -49,7 +49,7 @@ export function getJsonApi<T>(url: string, partition: string | null, accessToken
         headers: {
             'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
-            'Authentication': accessToken ? "Bearer: " + accessToken : ""
+            'Authorization': accessToken ? "Bearer: " + accessToken : ""
         }
     })
         .then(response => {
@@ -73,7 +73,7 @@ export function patchJsonApi<T>(resource: string, url: string, partition: string
         headers: {
             'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
-            'Authentication': accessToken ? "Bearer: " + accessToken : ""
+            'Authorization': accessToken ? "Bearer: " + accessToken : ""
         },
         body: resource
     })
@@ -98,7 +98,7 @@ export function postJsonApi<T>(resource: string, url: string, partition: string 
         headers: {
             'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
-            'Authentication': accessToken ? "Bearer: " + accessToken : ""
+            'Authorization': accessToken ? "Bearer: " + accessToken : ""
         },
         body: resource
     })
@@ -116,7 +116,7 @@ export function deleteJsonApi(url: string, partition: string | null, accessToken
         headers: {
             'Accept': 'application/vnd.api+json, application/vnd.api+json; dataPartition=' + partition + '; ' + getBranchingRules(),
             'Content-Type': 'application/vnd.api+json',
-            'Authentication': accessToken ? "Bearer: " + accessToken : ""
+            'Authorization': accessToken ? "Bearer: " + accessToken : ""
         }
     })
         .then(response => {
