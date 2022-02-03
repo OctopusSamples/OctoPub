@@ -232,7 +232,7 @@ public class ProductsHandler {
   }
 
   private boolean isAuthorized(final String authorizationHeader) {
-    return !cognitoDisableAuth && !jwtUtils.getJwtFromAuthorizationHeader(authorizationHeader)
+    return cognitoDisableAuth || jwtUtils.getJwtFromAuthorizationHeader(authorizationHeader)
         .map(jwt -> jwtVerifier.jwtContainsCognitoGroup(jwt, cognitoEditorGroup))
         .orElse(false);
   }
