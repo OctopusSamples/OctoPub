@@ -52,6 +52,18 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                         {accessToken
                             ? <Button variant={"outlined"} onClick={_ => logout()}>Logout</Button>
                             : <Button variant={"outlined"} onClick={_ => login()}>Login</Button>}
+                    <span className={classes.helpText}>
+                        <p>
+                            If your account is part of the "Developers" group, you will be granted access to create,
+                            modify, and delete books.
+                        </p>
+                        <p>
+                            You must also log in to the "Developers" group to have any branching rules applied.
+                        </p>
+                        <p>
+                            Your login is valid for an hour, after which the token expires and you must login again.
+                        </p>
+                    </span>
                 </Grid>
                 <Grid container={true} className={classes.cell} item md={2} sm={12} xs={12}>
 
