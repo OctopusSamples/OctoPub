@@ -60,6 +60,8 @@ runs:
       run: ./mvnw --batch-mode install
       shell: bash
       working-directory: java/products-service
+      env:
+        COGNITO_DISABLE_AUTH: true
 
     - name: Update version
       run: ./mvnw --batch-mode build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.${{ github.run_number }}${{ env.BRANCH_NAME != 'master' && format('-{0}', env.BRANCH_NAME) || ''  }}
