@@ -44,6 +44,7 @@ runs:
         AWS_REGION: us-west-1
         TEST_LAMBDA: Development-hello-world
         TEST_SQS: https://sqs.us-west-1.amazonaws.com/720766170633/Development-integrationtest
+        COGNITO_AUTHORIZATION_REQUIRED: false
 
     - run: cyclonedx-gomod app -main cmd/lambda -output cyclonedx.bom.xml
       shell: bash

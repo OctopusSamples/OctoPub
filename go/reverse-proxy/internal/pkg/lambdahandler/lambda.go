@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/awslabs/aws-lambda-go-api-proxy/handlerfunc"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/vibrantbyte/go-antpath/antpath"
 	"log"
 	"net/http"
@@ -171,11 +172,64 @@ func callLambda(lambdaName string, req events.APIGatewayProxyRequest) (events.AP
 	return convertLambdaProxyResponse(lambdaResponse)
 }
 
+func authorizeRouting(req events.APIGatewayProxyRequest) bool {
+	// The requirements for a cognito login can be disabled
+	required := utils.GetEnv("COGNITO_AUTHORIZATION_REQUIRED", "true")
+	if strings.ToLower(required) == "false" {
+		return true
+	}
+
+	authentication, authErr := getHeader(req.Headers, req.MultiValueHeaders, "Authorization")
+	if authErr != nil {
+		return false
+	}
+
+	// We expect a header like "Bearer: tokengoeshere"
+	splitHeader := strings.Split(authentication, ":")
+	if len(splitHeader) != 2 {
+		return false
+	}
+
+	if strings.TrimSpace(splitHeader[0]) != "Bearer" {
+		return false
+	}
+
+	region, regionOk := os.LookupEnv("COGNITO_REGION")
+	pool, poolOk := os.LookupEnv("COGNITO_POOL")
+	requiredGroup, requiredGroupOk := os.LookupEnv("COGNITO_REQUIRED_GROUP")
+
+	if !regionOk || !poolOk || !requiredGroupOk {
+		return false
+	}
+
+	token, tokenError := utils.VerifyJwt(
+		strings.TrimSpace(splitHeader[1]),
+		"https://cognito-idp."+region+".amazonaws.com/"+pool+"/.well-known/jwks.json")
+
+	if tokenError != nil || !token.Valid {
+		return false
+	}
+
+	if groups, ok := token.Claims.(jwt.MapClaims)["cognito:groups"]; ok {
+		for _, group := range groups.([]interface{}) {
+			if group == requiredGroup {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func extractUpstreamService(req events.APIGatewayProxyRequest) (http *url.URL, lambda string, sqs string, err error) {
 	acceptAll, err := getHeader(req.Headers, req.MultiValueHeaders, "Accept")
 
 	if err != nil {
 		return nil, "", "", errors.New("accept header is required")
+	}
+
+	if !authorizeRouting(req) {
+		return nil, "", "", errors.New("user is not authorized to route requests")
 	}
 
 	for _, acceptComponent := range getComponentsFromHeader(acceptAll) {
