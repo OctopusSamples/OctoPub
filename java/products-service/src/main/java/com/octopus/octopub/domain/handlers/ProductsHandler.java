@@ -29,11 +29,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class ProductsHandler {
 
-  @Inject
   @ConfigProperty(name = "cognito.editor-group")
   String cognitoEditorGroup;
 
-  @Inject
   @ConfigProperty(name = "cognito.disable-auth")
   Boolean cognitoDisableAuth;
 

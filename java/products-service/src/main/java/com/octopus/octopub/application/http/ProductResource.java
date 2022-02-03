@@ -68,7 +68,7 @@ public class ProductResource {
   public Response create(
       @NonNull final String document,
       @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader,
-      @HeaderParam(Constants.AUTHORIZED_HEADER) final List<String> authorizationHeader)
+      @HeaderParam(Constants.AUTHORIZATION_HEADER) final List<String> authorizationHeader)
       throws DocumentSerializationException {
     checkAcceptHeader(acceptHeader);
     return Response.ok(productsHandler.create(

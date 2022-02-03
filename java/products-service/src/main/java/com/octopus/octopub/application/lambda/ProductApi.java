@@ -237,7 +237,7 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                     getAllHeaders(
                             input.getMultiValueHeaders(),
                             input.getHeaders(),
-                            Constants.AUTHORIZED_HEADER)
+                            Constants.AUTHORIZATION_HEADER)
                         .stream()
                         .findFirst()
                         .orElse(null))));
