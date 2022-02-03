@@ -67,10 +67,15 @@ public class ProductResource {
   @Transactional
   public Response create(
       @NonNull final String document,
-      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader)
+      @HeaderParam(Constants.ACCEPT_HEADER) final List<String> acceptHeader,
+      @HeaderParam(Constants.AUTHORIZED_HEADER) final List<String> authorizationHeader)
       throws DocumentSerializationException {
     checkAcceptHeader(acceptHeader);
-    return Response.ok(productsHandler.create(document, acceptHeader)).build();
+    return Response.ok(productsHandler.create(
+        document,
+        acceptHeader,
+        authorizationHeader.stream().findFirst().orElse(null)))
+        .build();
   }
 
   /**
