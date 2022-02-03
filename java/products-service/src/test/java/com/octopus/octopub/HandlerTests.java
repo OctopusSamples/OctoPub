@@ -82,7 +82,8 @@ public class HandlerTests extends BaseTest {
     final String result =
         productsHandler.create(
             productToResourceDocument(resourceConverter, product),
-            List.of("application/vnd.api+json; dataPartition=testing"));
+            List.of("application/vnd.api+json; dataPartition=testing"),
+            null);
     final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final Product product2 = new Product();
@@ -121,7 +122,8 @@ public class HandlerTests extends BaseTest {
     final String result =
         productsHandler.create(
             productToResourceDocument(resourceConverter, product),
-            List.of("application/vnd.api+json; dataPartition=testing"));
+            List.of("application/vnd.api+json; dataPartition=testing"),
+            null);
     final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final Product product2 = new Product();
@@ -152,7 +154,8 @@ public class HandlerTests extends BaseTest {
     final String result =
         productsHandler.create(
             productToResourceDocument(resourceConverter, product),
-            List.of("application/vnd.api+json; dataPartition=testing"));
+            List.of("application/vnd.api+json; dataPartition=testing"),
+            null);
     final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final boolean success =
@@ -178,7 +181,8 @@ public class HandlerTests extends BaseTest {
     final String result =
         productsHandler.create(
             productToResourceDocument(resourceConverter, product),
-            List.of("application/vnd.api+json; dataPartition=testing"));
+            List.of("application/vnd.api+json; dataPartition=testing"),
+            null);
     final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     assertFalse(
@@ -198,7 +202,8 @@ public class HandlerTests extends BaseTest {
     final String result =
         productsHandler.create(
             productToResourceDocument(resourceConverter, product),
-            List.of("application/vnd.api+json; dataPartition=testing"));
+            List.of("application/vnd.api+json; dataPartition=testing"),
+            null);
     final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final String getResult =
@@ -227,7 +232,8 @@ public class HandlerTests extends BaseTest {
     final String result =
         productsHandler.create(
             productToResourceDocument(resourceConverter, product),
-            List.of("application/vnd.api+json; dataPartition=testing"));
+            List.of("application/vnd.api+json; dataPartition=testing"),
+            null);
     final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     assertThrows(
@@ -251,7 +257,8 @@ public class HandlerTests extends BaseTest {
     final String result =
         productsHandler.create(
             productToResourceDocument(resourceConverter, product),
-            List.of("application/vnd.api+json; dataPartition=testing"));
+            List.of("application/vnd.api+json; dataPartition=testing"),
+            null);
     final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final String getResult =
@@ -281,7 +288,8 @@ public class HandlerTests extends BaseTest {
     final String result =
         productsHandler.create(
             productToResourceDocument(resourceConverter, product),
-            List.of("application/vnd.api+json; dataPartition=testing"));
+            List.of("application/vnd.api+json; dataPartition=testing"),
+            null);
     final Product resultObject = getProductFromDocument(resourceConverter, result);
 
     final String getResult =

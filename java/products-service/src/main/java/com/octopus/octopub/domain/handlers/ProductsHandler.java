@@ -34,6 +34,10 @@ public class ProductsHandler {
   String cognitoEditorGroup;
 
   @Inject
+  @ConfigProperty(name = "cognito.disable-auth")
+  Boolean cognitoDisableAuth;
+
+  @Inject
   ProductRepository productRepository;
 
   @Inject
@@ -84,7 +88,7 @@ public class ProductsHandler {
       final String authorizationHeader)
       throws DocumentSerializationException {
 
-    if (!jwtUtils.getJwtFromAuthorizationHeader(authorizationHeader)
+    if (!cognitoDisableAuth && !jwtUtils.getJwtFromAuthorizationHeader(authorizationHeader)
         .map(jwt -> jwtVerifier.jwtContainsCognitoGroup(jwt, cognitoEditorGroup))
         .orElse(false)) {
       throw new Unauthorized();

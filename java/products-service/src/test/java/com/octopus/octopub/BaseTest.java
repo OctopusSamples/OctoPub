@@ -35,7 +35,8 @@ public class BaseTest {
     final String result =
         productsHandler.create(
             productToResourceDocument(resourceConverter, product),
-            List.of("application/vnd.api+json; dataPartition=" + partition));
+            List.of("application/vnd.api+json; dataPartition=" + partition),
+            null);
     final Product resultObject = getProductFromDocument(resourceConverter, result);
     return resultObject;
   }
