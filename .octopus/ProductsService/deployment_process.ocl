@@ -881,7 +881,7 @@ step "Deploy Lambda" {
                     "LambdaResourceMethodThree": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {    
-                      	"ApiKeyRequired" : true,
+                      	"ApiKeyRequired" : false,
                         "AuthorizationType": "NONE",  
                         "HttpMethod": "POST",
                         "Integration": {          
@@ -916,7 +916,7 @@ step "Deploy Lambda" {
                     "LambdaResourceMethodFour": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
-                      	"ApiKeyRequired" : true,
+                      	"ApiKeyRequired" : false,
                         "AuthorizationType": "NONE",  
                         "HttpMethod": "DELETE",
                         "Integration": {          
@@ -951,7 +951,7 @@ step "Deploy Lambda" {
                     "LambdaResourceMethodFive": {
                       "Type": "AWS::ApiGateway::Method",
                       "Properties": {      
-                      	"ApiKeyRequired" : true,
+                      	"ApiKeyRequired" : false,
                         "AuthorizationType": "NONE",  
                         "HttpMethod": "PATCH",
                         "Integration": {          
