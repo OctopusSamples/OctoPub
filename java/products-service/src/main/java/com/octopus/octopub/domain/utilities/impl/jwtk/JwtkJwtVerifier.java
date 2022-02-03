@@ -28,7 +28,7 @@ public class JwtkJwtVerifier implements JwtVerifier {
 
   @Inject
   @ConfigProperty(name = "cognito.disable-auth")
-  Boolean cognitoDisableAuth;
+  boolean cognitoDisableAuth;
 
   private final JwkKeyResolver jwkKeyResolver;
 
