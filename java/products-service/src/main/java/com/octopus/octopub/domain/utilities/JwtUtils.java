@@ -1,9 +1,11 @@
 package com.octopus.octopub.domain.utilities;
 
 import java.util.Optional;
+import javax.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.StringUtils;
 
 /** A utility class for extracting JWTs from headers. */
+@ApplicationScoped
 public class JwtUtils {
   private static final String BEARER = "Bearer";
 

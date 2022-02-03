@@ -88,12 +88,9 @@ public class ProductsHandler {
       final String authorizationHeader)
       throws DocumentSerializationException {
 
-    if (!cognitoDisableAuth && !jwtUtils.getJwtFromAuthorizationHeader(authorizationHeader)
-        .map(jwt -> jwtVerifier.jwtContainsCognitoGroup(jwt, cognitoEditorGroup))
-        .orElse(false)) {
+    if (!isAuthorized(authorizationHeader)) {
       throw new Unauthorized();
     }
-
 
     final Product product = getProductFromDocument(document);
 
@@ -234,5 +231,10 @@ public class ProductsHandler {
     return new String(resourceConverter.writeDocument(document));
   }
 
+  private boolean isAuthorized(final String authorizationHeader) {
+    return !cognitoDisableAuth && !jwtUtils.getJwtFromAuthorizationHeader(authorizationHeader)
+        .map(jwt -> jwtVerifier.jwtContainsCognitoGroup(jwt, cognitoEditorGroup))
+        .orElse(false);
+  }
 
 }
