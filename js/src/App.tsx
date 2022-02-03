@@ -5,6 +5,7 @@ import {Helmet} from "react-helmet";
 // app routes
 // components
 import Layout from "./components/Layout";
+import jwt_decode from 'jwt-decode';
 
 // theme
 import {darkTheme, lightTheme} from "./theme/appTheme";
@@ -19,12 +20,21 @@ import Login from "./pages/Login";
 
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
-    settings: {title: "", productEndpoint: "", auditEndpoint: "", healthEndpoint: "", google: {tag: "", oauthClientId: ""}, aws: {cognitoLogin: "", jwk: {keys: []}}},
+    settings: {
+        title: "",
+        productEndpoint: "",
+        auditEndpoint: "",
+        healthEndpoint: "",
+        google: {tag: "", oauthClientId: ""},
+        aws: {cognitoLogin: "", cognitoDeveloperGroup: "", jwk: {keys: []}}
+    },
     useDefaultTheme: true,
-    setPartition: () => {},
+    setPartition: () => {
+    },
     partition: null,
     allBookId: null,
-    setAllBookId: () => {}
+    setAllBookId: () => {
+    }
 });
 
 function App(config: DynamicConfig) {
@@ -45,12 +55,22 @@ function App(config: DynamicConfig) {
     const [requireLogin, setRequireLogin] = useState<boolean>(false);
 
     const keys = config.settings.aws?.jwk?.keys;
+    const developerGroup = config.settings.aws?.cognitoDeveloperGroup;
 
     useEffect(() => {
         const branch = getBranch();
-        const accessToken = getAccessToken(keys);
-        setRequireLogin(branch !== DEFAULT_BRANCH && !accessToken);
-    }, [keys]);
+        if (branch !== DEFAULT_BRANCH) {
+            const accessToken = getAccessToken(keys);
+            if (accessToken) {
+                const decoded: any = jwt_decode(accessToken);
+                setRequireLogin(decoded["cognito:groups"].indexOf(developerGroup) == -1);
+            } else {
+                setRequireLogin(true)
+            }
+        }
+
+        setRequireLogin(false);
+    }, [keys, developerGroup]);
 
 
     return (

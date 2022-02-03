@@ -10,6 +10,7 @@
     },
     "aws": {
       "cognitoLogin": "",
+      "cognitoDeveloperGroup": "Developer",
       "jwk": {
         "keys": [
           {
