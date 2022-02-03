@@ -29,6 +29,6 @@ spec:
               cpu: "250m"
           env:
             - name: MIGRATE_AT_START
-              value: !str "true"
+              value: !!str "true"
             - name: AUDIT_SERVICE
               value: "http://audit-service.audits-development"
