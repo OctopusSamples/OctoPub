@@ -63,7 +63,7 @@ function App(config: DynamicConfig) {
             const accessToken = getAccessToken(keys);
             if (accessToken) {
                 const decoded: any = jwt_decode(accessToken);
-                setRequireLogin(decoded["cognito:groups"].indexOf(developerGroup) == -1);
+                setRequireLogin(decoded["cognito:groups"].indexOf(developerGroup) === -1);
             } else {
                 setRequireLogin(true)
             }
