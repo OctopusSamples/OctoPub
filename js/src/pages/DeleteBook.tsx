@@ -21,7 +21,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     context.setAllBookId(null);
 
-    const accessToken = getAccessToken(context.settings.aws.jwk.keys);
+    const accessToken = getAccessToken(context.settings.aws?.jwk?.keys);
 
     useEffect(() => {
         getJsonApi<Product|Errors>(context.settings.productEndpoint + "/" + bookId, context.partition, accessToken)
@@ -121,7 +121,7 @@ const DeleteBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
     function deleteBook() {
         if (book) {
             setDisabled(true);
-            deleteJsonApi(context.settings.productEndpoint + "/" + bookId, context.partition, getAccessToken(context.settings.aws.jwk.keys))
+            deleteJsonApi(context.settings.productEndpoint + "/" + bookId, context.partition, getAccessToken(context.settings.aws?.jwk?.keys))
                 .then(_ => history('/index.html'))
                 .catch(reason => {
                     setDisabled(false);

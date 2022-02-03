@@ -1,4 +1,4 @@
-const DEFAULT_BRANCH = "main";
+export const DEFAULT_BRANCH = "main";
 
 /**
  * Get the path from which to load the config.json file.

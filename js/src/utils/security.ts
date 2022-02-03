@@ -1,4 +1,4 @@
-import {getBranch, getLoginBranch} from "./path";
+import {getBranch, getLoginBranch, setLoginBranch} from "./path";
 import jwt from 'jsonwebtoken';
 import jwkToPem, {JWK} from 'jwk-to-pem';
 
@@ -11,6 +11,10 @@ export function setAccessToken(accessToken: string) {
  * @param jwk sourced from https://cognito-idp.<region>.amazonaws.com/<pool id>/.well-known/jwks.json
  */
 export function getAccessToken(jwk: JWK[]) {
+    if (!jwk) {
+        return "";
+    }
+
     const accessToken = window.localStorage.getItem(getBranch() + "-accesstoken") || "";
     if (accessToken) {
         const anyValidate = jwk.map(j => {
@@ -32,4 +36,13 @@ export function getAccessToken(jwk: JWK[]) {
 
 export function clearAccessToken() {
     window.localStorage.setItem(getBranch() + "-accesstoken", "");
+}
+
+export function login(cognitoLogin: string) {
+    setLoginBranch();
+    window.location.href = cognitoLogin;
+}
+
+export function logout() {
+    clearAccessToken();
 }

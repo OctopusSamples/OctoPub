@@ -67,7 +67,7 @@ const Header: FC<HeaderProps> = ({
     const classes = useStyles();
     const context = useContext(AppContext);
     const history = useNavigate();
-    const accessToken = getAccessToken(context.settings.aws.jwk.keys);
+    const accessToken = getAccessToken(context.settings.aws?.jwk?.keys);
     return (
         <AppBar
             position="relative"

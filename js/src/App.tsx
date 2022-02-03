@@ -1,4 +1,4 @@
-import React, {useReducer, useState} from "react";
+import React, {useEffect, useReducer, useState} from "react";
 import {createTheme, responsiveFontSizes, Theme, ThemeProvider,} from "@material-ui/core/styles";
 import {HashRouter, Route, Routes} from "react-router-dom";
 import {Helmet} from "react-helmet";
@@ -13,6 +13,9 @@ import {darkTheme, lightTheme} from "./theme/appTheme";
 import RouteItem from "./model/RouteItem.model";
 import {DynamicConfig} from "./config/dynamicConfig";
 import {routes} from "./config";
+import {DEFAULT_BRANCH, getBranch} from "./utils/path";
+import {getAccessToken} from "./utils/security";
+import Login from "./pages/Login";
 
 // define app context
 export const AppContext = React.createContext<DynamicConfig>({
@@ -39,6 +42,16 @@ function App(config: DynamicConfig) {
 
     const [allBookId, setAllBookId] = useState<string | null>(null);
     const [partition, setPartition] = useState<string | null>(localStorage.getItem("partition") || "main");
+    const [requireLogin, setRequireLogin] = useState<boolean>(false);
+
+    const keys = config.settings.aws?.jwk?.keys;
+
+    useEffect(() => {
+        const branch = getBranch();
+        const accessToken = getAccessToken(keys);
+        setRequireLogin(branch !== DEFAULT_BRANCH && !accessToken);
+    }, [keys]);
+
 
     return (
         <>
@@ -54,30 +67,33 @@ function App(config: DynamicConfig) {
                 setPartition
             }}>
                 <ThemeProvider theme={theme}>
-                    <HashRouter>
-                        <Routes>
-                            {routes.map((route: RouteItem) =>
-                                route.subRoutes ? (
-                                    route.subRoutes.map((item: RouteItem) => (
+                    {requireLogin && <Login/>}
+                    {!requireLogin &&
+                        <HashRouter>
+                            <Routes>
+                                {routes.map((route: RouteItem) =>
+                                    route.subRoutes ? (
+                                        route.subRoutes.map((item: RouteItem) => (
+                                            <Route
+                                                key={item.key}
+                                                path={item.path}
+                                                element={<Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
+                                                    {item.component()({})}</Layout>}
+                                            />
+                                        ))
+                                    ) : (
                                         <Route
-                                            key={item.key}
-                                            path={item.path}
-                                            element={<Layout toggleTheme={toggle} useDefaultTheme={useDefaultTheme}>
-                                                {item.component()({})}</Layout>}
+                                            key={route.key}
+                                            path={route.path}
+                                            element={<Layout toggleTheme={toggle}
+                                                             useDefaultTheme={useDefaultTheme}>{route.component()({})}</Layout>}
                                         />
-                                    ))
-                                ) : (
-                                    <Route
-                                        key={route.key}
-                                        path={route.path}
-                                        element={<Layout toggleTheme={toggle}
-                                                         useDefaultTheme={useDefaultTheme}>{route.component()({})}</Layout>}
-                                    />
+                                    )
                                 )
-                            )
-                            }
-                        </Routes>
-                    </HashRouter>
+                                }
+                            </Routes>
+                        </HashRouter>
+                    }
                 </ThemeProvider>
             </AppContext.Provider>
         </>

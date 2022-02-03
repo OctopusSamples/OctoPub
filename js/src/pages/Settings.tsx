@@ -5,8 +5,7 @@ import {Button, FormLabel, Grid, TextField} from "@material-ui/core";
 import {AppContext} from "../App";
 import {styles} from "../utils/styles";
 import {useNavigate} from "react-router-dom";
-import {setLoginBranch} from "../utils/path";
-import {clearAccessToken, getAccessToken} from "../utils/security";
+import {getAccessToken, login, logout} from "../utils/security";
 
 const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
@@ -15,7 +14,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const history = useNavigate();
     const [partition, setPartition] = useState<string | null>(context.partition);
 
-    const accessToken = getAccessToken(context.settings.aws.jwk.keys);
+    const accessToken = getAccessToken(context.settings.aws?.jwk?.keys);
 
     return (
         <>
@@ -51,7 +50,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 <Grid className={classes.cell} item md={10} sm={12} xs={12}>
                         {accessToken
                             ? <Button variant={"outlined"} onClick={_ => logout()}>Logout</Button>
-                            : <Button variant={"outlined"} onClick={_ => login()}>Login</Button>}
+                            : <Button variant={"outlined"} onClick={_ => login(context.settings.aws.cognitoLogin)}>Login</Button>}
                     <span className={classes.helpText}>
                         <p>
                             If your account is part of the "Developers" group, you will be granted access to create,
@@ -74,15 +73,6 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
             </Grid>
         </>
     );
-
-    function login() {
-        setLoginBranch();
-        window.location.href = context.settings.aws.cognitoLogin;
-    }
-
-    function logout() {
-        clearAccessToken();
-    }
 
     function saveSettings() {
         const fixedPartition = partition ? partition.trim() : "";

@@ -34,7 +34,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     context.setAllBookId(null);
 
-    const accessToken = getAccessToken(context.settings.aws.jwk.keys);
+    const accessToken = getAccessToken(context.settings.aws?.jwk?.keys);
 
     useEffect(() => {
         if (!accessToken) {
@@ -127,7 +127,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             }),
             context.settings.productEndpoint,
             context.partition,
-            getAccessToken(context.settings.aws.jwk.keys))
+            getAccessToken(context.settings.aws?.jwk?.keys))
             .then(_ => history('/index.html'))
             .catch(_ => {
                 setDisabled(false);
