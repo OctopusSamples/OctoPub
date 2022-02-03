@@ -21,8 +21,7 @@ export function getAccessToken(jwk: JWK[]) {
             } catch (err) {
                 return false;
             }
-        })
-        .find(j => j);
+        }).find(j => j);
         if (!anyValidate) {
             return "";
         }
