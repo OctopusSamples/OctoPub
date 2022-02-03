@@ -805,7 +805,10 @@ step "Deploy Lambda" {
                 			},
                 			"Environment": {
                 			  "Variables": {
-                				"DEFAULT_LAMBDA": {"Ref": "LambdaVersion#{Octopus.Deployment.Id | Replace -}"}
+                				"DEFAULT_LAMBDA": {"Ref": "LambdaVersion#{Octopus.Deployment.Id | Replace -}"},
+                                "COGNITO_REGION": {"Ref": "CognitoRegion"},
+                                "COGNITO_POOL": {"Ref": "CognitoPool"},
+                                "COGNITO_REQUIRED_GROUP": {"Ref": "CognitoRequiredGroup"}
                 			  }
                 			},
                 			"Description" : {"Fn::Sub": "${LambdaDescription} Proxy"},
