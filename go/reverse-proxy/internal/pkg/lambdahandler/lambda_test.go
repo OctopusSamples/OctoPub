@@ -52,6 +52,20 @@ func TestHandler(t *testing.T) {
 			request: events.APIGatewayProxyRequest{
 				Body: "My Request",
 				Headers: map[string]string{
+					"Accept":        "application/vnd.api+json,application/vnd.api+json; version[/post*:GET]=url[https://postman-echo.com]; version[/post*:POST]=path[/post*:GET]",
+					"Host":          "localhost",
+					"Authorization": accessToken,
+				},
+				Path:       "/post",
+				HTTPMethod: "POST",
+			},
+			expect: "My Request",
+			err:    nil,
+		},
+		{
+			request: events.APIGatewayProxyRequest{
+				Body: "My Request",
+				Headers: map[string]string{
 					"Accept":        "application/vnd.api+json,application/vnd.api+json; version[/put*:PUT]=url[https://postman-echo.com]",
 					"Host":          "localhost",
 					"Authorization": accessToken,
