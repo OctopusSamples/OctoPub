@@ -16,19 +16,19 @@ spec:
     spec:
       containers:
         - name: product-service
-          image: octopussamples/octopub-products:0.1.252
+          image: octopussamples/octopub-products:0.1.264
           ports:
             - name: web
               containerPort: 8083
           resources:
             limits:
               memory: 1024Mi
-              cpu: "500m"
+              cpu: 500m
             requests:
               memory: 512Mi
-              cpu: "250m"
+              cpu: 250m
           env:
             - name: MIGRATE_AT_START
-              value: !!str "true"
+              value: 'true'
             - name: AUDIT_SERVICE
-              value: "http://audit-service.audits-development"
+              value: http://audit-service.audits-development
