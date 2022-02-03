@@ -8,14 +8,18 @@ import com.octopus.octopub.domain.Constants;
 import com.octopus.octopub.domain.exceptions.EntityNotFound;
 import com.octopus.octopub.domain.entities.Audit;
 import com.octopus.octopub.domain.entities.Product;
+import com.octopus.octopub.domain.exceptions.Unauthorized;
+import com.octopus.octopub.domain.utilities.JwtUtils;
 import com.octopus.octopub.infrastructure.repositories.AuditRepository;
 import com.octopus.octopub.infrastructure.repositories.ProductRepository;
 import com.octopus.octopub.domain.utilities.PartitionIdentifier;
+import com.octopus.octopub.domain.utilities.JwtVerifier;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import lombok.NonNull;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
  * Handlers take the raw input from the upstream service, like Lambda or a web server, convert the
@@ -25,13 +29,27 @@ import lombok.NonNull;
 @ApplicationScoped
 public class ProductsHandler {
 
-  @Inject ProductRepository productRepository;
+  @Inject
+  @ConfigProperty(name = "cognito.editor-group")
+  String cognitoEditorGroup;
 
-  @Inject AuditRepository auditRepository;
+  @Inject
+  ProductRepository productRepository;
 
-  @Inject ResourceConverter resourceConverter;
+  @Inject
+  AuditRepository auditRepository;
 
-  @Inject PartitionIdentifier partitionIdentifier;
+  @Inject
+  ResourceConverter resourceConverter;
+
+  @Inject
+  PartitionIdentifier partitionIdentifier;
+
+  @Inject
+  JwtVerifier jwtVerifier;
+
+  @Inject
+  JwtUtils jwtUtils;
 
   /**
    * Returns all matching resources.
@@ -60,8 +78,19 @@ public class ProductsHandler {
    * @return The newly created resource
    * @throws DocumentSerializationException Thrown if the entity could not be converted to a JSONAPI resource.
    */
-  public String create(@NonNull final String document, @NonNull final List<String> acceptHeaders)
+  public String create(
+      @NonNull final String document,
+      @NonNull final List<String> acceptHeaders,
+      final String authorizationHeader)
       throws DocumentSerializationException {
+
+    if (!jwtUtils.getJwtFromAuthorizationHeader(authorizationHeader)
+        .map(jwt -> jwtVerifier.jwtContainsCognitoGroup(jwt, cognitoEditorGroup))
+        .orElse(false)) {
+      throw new Unauthorized();
+    }
+
+
     final Product product = getProductFromDocument(document);
 
     product.dataPartition = partitionIdentifier.getPartition(acceptHeaders);

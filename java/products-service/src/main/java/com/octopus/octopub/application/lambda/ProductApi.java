@@ -6,6 +6,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.octopus.octopub.application.Constants;
 import com.octopus.octopub.domain.exceptions.EntityNotFound;
 import com.octopus.octopub.domain.exceptions.InvalidInput;
+import com.octopus.octopub.domain.exceptions.Unauthorized;
 import com.octopus.octopub.domain.handlers.HealthHandler;
 import com.octopus.octopub.domain.handlers.ProductsHandler;
 import cz.jirutka.rsql.parser.RSQLParserException;
@@ -137,6 +138,8 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                         .findFirst()
                         .orElse(null))));
       }
+    } catch (final Unauthorized e) {
+      return Optional.of(buildUnauthorizedRequest(e));
     } catch (final RSQLParserException e) {
       return Optional.of(buildBadRequest(e));
     } catch (final Exception e) {
@@ -230,10 +233,17 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
                 productsHandler.create(
                     getBody(input),
                     getAllHeaders(
-                        input.getMultiValueHeaders(),
-                        input.getHeaders(),
-                        Constants.ACCEPT_HEADER))));
+                        input.getMultiValueHeaders(), input.getHeaders(), Constants.ACCEPT_HEADER),
+                    getAllHeaders(
+                            input.getMultiValueHeaders(),
+                            input.getHeaders(),
+                            Constants.AUTHORIZED_HEADER)
+                        .stream()
+                        .findFirst()
+                        .orElse(null))));
       }
+    } catch (final Unauthorized e) {
+      return Optional.of(buildUnauthorizedRequest(e));
     } catch (final InvalidInput e) {
       return Optional.of(buildBadRequest(e));
     } catch (final Exception e) {
@@ -503,5 +513,15 @@ public class ProductApi implements RequestHandler<APIGatewayProxyRequestEvent, P
   private ProxyResponse buildBadRequest(@NonNull final Exception ex) {
     return new ProxyResponse(
         "400", "{\"errors\": [{\"code\": \"" + ex.getClass().getCanonicalName() + "\"}]}");
+  }
+
+  /**
+   * Build an error object including the exception name. https://jsonapi.org/format/#error-objects
+   *
+   * @param ex The exception
+   * @return The ProxyResponse representing the error.
+   */
+  private ProxyResponse buildUnauthorizedRequest(@NonNull final Exception ex) {
+    return new ProxyResponse("403", "{\"errors\": [{\"title\": \"Unauthorized\"}]}");
   }
 }

@@ -7,6 +7,7 @@ public final class Constants {
   public static final String JSONAPI_CONTENT_TYPE = "application/vnd.api+json";
   public static final String JSON_CONTENT_TYPE = "application/json";
   public static final String ACCEPT_HEADER = "Accept";
+  public static final String AUTHORIZED_HEADER = "Authorized";
   public static final String FILTER_QUERY_PARAM = "filter";
   public static final String API_GATEWAY_API_KEY_HEADER = "X-API-Key";
   public static final String GET_METHOD = "get";
