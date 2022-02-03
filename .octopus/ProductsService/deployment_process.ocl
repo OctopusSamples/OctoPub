@@ -501,7 +501,10 @@ step "Deploy Lambda" {
                 					}
                 				  ]
                 				]
-                			  }
+                			  },
+                            "COGNITO_REGION": {"Ref": "CognitoRegion"},
+                            "COGNITO_POOL": {"Ref": "CognitoPool"},
+                            "COGNITO_EDITOR_GROUP": {"Ref": "CognitoRequiredGroup"}
                           }
                         },
                         "Description" : {"Ref": "LambdaDescription"},
