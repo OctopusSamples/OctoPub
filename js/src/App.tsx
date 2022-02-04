@@ -67,9 +67,9 @@ function App(config: DynamicConfig) {
             } else {
                 setRequireLogin(true)
             }
+        } else {
+            setRequireLogin(false);
         }
-
-        setRequireLogin(false);
     }, [keys, developerGroup]);
 
 
