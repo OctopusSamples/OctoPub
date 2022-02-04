@@ -70,7 +70,7 @@ function App(config: DynamicConfig) {
         } else {
             setRequireLogin(false);
         }
-    }, [keys, developerGroup, branch, accessToken]);
+    }, [developerGroup, branch, accessToken]);
 
 
     return (
