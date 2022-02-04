@@ -56,11 +56,11 @@ function App(config: DynamicConfig) {
 
     const keys = config.settings.aws?.jwk?.keys;
     const developerGroup = config.settings.aws?.cognitoDeveloperGroup;
+    const branch = getBranch();
+    const accessToken = getAccessToken(keys);
 
     useEffect(() => {
-        const branch = getBranch();
         if (branch !== DEFAULT_BRANCH) {
-            const accessToken = getAccessToken(keys);
             if (accessToken) {
                 const decoded: any = jwt_decode(accessToken);
                 setRequireLogin(decoded["cognito:groups"].indexOf(developerGroup) === -1);
@@ -70,7 +70,7 @@ function App(config: DynamicConfig) {
         } else {
             setRequireLogin(false);
         }
-    }, [keys, developerGroup]);
+    }, [keys, developerGroup, branch, accessToken]);
 
 
     return (
