@@ -30,18 +30,18 @@ const Login: FC<CommonProps> = (props: CommonProps): ReactElement => {
                 </title>
             </Helmet>
             <Grid container={true} className={classes.content}>
-                <Grid item md={4} sm={0}/>
-                <Grid item md={4} sm={12}>
+                <Grid item md={4} sm={0} xs={0}/>
+                <Grid item md={4} sm={12} xs={12}>
                     <p>
                         You must login to access this feature branch.
                     </p>
                 </Grid>
-                <Grid item md={4} sm={0}/>
-                <Grid item md={4} sm={0}/>
-                <Grid item md={4} sm={12}>
+                <Grid item md={4} sm={0} xs={0}/>
+                <Grid item md={4} sm={0} xs={0}/>
+                <Grid item md={4} sm={12} xs={12}>
                     <Button variant={"outlined"} onClick={_ => login(context.settings.aws.cognitoLogin)}>Login</Button>
                 </Grid>
-                <Grid item md={4} sm={0}/>
+                <Grid item md={4} sm={0} xs={0}/>
             </Grid>
 
         </>
