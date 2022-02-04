@@ -11,7 +11,9 @@ const useStyles = makeStyles((theme: Theme) =>
         content: {
             "& a": {
                 color: theme.palette.text.primary
-            }
+            },
+            backgroundColor: theme.palette.primary.main,
+            padding: "28px"
         }
     })
 );
