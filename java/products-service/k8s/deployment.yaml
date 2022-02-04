@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: product-service
-          image: octopussamples/octopub-products:0.1.266
+          image: octopussamples/octopub-products:0.1.269-mattc/google-auth
           ports:
             - name: web
               containerPort: 8083
