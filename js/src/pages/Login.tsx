@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme: Theme) =>
                 color: theme.palette.text.primary
             },
             backgroundColor: theme.palette.primary.main,
+            color: theme.palette.text.primary,
             padding: "28px"
         }
     })
