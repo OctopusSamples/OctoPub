@@ -67,7 +67,7 @@ const Header: FC<HeaderProps> = ({
     const classes = useStyles();
     const context = useContext(AppContext);
     const history = useNavigate();
-    const accessToken = getAccessToken(context.settings.aws?.jwk?.keys);
+    const accessTokenExists = !!getAccessToken();
     return (
         <AppBar
             position="relative"
@@ -84,21 +84,21 @@ const Header: FC<HeaderProps> = ({
                         </Typography>
                     </Link>
                 </div>
-                {context.allBookId && accessToken &&
+                {context.allBookId && accessTokenExists &&
                 <IconButton onClick={() => history('/deleteBook/' + context.allBookId)}>
                     <Tooltip title={"Delete"} placement={"bottom"}>
                         <Delete/>
                     </Tooltip>
                 </IconButton>
                 }
-                {context.allBookId && accessToken &&
+                {context.allBookId && accessTokenExists &&
                 <IconButton onClick={() => history('/updateBook/' + context.allBookId)}>
                     <Tooltip title={"Update"} placement={"bottom"}>
                         <Edit/>
                     </Tooltip>
                 </IconButton>
                 }
-                {accessToken &&
+                {accessTokenExists &&
                 <IconButton onClick={() => history('/addBook')}>
                     <Tooltip title={"Add Book"} placement={"bottom"}>
                         <AddCircleOutline/>

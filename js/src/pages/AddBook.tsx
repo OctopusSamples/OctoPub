@@ -34,15 +34,15 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     context.setAllBookId(null);
 
-    const accessToken = getAccessToken(context.settings.aws?.jwk?.keys);
+    const accessTokenExists = !!getAccessToken();
 
     useEffect(() => {
-        if (!accessToken) {
+        if (!accessTokenExists) {
             setError("The API key must be defined in the settings page.");
         } else {
             setDisabled(false);
         }
-    }, [setDisabled, setError, accessToken]);
+    }, [setDisabled, setError, accessTokenExists]);
 
     return (
         <>
@@ -127,7 +127,7 @@ const AddBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             }),
             context.settings.productEndpoint,
             context.partition,
-            getAccessToken(context.settings.aws?.jwk?.keys))
+            getAccessToken())
             .then(_ => history('/index.html'))
             .catch(_ => {
                 setDisabled(false);

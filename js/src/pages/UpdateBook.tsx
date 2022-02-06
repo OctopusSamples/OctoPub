@@ -21,7 +21,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     context.setAllBookId(null);
 
-    const accessToken = getAccessToken(context.settings.aws?.jwk?.keys);
+    const accessToken = getAccessToken();
 
     useEffect(() => {
         getJsonApi<Product|Errors>(context.settings.productEndpoint + "/" + bookId, context.partition, accessToken)
@@ -150,7 +150,7 @@ const UpdateBook: FC<CommonProps> = (props: CommonProps): ReactElement => {
             }),
             context.settings.productEndpoint + "/" + bookId,
             context.partition,
-            getAccessToken(context.settings.aws?.jwk?.keys))
+            getAccessToken())
             .then(_ => history('/index.html'))
             .catch(_ => {
                 setDisabled(false);

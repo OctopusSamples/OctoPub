@@ -37,7 +37,7 @@ const Book: FC<CommonProps> = (props: CommonProps): ReactElement => {
 
     const [book, setBook] = useState<Product | null>(null);
 
-    const accessToken = getAccessToken(context.settings.aws?.jwk?.keys);
+    const accessToken = getAccessToken();
 
     useEffect(() => {
         getJsonApi<Product>(context.settings.productEndpoint + "/" + bookId, context.partition, accessToken)

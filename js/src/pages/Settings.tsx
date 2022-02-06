@@ -14,7 +14,7 @@ const Settings: FC<CommonProps> = (props: CommonProps): ReactElement => {
     const history = useNavigate();
     const [partition, setPartition] = useState<string | null>(context.partition);
 
-    const accessToken = getAccessToken(context.settings.aws?.jwk?.keys);
+    const accessToken = getAccessToken();
 
     return (
         <>

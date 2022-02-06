@@ -15,7 +15,7 @@ import RouteItem from "./model/RouteItem.model";
 import {DynamicConfig} from "./config/dynamicConfig";
 import {routes} from "./config";
 import {DEFAULT_BRANCH, getBranch} from "./utils/path";
-import {getAccessToken} from "./utils/security";
+import {getIdToken} from "./utils/security";
 import Login from "./pages/Login";
 
 // define app context
@@ -57,12 +57,12 @@ function App(config: DynamicConfig) {
     const keys = config.settings.aws?.jwk?.keys;
     const developerGroup = config.settings.aws?.cognitoDeveloperGroup;
     const branch = getBranch();
-    const accessToken = getAccessToken(keys);
+    const idToken = getIdToken(keys);
 
     useEffect(() => {
         if (branch !== DEFAULT_BRANCH) {
-            if (accessToken) {
-                const decoded: any = jwt_decode(accessToken);
+            if (idToken) {
+                const decoded: any = jwt_decode(idToken);
                 setRequireLogin(decoded["cognito:groups"].indexOf(developerGroup) === -1);
             } else {
                 setRequireLogin(true)
@@ -70,7 +70,7 @@ function App(config: DynamicConfig) {
         } else {
             setRequireLogin(false);
         }
-    }, [developerGroup, branch, accessToken]);
+    }, [developerGroup, branch, idToken]);
 
 
     return (

@@ -7,7 +7,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {loadConfig} from "./dynamicConfig";
 import {clearLoginBranch, getBranchPath, getLoginBranch} from "./utils/path";
-import {setAccessToken} from "./utils/security";
+import {setAccessToken, setIdToken, setTokenExpiry} from "./utils/security";
 
 if (handleLogin()) {
     loadConfig().then((config) => {
@@ -47,10 +47,12 @@ function handleLogin() {
 
         const loginBranch = getLoginBranch();
         const accessToken = getHashField("access_token");
+        const idToken = getHashField("id_token");
+        const expiry = getHashField("expires_in");
 
         // Before we redirect to cognito, the login branch must be set. If not, ignore redirect.
         if (!loginBranch) {
-            if (!accessToken) {
+            if (!(accessToken && idToken && expiry)) {
                 return true;
             } else {
                 // There are values in the hash that will cause issues with routing, so go back to the root.
@@ -59,8 +61,10 @@ function handleLogin() {
             }
         }
 
-        if (accessToken) {
+        if (accessToken && idToken) {
             setAccessToken(accessToken);
+            setIdToken(idToken);
+            setTokenExpiry(expiry);
             window.location.href = getBranchPath(loginBranch);
             return false;
         }
