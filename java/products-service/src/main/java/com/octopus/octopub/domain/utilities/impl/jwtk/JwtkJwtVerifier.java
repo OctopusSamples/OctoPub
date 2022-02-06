@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import lombok.NonNull;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 

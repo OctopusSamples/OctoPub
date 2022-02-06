@@ -1,6 +1,5 @@
 package com.octopus.octopub.domain.entities;
 
-import com.github.jasminb.jsonapi.StringIdHandler;
 import com.github.jasminb.jsonapi.annotations.Id;
 import com.github.jasminb.jsonapi.annotations.Type;
 import lombok.Builder;

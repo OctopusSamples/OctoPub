@@ -2,7 +2,6 @@ package com.octopus.octopub.domain.framework.providers;
 
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import com.octopus.octopub.GlobalConstants;
-import com.octopus.octopub.domain.Constants;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
