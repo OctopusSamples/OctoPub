@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: randomquotes
-          image: octopussamples/octopub-frontend:0.1.205-mattc-google-auth
+          image: octopussamples/octopub-frontend:0.1.206-mattc-google-auth
           volumeMounts:
             - name: config-volume
               mountPath: /workspace/build/config.json
