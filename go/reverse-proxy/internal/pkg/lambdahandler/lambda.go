@@ -219,6 +219,8 @@ func authorizeRouting(req events.APIGatewayProxyRequest) bool {
 		}
 	}
 
+	log.Println("ReverseProxy-Jwt-MissingGroup The JWT did not include the group " + requiredGroup +
+		". Routing will not be performed.")
 	return false
 }
 
