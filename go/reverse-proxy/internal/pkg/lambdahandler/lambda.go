@@ -207,6 +207,7 @@ func authorizeRouting(req events.APIGatewayProxyRequest) bool {
 		"https://cognito-idp."+region+".amazonaws.com/"+pool+"/.well-known/jwks.json")
 
 	if tokenError != nil || !token.Valid {
+		log.Println("ReverseProxy-Jwt-ValidationError " + tokenError.Error())
 		return false
 	}
 
