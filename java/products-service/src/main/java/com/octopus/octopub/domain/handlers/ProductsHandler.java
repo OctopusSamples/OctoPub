@@ -12,6 +12,7 @@ import com.octopus.octopub.domain.exceptions.Unauthorized;
 import com.octopus.octopub.domain.utilities.JwtUtils;
 import com.octopus.octopub.domain.utilities.JwtVerifier;
 import com.octopus.octopub.domain.utilities.PartitionIdentifier;
+import com.octopus.octopub.domain.utilities.impl.JoseJwtVerifier;
 import com.octopus.octopub.infrastructure.repositories.AuditRepository;
 import com.octopus.octopub.infrastructure.repositories.ProductRepository;
 import java.nio.charset.StandardCharsets;
@@ -48,7 +49,7 @@ public class ProductsHandler {
   PartitionIdentifier partitionIdentifier;
 
   @Inject
-  JwtVerifier jwtVerifier;
+  JoseJwtVerifier jwtVerifier;
 
   @Inject
   JwtUtils jwtUtils;
