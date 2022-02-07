@@ -160,6 +160,10 @@
       <groupId>io.quarkus</groupId>
     </dependency>
     <dependency>
+      <artifactId>quarkus-core-deployment</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+    <dependency>
       <artifactId>commons-lang3</artifactId>
       <groupId>org.apache.commons</groupId>
       <version>3.12.0</version>
