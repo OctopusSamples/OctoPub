@@ -181,16 +181,19 @@ func authorizeRouting(req events.APIGatewayProxyRequest) bool {
 
 	authentication, authErr := getHeader(req.Headers, req.MultiValueHeaders, "Authorization")
 	if authErr != nil {
+		log.Println("ReverseProxy-Jwt-InvalidHeader No authorization header found")
 		return false
 	}
 
 	// We expect a header like "Bearer: tokengoeshere"
 	splitHeader := strings.Split(authentication, ":")
 	if len(splitHeader) != 2 {
+		log.Println("ReverseProxy-Jwt-InvalidHeader No bearer token found in authorization header")
 		return false
 	}
 
 	if strings.TrimSpace(splitHeader[0]) != "Bearer" {
+		log.Println("ReverseProxy-Jwt-InvalidHeader No bearer token found in authorization header")
 		return false
 	}
 
