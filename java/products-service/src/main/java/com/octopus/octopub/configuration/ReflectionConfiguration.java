@@ -3,6 +3,7 @@ package com.octopus.octopub.configuration;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.builditem.nativeimage.ServiceProviderBuildItem;
 import io.quarkus.deployment.util.ServiceUtil;
+import io.quarkus.logging.Log;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.quarkus.deployment.annotations.BuildStep;
 import java.io.IOException;
@@ -29,6 +30,8 @@ public class ReflectionConfiguration {
     final Set<String> implementations =
         ServiceUtil.classNamesNamedIn(Thread.currentThread().getContextClassLoader(),
             service);
+
+    Log.debug("Registering CompressionCodec implementations: " + implementations);
 
     // register every listed implementation class so they can be instantiated
     // in native-image at run-time
