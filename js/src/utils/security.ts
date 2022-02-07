@@ -1,4 +1,4 @@
-import {getBranch, getLoginBranch, setLoginBranch} from "./path";
+import {clearLoginBranch, getBranch, getBranchPath, getHashField, getLoginBranch, setLoginBranch} from "./path";
 import jwt from 'jsonwebtoken';
 import jwkToPem, {JWK} from 'jwk-to-pem';
 
@@ -85,4 +85,52 @@ function isTokenExpired() {
     }
 
     return false;
+}
+
+/**
+ * Deal with a redirection from Cognito, handing a second redirect to the original feature branch
+ * that initiated the login.
+ * @return true if the app should continue loading normally, false if we're redirecting away from this page
+ */
+export function handleLogin() {
+    try {
+        /*
+         In the event of a login error, clear the hash and open the main page.
+         Without this, the React router may try to match the hash, which won't work.
+         */
+        const error = getHashField("error");
+
+        if (error) {
+            window.location.href = "/";
+            return false;
+        }
+
+        const loginBranch = getLoginBranch();
+        const accessToken = getHashField("access_token");
+        const idToken = getHashField("id_token");
+        const expiry = getHashField("expires_in");
+
+        // Before we redirect to cognito, the login branch must be set. If not, ignore redirect.
+        if (!loginBranch) {
+            if (!(accessToken && idToken && expiry)) {
+                return true;
+            } else {
+                // There are values in the hash that will cause issues with routing, so go back to the root.
+                window.location.href = "/";
+                return false;
+            }
+        }
+
+        if (accessToken && idToken && expiry) {
+            setAccessToken(accessToken);
+            setIdToken(idToken);
+            setTokenExpiry(expiry);
+            window.location.href = getBranchPath(loginBranch);
+            return false;
+        }
+
+        return true;
+    } finally {
+        clearLoginBranch();
+    }
 }

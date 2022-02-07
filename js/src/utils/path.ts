@@ -1,5 +1,24 @@
 export const DEFAULT_BRANCH = "main";
 
+export function getHashField(field: string) {
+    // The returned hash from Cognito splits id and access tokens with ampersand
+    return window.location.hash
+        // drop the leading hash
+        .replace("#", "")
+        // split on ampersands
+        .split("&")
+        // The access token starts with this string
+        .filter(h => h.startsWith(field))
+        // The tokens are name=value
+        .map(h => h.split("="))
+        // sanity check to make sure we have 2 values
+        .filter(h => h.length === 2)
+        // get the value
+        .map(h => h.pop())
+        // there should only be one element
+        .pop();
+}
+
 /**
  * Get the path from which to load the config.json file.
  */
