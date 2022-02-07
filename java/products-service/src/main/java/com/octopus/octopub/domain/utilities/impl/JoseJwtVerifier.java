@@ -65,7 +65,7 @@ public class JoseJwtVerifier implements JwtVerifier {
         }
       }
     } catch (final IOException | ParseException | JOSEException e) {
-      Log.error(GlobalConstants.MICROSERVICE_NAME + "-Jwt-ValidationError Failed to parse JWT", e);
+      Log.error(GlobalConstants.MICROSERVICE_NAME + "-Jwt-ValidationError", e);
     }
 
     return false;
