@@ -199,6 +199,7 @@ func authorizeRouting(req events.APIGatewayProxyRequest) bool {
 	requiredGroup, requiredGroupOk := os.LookupEnv("COGNITO_REQUIRED_GROUP")
 
 	if !regionOk || !poolOk || !requiredGroupOk {
+		log.Println("ReverseProxy-Jwt-InvalidConfig The environment variables COGNITO_REGION, COGNITO_POOL, and COGNITO_REQUIRED_GROUP must be defined")
 		return false
 	}
 
